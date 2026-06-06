@@ -14,6 +14,7 @@ import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as IndexRouteImport } from './routes/index'
@@ -43,6 +44,11 @@ const FornecedoresRoute = FornecedoresRouteImport.update({
   path: '/fornecedores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EstadoEncomendasRoute = EstadoEncomendasRouteImport.update({
+  id: '/estado-encomendas',
+  path: '/estado-encomendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EncomendasRoute = EncomendasRouteImport.update({
   id: '/encomendas',
   path: '/encomendas',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
+  '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
+  '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
+  '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clientes'
     | '/encomendas'
+    | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/projeto-personalizado'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clientes'
     | '/encomendas'
+    | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/projeto-personalizado'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clientes'
     | '/encomendas'
+    | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/projeto-personalizado'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientesRoute: typeof ClientesRoute
   EncomendasRoute: typeof EncomendasRoute
+  EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FornecedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/estado-encomendas': {
+      id: '/estado-encomendas'
+      path: '/estado-encomendas'
+      fullPath: '/estado-encomendas'
+      preLoaderRoute: typeof EstadoEncomendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/encomendas': {
       id: '/encomendas'
       path: '/encomendas'
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientesRoute: ClientesRoute,
   EncomendasRoute: EncomendasRoute,
+  EstadoEncomendasRoute: EstadoEncomendasRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
