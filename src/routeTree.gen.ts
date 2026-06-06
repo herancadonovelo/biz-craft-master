@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
+import { Route as HorasRouteImport } from './routes/horas'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
@@ -32,6 +33,11 @@ const ProjetosRoute = ProjetosRouteImport.update({
 const ProjetoPersonalizadoRoute = ProjetoPersonalizadoRouteImport.update({
   id: '/projeto-personalizado',
   path: '/projeto-personalizado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorasRoute = HorasRouteImport.update({
+  id: '/horas',
+  path: '/horas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/horas': typeof HorasRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/horas': typeof HorasRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/horas': typeof HorasRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/horas'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/horas'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/horas'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
+  HorasRoute: typeof HorasRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   StockRoute: typeof StockRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/projeto-personalizado'
       fullPath: '/projeto-personalizado'
       preLoaderRoute: typeof ProjetoPersonalizadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horas': {
+      id: '/horas'
+      path: '/horas'
+      fullPath: '/horas'
+      preLoaderRoute: typeof HorasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gestao-fornecedores': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
+  HorasRoute: HorasRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   StockRoute: StockRoute,
