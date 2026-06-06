@@ -22,6 +22,7 @@ import { Route as FaturacaoRouteImport } from './routes/faturacao'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as DesignRouteImport } from './routes/design'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CashflowRouteImport } from './routes/cashflow'
@@ -93,6 +94,11 @@ const DespesasRoute = DespesasRouteImport.update({
   path: '/despesas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignRoute = DesignRouteImport.update({
+  id: '/design',
+  path: '/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrescimentoRoute = CrescimentoRouteImport.update({
   id: '/crescimento',
   path: '/crescimento',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
+  '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
+  '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
+  '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
+    | '/design'
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
+    | '/design'
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
+    | '/design'
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   CashflowRoute: typeof CashflowRoute
   ClientesRoute: typeof ClientesRoute
   CrescimentoRoute: typeof CrescimentoRoute
+  DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DespesasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design': {
+      id: '/design'
+      path: '/design'
+      fullPath: '/design'
+      preLoaderRoute: typeof DesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crescimento': {
       id: '/crescimento'
       path: '/crescimento'
@@ -401,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   CashflowRoute: CashflowRoute,
   ClientesRoute: ClientesRoute,
   CrescimentoRoute: CrescimentoRoute,
+  DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
