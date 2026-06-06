@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as IndexRouteImport } from './routes/index'
 
+const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
+  id: '/gestao-fornecedores',
+  path: '/gestao-fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FornecedoresRoute = FornecedoresRouteImport.update({
   id: '/fornecedores',
   path: '/fornecedores',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/gestao-fornecedores': typeof GestaoFornecedoresRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/gestao-fornecedores': typeof GestaoFornecedoresRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/gestao-fornecedores': typeof GestaoFornecedoresRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/clientes' | '/fornecedores'
+  fullPaths: '/' | '/clientes' | '/fornecedores' | '/gestao-fornecedores'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clientes' | '/fornecedores'
-  id: '__root__' | '/' | '/clientes' | '/fornecedores'
+  to: '/' | '/clientes' | '/fornecedores' | '/gestao-fornecedores'
+  id: '__root__' | '/' | '/clientes' | '/fornecedores' | '/gestao-fornecedores'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientesRoute: typeof ClientesRoute
   FornecedoresRoute: typeof FornecedoresRoute
+  GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gestao-fornecedores': {
+      id: '/gestao-fornecedores'
+      path: '/gestao-fornecedores'
+      fullPath: '/gestao-fornecedores'
+      preLoaderRoute: typeof GestaoFornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fornecedores': {
       id: '/fornecedores'
       path: '/fornecedores'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientesRoute: ClientesRoute,
   FornecedoresRoute: FornecedoresRoute,
+  GestaoFornecedoresRoute: GestaoFornecedoresRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
