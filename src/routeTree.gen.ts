@@ -17,6 +17,7 @@ import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-forneced
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
+import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as IndexRouteImport } from './routes/index'
@@ -61,6 +62,11 @@ const EncomendasRoute = EncomendasRouteImport.update({
   path: '/encomendas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DespesasRoute = DespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientesRoute = ClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cashflow'
     | '/clientes'
+    | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
     | '/fornecedores'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cashflow'
     | '/clientes'
+    | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
     | '/fornecedores'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cashflow'
     | '/clientes'
+    | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
     | '/fornecedores'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CashflowRoute: typeof CashflowRoute
   ClientesRoute: typeof ClientesRoute
+  DespesasRoute: typeof DespesasRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   FornecedoresRoute: typeof FornecedoresRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EncomendasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/despesas': {
+      id: '/despesas'
+      path: '/despesas'
+      fullPath: '/despesas'
+      preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clientes': {
       id: '/clientes'
       path: '/clientes'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CashflowRoute: CashflowRoute,
   ClientesRoute: ClientesRoute,
+  DespesasRoute: DespesasRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   FornecedoresRoute: FornecedoresRoute,
