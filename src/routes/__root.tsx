@@ -11,6 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { useStore } from "@/lib/store";
 
 function NotFoundComponent() {
   return (
@@ -115,11 +119,35 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const design = useStore((s) => s.design);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("dark", design.modo === "dark");
+    root.style.setProperty("--accent", `oklch(${design.accent})`);
+    root.style.setProperty("--sidebar-primary", `oklch(${design.accent})`);
+    root.style.setProperty("--radius", `${design.raio}rem`);
+  }, [design]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <AppSidebar />
+          <div className="flex flex-1 flex-col">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
+              <SidebarTrigger />
+              <span className="font-display text-sm font-medium text-muted-foreground">
+                {design.nomeNegocio} · painel de gestão
+              </span>
+            </header>
+            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+              <Outlet />
+            </main>
+          </div>
+        </div>
+        <Toaster richColors position="top-right" />
+      </SidebarProvider>
     </QueryClientProvider>
   );
 }
