@@ -18,6 +18,7 @@ import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as ClientesRouteImport } from './routes/clientes'
+import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StockRoute = StockRouteImport.update({
@@ -65,6 +66,11 @@ const ClientesRoute = ClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CashflowRoute = CashflowRouteImport.update({
+  id: '/cashflow',
+  path: '/cashflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cashflow'
     | '/clientes'
     | '/encomendas'
     | '/estado-encomendas'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cashflow'
     | '/clientes'
     | '/encomendas'
     | '/estado-encomendas'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/cashflow'
     | '/clientes'
     | '/encomendas'
     | '/estado-encomendas'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CashflowRoute: typeof CashflowRoute
   ClientesRoute: typeof ClientesRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cashflow': {
+      id: '/cashflow'
+      path: '/cashflow'
+      fullPath: '/cashflow'
+      preLoaderRoute: typeof CashflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CashflowRoute: CashflowRoute,
   ClientesRoute: ClientesRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
