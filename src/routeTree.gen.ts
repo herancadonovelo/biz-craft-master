@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StockRouteImport } from './routes/stock'
+import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as ClientesRouteImport } from './routes/clientes'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const StockRoute = StockRouteImport.update({
   id: '/stock',
   path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetosRoute = ProjetosRouteImport.update({
+  id: '/projetos',
+  path: '/projetos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
 }
 export interface FileRoutesById {
@@ -61,6 +69,7 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
 }
 export interface FileRouteTypes {
@@ -70,15 +79,23 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/projetos'
     | '/stock'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clientes' | '/fornecedores' | '/gestao-fornecedores' | '/stock'
+  to:
+    | '/'
+    | '/clientes'
+    | '/fornecedores'
+    | '/gestao-fornecedores'
+    | '/projetos'
+    | '/stock'
   id:
     | '__root__'
     | '/'
     | '/clientes'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/projetos'
     | '/stock'
   fileRoutesById: FileRoutesById
 }
@@ -87,6 +104,7 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
+  ProjetosRoute: typeof ProjetosRoute
   StockRoute: typeof StockRoute
 }
 
@@ -97,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/stock'
       fullPath: '/stock'
       preLoaderRoute: typeof StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projetos': {
+      id: '/projetos'
+      path: '/projetos'
+      fullPath: '/projetos'
+      preLoaderRoute: typeof ProjetosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gestao-fornecedores': {
@@ -135,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
+  ProjetosRoute: ProjetosRoute,
   StockRoute: StockRoute,
 }
 export const routeTree = rootRouteImport
