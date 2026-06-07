@@ -26,6 +26,7 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CashflowRouteImport } from './routes/cashflow'
+import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -114,6 +115,11 @@ const CashflowRoute = CashflowRouteImport.update({
   path: '/cashflow',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalculadoraRoute = CalculadoraRouteImport.update({
+  id: '/calculadora',
+  path: '/calculadora',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssistenteRoute = AssistenteRouteImport.update({
   id: '/assistente',
   path: '/assistente',
@@ -128,6 +134,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
   '/crescimento': typeof CrescimentoRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistente'
+    | '/calculadora'
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistente'
+    | '/calculadora'
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assistente'
+    | '/calculadora'
     | '/cashflow'
     | '/clientes'
     | '/crescimento'
@@ -258,6 +270,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistenteRoute: typeof AssistenteRoute
+  CalculadoraRoute: typeof CalculadoraRoute
   CashflowRoute: typeof CashflowRoute
   ClientesRoute: typeof ClientesRoute
   CrescimentoRoute: typeof CrescimentoRoute
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CashflowRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calculadora': {
+      id: '/calculadora'
+      path: '/calculadora'
+      fullPath: '/calculadora'
+      preLoaderRoute: typeof CalculadoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assistente': {
       id: '/assistente'
       path: '/assistente'
@@ -418,6 +438,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistenteRoute: AssistenteRoute,
+  CalculadoraRoute: CalculadoraRoute,
   CashflowRoute: CashflowRoute,
   ClientesRoute: ClientesRoute,
   CrescimentoRoute: CrescimentoRoute,
@@ -439,3 +460,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
