@@ -124,6 +124,21 @@ export interface MovimentoCaixa {
   data: string;
 }
 
+export interface Cotacao {
+  id: ID;
+  projetoId: ID;
+  materiais: MaterialUsado[];
+  horas: number;
+  precoHora: number;
+  extras: number;
+  margem: number; // percentagem (ex: 70)
+  custoMateriais: number;
+  custoHoras: number;
+  base: number;
+  precoFinal: number;
+  criadoEm: string;
+}
+
 export interface DesignSettings {
   modo: "light" | "dark";
   accent: string; // oklch string
@@ -146,6 +161,7 @@ interface State {
   todos: Todo[];
   campanhas: CampanhaMarketing[];
   caixa: MovimentoCaixa[];
+  cotacoes: Cotacao[];
   design: DesignSettings;
 
   // generic helpers
@@ -168,11 +184,12 @@ type CollectionMap = {
   todos: Todo;
   campanhas: CampanhaMarketing;
   caixa: MovimentoCaixa;
+  cotacoes: Cotacao;
 };
 
 const seed = (): Pick<
   State,
-  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "design"
+  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "cotacoes" | "design"
 > => {
   const f1 = { id: uid(), nome: "Lãs do Norte", contacto: "+351 220 000 000", email: "vendas@lasdonorte.pt" };
   const f2 = { id: uid(), nome: "Tecidos Lisboa", contacto: "+351 210 111 222", email: "geral@tecidoslisboa.pt" };
@@ -257,6 +274,7 @@ const seed = (): Pick<
       { id: uid(), tipo: "saida", categoria: "Material", descricao: "Compra lã merino", valor: 54, data: new Date().toISOString().slice(0, 10) },
       { id: uid(), tipo: "saida", categoria: "Renda", descricao: "Renda atelier", valor: 250, data: new Date().toISOString().slice(0, 10) },
     ],
+    cotacoes: [],
     design: {
       modo: "light",
       accent: "0.72 0.06 230",
