@@ -130,6 +130,7 @@ export interface DesignSettings {
   raio: number; // rem
   densidade: "compacta" | "confortavel";
   nomeNegocio: string;
+  precoHoraBase: number; // €/h base hourly rate
 }
 
 interface State {
