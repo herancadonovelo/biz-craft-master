@@ -263,6 +263,7 @@ const seed = (): Pick<
       raio: 0.625,
       densidade: "confortavel",
       nomeNegocio: "Atelier Tricotin",
+      precoHoraBase: 12,
     },
   };
 };
