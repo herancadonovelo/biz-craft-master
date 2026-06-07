@@ -19,6 +19,7 @@ import {
   ClipboardList,
   PiggyBank,
   Palette,
+  Calculator,
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,6 +51,7 @@ const groups = [
       { title: "Estado encomendas", url: "/estado-encomendas", icon: ClipboardList },
       { title: "Projetos", url: "/projetos", icon: FolderPlus },
       { title: "Projeto personalizado", url: "/projeto-personalizado", icon: Wand2 },
+      { title: "Calculadora de preço", url: "/calculadora", icon: Calculator },
       { title: "Registo de horas", url: "/horas", icon: Clock },
       { title: "To-do list", url: "/todo", icon: ListChecks },
     ],

@@ -28,6 +28,12 @@ export const Route = createFileRoute("/design")({
             <CardContent className="space-y-3">
               <div><Label>Nome do negócio</Label><Input value={design.nomeNegocio} onChange={(e) => setDesign({ nomeNegocio: e.target.value })} /></div>
               <div>
+                <Label>Preço-hora base (€)</Label>
+                <Input type="number" min={0} step={0.5} value={design.precoHoraBase}
+                  onChange={(e) => setDesign({ precoHoraBase: Number(e.target.value) || 0 })} />
+                <p className="mt-1 text-xs text-muted-foreground">Usado por defeito em novos projetos e na calculadora.</p>
+              </div>
+              <div>
                 <Label>Modo</Label>
                 <div className="mt-1 flex gap-2">
                   <Button variant={design.modo === "light" ? "default" : "outline"} onClick={() => setDesign({ modo: "light" })}>Claro</Button>
