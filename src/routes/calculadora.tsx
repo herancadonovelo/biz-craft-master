@@ -16,7 +16,7 @@ type Linha = { id: string; materialId: string; quantidade: number };
 export const Route = createFileRoute("/calculadora")({
   head: () => ({ meta: [{ title: "Calculadora de preço" }] }),
   component: () => {
-    const { materiais, design, projetos, cotacoes, add } = useStore();
+    const { materiais, design, projetos, cotacoes, add: addEntity } = useStore();
     const [projetoId, setProjetoId] = useState<string>(projetos[0]?.id ?? "");
     const [linhas, setLinhas] = useState<Linha[]>([]);
     const [horas, setHoras] = useState(4);
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/calculadora")({
       if (materiaisValidos.length === 0) return;
       if (timer.current) window.clearTimeout(timer.current);
       timer.current = window.setTimeout(() => {
-        add("cotacoes", {
+        addEntity("cotacoes", {
           projetoId,
           materiais: materiaisValidos.map((l) => ({ materialId: l.materialId, quantidade: l.quantidade })),
           horas,
@@ -66,7 +66,7 @@ export const Route = createFileRoute("/calculadora")({
 
     const cotacoesProjeto = cotacoes.filter((c) => c.projetoId === projetoId).slice(-5).reverse();
 
-    const add = () => setLinhas((l) => [...l, { id: Math.random().toString(36).slice(2), materialId: materiais[0]?.id ?? "", quantidade: 1 }]);
+    const addLinha = () => setLinhas((l) => [...l, { id: Math.random().toString(36).slice(2), materialId: materiais[0]?.id ?? "", quantidade: 1 }]);
     const upd = (id: string, p: Partial<Linha>) => setLinhas((l) => l.map((x) => x.id === id ? { ...x, ...p } : x));
     const rm = (id: string) => setLinhas((l) => l.filter((x) => x.id !== id));
 
@@ -115,7 +115,7 @@ export const Route = createFileRoute("/calculadora")({
                   </div>
                 );
               })}
-              <Button variant="outline" onClick={add} disabled={materiais.length === 0}>
+              <Button variant="outline" onClick={addLinha} disabled={materiais.length === 0}>
                 <Plus className="mr-1 h-4 w-4" />Adicionar material
               </Button>
               {materiais.length === 0 && <p className="text-sm text-muted-foreground">Adiciona materiais em Stock primeiro.</p>}
