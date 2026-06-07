@@ -274,6 +274,7 @@ const seed = (): Pick<
       { id: uid(), tipo: "saida", categoria: "Material", descricao: "Compra lã merino", valor: 54, data: new Date().toISOString().slice(0, 10) },
       { id: uid(), tipo: "saida", categoria: "Renda", descricao: "Renda atelier", valor: 250, data: new Date().toISOString().slice(0, 10) },
     ],
+    cotacoes: [],
     design: {
       modo: "light",
       accent: "0.72 0.06 230",
