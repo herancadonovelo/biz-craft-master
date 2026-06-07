@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore, formatEUR } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,19 +9,21 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Calculator as CalcIcon } from "lucide-react";
+import { Plus, Trash2, Calculator as CalcIcon, Check } from "lucide-react";
 
 type Linha = { id: string; materialId: string; quantidade: number };
 
 export const Route = createFileRoute("/calculadora")({
   head: () => ({ meta: [{ title: "Calculadora de preço" }] }),
   component: () => {
-    const { materiais, design } = useStore();
+    const { materiais, design, projetos, cotacoes, add } = useStore();
+    const [projetoId, setProjetoId] = useState<string>(projetos[0]?.id ?? "");
     const [linhas, setLinhas] = useState<Linha[]>([]);
     const [horas, setHoras] = useState(4);
     const [precoHora, setPrecoHora] = useState(design.precoHoraBase);
     const [margem, setMargem] = useState(70);
     const [extras, setExtras] = useState(0);
+    const [savedAt, setSavedAt] = useState<string | null>(null);
 
     const custoMat = useMemo(
       () => linhas.reduce((s, l) => {
@@ -35,6 +37,35 @@ export const Route = createFileRoute("/calculadora")({
     const precoFinal = base * (1 + margem / 100);
     const lucro = precoFinal - base;
 
+    // Auto-save como cotação (debounce 800ms) sempre que há projeto + materiais
+    const timer = useRef<number | null>(null);
+    useEffect(() => {
+      if (!projetoId) return;
+      const materiaisValidos = linhas.filter((l) => l.materialId && l.quantidade > 0);
+      if (materiaisValidos.length === 0) return;
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        add("cotacoes", {
+          projetoId,
+          materiais: materiaisValidos.map((l) => ({ materialId: l.materialId, quantidade: l.quantidade })),
+          horas,
+          precoHora,
+          extras,
+          margem,
+          custoMateriais: custoMat,
+          custoHoras,
+          base,
+          precoFinal,
+          criadoEm: new Date().toISOString(),
+        });
+        setSavedAt(new Date().toLocaleTimeString("pt-PT"));
+      }, 800);
+      return () => { if (timer.current) window.clearTimeout(timer.current); };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [projetoId, linhas, horas, precoHora, extras, margem]);
+
+    const cotacoesProjeto = cotacoes.filter((c) => c.projetoId === projetoId).slice(-5).reverse();
+
     const add = () => setLinhas((l) => [...l, { id: Math.random().toString(36).slice(2), materialId: materiais[0]?.id ?? "", quantidade: 1 }]);
     const upd = (id: string, p: Partial<Linha>) => setLinhas((l) => l.map((x) => x.id === id ? { ...x, ...p } : x));
     const rm = (id: string) => setLinhas((l) => l.filter((x) => x.id !== id));
@@ -44,8 +75,20 @@ export const Route = createFileRoute("/calculadora")({
         <PageHeader title="Calculadora de preço" description="Calcula o preço final de uma peça: materiais + horas + margem." />
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
-            <CardHeader><CardTitle className="font-display">Materiais</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="font-display">Materiais</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-3">
+              <div>
+                <Label>Projeto associado</Label>
+                <Select value={projetoId} onValueChange={setProjetoId}>
+                  <SelectTrigger><SelectValue placeholder="Escolher projeto…" /></SelectTrigger>
+                  <SelectContent>
+                    {projetos.map((p) => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {projetos.length === 0 && <p className="mt-1 text-xs text-muted-foreground">Cria um projeto primeiro para guardar cotações.</p>}
+              </div>
               {linhas.map((l) => {
                 const m = materiais.find((x) => x.id === l.materialId);
                 return (
@@ -115,6 +158,24 @@ export const Route = createFileRoute("/calculadora")({
                 <Badge className="text-base font-display">{formatEUR(precoFinal)}</Badge>
               </div>
               <p className="pt-2 text-xs text-muted-foreground">Fórmula: (Materiais + Horas × €/h + Extras) × (1 + margem).</p>
+              {savedAt && projetoId && (
+                <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                  <Check className="h-3 w-3" /> Cotação guardada às {savedAt}
+                </p>
+              )}
+              {cotacoesProjeto.length > 0 && (
+                <div className="pt-3">
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Últimas cotações</p>
+                  <ul className="space-y-1">
+                    {cotacoesProjeto.map((c) => (
+                      <li key={c.id} className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{new Date(c.criadoEm).toLocaleString("pt-PT")}</span>
+                        <span className="font-display">{formatEUR(c.precoFinal)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
