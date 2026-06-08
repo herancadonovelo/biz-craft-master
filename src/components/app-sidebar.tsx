@@ -20,6 +20,13 @@ import {
   PiggyBank,
   Palette,
   Calculator,
+  Lock,
+  Image as ImageIcon,
+  GraduationCap,
+  Instagram,
+  Calendar,
+  Languages,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,56 +41,64 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useStore } from "@/lib/store";
+import { useT } from "@/lib/i18n";
 
-const groups = [
+const getGroups = (t: (k: string) => string) => [
   {
-    label: "Visão geral",
+    label: t("nav.overview"),
     items: [
-      { title: "Dashboard", url: "/", icon: LayoutDashboard },
-      { title: "Assistente IA", url: "/assistente", icon: Sparkles },
-      { title: "Crescimento", url: "/crescimento", icon: TrendingUp },
+      { title: t("nav.dashboard"), url: "/", icon: LayoutDashboard },
+      { title: t("nav.assistant"), url: "/assistente", icon: Sparkles },
+      { title: t("nav.growth"), url: "/crescimento", icon: TrendingUp },
+      { title: t("nav.calendar"), url: "/calendario", icon: Calendar },
     ],
   },
   {
-    label: "Operação",
+    label: t("nav.operation"),
     items: [
-      { title: "Encomendas", url: "/encomendas", icon: ShoppingBag },
-      { title: "Estado encomendas", url: "/estado-encomendas", icon: ClipboardList },
-      { title: "Projetos", url: "/projetos", icon: FolderPlus },
-      { title: "Projeto personalizado", url: "/projeto-personalizado", icon: Wand2 },
-      { title: "Calculadora de preço", url: "/calculadora", icon: Calculator },
-      { title: "Registo de horas", url: "/horas", icon: Clock },
-      { title: "To-do list", url: "/todo", icon: ListChecks },
+      { title: t("nav.orders"), url: "/encomendas", icon: ShoppingBag },
+      { title: t("nav.ordersStatus"), url: "/estado-encomendas", icon: ClipboardList },
+      { title: t("nav.projects"), url: "/projetos", icon: FolderPlus },
+      { title: t("nav.customProject"), url: "/projeto-personalizado", icon: Wand2 },
+      { title: t("nav.calculator"), url: "/calculadora", icon: Calculator },
+      { title: t("nav.hours"), url: "/horas", icon: Clock },
+      { title: t("nav.todo"), url: "/todo", icon: ListChecks },
+      { title: t("nav.portfolio"), url: "/portfolio", icon: ImageIcon },
     ],
   },
   {
-    label: "Inventário",
+    label: t("nav.inventory"),
     items: [
-      { title: "Stock de material", url: "/stock", icon: Package },
-      { title: "Fornecedores", url: "/fornecedores", icon: Truck },
+      { title: t("nav.stock"), url: "/stock", icon: Package },
+      { title: t("nav.suppliers"), url: "/fornecedores", icon: Truck },
     ],
   },
   {
-    label: "Comercial",
+    label: t("nav.commercial"),
     items: [
-      { title: "Clientes", url: "/clientes", icon: Users },
-      { title: "Vendas concluídas", url: "/vendas", icon: CheckCircle2 },
-      { title: "Faturação", url: "/faturacao", icon: Receipt },
-      { title: "Marketing & vendas", url: "/marketing", icon: Megaphone },
+      { title: t("nav.clients"), url: "/clientes", icon: Users },
+      { title: t("nav.courses"), url: "/cursos", icon: GraduationCap },
+      { title: t("nav.sales"), url: "/vendas", icon: CheckCircle2 },
+      { title: t("nav.billing"), url: "/faturacao", icon: Receipt },
+      { title: t("nav.marketing"), url: "/marketing", icon: Megaphone },
+      { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
     ],
   },
   {
-    label: "Financeiro",
+    label: t("nav.financial"),
     items: [
-      { title: "Cash flow", url: "/cashflow", icon: Wallet },
-      { title: "Despesas fixas", url: "/despesas", icon: PiggyBank },
+      { title: t("nav.cashflow"), url: "/cashflow", icon: Wallet },
+      { title: t("nav.expenses"), url: "/despesas", icon: PiggyBank },
     ],
   },
   {
-    label: "Sistema",
+    label: t("nav.system"),
     items: [
-      { title: "Personalização", url: "/design", icon: Palette },
-      { title: "Gestão fornecedores", url: "/gestao-fornecedores", icon: Building2 },
+      { title: t("nav.design"), url: "/design", icon: Palette },
+      { title: t("nav.supplierMgmt"), url: "/gestao-fornecedores", icon: Building2 },
+      { title: t("nav.accounts"), url: "/contas", icon: Lock },
+      { title: t("nav.language"), url: "/idioma", icon: Languages },
+      { title: t("nav.settings"), url: "/configuracoes", icon: Settings },
     ],
   },
 ];
@@ -93,6 +108,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const nome = useStore((s) => s.design.nomeNegocio);
+  const t = useT();
+  const groups = getGroups(t);
 
   return (
     <Sidebar collapsible="icon">
