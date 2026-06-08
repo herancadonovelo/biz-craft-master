@@ -9,14 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Calculator as CalcIcon, Check } from "lucide-react";
+import { Plus, Trash2, Calculator as CalcIcon, Check, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 type Linha = { id: string; materialId: string; quantidade: number };
 
 export const Route = createFileRoute("/calculadora")({
   head: () => ({ meta: [{ title: "Calculadora de preço" }] }),
   component: () => {
-    const { materiais, design, projetos, cotacoes, add: addEntity } = useStore();
+    const { materiais, design, projetos, cotacoes, faturas, add: addEntity, update } = useStore();
     const [projetoId, setProjetoId] = useState<string>(projetos[0]?.id ?? "");
     const [linhas, setLinhas] = useState<Linha[]>([]);
     const [horas, setHoras] = useState(4);
@@ -65,6 +66,33 @@ export const Route = createFileRoute("/calculadora")({
     }, [projetoId, linhas, horas, precoHora, extras, margem]);
 
     const cotacoesProjeto = cotacoes.filter((c) => c.projetoId === projetoId).slice(-5).reverse();
+
+    const converterEmFatura = () => {
+      const proj = projetos.find((p) => p.id === projetoId);
+      if (!proj) return toast.error("Escolhe um projeto");
+      if (precoFinal <= 0) return toast.error("Valor inválido");
+      const ano = new Date().getFullYear();
+      const nDoAno = faturas.filter((f) => f.numero.startsWith(`FT ${ano}/`)).length + 1;
+      const numero = `FT ${ano}/${String(nDoAno).padStart(3, "0")}`;
+      addEntity("faturas", {
+        numero,
+        clienteId: proj.clienteId,
+        projetoId: proj.id,
+        tipo: "projeto",
+        valor: Number(precoFinal.toFixed(2)),
+        iva: 23,
+        estado: "emitida",
+        data: new Date().toISOString().slice(0, 10),
+      } as any);
+      update("projetos", proj.id, { estado: "concluido" });
+      addEntity("vendas", {
+        clienteId: proj.clienteId, projetoId: proj.id,
+        valor: Number(precoFinal.toFixed(2)),
+        data: new Date().toISOString().slice(0, 10),
+        notas: `Convertida da cotação · ${numero}`,
+      });
+      toast.success(`Fatura ${numero} criada · projeto marcado como concluído`);
+    };
 
     const addLinha = () => setLinhas((l) => [...l, { id: Math.random().toString(36).slice(2), materialId: materiais[0]?.id ?? "", quantidade: 1 }]);
     const upd = (id: string, p: Partial<Linha>) => setLinhas((l) => l.map((x) => x.id === id ? { ...x, ...p } : x));
@@ -176,6 +204,9 @@ export const Route = createFileRoute("/calculadora")({
                   </ul>
                 </div>
               )}
+              <Button className="w-full" onClick={converterEmFatura} disabled={!projetoId || precoFinal <= 0}>
+                <FileText className="mr-1 h-4 w-4" />Converter em fatura
+              </Button>
             </CardContent>
           </Card>
         </div>
