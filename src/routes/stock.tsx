@@ -18,7 +18,8 @@ export const Route = createFileRoute("/stock")({
   component: () => {
     const { materiais, fornecedores, add, remove, update } = useStore();
     const [open, setOpen] = useState(false);
-    const [form, setForm] = useState({ nome: "", unidade: "novelo", stock: 0, precoCompra: 0, fornecedorId: "", notas: "" });
+    const [form, setForm] = useState({ nome: "", unidade: "novelo", stock: 0, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" });
+    const onImg = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string })); r.readAsDataURL(file); };
     return (
       <div className="space-y-6">
         <PageHeader title="Stock de material" description="Materiais em stock, com fornecedor e preço praticado."
@@ -40,7 +41,9 @@ export const Route = createFileRoute("/stock")({
                       <SelectContent>{fornecedores.map((f) => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={() => { if (!form.nome) return toast.error("Nome obrigatório"); add("materiais", form); setForm({ nome: "", unidade: "novelo", stock: 0, precoCompra: 0, fornecedorId: "", notas: "" }); setOpen(false); toast.success("Material adicionado"); }}>Guardar</Button>
+                  <div><Label>Imagem</Label><Input type="file" accept="image/*" onChange={(e) => onImg(e.target.files?.[0])} />
+                    {form.imagem && <img src={form.imagem} alt="" className="mt-2 h-16 w-16 rounded object-cover" />}</div>
+                  <Button onClick={() => { if (!form.nome) return toast.error("Nome obrigatório"); add("materiais", form); setForm({ nome: "", unidade: "novelo", stock: 0, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" }); setOpen(false); toast.success("Material adicionado"); }}>Guardar</Button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -48,13 +51,14 @@ export const Route = createFileRoute("/stock")({
         />
         <Card><CardContent className="p-0">
           <Table>
-            <TableHeader><TableRow><TableHead>Material</TableHead><TableHead>Fornecedor</TableHead><TableHead>Preço</TableHead><TableHead>Stock</TableHead><TableHead>Valor</TableHead><TableHead></TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead></TableHead><TableHead>Material</TableHead><TableHead>Fornecedor</TableHead><TableHead>Preço</TableHead><TableHead>Stock</TableHead><TableHead>Valor</TableHead><TableHead></TableHead></TableRow></TableHeader>
             <TableBody>
               {materiais.map((m) => {
                 const f = fornecedores.find((x) => x.id === m.fornecedorId);
                 const baixo = m.stock < 5;
                 return (
                   <TableRow key={m.id}>
+                    <TableCell>{m.imagem ? <img src={m.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
                     <TableCell className="font-medium">{m.nome}</TableCell>
                     <TableCell>{f?.nome ?? "—"}</TableCell>
                     <TableCell>{formatEUR(m.precoCompra)}/{m.unidade}</TableCell>

@@ -20,14 +20,21 @@ export const Route = createFileRoute("/clientes")({
 function ClientesPage() {
   const { clientes, add, remove } = useStore();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", morada: "", notas: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", morada: "", notas: "", imagem: "" });
 
   const submit = () => {
     if (!form.nome.trim()) return toast.error("Nome é obrigatório");
     add("clientes", { ...form, criadoEm: new Date().toISOString() });
-    setForm({ nome: "", email: "", telefone: "", morada: "", notas: "" });
+    setForm({ nome: "", email: "", telefone: "", morada: "", notas: "", imagem: "" });
     setOpen(false);
     toast.success("Cliente adicionado");
+  };
+
+  const onImg = (file?: File) => {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string }));
+    r.readAsDataURL(file);
   };
 
   return (
@@ -48,6 +55,9 @@ function ClientesPage() {
                 <div><Label>Telefone</Label><Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} /></div>
                 <div><Label>Morada</Label><Input value={form.morada} onChange={(e) => setForm({ ...form, morada: e.target.value })} /></div>
                 <div><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} /></div>
+                <div><Label>Foto</Label><Input type="file" accept="image/*" onChange={(e) => onImg(e.target.files?.[0])} />
+                  {form.imagem && <img src={form.imagem} alt="" className="mt-2 h-16 w-16 rounded-full object-cover" />}
+                </div>
                 <Button onClick={submit}>Guardar</Button>
               </div>
             </DialogContent>
@@ -57,11 +67,12 @@ function ClientesPage() {
       <Card><CardContent className="p-0">
         <Table>
           <TableHeader><TableRow>
-            <TableHead>Nome</TableHead><TableHead>Email</TableHead><TableHead>Telefone</TableHead><TableHead>Morada</TableHead><TableHead></TableHead>
+            <TableHead></TableHead><TableHead>Nome</TableHead><TableHead>Email</TableHead><TableHead>Telefone</TableHead><TableHead>Morada</TableHead><TableHead></TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {clientes.map((c) => (
               <TableRow key={c.id}>
+                <TableCell>{c.imagem ? <img src={c.imagem} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-muted" />}</TableCell>
                 <TableCell className="font-medium">{c.nome}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.telefone}</TableCell>
