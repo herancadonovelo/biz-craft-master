@@ -14,7 +14,10 @@ import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MarketingRouteImport } from './routes/marketing'
+import { Route as InstagramRouteImport } from './routes/instagram'
+import { Route as IdiomaRouteImport } from './routes/idioma'
 import { Route as HorasRouteImport } from './routes/horas'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
@@ -23,9 +26,13 @@ import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as DesignRouteImport } from './routes/design'
+import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
+import { Route as ContasRouteImport } from './routes/contas'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CashflowRouteImport } from './routes/cashflow'
+import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as IndexRouteImport } from './routes/index'
@@ -55,9 +62,24 @@ const ProjetoPersonalizadoRoute = ProjetoPersonalizadoRouteImport.update({
   path: '/projeto-personalizado',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketingRoute = MarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstagramRoute = InstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdiomaRoute = IdiomaRouteImport.update({
+  id: '/idioma',
+  path: '/idioma',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorasRoute = HorasRouteImport.update({
@@ -100,9 +122,24 @@ const DesignRoute = DesignRouteImport.update({
   path: '/design',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CursosRoute = CursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrescimentoRoute = CrescimentoRouteImport.update({
   id: '/crescimento',
   path: '/crescimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContasRoute = ContasRouteImport.update({
+  id: '/contas',
+  path: '/contas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientesRoute = ClientesRouteImport.update({
@@ -113,6 +150,11 @@ const ClientesRoute = ClientesRouteImport.update({
 const CashflowRoute = CashflowRouteImport.update({
   id: '/cashflow',
   path: '/cashflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculadoraRoute = CalculadoraRouteImport.update({
@@ -135,9 +177,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
+  '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
@@ -146,7 +192,10 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/horas': typeof HorasRoute
+  '/idioma': typeof IdiomaRoute
+  '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
+  '/portfolio': typeof PortfolioRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -157,9 +206,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
+  '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
@@ -168,7 +221,10 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/horas': typeof HorasRoute
+  '/idioma': typeof IdiomaRoute
+  '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
+  '/portfolio': typeof PortfolioRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -180,9 +236,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
+  '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
   '/clientes': typeof ClientesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
@@ -191,7 +251,10 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/horas': typeof HorasRoute
+  '/idioma': typeof IdiomaRoute
+  '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
+  '/portfolio': typeof PortfolioRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -204,9 +267,13 @@ export interface FileRouteTypes {
     | '/'
     | '/assistente'
     | '/calculadora'
+    | '/calendario'
     | '/cashflow'
     | '/clientes'
+    | '/configuracoes'
+    | '/contas'
     | '/crescimento'
+    | '/cursos'
     | '/design'
     | '/despesas'
     | '/encomendas'
@@ -215,7 +282,10 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/horas'
+    | '/idioma'
+    | '/instagram'
     | '/marketing'
+    | '/portfolio'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -226,9 +296,13 @@ export interface FileRouteTypes {
     | '/'
     | '/assistente'
     | '/calculadora'
+    | '/calendario'
     | '/cashflow'
     | '/clientes'
+    | '/configuracoes'
+    | '/contas'
     | '/crescimento'
+    | '/cursos'
     | '/design'
     | '/despesas'
     | '/encomendas'
@@ -237,7 +311,10 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/horas'
+    | '/idioma'
+    | '/instagram'
     | '/marketing'
+    | '/portfolio'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -248,9 +325,13 @@ export interface FileRouteTypes {
     | '/'
     | '/assistente'
     | '/calculadora'
+    | '/calendario'
     | '/cashflow'
     | '/clientes'
+    | '/configuracoes'
+    | '/contas'
     | '/crescimento'
+    | '/cursos'
     | '/design'
     | '/despesas'
     | '/encomendas'
@@ -259,7 +340,10 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/horas'
+    | '/idioma'
+    | '/instagram'
     | '/marketing'
+    | '/portfolio'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -271,9 +355,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssistenteRoute: typeof AssistenteRoute
   CalculadoraRoute: typeof CalculadoraRoute
+  CalendarioRoute: typeof CalendarioRoute
   CashflowRoute: typeof CashflowRoute
   ClientesRoute: typeof ClientesRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ContasRoute: typeof ContasRoute
   CrescimentoRoute: typeof CrescimentoRoute
+  CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
   EncomendasRoute: typeof EncomendasRoute
@@ -282,7 +370,10 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
   HorasRoute: typeof HorasRoute
+  IdiomaRoute: typeof IdiomaRoute
+  InstagramRoute: typeof InstagramRoute
   MarketingRoute: typeof MarketingRoute
+  PortfolioRoute: typeof PortfolioRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   StockRoute: typeof StockRoute
@@ -327,11 +418,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjetoPersonalizadoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketing': {
       id: '/marketing'
       path: '/marketing'
       fullPath: '/marketing'
       preLoaderRoute: typeof MarketingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instagram': {
+      id: '/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof InstagramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/idioma': {
+      id: '/idioma'
+      path: '/idioma'
+      fullPath: '/idioma'
+      preLoaderRoute: typeof IdiomaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horas': {
@@ -390,11 +502,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cursos': {
+      id: '/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof CursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crescimento': {
       id: '/crescimento'
       path: '/crescimento'
       fullPath: '/crescimento'
       preLoaderRoute: typeof CrescimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contas': {
+      id: '/contas'
+      path: '/contas'
+      fullPath: '/contas'
+      preLoaderRoute: typeof ContasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clientes': {
@@ -409,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/cashflow'
       fullPath: '/cashflow'
       preLoaderRoute: typeof CashflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calculadora': {
@@ -439,9 +579,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssistenteRoute: AssistenteRoute,
   CalculadoraRoute: CalculadoraRoute,
+  CalendarioRoute: CalendarioRoute,
   CashflowRoute: CashflowRoute,
   ClientesRoute: ClientesRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  ContasRoute: ContasRoute,
   CrescimentoRoute: CrescimentoRoute,
+  CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
   EncomendasRoute: EncomendasRoute,
@@ -450,7 +594,10 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
   HorasRoute: HorasRoute,
+  IdiomaRoute: IdiomaRoute,
+  InstagramRoute: InstagramRoute,
   MarketingRoute: MarketingRoute,
+  PortfolioRoute: PortfolioRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   StockRoute: StockRoute,
