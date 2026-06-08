@@ -11,6 +11,7 @@ export interface Cliente {
   telefone?: string;
   morada?: string;
   notas?: string;
+  imagem?: string;
   criadoEm: string;
 }
 
@@ -21,6 +22,7 @@ export interface Fornecedor {
   email?: string;
   website?: string;
   notas?: string;
+  imagem?: string;
 }
 
 export interface Material {
@@ -31,6 +33,7 @@ export interface Material {
   precoCompra: number; // por unidade
   fornecedorId?: ID;
   notas?: string;
+  imagem?: string;
 }
 
 export interface MaterialUsado {
@@ -82,6 +85,9 @@ export interface Fatura {
   numero: string;
   clienteId?: ID;
   encomendaId?: ID;
+  projetoId?: ID;
+  cursoId?: ID;
+  tipo?: "projeto" | "curso" | "outro";
   valor: number;
   iva: number;
   estado: "rascunho" | "emitida" | "paga";
@@ -137,6 +143,68 @@ export interface Cotacao {
   base: number;
   precoFinal: number;
   criadoEm: string;
+  faturaId?: ID;
+}
+
+export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
+
+export interface ContaPlataforma {
+  id: ID;
+  plataforma: string;
+  usernameEmail: string;
+  password: string;
+  url?: string;
+  notas?: string;
+}
+
+export interface PortfolioItem {
+  id: ID;
+  titulo: string;
+  descricao?: string;
+  tecnica?: string;
+  ano?: string;
+  imagem?: string;
+  cliente?: string;
+}
+
+export interface Curso {
+  id: ID;
+  nome: string;
+  descricao?: string;
+  preco: number;
+  linkCompra?: string;
+  grupos?: string;
+  paginas?: string;
+  imagem?: string;
+}
+
+export interface AlunoCurso {
+  id: ID;
+  cursoId: ID;
+  nome: string;
+  email?: string;
+  moduloAtual: string;
+  inscritoEm: string;
+}
+
+export interface InstagramPost {
+  id: ID;
+  legenda: string;
+  url?: string;
+  likes: number;
+  comentarios: number;
+  alcance: number;
+  data: string;
+}
+
+export interface EventoAgenda {
+  id: ID;
+  titulo: string;
+  data: string; // ISO date
+  hora?: string; // HH:MM
+  notas?: string;
+  alarmeMinAntes?: number;
+  toque?: string;
 }
 
 export interface DesignSettings {
@@ -146,6 +214,9 @@ export interface DesignSettings {
   densidade: "compacta" | "confortavel";
   nomeNegocio: string;
   precoHoraBase: number; // €/h base hourly rate
+  idioma: Idioma;
+  pinContas: string; // 4 dígitos
+  toqueAlarme: string;
 }
 
 interface State {
@@ -162,6 +233,12 @@ interface State {
   campanhas: CampanhaMarketing[];
   caixa: MovimentoCaixa[];
   cotacoes: Cotacao[];
+  contas: ContaPlataforma[];
+  portfolio: PortfolioItem[];
+  cursos: Curso[];
+  alunos: AlunoCurso[];
+  instagram: InstagramPost[];
+  eventos: EventoAgenda[];
   design: DesignSettings;
 
   // generic helpers
@@ -185,6 +262,12 @@ type CollectionMap = {
   campanhas: CampanhaMarketing;
   caixa: MovimentoCaixa;
   cotacoes: Cotacao;
+  contas: ContaPlataforma;
+  portfolio: PortfolioItem;
+  cursos: Curso;
+  alunos: AlunoCurso;
+  instagram: InstagramPost;
+  eventos: EventoAgenda;
 };
 
 const seed = (): Pick<
@@ -275,6 +358,14 @@ const seed = (): Pick<
       { id: uid(), tipo: "saida", categoria: "Renda", descricao: "Renda atelier", valor: 250, data: new Date().toISOString().slice(0, 10) },
     ],
     cotacoes: [],
+    contas: [],
+    portfolio: [],
+    cursos: [
+      { id: uid(), nome: "Tricotin para iniciantes", descricao: "Curso introdutório em 4 módulos.", preco: 39, linkCompra: "", grupos: "Facebook: Tricotin Iniciantes", paginas: "tricotin.example.pt/curso-1" },
+    ],
+    alunos: [],
+    instagram: [],
+    eventos: [],
     design: {
       modo: "light",
       accent: "0.72 0.06 230",
@@ -282,6 +373,9 @@ const seed = (): Pick<
       densidade: "confortavel",
       nomeNegocio: "Atelier Tricotin",
       precoHoraBase: 12,
+      idioma: "pt",
+      pinContas: "0000",
+      toqueAlarme: "ping",
     },
   };
 };
