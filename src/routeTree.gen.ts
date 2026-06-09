@@ -12,12 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
+import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as MarketingRouteImport } from './routes/marketing'
+import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
 import { Route as IdiomaRouteImport } from './routes/idioma'
 import { Route as HorasRouteImport } from './routes/horas'
@@ -37,6 +39,7 @@ import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
+import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
@@ -54,6 +57,11 @@ const TodoRoute = TodoRouteImport.update({
 const StockRoute = StockRouteImport.update({
   id: '/stock',
   path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SincronizacaoRoute = SincronizacaoRouteImport.update({
+  id: '/sincronizacao',
+  path: '/sincronizacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjetosRoute = ProjetosRouteImport.update({
@@ -84,6 +92,11 @@ const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
 const MarketingRoute = MarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListaComprasRoute = ListaComprasRouteImport.update({
+  id: '/lista-compras',
+  path: '/lista-compras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InstagramRoute = InstagramRouteImport.update({
@@ -181,6 +194,11 @@ const CalculadoraRoute = CalculadoraRouteImport.update({
   path: '/calculadora',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuditoriaRoute = AuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssistenteRoute = AssistenteRouteImport.update({
   id: '/assistente',
   path: '/assistente',
@@ -201,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
+  '/auditoria': typeof AuditoriaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
@@ -220,12 +239,14 @@ export interface FileRoutesByFullPath {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
+  '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -234,6 +255,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
+  '/auditoria': typeof AuditoriaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
@@ -253,12 +275,14 @@ export interface FileRoutesByTo {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
+  '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -268,6 +292,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
+  '/auditoria': typeof AuditoriaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
@@ -287,12 +312,14 @@ export interface FileRoutesById {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
+  '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -303,6 +330,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajuda'
     | '/assistente'
+    | '/auditoria'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
@@ -322,12 +350,14 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
+    | '/lista-compras'
     | '/marketing'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sincronizacao'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -336,6 +366,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajuda'
     | '/assistente'
+    | '/auditoria'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
@@ -355,12 +386,14 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
+    | '/lista-compras'
     | '/marketing'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sincronizacao'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -369,6 +402,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajuda'
     | '/assistente'
+    | '/auditoria'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
@@ -388,12 +422,14 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
+    | '/lista-compras'
     | '/marketing'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sincronizacao'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -403,6 +439,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
+  AuditoriaRoute: typeof AuditoriaRoute
   CalculadoraRoute: typeof CalculadoraRoute
   CalendarioRoute: typeof CalendarioRoute
   CashflowRoute: typeof CashflowRoute
@@ -422,12 +459,14 @@ export interface RootRouteChildren {
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
   InstagramRoute: typeof InstagramRoute
+  ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
+  SincronizacaoRoute: typeof SincronizacaoRoute
   StockRoute: typeof StockRoute
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
@@ -454,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/stock'
       fullPath: '/stock'
       preLoaderRoute: typeof StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sincronizacao': {
+      id: '/sincronizacao'
+      path: '/sincronizacao'
+      fullPath: '/sincronizacao'
+      preLoaderRoute: typeof SincronizacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projetos': {
@@ -496,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing'
       fullPath: '/marketing'
       preLoaderRoute: typeof MarketingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lista-compras': {
+      id: '/lista-compras'
+      path: '/lista-compras'
+      fullPath: '/lista-compras'
+      preLoaderRoute: typeof ListaComprasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/instagram': {
@@ -631,6 +684,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalculadoraRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auditoria': {
+      id: '/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuditoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assistente': {
       id: '/assistente'
       path: '/assistente'
@@ -659,6 +719,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
+  AuditoriaRoute: AuditoriaRoute,
   CalculadoraRoute: CalculadoraRoute,
   CalendarioRoute: CalendarioRoute,
   CashflowRoute: CashflowRoute,
@@ -678,12 +739,14 @@ const rootRouteChildren: RootRouteChildren = {
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
   InstagramRoute: InstagramRoute,
+  ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
+  SincronizacaoRoute: SincronizacaoRoute,
   StockRoute: StockRoute,
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,
