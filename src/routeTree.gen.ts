@@ -14,6 +14,7 @@ import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -35,6 +36,7 @@ import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as AssistenteRouteImport } from './routes/assistente'
+import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VendasRoute = VendasRouteImport.update({
@@ -60,6 +62,11 @@ const ProjetosRoute = ProjetosRouteImport.update({
 const ProjetoPersonalizadoRoute = ProjetoPersonalizadoRouteImport.update({
   id: '/projeto-personalizado',
   path: '/projeto-personalizado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioRoute = PortfolioRouteImport.update({
@@ -167,6 +174,11 @@ const AssistenteRoute = AssistenteRouteImport.update({
   path: '/assistente',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -175,6 +187,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -196,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -204,6 +218,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -225,6 +240,7 @@ export interface FileRoutesByTo {
   '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -234,6 +250,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -255,6 +272,7 @@ export interface FileRoutesById {
   '/instagram': typeof InstagramRoute
   '/marketing': typeof MarketingRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/stock': typeof StockRoute
@@ -265,6 +283,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ajuda'
     | '/assistente'
     | '/calculadora'
     | '/calendario'
@@ -286,6 +305,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/marketing'
     | '/portfolio'
+    | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -294,6 +314,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ajuda'
     | '/assistente'
     | '/calculadora'
     | '/calendario'
@@ -315,6 +336,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/marketing'
     | '/portfolio'
+    | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -323,6 +345,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ajuda'
     | '/assistente'
     | '/calculadora'
     | '/calendario'
@@ -344,6 +367,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/marketing'
     | '/portfolio'
+    | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
     | '/stock'
@@ -353,6 +377,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   CalculadoraRoute: typeof CalculadoraRoute
   CalendarioRoute: typeof CalendarioRoute
@@ -374,6 +399,7 @@ export interface RootRouteChildren {
   InstagramRoute: typeof InstagramRoute
   MarketingRoute: typeof MarketingRoute
   PortfolioRoute: typeof PortfolioRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   StockRoute: typeof StockRoute
@@ -416,6 +442,13 @@ declare module '@tanstack/react-router' {
       path: '/projeto-personalizado'
       fullPath: '/projeto-personalizado'
       preLoaderRoute: typeof ProjetoPersonalizadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio': {
@@ -565,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistenteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -577,6 +617,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   CalculadoraRoute: CalculadoraRoute,
   CalendarioRoute: CalendarioRoute,
@@ -598,6 +639,7 @@ const rootRouteChildren: RootRouteChildren = {
   InstagramRoute: InstagramRoute,
   MarketingRoute: MarketingRoute,
   PortfolioRoute: PortfolioRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   StockRoute: StockRoute,
@@ -607,3 +649,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
