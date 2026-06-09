@@ -137,9 +137,7 @@ function RootComponent() {
           <div className="flex flex-1 flex-col">
             <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
               <SidebarTrigger />
-              <span className="font-display text-sm font-medium text-muted-foreground">
-                {design.nomeNegocio} · painel de gestão
-              </span>
+              <RootSubtitle />
             </header>
             <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
               <Outlet />
