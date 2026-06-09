@@ -23,9 +23,11 @@ import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
 import { Route as IdiomaRouteImport } from './routes/idioma'
 import { Route as HorasRouteImport } from './routes/horas'
+import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as FaturacaoRouteImport } from './routes/faturacao'
+import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as DespesasRouteImport } from './routes/despesas'
@@ -114,6 +116,11 @@ const HorasRoute = HorasRouteImport.update({
   path: '/horas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
+  id: '/historico-faturas',
+  path: '/historico-faturas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
   id: '/gestao-fornecedores',
   path: '/gestao-fornecedores',
@@ -127,6 +134,11 @@ const FornecedoresRoute = FornecedoresRouteImport.update({
 const FaturacaoRoute = FaturacaoRouteImport.update({
   id: '/faturacao',
   path: '/faturacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtiquetasRoute = EtiquetasRouteImport.update({
+  id: '/etiquetas',
+  path: '/etiquetas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EstadoEncomendasRoute = EstadoEncomendasRouteImport.update({
@@ -233,9 +245,11 @@ export interface FileRoutesByFullPath {
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
+  '/etiquetas': typeof EtiquetasRoute
   '/faturacao': typeof FaturacaoRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
@@ -269,9 +283,11 @@ export interface FileRoutesByTo {
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
+  '/etiquetas': typeof EtiquetasRoute
   '/faturacao': typeof FaturacaoRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
@@ -306,9 +322,11 @@ export interface FileRoutesById {
   '/despesas': typeof DespesasRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
+  '/etiquetas': typeof EtiquetasRoute
   '/faturacao': typeof FaturacaoRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
+  '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
@@ -344,9 +362,11 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
+    | '/etiquetas'
     | '/faturacao'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/historico-faturas'
     | '/horas'
     | '/idioma'
     | '/instagram'
@@ -380,9 +400,11 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
+    | '/etiquetas'
     | '/faturacao'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/historico-faturas'
     | '/horas'
     | '/idioma'
     | '/instagram'
@@ -416,9 +438,11 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/encomendas'
     | '/estado-encomendas'
+    | '/etiquetas'
     | '/faturacao'
     | '/fornecedores'
     | '/gestao-fornecedores'
+    | '/historico-faturas'
     | '/horas'
     | '/idioma'
     | '/instagram'
@@ -453,9 +477,11 @@ export interface RootRouteChildren {
   DespesasRoute: typeof DespesasRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
+  EtiquetasRoute: typeof EtiquetasRoute
   FaturacaoRoute: typeof FaturacaoRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
+  HistoricoFaturasRoute: typeof HistoricoFaturasRoute
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
   InstagramRoute: typeof InstagramRoute
@@ -572,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HorasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historico-faturas': {
+      id: '/historico-faturas'
+      path: '/historico-faturas'
+      fullPath: '/historico-faturas'
+      preLoaderRoute: typeof HistoricoFaturasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gestao-fornecedores': {
       id: '/gestao-fornecedores'
       path: '/gestao-fornecedores'
@@ -591,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/faturacao'
       fullPath: '/faturacao'
       preLoaderRoute: typeof FaturacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiquetas': {
+      id: '/etiquetas'
+      path: '/etiquetas'
+      fullPath: '/etiquetas'
+      preLoaderRoute: typeof EtiquetasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/estado-encomendas': {
@@ -733,9 +773,11 @@ const rootRouteChildren: RootRouteChildren = {
   DespesasRoute: DespesasRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
+  EtiquetasRoute: EtiquetasRoute,
   FaturacaoRoute: FaturacaoRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
+  HistoricoFaturasRoute: HistoricoFaturasRoute,
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
   InstagramRoute: InstagramRoute,
