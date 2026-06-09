@@ -349,7 +349,7 @@ type CollectionMap = {
 
 const seed = (): Pick<
   State,
-  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "cotacoes" | "contas" | "portfolio" | "cursos" | "alunos" | "instagram" | "eventos" | "design"
+  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "cotacoes" | "contas" | "portfolio" | "cursos" | "alunos" | "instagram" | "eventos" | "auditoria" | "etiquetas" | "perfilNegocio" | "sincronizacao" | "design"
 > => {
   const f1 = { id: uid(), nome: "Lãs do Norte", contacto: "+351 220 000 000", email: "vendas@lasdonorte.pt" };
   const f2 = { id: uid(), nome: "Tecidos Lisboa", contacto: "+351 210 111 222", email: "geral@tecidoslisboa.pt" };
@@ -443,6 +443,24 @@ const seed = (): Pick<
     alunos: [],
     instagram: [],
     eventos: [],
+    auditoria: [],
+    etiquetas: [],
+    perfilNegocio: {
+      nome: "Atelier Tricotin",
+      email: "craftbusinessmaster@gmail.com",
+      pais: "Portugal",
+    },
+    sincronizacao: {
+      websiteUrl: "",
+      websiteApiKey: "",
+      websiteAtivo: false,
+      instagramHandle: "",
+      instagramToken: "",
+      instagramAtivo: false,
+      emailServidor: "",
+      emailUtilizador: "",
+      emailAtivo: false,
+    },
     design: {
       modo: "light",
       accent: "0.72 0.06 230",
