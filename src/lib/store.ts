@@ -25,13 +25,22 @@ export interface Fornecedor {
   imagem?: string;
 }
 
+export interface FornecedorPreco {
+  fornecedorId: ID;
+  preco: number;
+  referencia?: string;
+}
+
 export interface Material {
   id: ID;
   nome: string;
+  codigo?: string;
   unidade: string; // m, g, novelo, un
   stock: number;
+  stockMinimo?: number;
   precoCompra: number; // por unidade
   fornecedorId?: ID;
+  fornecedoresExtra?: FornecedorPreco[];
   notas?: string;
   imagem?: string;
 }
@@ -44,6 +53,7 @@ export interface MaterialUsado {
 export interface Projeto {
   id: ID;
   nome: string;
+  codigo?: string;
   clienteId?: ID;
   materiais: MaterialUsado[];
   horasTrabalhadas: number;
@@ -56,6 +66,7 @@ export interface Projeto {
 
 export interface Encomenda {
   id: ID;
+  codigo?: string;
   clienteId?: ID;
   projetoId?: ID;
   descricao: string;
@@ -63,6 +74,8 @@ export interface Encomenda {
   prazo?: string;
   preco: number;
   criadoEm: string;
+  imagemEmbalagem?: string;
+  imagemEtiqueta?: string;
 }
 
 export interface RegistoHora {
@@ -144,6 +157,61 @@ export interface Cotacao {
   precoFinal: number;
   criadoEm: string;
   faturaId?: ID;
+  convertidaEm?: string;
+}
+
+export interface AuditLog {
+  id: ID;
+  data: string;
+  utilizador: string;
+  entidade: string;
+  entidadeId?: ID;
+  acao: string;
+  detalhes?: string;
+}
+
+export interface EtiquetaEnvio {
+  id: ID;
+  clienteId?: ID;
+  encomendaId?: ID;
+  remetente: string;
+  destinatario: string;
+  morada: string;
+  codigoPostal: string;
+  pais: string;
+  telefone?: string;
+  peso?: string;
+  observacoes?: string;
+  criadoEm: string;
+}
+
+export interface PerfilNegocio {
+  nome: string;
+  nif?: string;
+  morada?: string;
+  codigoPostal?: string;
+  cidade?: string;
+  pais?: string;
+  email?: string;
+  telefone?: string;
+  website?: string;
+  instagram?: string;
+  logo?: string;
+  slogan?: string;
+  iban?: string;
+}
+
+export interface SincronizacaoConfig {
+  websiteUrl: string;
+  websiteApiKey: string;
+  websiteAtivo: boolean;
+  instagramHandle: string;
+  instagramToken: string;
+  instagramAtivo: boolean;
+  emailServidor: string;
+  emailUtilizador: string;
+  emailAtivo: boolean;
+  ultimaSync?: string;
 }
 
 export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
@@ -239,6 +307,10 @@ interface State {
   alunos: AlunoCurso[];
   instagram: InstagramPost[];
   eventos: EventoAgenda[];
+  auditoria: AuditLog[];
+  etiquetas: EtiquetaEnvio[];
+  perfilNegocio: PerfilNegocio;
+  sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
 
   // generic helpers
@@ -246,6 +318,9 @@ interface State {
   update: <K extends keyof CollectionMap>(k: K, id: ID, patch: Partial<CollectionMap[K]>) => void;
   remove: <K extends keyof CollectionMap>(k: K, id: ID) => void;
   setDesign: (patch: Partial<DesignSettings>) => void;
+  setPerfil: (patch: Partial<PerfilNegocio>) => void;
+  setSync: (patch: Partial<SincronizacaoConfig>) => void;
+  audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
 }
 
 type CollectionMap = {
@@ -268,11 +343,13 @@ type CollectionMap = {
   alunos: AlunoCurso;
   instagram: InstagramPost;
   eventos: EventoAgenda;
+  auditoria: AuditLog;
+  etiquetas: EtiquetaEnvio;
 };
 
 const seed = (): Pick<
   State,
-  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "cotacoes" | "contas" | "portfolio" | "cursos" | "alunos" | "instagram" | "eventos" | "design"
+  "clientes" | "fornecedores" | "materiais" | "projetos" | "encomendas" | "horas" | "despesas" | "faturas" | "vendas" | "todos" | "campanhas" | "caixa" | "cotacoes" | "contas" | "portfolio" | "cursos" | "alunos" | "instagram" | "eventos" | "auditoria" | "etiquetas" | "perfilNegocio" | "sincronizacao" | "design"
 > => {
   const f1 = { id: uid(), nome: "Lãs do Norte", contacto: "+351 220 000 000", email: "vendas@lasdonorte.pt" };
   const f2 = { id: uid(), nome: "Tecidos Lisboa", contacto: "+351 210 111 222", email: "geral@tecidoslisboa.pt" };
@@ -366,6 +443,24 @@ const seed = (): Pick<
     alunos: [],
     instagram: [],
     eventos: [],
+    auditoria: [],
+    etiquetas: [],
+    perfilNegocio: {
+      nome: "Atelier Tricotin",
+      email: "craftbusinessmaster@gmail.com",
+      pais: "Portugal",
+    },
+    sincronizacao: {
+      websiteUrl: "",
+      websiteApiKey: "",
+      websiteAtivo: false,
+      instagramHandle: "",
+      instagramToken: "",
+      instagramAtivo: false,
+      emailServidor: "",
+      emailUtilizador: "",
+      emailAtivo: false,
+    },
     design: {
       modo: "light",
       accent: "0.72 0.06 230",
@@ -393,8 +488,17 @@ export const useStore = create<State>()(
       remove: (k, id) =>
         set((s) => ({ [k]: (s as any)[k].filter((x: any) => x.id !== id) } as any)),
       setDesign: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
+      setPerfil: (patch) => set((s) => ({ perfilNegocio: { ...s.perfilNegocio, ...patch } })),
+      setSync: (patch) => set((s) => ({ sincronizacao: { ...s.sincronizacao, ...patch } })),
+      audit: (acao, entidade, entidadeId, detalhes) =>
+        set((s) => ({
+          auditoria: [
+            { id: uid(), data: new Date().toISOString(), utilizador: s.perfilNegocio?.nome || "admin", entidade, entidadeId, acao, detalhes },
+            ...s.auditoria,
+          ].slice(0, 500),
+        })),
     }),
-    { name: "atelier-store-v1" },
+    { name: "atelier-store-v2" },
   ),
 );
 

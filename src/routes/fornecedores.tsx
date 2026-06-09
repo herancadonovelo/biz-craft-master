@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/fornecedores")({
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/fornecedores")({
   component: () => {
     const { fornecedores, materiais, add, remove } = useStore();
     const [open, setOpen] = useState(false);
+    const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", contacto: "", email: "", website: "", notas: "", imagem: "" });
     const onImg = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string })); r.readAsDataURL(file); };
     return (
@@ -40,11 +41,15 @@ export const Route = createFileRoute("/fornecedores")({
             </Dialog>
           }
         />
+        <div className="relative max-w-md">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input className="pl-8" placeholder="Pesquisar fornecedor…" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
         <Card><CardContent className="p-0">
           <Table>
             <TableHeader><TableRow><TableHead></TableHead><TableHead>Nome</TableHead><TableHead>Contacto</TableHead><TableHead>Email</TableHead><TableHead>Artigos</TableHead><TableHead></TableHead></TableRow></TableHeader>
             <TableBody>
-              {fornecedores.map((f) => (
+              {fornecedores.filter((f) => (f.nome + " " + (f.email ?? "") + " " + (f.contacto ?? "")).toLowerCase().includes(q.toLowerCase())).map((f) => (
                 <TableRow key={f.id}>
                   <TableCell>{f.imagem ? <img src={f.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
                   <TableCell className="font-medium">{f.nome}</TableCell>

@@ -17,7 +17,7 @@ type Linha = { id: string; materialId: string; quantidade: number };
 export const Route = createFileRoute("/calculadora")({
   head: () => ({ meta: [{ title: "Calculadora de preço" }] }),
   component: () => {
-    const { materiais, design, projetos, cotacoes, faturas, add: addEntity, update } = useStore();
+    const { materiais, design, projetos, cotacoes, faturas, clientes, add: addEntity, update, audit } = useStore();
     const [projetoId, setProjetoId] = useState<string>(projetos[0]?.id ?? "");
     const [linhas, setLinhas] = useState<Linha[]>([]);
     const [horas, setHoras] = useState(4);
@@ -71,6 +71,15 @@ export const Route = createFileRoute("/calculadora")({
       const proj = projetos.find((p) => p.id === projetoId);
       if (!proj) return toast.error("Escolhe um projeto");
       if (precoFinal <= 0) return toast.error("Valor inválido");
+      if (proj.estado === "concluido") {
+        const ok = window.confirm("Este projeto já está concluído. Criar mesmo assim uma nova fatura?");
+        if (!ok) return;
+      }
+      const cliente = clientes.find((c) => c.id === proj.clienteId);
+      if (!cliente) {
+        const ok = window.confirm("O projeto não tem cliente associado. Criar fatura sem cliente?");
+        if (!ok) return;
+      }
       const ano = new Date().getFullYear();
       const nDoAno = faturas.filter((f) => f.numero.startsWith(`FT ${ano}/`)).length + 1;
       const numero = `FT ${ano}/${String(nDoAno).padStart(3, "0")}`;
@@ -84,6 +93,7 @@ export const Route = createFileRoute("/calculadora")({
         estado: "emitida",
         data: new Date().toISOString().slice(0, 10),
       } as any);
+      const estadoAntes = proj.estado;
       update("projetos", proj.id, { estado: "concluido" });
       addEntity("vendas", {
         clienteId: proj.clienteId, projetoId: proj.id,
@@ -91,6 +101,8 @@ export const Route = createFileRoute("/calculadora")({
         data: new Date().toISOString().slice(0, 10),
         notas: `Convertida da cotação · ${numero}`,
       });
+      audit("converteu cotação em fatura", "fatura", undefined, `${numero} · ${proj.nome} · ${precoFinal.toFixed(2)}€`);
+      audit("alterou estado do projeto", "projeto", proj.id, `${estadoAntes} → concluido (via fatura ${numero})`);
       toast.success(`Fatura ${numero} criada · projeto marcado como concluído`);
     };
 

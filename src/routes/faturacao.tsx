@@ -10,13 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
+import { Printer } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { imprimirFatura } from "@/lib/print-fatura";
 
 export const Route = createFileRoute("/faturacao")({
   head: () => ({ meta: [{ title: "Faturação" }] }),
   component: () => {
-    const { faturas, clientes, encomendas, projetos, cursos, add, remove, update } = useStore();
+    const { faturas, clientes, encomendas, projetos, cursos, perfilNegocio, add, remove, update, audit } = useStore();
     const [tipo, setTipo] = useState<"projeto" | "curso" | "outro">("projeto");
     const [form, setForm] = useState({ numero: "", clienteId: "", encomendaId: "", projetoId: "", cursoId: "", valor: 0, iva: 23, estado: "rascunho" as const, data: new Date().toISOString().slice(0, 10) });
     const faturasFiltradas = faturas.filter((f) => (f.tipo ?? "projeto") === tipo);
@@ -96,7 +98,10 @@ export const Route = createFileRoute("/faturacao")({
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => remove("faturas", f.id)}><Trash2 className="h-4 w-4" /></Button></TableCell>
+                    <TableCell className="space-x-1 text-right">
+                      <Button variant="ghost" size="icon" onClick={() => imprimirFatura(f, c, perfilNegocio)}><Printer className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => { audit("eliminou fatura", "fatura", f.id, f.numero); remove("faturas", f.id); }}><Trash2 className="h-4 w-4" /></Button>
+                    </TableCell>
                   </TableRow>
                 );
               })}
