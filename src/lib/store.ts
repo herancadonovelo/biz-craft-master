@@ -307,6 +307,10 @@ interface State {
   alunos: AlunoCurso[];
   instagram: InstagramPost[];
   eventos: EventoAgenda[];
+  auditoria: AuditLog[];
+  etiquetas: EtiquetaEnvio[];
+  perfilNegocio: PerfilNegocio;
+  sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
 
   // generic helpers
@@ -314,6 +318,9 @@ interface State {
   update: <K extends keyof CollectionMap>(k: K, id: ID, patch: Partial<CollectionMap[K]>) => void;
   remove: <K extends keyof CollectionMap>(k: K, id: ID) => void;
   setDesign: (patch: Partial<DesignSettings>) => void;
+  setPerfil: (patch: Partial<PerfilNegocio>) => void;
+  setSync: (patch: Partial<SincronizacaoConfig>) => void;
+  audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
 }
 
 type CollectionMap = {
@@ -336,6 +343,8 @@ type CollectionMap = {
   alunos: AlunoCurso;
   instagram: InstagramPost;
   eventos: EventoAgenda;
+  auditoria: AuditLog;
+  etiquetas: EtiquetaEnvio;
 };
 
 const seed = (): Pick<
