@@ -393,8 +393,17 @@ export const useStore = create<State>()(
       remove: (k, id) =>
         set((s) => ({ [k]: (s as any)[k].filter((x: any) => x.id !== id) } as any)),
       setDesign: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
+      setPerfil: (patch) => set((s) => ({ perfilNegocio: { ...s.perfilNegocio, ...patch } })),
+      setSync: (patch) => set((s) => ({ sincronizacao: { ...s.sincronizacao, ...patch } })),
+      audit: (acao, entidade, entidadeId, detalhes) =>
+        set((s) => ({
+          auditoria: [
+            { id: uid(), data: new Date().toISOString(), utilizador: s.perfilNegocio?.nome || "admin", entidade, entidadeId, acao, detalhes },
+            ...s.auditoria,
+          ].slice(0, 500),
+        })),
     }),
-    { name: "atelier-store-v1" },
+    { name: "atelier-store-v2" },
   ),
 );
 
