@@ -25,13 +25,22 @@ export interface Fornecedor {
   imagem?: string;
 }
 
+export interface FornecedorPreco {
+  fornecedorId: ID;
+  preco: number;
+  referencia?: string;
+}
+
 export interface Material {
   id: ID;
   nome: string;
+  codigo?: string;
   unidade: string; // m, g, novelo, un
   stock: number;
+  stockMinimo?: number;
   precoCompra: number; // por unidade
   fornecedorId?: ID;
+  fornecedoresExtra?: FornecedorPreco[];
   notas?: string;
   imagem?: string;
 }
@@ -44,6 +53,7 @@ export interface MaterialUsado {
 export interface Projeto {
   id: ID;
   nome: string;
+  codigo?: string;
   clienteId?: ID;
   materiais: MaterialUsado[];
   horasTrabalhadas: number;
@@ -56,6 +66,7 @@ export interface Projeto {
 
 export interface Encomenda {
   id: ID;
+  codigo?: string;
   clienteId?: ID;
   projetoId?: ID;
   descricao: string;
@@ -63,6 +74,8 @@ export interface Encomenda {
   prazo?: string;
   preco: number;
   criadoEm: string;
+  imagemEmbalagem?: string;
+  imagemEtiqueta?: string;
 }
 
 export interface RegistoHora {
