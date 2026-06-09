@@ -15,6 +15,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/lib/store";
+import { useT } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -147,5 +148,15 @@ function RootComponent() {
         <Toaster richColors position="top-right" />
       </SidebarProvider>
     </QueryClientProvider>
+  );
+}
+
+function RootSubtitle() {
+  const nome = useStore((s) => s.design.nomeNegocio);
+  const t = useT();
+  return (
+    <span className="font-display text-sm font-medium text-muted-foreground">
+      {nome} · {t("app.subtitle")}
+    </span>
   );
 }
