@@ -27,6 +27,14 @@ import {
   Calendar,
   Languages,
   Settings,
+  Building,
+  RefreshCw,
+  History,
+  ShoppingCart,
+  Tags,
+  Shield,
+  HelpCircle,
+  Mail,
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,6 +72,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.hours"), url: "/horas", icon: Clock },
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
       { title: t("nav.portfolio"), url: "/portfolio", icon: ImageIcon },
+      { title: t("nav.labels"), url: "/etiquetas", icon: Tags },
     ],
   },
   {
@@ -71,6 +80,7 @@ const getGroups = (t: (k: string) => string) => [
     items: [
       { title: t("nav.stock"), url: "/stock", icon: Package },
       { title: t("nav.suppliers"), url: "/fornecedores", icon: Truck },
+      { title: t("nav.shopping"), url: "/lista-compras", icon: ShoppingCart },
     ],
   },
   {
@@ -80,6 +90,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.courses"), url: "/cursos", icon: GraduationCap },
       { title: t("nav.sales"), url: "/vendas", icon: CheckCircle2 },
       { title: t("nav.billing"), url: "/faturacao", icon: Receipt },
+      { title: t("nav.invoiceHistory"), url: "/historico-faturas", icon: History },
       { title: t("nav.marketing"), url: "/marketing", icon: Megaphone },
       { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
     ],
@@ -98,7 +109,18 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.supplierMgmt"), url: "/gestao-fornecedores", icon: Building2 },
       { title: t("nav.accounts"), url: "/contas", icon: Lock },
       { title: t("nav.language"), url: "/idioma", icon: Languages },
+      { title: t("nav.profile"), url: "/perfil-negocio", icon: Building },
+      { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
+      { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: t("nav.settings"), url: "/configuracoes", icon: Settings },
+    ],
+  },
+  {
+    label: t("nav.help"),
+    items: [
+      { title: t("nav.help2"), url: "/ajuda", icon: HelpCircle },
+      { title: t("nav.contact"), url: "/contacto", icon: Mail },
+      { title: t("nav.privacy"), url: "/privacidade", icon: Shield },
     ],
   },
 ];
