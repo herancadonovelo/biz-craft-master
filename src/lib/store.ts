@@ -157,6 +157,61 @@ export interface Cotacao {
   precoFinal: number;
   criadoEm: string;
   faturaId?: ID;
+  convertidaEm?: string;
+}
+
+export interface AuditLog {
+  id: ID;
+  data: string;
+  utilizador: string;
+  entidade: string;
+  entidadeId?: ID;
+  acao: string;
+  detalhes?: string;
+}
+
+export interface EtiquetaEnvio {
+  id: ID;
+  clienteId?: ID;
+  encomendaId?: ID;
+  remetente: string;
+  destinatario: string;
+  morada: string;
+  codigoPostal: string;
+  pais: string;
+  telefone?: string;
+  peso?: string;
+  observacoes?: string;
+  criadoEm: string;
+}
+
+export interface PerfilNegocio {
+  nome: string;
+  nif?: string;
+  morada?: string;
+  codigoPostal?: string;
+  cidade?: string;
+  pais?: string;
+  email?: string;
+  telefone?: string;
+  website?: string;
+  instagram?: string;
+  logo?: string;
+  slogan?: string;
+  iban?: string;
+}
+
+export interface SincronizacaoConfig {
+  websiteUrl: string;
+  websiteApiKey: string;
+  websiteAtivo: boolean;
+  instagramHandle: string;
+  instagramToken: string;
+  instagramAtivo: boolean;
+  emailServidor: string;
+  emailUtilizador: string;
+  emailAtivo: boolean;
+  ultimaSync?: string;
 }
 
 export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
