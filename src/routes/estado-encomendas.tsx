@@ -3,6 +3,7 @@ import { useStore, formatEUR } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTT } from "@/lib/i18n";
 
 const ESTADOS = ["pendente", "em_producao", "pronta", "entregue", "cancelada"] as const;
 
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/estado-encomendas")({
   head: () => ({ meta: [{ title: "Estado das encomendas" }] }),
   component: () => {
     const { encomendas, clientes } = useStore();
+    const tt = useTT();
     return (
       <div className="space-y-6">
         <PageHeader title="Estado das encomendas" description="Kanban com o estado atual de cada encomenda." />
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/estado-encomendas")({
               <Card key={s}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between font-display text-sm capitalize">
-                    {s.replace("_", " ")}<Badge variant="secondary">{list.length}</Badge>
+                    {tt(s).replace("_", " ")}<Badge variant="secondary">{list.length}</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/estado-encomendas")({
                     return (
                       <div key={e.id} className="rounded-md border border-border bg-card p-3 text-sm">
                         <div className="font-medium">{e.descricao}</div>
-                        <div className="text-xs text-muted-foreground">{c?.nome ?? "Sem cliente"}</div>
+                        <div className="text-xs text-muted-foreground">{c?.nome ?? tt("Sem cliente")}</div>
                         <div className="mt-1 flex justify-between text-xs">
                           <span className="text-muted-foreground">{e.prazo ?? "—"}</span>
                           <span className="font-display">{formatEUR(e.preco)}</span>
@@ -37,7 +39,7 @@ export const Route = createFileRoute("/estado-encomendas")({
                       </div>
                     );
                   })}
-                  {list.length === 0 && <p className="text-xs text-muted-foreground">Vazio</p>}
+                  {list.length === 0 && <p className="text-xs text-muted-foreground">{tt("Vazio")}</p>}
                 </CardContent>
               </Card>
             );

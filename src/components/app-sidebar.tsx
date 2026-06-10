@@ -35,6 +35,12 @@ import {
   Shield,
   HelpCircle,
   Mail,
+  ToggleLeft,
+  MessageCircle,
+  BellRing,
+  ShoppingBasket,
+  FileDigit,
+  Globe,
 } from "lucide-react";
 import {
   Sidebar,
@@ -93,6 +99,10 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.invoiceHistory"), url: "/historico-faturas", icon: History },
       { title: t("nav.marketing"), url: "/marketing", icon: Megaphone },
       { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
+      { title: t("nav.whatsapp"), url: "/whatsapp", icon: MessageCircle },
+      { title: t("nav.notifications"), url: "/notificacoes", icon: BellRing },
+      { title: t("nav.etsy"), url: "/etsy", icon: ShoppingBasket },
+      { title: t("nav.digitalFiles"), url: "/ficheiros-digitais", icon: FileDigit },
     ],
   },
   {
@@ -113,6 +123,8 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
       { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: t("nav.settings"), url: "/configuracoes", icon: Settings },
+      { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
+      { title: t("nav.translations"), url: "/traducoes", icon: Globe },
     ],
   },
   {
@@ -130,8 +142,25 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const nome = useStore((s) => s.design.nomeNegocio);
+  const modulos = useStore((s) => s.modulos);
   const t = useT();
-  const groups = getGroups(t);
+  const allGroups = getGroups(t);
+  // Se algum módulo estiver configurado, filtra; URLs nunca ocultadas: /modulos, /configuracoes, /onboarding
+  const visivel = (url: string) => {
+    if (["/modulos", "/configuracoes", "/onboarding"].includes(url)) return true;
+    if (!modulos || Object.keys(modulos).length === 0) return true;
+    return modulos[url] !== false && (modulos[url] === true || !Object.values(modulos).some(Boolean));
+  };
+  // Simpler logic: if modulos has any true entries, show only those (plus always-on)
+  const algumAtivo = modulos && Object.values(modulos).some((v) => v === true);
+  const filtroFinal = (url: string) => {
+    if (["/modulos", "/configuracoes", "/onboarding"].includes(url)) return true;
+    if (!algumAtivo) return true;
+    return modulos[url] === true;
+  };
+  const groups = allGroups
+    .map((g) => ({ ...g, items: g.items.filter((i) => filtroFinal(i.url)) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <Sidebar collapsible="icon">

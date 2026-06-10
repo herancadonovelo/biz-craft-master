@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useStore, formatEUR, precoProjeto } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { encomendas, vendas, materiais, projetos, horas, caixa, todos, clientes } = useStore();
+  const { encomendas, vendas, materiais, projetos, horas, caixa, todos, clientes, onboardingFeito } = useStore();
+  const nav = useNavigate();
+  useEffect(() => { if (!onboardingFeito) nav({ to: "/onboarding" }); }, [onboardingFeito, nav]);
 
   const receita = vendas.reduce((s, v) => s + v.valor, 0);
   const aReceber = encomendas

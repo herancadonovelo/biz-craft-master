@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as VendasRouteImport } from './routes/vendas'
+import { Route as TraducoesRouteImport } from './routes/traducoes'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
@@ -18,6 +20,9 @@ import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-perso
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -26,7 +31,9 @@ import { Route as HorasRouteImport } from './routes/horas'
 import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
 import { Route as FaturacaoRouteImport } from './routes/faturacao'
+import { Route as EtsyRouteImport } from './routes/etsy'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
@@ -46,9 +53,19 @@ import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VendasRoute = VendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TraducoesRoute = TraducoesRouteImport.update({
+  id: '/traducoes',
+  path: '/traducoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TodoRoute = TodoRouteImport.update({
@@ -91,6 +108,21 @@ const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
   path: '/perfil-negocio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModulosRoute = ModulosRouteImport.update({
+  id: '/modulos',
+  path: '/modulos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketingRoute = MarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
@@ -131,9 +163,19 @@ const FornecedoresRoute = FornecedoresRouteImport.update({
   path: '/fornecedores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FicheirosDigitaisRoute = FicheirosDigitaisRouteImport.update({
+  id: '/ficheiros-digitais',
+  path: '/ficheiros-digitais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaturacaoRoute = FaturacaoRouteImport.update({
   id: '/faturacao',
   path: '/faturacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtsyRoute = EtsyRouteImport.update({
+  id: '/etsy',
+  path: '/etsy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EtiquetasRoute = EtiquetasRouteImport.update({
@@ -246,7 +288,9 @@ export interface FileRoutesByFullPath {
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
+  '/etsy': typeof EtsyRoute
   '/faturacao': typeof FaturacaoRoute
+  '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
@@ -255,6 +299,9 @@ export interface FileRoutesByFullPath {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/modulos': typeof ModulosRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -263,7 +310,9 @@ export interface FileRoutesByFullPath {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
+  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -284,7 +333,9 @@ export interface FileRoutesByTo {
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
+  '/etsy': typeof EtsyRoute
   '/faturacao': typeof FaturacaoRoute
+  '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
@@ -293,6 +344,9 @@ export interface FileRoutesByTo {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/modulos': typeof ModulosRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -301,7 +355,9 @@ export interface FileRoutesByTo {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
+  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -323,7 +379,9 @@ export interface FileRoutesById {
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
+  '/etsy': typeof EtsyRoute
   '/faturacao': typeof FaturacaoRoute
+  '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
@@ -332,6 +390,9 @@ export interface FileRoutesById {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/modulos': typeof ModulosRoute
+  '/notificacoes': typeof NotificacoesRoute
+  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -340,7 +401,9 @@ export interface FileRoutesById {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
+  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -363,7 +426,9 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
+    | '/etsy'
     | '/faturacao'
+    | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/historico-faturas'
@@ -372,6 +437,9 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/modulos'
+    | '/notificacoes'
+    | '/onboarding'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
@@ -380,7 +448,9 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
+    | '/traducoes'
     | '/vendas'
+    | '/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -401,7 +471,9 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
+    | '/etsy'
     | '/faturacao'
+    | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/historico-faturas'
@@ -410,6 +482,9 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/modulos'
+    | '/notificacoes'
+    | '/onboarding'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
@@ -418,7 +493,9 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
+    | '/traducoes'
     | '/vendas'
+    | '/whatsapp'
   id:
     | '__root__'
     | '/'
@@ -439,7 +516,9 @@ export interface FileRouteTypes {
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
+    | '/etsy'
     | '/faturacao'
+    | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/historico-faturas'
@@ -448,6 +527,9 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/modulos'
+    | '/notificacoes'
+    | '/onboarding'
     | '/perfil-negocio'
     | '/portfolio'
     | '/privacidade'
@@ -456,7 +538,9 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
+    | '/traducoes'
     | '/vendas'
+    | '/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -478,7 +562,9 @@ export interface RootRouteChildren {
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
+  EtsyRoute: typeof EtsyRoute
   FaturacaoRoute: typeof FaturacaoRoute
+  FicheirosDigitaisRoute: typeof FicheirosDigitaisRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
   HistoricoFaturasRoute: typeof HistoricoFaturasRoute
@@ -487,6 +573,9 @@ export interface RootRouteChildren {
   InstagramRoute: typeof InstagramRoute
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
+  ModulosRoute: typeof ModulosRoute
+  NotificacoesRoute: typeof NotificacoesRoute
+  OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -495,16 +584,32 @@ export interface RootRouteChildren {
   SincronizacaoRoute: typeof SincronizacaoRoute
   StockRoute: typeof StockRoute
   TodoRoute: typeof TodoRoute
+  TraducoesRoute: typeof TraducoesRoute
   VendasRoute: typeof VendasRoute
+  WhatsappRoute: typeof WhatsappRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vendas': {
       id: '/vendas'
       path: '/vendas'
       fullPath: '/vendas'
       preLoaderRoute: typeof VendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/traducoes': {
+      id: '/traducoes'
+      path: '/traducoes'
+      fullPath: '/traducoes'
+      preLoaderRoute: typeof TraducoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/todo': {
@@ -563,6 +668,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilNegocioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modulos': {
+      id: '/modulos'
+      path: '/modulos'
+      fullPath: '/modulos'
+      preLoaderRoute: typeof ModulosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketing': {
       id: '/marketing'
       path: '/marketing'
@@ -619,11 +745,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FornecedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ficheiros-digitais': {
+      id: '/ficheiros-digitais'
+      path: '/ficheiros-digitais'
+      fullPath: '/ficheiros-digitais'
+      preLoaderRoute: typeof FicheirosDigitaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/faturacao': {
       id: '/faturacao'
       path: '/faturacao'
       fullPath: '/faturacao'
       preLoaderRoute: typeof FaturacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etsy': {
+      id: '/etsy'
+      path: '/etsy'
+      fullPath: '/etsy'
+      preLoaderRoute: typeof EtsyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/etiquetas': {
@@ -774,7 +914,9 @@ const rootRouteChildren: RootRouteChildren = {
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
+  EtsyRoute: EtsyRoute,
   FaturacaoRoute: FaturacaoRoute,
+  FicheirosDigitaisRoute: FicheirosDigitaisRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
   HistoricoFaturasRoute: HistoricoFaturasRoute,
@@ -783,6 +925,9 @@ const rootRouteChildren: RootRouteChildren = {
   InstagramRoute: InstagramRoute,
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
+  ModulosRoute: ModulosRoute,
+  NotificacoesRoute: NotificacoesRoute,
+  OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacidadeRoute: PrivacidadeRoute,
@@ -791,7 +936,9 @@ const rootRouteChildren: RootRouteChildren = {
   SincronizacaoRoute: SincronizacaoRoute,
   StockRoute: StockRoute,
   TodoRoute: TodoRoute,
+  TraducoesRoute: TraducoesRoute,
   VendasRoute: VendasRoute,
+  WhatsappRoute: WhatsappRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

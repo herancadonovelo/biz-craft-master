@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, Search, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
+import { useTT } from "@/lib/i18n";
 
 const ESTADO_COR: Record<string, string> = {
   pendente: "bg-amber-500/15 text-amber-700",
@@ -24,7 +25,8 @@ const ESTADO_COR: Record<string, string> = {
 export const Route = createFileRoute("/encomendas")({
   head: () => ({ meta: [{ title: "Encomendas" }] }),
   component: () => {
-    const { encomendas, clientes, projetos, materiais, add, remove, update, audit } = useStore();
+    const { encomendas, clientes, projetos, materiais, add, remove, update, audit, dispararGatilho, gatilhos } = useStore();
+    const tt = useTT();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ clienteId: "", projetoId: "", descricao: "", estado: "pendente" as const, prazo: "", preco: 0 });
@@ -106,10 +108,18 @@ export const Route = createFileRoute("/encomendas")({
                     <TableCell>{e.prazo ?? "—"}</TableCell>
                     <TableCell className="font-display">{formatEUR(e.preco)}</TableCell>
                     <TableCell>
-                      <Select value={e.estado} onValueChange={(v: any) => { audit("alterou estado da encomenda", "encomenda", e.id, `${e.estado} → ${v}`); update("encomendas", e.id, { estado: v }); }}>
+                      <Select value={e.estado} onValueChange={(v: any) => {
+                        audit("alterou estado da encomenda", "encomenda", e.id, `${e.estado} → ${v}`);
+                        update("encomendas", e.id, { estado: v });
+                        const g = gatilhos.find((x) => x.estado === v && x.ativo);
+                        if (g) {
+                          dispararGatilho(e.id, v);
+                          toast.success(`Notificação preparada (${g.canal}) — vê em /notificacoes`);
+                        }
+                      }}>
                         <SelectTrigger className="h-8 w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {["pendente", "em_producao", "pronta", "entregue", "cancelada"].map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                          {["pendente", "em_producao", "pronta", "entregue", "cancelada"].map((s) => <SelectItem key={s} value={s}>{tt(s).replace("_", " ")}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </TableCell>

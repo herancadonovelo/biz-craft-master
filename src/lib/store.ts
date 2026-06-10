@@ -216,6 +216,89 @@ export interface SincronizacaoConfig {
 
 export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
 
+export interface WhatsappTemplate {
+  id: ID;
+  nome: string;
+  texto: string; // pode conter {cliente} {encomenda} {estado}
+}
+
+export interface WhatsappMensagem {
+  id: ID;
+  clienteId?: ID;
+  encomendaId?: ID;
+  direcao: "in" | "out";
+  texto: string;
+  data: string;
+}
+
+export interface Notificacao {
+  id: ID;
+  encomendaId?: ID;
+  clienteId?: ID;
+  canal: "email" | "whatsapp";
+  estadoAlvo: string;
+  texto: string;
+  enviada: boolean;
+  data: string;
+}
+
+export interface GatilhoNotificacao {
+  estado: string; // estado da encomenda que dispara
+  ativo: boolean;
+  canal: "email" | "whatsapp" | "ambos";
+  template: string; // texto com placeholders
+}
+
+export interface EtsyConfig {
+  shopId: string;
+  apiKey: string;
+  ativo: boolean;
+  ultimaSync?: string;
+}
+
+export interface EtsyProdutoMap {
+  id: ID;
+  etsyListingId: string;
+  nome: string;
+  materiais: MaterialUsado[]; // BOM para descontar stock
+}
+
+export interface FicheiroDigital {
+  id: ID;
+  nome: string;
+  tipo: "receita" | "molde" | "ebook" | "outro";
+  origem: "etsy" | "manual";
+  etsyListingId?: string;
+  url?: string;
+  ficheiroBase64?: string;
+  notas?: string;
+  criadoEm: string;
+}
+
+export interface TraducoesCustom {
+  // { "pt|en": { "Texto original": "Translated text" } }
+  [lang: string]: Record<string, string>;
+}
+
+export interface ModulosAtivos {
+  [url: string]: boolean;
+}
+
+export const MODULOS_PRESETS = {
+  essencial: [
+    "/", "/encomendas", "/estado-encomendas", "/clientes", "/stock",
+    "/calculadora", "/faturacao", "/configuracoes",
+  ],
+  padrao: [
+    "/", "/assistente", "/encomendas", "/estado-encomendas", "/projetos",
+    "/calculadora", "/horas", "/todo", "/stock", "/fornecedores",
+    "/lista-compras", "/clientes", "/vendas", "/faturacao",
+    "/historico-faturas", "/cashflow", "/despesas", "/perfil-negocio",
+    "/configuracoes", "/idioma", "/etiquetas",
+  ],
+  completo: null, // tudo
+} as const;
+
 export interface ContaPlataforma {
   id: ID;
   plataforma: string;
@@ -312,6 +395,17 @@ interface State {
   perfilNegocio: PerfilNegocio;
   sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
+  // novos
+  whatsappTemplates: WhatsappTemplate[];
+  whatsappMensagens: WhatsappMensagem[];
+  notificacoes: Notificacao[];
+  gatilhos: GatilhoNotificacao[];
+  etsyConfig: EtsyConfig;
+  etsyProdutos: EtsyProdutoMap[];
+  ficheirosDigitais: FicheiroDigital[];
+  traducoes: TraducoesCustom;
+  modulos: ModulosAtivos;
+  onboardingFeito: boolean;
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -321,6 +415,15 @@ interface State {
   setPerfil: (patch: Partial<PerfilNegocio>) => void;
   setSync: (patch: Partial<SincronizacaoConfig>) => void;
   audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
+  setEtsy: (patch: Partial<EtsyConfig>) => void;
+  setModulo: (url: string, ativo: boolean) => void;
+  setModulos: (m: ModulosAtivos) => void;
+  aplicarPreset: (preset: "essencial" | "padrao" | "completo") => void;
+  setOnboardingFeito: (v: boolean) => void;
+  setGatilho: (estado: string, patch: Partial<GatilhoNotificacao>) => void;
+  setTraducao: (lang: string, source: string, target: string) => void;
+  dispararGatilho: (encomendaId: ID, estado: string) => void;
+  consumirStockPorEtsy: (etsyListingId: string, quantidade?: number) => { ok: boolean; faltas: string[] };
 }
 
 type CollectionMap = {
@@ -345,6 +448,11 @@ type CollectionMap = {
   eventos: EventoAgenda;
   auditoria: AuditLog;
   etiquetas: EtiquetaEnvio;
+  whatsappTemplates: WhatsappTemplate;
+  whatsappMensagens: WhatsappMensagem;
+  notificacoes: Notificacao;
+  etsyProdutos: EtsyProdutoMap;
+  ficheirosDigitais: FicheiroDigital;
 };
 
 const seed = (): Pick<
@@ -479,6 +587,24 @@ export const useStore = create<State>()(
   persist(
     (set) => ({
       ...seed(),
+      whatsappTemplates: [
+        { id: uid(), nome: "Encomenda em processamento", texto: "Olá {cliente}, a tua encomenda {encomenda} está agora em processamento. Obrigada!" },
+        { id: uid(), nome: "Encomenda pronta", texto: "Olá {cliente}, a tua encomenda {encomenda} está pronta para envio/levantamento." },
+        { id: uid(), nome: "Encomenda enviada", texto: "Olá {cliente}, a tua encomenda {encomenda} foi enviada hoje. Em breve estará contigo." },
+      ],
+      whatsappMensagens: [],
+      notificacoes: [],
+      gatilhos: [
+        { estado: "em_producao", ativo: true, canal: "whatsapp", template: "Olá {cliente}, a tua encomenda {encomenda} entrou em produção." },
+        { estado: "pronta", ativo: true, canal: "whatsapp", template: "Olá {cliente}, a tua encomenda {encomenda} está pronta!" },
+        { estado: "entregue", ativo: false, canal: "email", template: "Olá {cliente}, a tua encomenda {encomenda} foi entregue. Obrigada pela preferência." },
+      ],
+      etsyConfig: { shopId: "", apiKey: "", ativo: false },
+      etsyProdutos: [],
+      ficheirosDigitais: [],
+      traducoes: {},
+      modulos: {},
+      onboardingFeito: false,
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
@@ -497,6 +623,58 @@ export const useStore = create<State>()(
             ...s.auditoria,
           ].slice(0, 500),
         })),
+      setEtsy: (patch) => set((s) => ({ etsyConfig: { ...s.etsyConfig, ...patch } })),
+      setModulo: (url, ativo) => set((s) => ({ modulos: { ...s.modulos, [url]: ativo } })),
+      setModulos: (m) => set(() => ({ modulos: m })),
+      aplicarPreset: (preset) => set(() => {
+        if (preset === "completo") return { modulos: {} };
+        const ativos = MODULOS_PRESETS[preset] as readonly string[];
+        const m: ModulosAtivos = {};
+        ativos.forEach((u) => (m[u] = true));
+        return { modulos: m };
+      }),
+      setOnboardingFeito: (v) => set(() => ({ onboardingFeito: v })),
+      setGatilho: (estado, patch) => set((s) => ({
+        gatilhos: s.gatilhos.some((g) => g.estado === estado)
+          ? s.gatilhos.map((g) => (g.estado === estado ? { ...g, ...patch } : g))
+          : [...s.gatilhos, { estado, ativo: true, canal: "whatsapp", template: "", ...patch } as GatilhoNotificacao],
+      })),
+      setTraducao: (lang, source, target) => set((s) => ({
+        traducoes: { ...s.traducoes, [lang]: { ...(s.traducoes[lang] || {}), [source]: target } },
+      })),
+      dispararGatilho: (encomendaId, estado) => set((s) => {
+        const g = s.gatilhos.find((x) => x.estado === estado && x.ativo);
+        if (!g) return {} as any;
+        const enc = s.encomendas.find((e) => e.id === encomendaId);
+        if (!enc) return {} as any;
+        const cli = s.clientes.find((c) => c.id === enc.clienteId);
+        const texto = (g.template || "")
+          .replace("{cliente}", cli?.nome || "cliente")
+          .replace("{encomenda}", enc.descricao || enc.codigo || enc.id)
+          .replace("{estado}", estado);
+        const canais = g.canal === "ambos" ? ["whatsapp", "email"] as const : [g.canal];
+        const novas: Notificacao[] = canais.map((c) => ({
+          id: uid(), encomendaId, clienteId: enc.clienteId, canal: c, estadoAlvo: estado, texto, enviada: false, data: new Date().toISOString(),
+        }));
+        return { notificacoes: [...novas, ...s.notificacoes].slice(0, 500) };
+      }),
+      consumirStockPorEtsy: (etsyListingId, quantidade = 1) => {
+        const state = (useStore as any).getState() as State;
+        const prod = state.etsyProdutos.find((p) => p.etsyListingId === etsyListingId);
+        if (!prod) return { ok: false, faltas: ["produto não mapeado"] };
+        const faltas: string[] = [];
+        prod.materiais.forEach((mu) => {
+          const m = state.materiais.find((x) => x.id === mu.materialId);
+          if (!m || m.stock < mu.quantidade * quantidade) faltas.push(m?.nome || mu.materialId);
+        });
+        set((s) => ({
+          materiais: s.materiais.map((m) => {
+            const uso = prod.materiais.find((mu) => mu.materialId === m.id);
+            return uso ? { ...m, stock: Math.max(0, m.stock - uso.quantidade * quantidade) } : m;
+          }),
+        }));
+        return { ok: faltas.length === 0, faltas };
+      },
     }),
     { name: "atelier-store-v2" },
   ),
