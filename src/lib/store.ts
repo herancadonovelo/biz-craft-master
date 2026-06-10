@@ -216,6 +216,89 @@ export interface SincronizacaoConfig {
 
 export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
 
+export interface WhatsappTemplate {
+  id: ID;
+  nome: string;
+  texto: string; // pode conter {cliente} {encomenda} {estado}
+}
+
+export interface WhatsappMensagem {
+  id: ID;
+  clienteId?: ID;
+  encomendaId?: ID;
+  direcao: "in" | "out";
+  texto: string;
+  data: string;
+}
+
+export interface Notificacao {
+  id: ID;
+  encomendaId?: ID;
+  clienteId?: ID;
+  canal: "email" | "whatsapp";
+  estadoAlvo: string;
+  texto: string;
+  enviada: boolean;
+  data: string;
+}
+
+export interface GatilhoNotificacao {
+  estado: string; // estado da encomenda que dispara
+  ativo: boolean;
+  canal: "email" | "whatsapp" | "ambos";
+  template: string; // texto com placeholders
+}
+
+export interface EtsyConfig {
+  shopId: string;
+  apiKey: string;
+  ativo: boolean;
+  ultimaSync?: string;
+}
+
+export interface EtsyProdutoMap {
+  id: ID;
+  etsyListingId: string;
+  nome: string;
+  materiais: MaterialUsado[]; // BOM para descontar stock
+}
+
+export interface FicheiroDigital {
+  id: ID;
+  nome: string;
+  tipo: "receita" | "molde" | "ebook" | "outro";
+  origem: "etsy" | "manual";
+  etsyListingId?: string;
+  url?: string;
+  ficheiroBase64?: string;
+  notas?: string;
+  criadoEm: string;
+}
+
+export interface TraducoesCustom {
+  // { "pt|en": { "Texto original": "Translated text" } }
+  [lang: string]: Record<string, string>;
+}
+
+export interface ModulosAtivos {
+  [url: string]: boolean;
+}
+
+export const MODULOS_PRESETS = {
+  essencial: [
+    "/", "/encomendas", "/estado-encomendas", "/clientes", "/stock",
+    "/calculadora", "/faturacao", "/configuracoes",
+  ],
+  padrao: [
+    "/", "/assistente", "/encomendas", "/estado-encomendas", "/projetos",
+    "/calculadora", "/horas", "/todo", "/stock", "/fornecedores",
+    "/lista-compras", "/clientes", "/vendas", "/faturacao",
+    "/historico-faturas", "/cashflow", "/despesas", "/perfil-negocio",
+    "/configuracoes", "/idioma", "/etiquetas",
+  ],
+  completo: null, // tudo
+} as const;
+
 export interface ContaPlataforma {
   id: ID;
   plataforma: string;
@@ -312,6 +395,17 @@ interface State {
   perfilNegocio: PerfilNegocio;
   sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
+  // novos
+  whatsappTemplates: WhatsappTemplate[];
+  whatsappMensagens: WhatsappMensagem[];
+  notificacoes: Notificacao[];
+  gatilhos: GatilhoNotificacao[];
+  etsyConfig: EtsyConfig;
+  etsyProdutos: EtsyProdutoMap[];
+  ficheirosDigitais: FicheiroDigital[];
+  traducoes: TraducoesCustom;
+  modulos: ModulosAtivos;
+  onboardingFeito: boolean;
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -321,6 +415,15 @@ interface State {
   setPerfil: (patch: Partial<PerfilNegocio>) => void;
   setSync: (patch: Partial<SincronizacaoConfig>) => void;
   audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
+  setEtsy: (patch: Partial<EtsyConfig>) => void;
+  setModulo: (url: string, ativo: boolean) => void;
+  setModulos: (m: ModulosAtivos) => void;
+  aplicarPreset: (preset: "essencial" | "padrao" | "completo") => void;
+  setOnboardingFeito: (v: boolean) => void;
+  setGatilho: (estado: string, patch: Partial<GatilhoNotificacao>) => void;
+  setTraducao: (lang: string, source: string, target: string) => void;
+  dispararGatilho: (encomendaId: ID, estado: string) => void;
+  consumirStockPorEtsy: (etsyListingId: string, quantidade?: number) => { ok: boolean; faltas: string[] };
 }
 
 type CollectionMap = {
@@ -345,6 +448,11 @@ type CollectionMap = {
   eventos: EventoAgenda;
   auditoria: AuditLog;
   etiquetas: EtiquetaEnvio;
+  whatsappTemplates: WhatsappTemplate;
+  whatsappMensagens: WhatsappMensagem;
+  notificacoes: Notificacao;
+  etsyProdutos: EtsyProdutoMap;
+  ficheirosDigitais: FicheiroDigital;
 };
 
 const seed = (): Pick<
