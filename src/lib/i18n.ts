@@ -421,3 +421,37 @@ export function useT() {
   const dict = dicts[idioma] ?? pt;
   return (key: string) => dict[key] ?? pt[key] ?? key;
 }
+
+// Traduz conteúdo dinâmico (descrições, títulos guardados na BD local).
+// Usa primeiro o dicionário custom guardado em store (editável pelo utilizador
+// em /traducoes), depois fallback a dicionário built-in básico, depois ao texto original.
+const builtin: Record<string, Record<string, string>> = {
+  en: {
+    "pendente": "pending", "em_producao": "in production", "pronta": "ready",
+    "entregue": "delivered", "cancelada": "cancelled",
+    "rascunho": "draft", "em_curso": "in progress", "concluido": "completed",
+    "emitida": "issued", "paga": "paid",
+    "mensal": "monthly", "anual": "yearly",
+    "entrada": "income", "saida": "expense",
+    "baixa": "low", "media": "medium", "alta": "high",
+    "Sem cliente": "No client", "Vazio": "Empty",
+  },
+  es: { "pendente": "pendiente", "em_producao": "en producción", "pronta": "lista", "entregue": "entregada", "cancelada": "cancelada", "Sem cliente": "Sin cliente", "Vazio": "Vacío" },
+  fr: { "pendente": "en attente", "em_producao": "en production", "pronta": "prête", "entregue": "livrée", "cancelada": "annulée", "Sem cliente": "Sans client", "Vazio": "Vide" },
+  de: { "pendente": "ausstehend", "em_producao": "in Produktion", "pronta": "bereit", "entregue": "geliefert", "cancelada": "storniert", "Sem cliente": "Kein Kunde", "Vazio": "Leer" },
+  it: { "pendente": "in attesa", "em_producao": "in produzione", "pronta": "pronta", "entregue": "consegnata", "cancelada": "annullata", "Sem cliente": "Nessun cliente", "Vazio": "Vuoto" },
+};
+
+export function useTT() {
+  const idioma = useStore((s) => s.design.idioma);
+  const custom = useStore((s) => s.traducoes);
+  return (text: string | undefined | null) => {
+    if (!text) return text ?? "";
+    if (idioma === "pt") return text;
+    return (
+      custom?.[idioma]?.[text] ??
+      builtin[idioma]?.[text] ??
+      text
+    );
+  };
+}
