@@ -24,7 +24,7 @@ const ESTADO_COR: Record<string, string> = {
 export const Route = createFileRoute("/encomendas")({
   head: () => ({ meta: [{ title: "Encomendas" }] }),
   component: () => {
-    const { encomendas, clientes, projetos, materiais, add, remove, update, audit } = useStore();
+    const { encomendas, clientes, projetos, materiais, add, remove, update, audit, dispararGatilho, gatilhos } = useStore();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ clienteId: "", projetoId: "", descricao: "", estado: "pendente" as const, prazo: "", preco: 0 });
@@ -106,7 +106,15 @@ export const Route = createFileRoute("/encomendas")({
                     <TableCell>{e.prazo ?? "—"}</TableCell>
                     <TableCell className="font-display">{formatEUR(e.preco)}</TableCell>
                     <TableCell>
-                      <Select value={e.estado} onValueChange={(v: any) => { audit("alterou estado da encomenda", "encomenda", e.id, `${e.estado} → ${v}`); update("encomendas", e.id, { estado: v }); }}>
+                      <Select value={e.estado} onValueChange={(v: any) => {
+                        audit("alterou estado da encomenda", "encomenda", e.id, `${e.estado} → ${v}`);
+                        update("encomendas", e.id, { estado: v });
+                        const g = gatilhos.find((x) => x.estado === v && x.ativo);
+                        if (g) {
+                          dispararGatilho(e.id, v);
+                          toast.success(`Notificação preparada (${g.canal}) — vê em /notificacoes`);
+                        }
+                      }}>
                         <SelectTrigger className="h-8 w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {["pendente", "em_producao", "pronta", "entregue", "cancelada"].map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
