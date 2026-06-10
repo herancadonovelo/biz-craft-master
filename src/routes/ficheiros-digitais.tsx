@@ -14,7 +14,7 @@ export const Route = createFileRoute("/ficheiros-digitais")({
   head: () => ({ meta: [{ title: "Ficheiros digitais" }] }),
   component: () => {
     const { ficheirosDigitais, add, remove } = useStore();
-    const [novo, setNovo] = useState({ nome: "", tipo: "receita" as const, origem: "manual" as const, etsyListingId: "", url: "", ficheiroBase64: "", notas: "" });
+    const [novo, setNovo] = useState({ nome: "", tipo: "receita" as "receita" | "molde" | "ebook" | "outro", origem: "manual" as "manual" | "etsy", etsyListingId: "", url: "", ficheiroBase64: "", notas: "" });
     const upload = (f?: File) => {
       if (!f) return;
       const r = new FileReader();
