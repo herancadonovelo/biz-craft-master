@@ -587,6 +587,24 @@ export const useStore = create<State>()(
   persist(
     (set) => ({
       ...seed(),
+      whatsappTemplates: [
+        { id: uid(), nome: "Encomenda em processamento", texto: "Olá {cliente}, a tua encomenda {encomenda} está agora em processamento. Obrigada!" },
+        { id: uid(), nome: "Encomenda pronta", texto: "Olá {cliente}, a tua encomenda {encomenda} está pronta para envio/levantamento." },
+        { id: uid(), nome: "Encomenda enviada", texto: "Olá {cliente}, a tua encomenda {encomenda} foi enviada hoje. Em breve estará contigo." },
+      ],
+      whatsappMensagens: [],
+      notificacoes: [],
+      gatilhos: [
+        { estado: "em_producao", ativo: true, canal: "whatsapp", template: "Olá {cliente}, a tua encomenda {encomenda} entrou em produção." },
+        { estado: "pronta", ativo: true, canal: "whatsapp", template: "Olá {cliente}, a tua encomenda {encomenda} está pronta!" },
+        { estado: "entregue", ativo: false, canal: "email", template: "Olá {cliente}, a tua encomenda {encomenda} foi entregue. Obrigada pela preferência." },
+      ],
+      etsyConfig: { shopId: "", apiKey: "", ativo: false },
+      etsyProdutos: [],
+      ficheirosDigitais: [],
+      traducoes: {},
+      modulos: {},
+      onboardingFeito: false,
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
@@ -605,6 +623,58 @@ export const useStore = create<State>()(
             ...s.auditoria,
           ].slice(0, 500),
         })),
+      setEtsy: (patch) => set((s) => ({ etsyConfig: { ...s.etsyConfig, ...patch } })),
+      setModulo: (url, ativo) => set((s) => ({ modulos: { ...s.modulos, [url]: ativo } })),
+      setModulos: (m) => set(() => ({ modulos: m })),
+      aplicarPreset: (preset) => set(() => {
+        if (preset === "completo") return { modulos: {} };
+        const ativos = MODULOS_PRESETS[preset] as readonly string[];
+        const m: ModulosAtivos = {};
+        ativos.forEach((u) => (m[u] = true));
+        return { modulos: m };
+      }),
+      setOnboardingFeito: (v) => set(() => ({ onboardingFeito: v })),
+      setGatilho: (estado, patch) => set((s) => ({
+        gatilhos: s.gatilhos.some((g) => g.estado === estado)
+          ? s.gatilhos.map((g) => (g.estado === estado ? { ...g, ...patch } : g))
+          : [...s.gatilhos, { estado, ativo: true, canal: "whatsapp", template: "", ...patch } as GatilhoNotificacao],
+      })),
+      setTraducao: (lang, source, target) => set((s) => ({
+        traducoes: { ...s.traducoes, [lang]: { ...(s.traducoes[lang] || {}), [source]: target } },
+      })),
+      dispararGatilho: (encomendaId, estado) => set((s) => {
+        const g = s.gatilhos.find((x) => x.estado === estado && x.ativo);
+        if (!g) return {} as any;
+        const enc = s.encomendas.find((e) => e.id === encomendaId);
+        if (!enc) return {} as any;
+        const cli = s.clientes.find((c) => c.id === enc.clienteId);
+        const texto = (g.template || "")
+          .replace("{cliente}", cli?.nome || "cliente")
+          .replace("{encomenda}", enc.descricao || enc.codigo || enc.id)
+          .replace("{estado}", estado);
+        const canais = g.canal === "ambos" ? ["whatsapp", "email"] as const : [g.canal];
+        const novas: Notificacao[] = canais.map((c) => ({
+          id: uid(), encomendaId, clienteId: enc.clienteId, canal: c, estadoAlvo: estado, texto, enviada: false, data: new Date().toISOString(),
+        }));
+        return { notificacoes: [...novas, ...s.notificacoes].slice(0, 500) };
+      }),
+      consumirStockPorEtsy: (etsyListingId, quantidade = 1) => {
+        const state = (useStore as any).getState() as State;
+        const prod = state.etsyProdutos.find((p) => p.etsyListingId === etsyListingId);
+        if (!prod) return { ok: false, faltas: ["produto não mapeado"] };
+        const faltas: string[] = [];
+        prod.materiais.forEach((mu) => {
+          const m = state.materiais.find((x) => x.id === mu.materialId);
+          if (!m || m.stock < mu.quantidade * quantidade) faltas.push(m?.nome || mu.materialId);
+        });
+        set((s) => ({
+          materiais: s.materiais.map((m) => {
+            const uso = prod.materiais.find((mu) => mu.materialId === m.id);
+            return uso ? { ...m, stock: Math.max(0, m.stock - uso.quantidade * quantidade) } : m;
+          }),
+        }));
+        return { ok: faltas.length === 0, faltas };
+      },
     }),
     { name: "atelier-store-v2" },
   ),
