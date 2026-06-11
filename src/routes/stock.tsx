@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useStore, formatEUR } from "@/lib/store";
+import { useTT } from "@/lib/i18n";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/stock")({
   head: () => ({ meta: [{ title: "Stock de material" }] }),
   component: () => {
     const { materiais, fornecedores, add, remove, update } = useStore();
+    const tt = useTT();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", codigo: "", unidade: "novelo", stock: 0, stockMinimo: 5, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" });
