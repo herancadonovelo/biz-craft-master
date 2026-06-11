@@ -432,6 +432,9 @@ interface State {
   etsyConfig: EtsyConfig;
   etsyProdutos: EtsyProdutoMap[];
   ficheirosDigitais: FicheiroDigital[];
+  catalogo: CatalogoItem[];
+  biblioteca: BibliotecaItem[];
+  webhooksProcessados: Record<string, true>;
   traducoes: TraducoesCustom;
   modulos: ModulosAtivos;
   onboardingFeito: boolean;
@@ -453,6 +456,8 @@ interface State {
   setTraducao: (lang: string, source: string, target: string) => void;
   dispararGatilho: (encomendaId: ID, estado: string) => void;
   consumirStockPorEtsy: (etsyListingId: string, quantidade?: number) => { ok: boolean; faltas: string[] };
+  processarWebhookEtsy: (evt: { id: string; listingId: string; quantidade?: number; variacao?: string; clienteNome?: string; clienteEmail?: string; descricao?: string; valor?: number }) => { ok: boolean; motivo?: string };
+  processarWebhookWhatsapp: (evt: { id: string; telefone?: string; texto: string; direcao?: "in" | "out"; data?: string; nome?: string }) => { ok: boolean; motivo?: string };
 }
 
 type CollectionMap = {
