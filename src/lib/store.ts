@@ -772,8 +772,9 @@ export const useStore = create<State>()(
         const state = (useStore as any).getState() as State;
         if (state.webhooksProcessados[evt.id]) return { ok: false, motivo: "evento já processado" };
         // Associa cliente pelo telefone
-        const cliente = evt.telefone
-          ? state.clientes.find((c) => (c.telefone || "").replace(/\s+/g, "") === evt.telefone.replace(/\s+/g, ""))
+        const tel = (evt.telefone || "").replace(/\s+/g, "");
+        const cliente = tel
+          ? state.clientes.find((c) => (c.telefone || "").replace(/\s+/g, "") === tel)
           : undefined;
         // Tenta associar à encomenda mais recente desse cliente
         const enc = cliente
