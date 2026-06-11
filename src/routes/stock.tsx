@@ -82,7 +82,7 @@ export const Route = createFileRoute("/stock")({
                   <TableRow key={m.id}>
                     <TableCell>{m.imagem ? <img src={m.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{m.codigo ?? "—"}</TableCell>
-                    <TableCell className="font-medium">{m.nome}</TableCell>
+                    <TableCell className="font-medium">{tt(m.nome)}</TableCell>
                     <TableCell>
                       <div className="space-y-0.5 text-xs">
                         <div>{f?.nome ?? "—"} · {formatEUR(m.precoCompra)}</div>

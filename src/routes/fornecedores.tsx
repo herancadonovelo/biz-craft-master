@@ -52,7 +52,7 @@ export const Route = createFileRoute("/fornecedores")({
               {fornecedores.filter((f) => (f.nome + " " + (f.email ?? "") + " " + (f.contacto ?? "")).toLowerCase().includes(q.toLowerCase())).map((f) => (
                 <TableRow key={f.id}>
                   <TableCell>{f.imagem ? <img src={f.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
-                  <TableCell className="font-medium">{f.nome}</TableCell>
+                  <TableCell className="font-medium">{tt(f.nome)}</TableCell>
                   <TableCell>{f.contacto}</TableCell>
                   <TableCell>{f.email}</TableCell>
                   <TableCell>{materiais.filter((m) => m.fornecedorId === f.id).length}</TableCell>

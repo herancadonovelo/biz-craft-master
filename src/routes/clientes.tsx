@@ -78,7 +78,7 @@ function ClientesPage() {
             {clientes.filter((c) => (c.nome + " " + (c.email ?? "") + " " + (c.telefone ?? "")).toLowerCase().includes(q.toLowerCase())).map((c) => (
               <TableRow key={c.id}>
                 <TableCell>{c.imagem ? <img src={c.imagem} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-muted" />}</TableCell>
-                <TableCell className="font-medium">{c.nome}</TableCell>
+                <TableCell className="font-medium">{tt(c.nome)}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.telefone}</TableCell>
                 <TableCell>{c.morada}</TableCell>
