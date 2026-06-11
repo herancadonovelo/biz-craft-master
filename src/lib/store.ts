@@ -487,6 +487,8 @@ type CollectionMap = {
   notificacoes: Notificacao;
   etsyProdutos: EtsyProdutoMap;
   ficheirosDigitais: FicheiroDigital;
+  catalogo: CatalogoItem;
+  biblioteca: BibliotecaItem;
 };
 
 const seed = (): Pick<
@@ -636,6 +638,9 @@ export const useStore = create<State>()(
       etsyConfig: { shopId: "", apiKey: "", ativo: false },
       etsyProdutos: [],
       ficheirosDigitais: [],
+      catalogo: [],
+      biblioteca: [],
+      webhooksProcessados: {},
       traducoes: {},
       modulos: {},
       onboardingFeito: false,
