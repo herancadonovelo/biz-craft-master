@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Calculator as CalcIcon, Check, FileText } from "lucide-react";
+import { Plus, Trash2, Calculator as CalcIcon, Check, FileText, Package } from "lucide-react";
 import { toast } from "sonner";
 
 type Linha = { id: string; materialId: string; quantidade: number };
@@ -218,6 +218,24 @@ export const Route = createFileRoute("/calculadora")({
               )}
               <Button className="w-full" onClick={converterEmFatura} disabled={!projetoId || precoFinal <= 0}>
                 <FileText className="mr-1 h-4 w-4" />Converter em fatura
+              </Button>
+              <Button variant="outline" className="w-full" disabled={precoFinal <= 0} onClick={() => {
+                const proj = projetos.find((p) => p.id === projetoId);
+                addEntity("catalogo", {
+                  nome: proj?.nome || "Peça sem nome",
+                  descricao: `Materiais ${formatEUR(custoMat)} · ${horas}h × ${formatEUR(precoHora)} · margem ${margem}%`,
+                  precoVenda: Number(precoFinal.toFixed(2)),
+                  custoMateriais: Number(custoMat.toFixed(2)),
+                  custoHoras: Number(custoHoras.toFixed(2)),
+                  margem,
+                  projetoId: projetoId || undefined,
+                  ativo: true,
+                  criadoEm: new Date().toISOString(),
+                } as any);
+                audit("guardou item no catálogo", "catalogo", undefined, `${proj?.nome || ""} · ${precoFinal.toFixed(2)}€`);
+                toast.success("Guardado no Catálogo como preço de venda");
+              }}>
+                <Package className="mr-1 h-4 w-4" />Guardar no Catálogo
               </Button>
             </CardContent>
           </Card>
