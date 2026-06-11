@@ -714,6 +714,88 @@ export const useStore = create<State>()(
         }));
         return { ok: faltas.length === 0, faltas };
       },
+      processarWebhookEtsy: (evt) => {
+        const state = (useStore as any).getState() as State;
+        if (state.webhooksProcessados[evt.id]) return { ok: false, motivo: "evento já processado" };
+        const prod = state.etsyProdutos.find(
+          (p) => p.etsyListingId === evt.listingId && (!evt.variacao || p.variacao === evt.variacao),
+        );
+        if (!prod) {
+          set((s) => ({ webhooksProcessados: { ...s.webhooksProcessados, [evt.id]: true } }));
+          return { ok: false, motivo: "listing não mapeado" };
+        }
+        // Cria/atualiza cliente
+        let clienteId: ID | undefined;
+        if (evt.clienteEmail || evt.clienteNome) {
+          const existing = state.clientes.find(
+            (c) => (evt.clienteEmail && c.email === evt.clienteEmail) || (!evt.clienteEmail && c.nome === evt.clienteNome),
+          );
+          if (existing) clienteId = existing.id;
+          else {
+            clienteId = uid();
+            set((s) => ({
+              clientes: [
+                ...s.clientes,
+                { id: clienteId!, nome: evt.clienteNome || "Cliente Etsy", email: evt.clienteEmail, criadoEm: new Date().toISOString() },
+              ],
+            }));
+          }
+        }
+        // Cria encomenda
+        const encId = uid();
+        set((s) => ({
+          encomendas: [
+            ...s.encomendas,
+            {
+              id: encId,
+              clienteId,
+              descricao: evt.descricao || prod.nome,
+              estado: prod.tipo === "digital" ? "entregue" : "pendente",
+              preco: evt.valor || 0,
+              criadoEm: new Date().toISOString(),
+              codigo: `ETSY-${evt.id.slice(0, 8)}`,
+            },
+          ],
+        }));
+        // Desconta stock só para físicos e só uma vez (idempotente via webhooksProcessados)
+        if (prod.tipo !== "digital") {
+          const r = (useStore as any).getState().consumirStockPorEtsy(evt.listingId, evt.quantidade || 1);
+          if (!r.ok) {
+            (useStore as any).getState().audit("falha de stock em webhook Etsy", "encomenda", encId, `Faltas: ${r.faltas.join(", ")}`);
+          }
+        }
+        set((s) => ({ webhooksProcessados: { ...s.webhooksProcessados, [evt.id]: true } }));
+        (useStore as any).getState().audit("webhook Etsy processado", "encomenda", encId, `${prod.nome}${evt.variacao ? ` · ${evt.variacao}` : ""}`);
+        return { ok: true };
+      },
+      processarWebhookWhatsapp: (evt) => {
+        const state = (useStore as any).getState() as State;
+        if (state.webhooksProcessados[evt.id]) return { ok: false, motivo: "evento já processado" };
+        // Associa cliente pelo telefone
+        const cliente = evt.telefone
+          ? state.clientes.find((c) => (c.telefone || "").replace(/\s+/g, "") === evt.telefone.replace(/\s+/g, ""))
+          : undefined;
+        // Tenta associar à encomenda mais recente desse cliente
+        const enc = cliente
+          ? [...state.encomendas].filter((e) => e.clienteId === cliente.id).sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))[0]
+          : undefined;
+        set((s) => ({
+          whatsappMensagens: [
+            ...s.whatsappMensagens,
+            {
+              id: uid(),
+              clienteId: cliente?.id,
+              encomendaId: enc?.id,
+              direcao: evt.direcao || "in",
+              texto: evt.texto,
+              data: evt.data || new Date().toISOString(),
+            },
+          ],
+          webhooksProcessados: { ...s.webhooksProcessados, [evt.id]: true },
+        }));
+        (useStore as any).getState().audit("webhook WhatsApp recebido", "whatsapp", cliente?.id, evt.texto.slice(0, 80));
+        return { ok: true };
+      },
     }),
     { name: "atelier-store-v2" },
   ),
