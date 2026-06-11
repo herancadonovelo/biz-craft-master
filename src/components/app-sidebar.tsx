@@ -41,6 +41,8 @@ import {
   ShoppingBasket,
   FileDigit,
   Globe,
+  BookOpen,
+  Layers,
 } from "lucide-react";
 import {
   Sidebar,
@@ -79,6 +81,8 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
       { title: t("nav.portfolio"), url: "/portfolio", icon: ImageIcon },
       { title: t("nav.labels"), url: "/etiquetas", icon: Tags },
+      { title: t("nav.catalog"), url: "/catalogo", icon: Layers },
+      { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
     ],
   },
   {

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useStore, formatEUR } from "@/lib/store";
+import { useTT } from "@/lib/i18n";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/stock")({
   head: () => ({ meta: [{ title: "Stock de material" }] }),
   component: () => {
     const { materiais, fornecedores, add, remove, update } = useStore();
+    const tt = useTT();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", codigo: "", unidade: "novelo", stock: 0, stockMinimo: 5, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" });
@@ -82,7 +84,7 @@ export const Route = createFileRoute("/stock")({
                   <TableRow key={m.id}>
                     <TableCell>{m.imagem ? <img src={m.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{m.codigo ?? "—"}</TableCell>
-                    <TableCell className="font-medium">{m.nome}</TableCell>
+                    <TableCell className="font-medium">{tt(m.nome)}</TableCell>
                     <TableCell>
                       <div className="space-y-0.5 text-xs">
                         <div>{f?.nome ?? "—"} · {formatEUR(m.precoCompra)}</div>

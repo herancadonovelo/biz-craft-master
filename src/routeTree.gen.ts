@@ -45,13 +45,18 @@ import { Route as ContasRouteImport } from './routes/contas'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ClientesRouteImport } from './routes/clientes'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
+import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
+import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
+import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 
 const WhatsappRoute = WhatsappRouteImport.update({
   id: '/whatsapp',
@@ -233,6 +238,11 @@ const ClientesRoute = ClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CashflowRoute = CashflowRouteImport.update({
   id: '/cashflow',
   path: '/cashflow',
@@ -246,6 +256,11 @@ const CalendarioRoute = CalendarioRouteImport.update({
 const CalculadoraRoute = CalculadoraRouteImport.update({
   id: '/calculadora',
   path: '/calculadora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibliotecaRoute = BibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditoriaRoute = AuditoriaRouteImport.update({
@@ -268,15 +283,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksWhatsappRoute =
+  ApiPublicWebhooksWhatsappRouteImport.update({
+    id: '/api/public/webhooks/whatsapp',
+    path: '/api/public/webhooks/whatsapp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWebhooksPendingRoute =
+  ApiPublicWebhooksPendingRouteImport.update({
+    id: '/api/public/webhooks/pending',
+    path: '/api/public/webhooks/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
+  id: '/api/public/webhooks/etsy',
+  path: '/api/public/webhooks/etsy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
+  '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
@@ -313,15 +347,20 @@ export interface FileRoutesByFullPath {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
+  '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
@@ -358,6 +397,9 @@ export interface FileRoutesByTo {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -365,9 +407,11 @@ export interface FileRoutesById {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
   '/cashflow': typeof CashflowRoute
+  '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
@@ -404,6 +448,9 @@ export interface FileRoutesById {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -412,9 +459,11 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/biblioteca'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
+    | '/catalogo'
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
@@ -451,15 +500,20 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/pending'
+    | '/api/public/webhooks/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/biblioteca'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
+    | '/catalogo'
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
@@ -496,15 +550,20 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/pending'
+    | '/api/public/webhooks/whatsapp'
   id:
     | '__root__'
     | '/'
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/biblioteca'
     | '/calculadora'
     | '/calendario'
     | '/cashflow'
+    | '/catalogo'
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
@@ -541,6 +600,9 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/pending'
+    | '/api/public/webhooks/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -548,9 +610,11 @@ export interface RootRouteChildren {
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   AuditoriaRoute: typeof AuditoriaRoute
+  BibliotecaRoute: typeof BibliotecaRoute
   CalculadoraRoute: typeof CalculadoraRoute
   CalendarioRoute: typeof CalendarioRoute
   CashflowRoute: typeof CashflowRoute
+  CatalogoRoute: typeof CatalogoRoute
   ClientesRoute: typeof ClientesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ContactoRoute: typeof ContactoRoute
@@ -587,6 +651,9 @@ export interface RootRouteChildren {
   TraducoesRoute: typeof TraducoesRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
+  ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
+  ApiPublicWebhooksPendingRoute: typeof ApiPublicWebhooksPendingRoute
+  ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -843,6 +910,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cashflow': {
       id: '/cashflow'
       path: '/cashflow'
@@ -862,6 +936,13 @@ declare module '@tanstack/react-router' {
       path: '/calculadora'
       fullPath: '/calculadora'
       preLoaderRoute: typeof CalculadoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auditoria': {
@@ -892,6 +973,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/whatsapp': {
+      id: '/api/public/webhooks/whatsapp'
+      path: '/api/public/webhooks/whatsapp'
+      fullPath: '/api/public/webhooks/whatsapp'
+      preLoaderRoute: typeof ApiPublicWebhooksWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/pending': {
+      id: '/api/public/webhooks/pending'
+      path: '/api/public/webhooks/pending'
+      fullPath: '/api/public/webhooks/pending'
+      preLoaderRoute: typeof ApiPublicWebhooksPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/etsy': {
+      id: '/api/public/webhooks/etsy'
+      path: '/api/public/webhooks/etsy'
+      fullPath: '/api/public/webhooks/etsy'
+      preLoaderRoute: typeof ApiPublicWebhooksEtsyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -900,9 +1002,11 @@ const rootRouteChildren: RootRouteChildren = {
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   AuditoriaRoute: AuditoriaRoute,
+  BibliotecaRoute: BibliotecaRoute,
   CalculadoraRoute: CalculadoraRoute,
   CalendarioRoute: CalendarioRoute,
   CashflowRoute: CashflowRoute,
+  CatalogoRoute: CatalogoRoute,
   ClientesRoute: ClientesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ContactoRoute: ContactoRoute,
@@ -939,6 +1043,9 @@ const rootRouteChildren: RootRouteChildren = {
   TraducoesRoute: TraducoesRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
+  ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
+  ApiPublicWebhooksPendingRoute: ApiPublicWebhooksPendingRoute,
+  ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { useTT } from "@/lib/i18n";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/fornecedores")({
   head: () => ({ meta: [{ title: "Fornecedores" }] }),
   component: () => {
     const { fornecedores, materiais, add, remove } = useStore();
+    const tt = useTT();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", contacto: "", email: "", website: "", notas: "", imagem: "" });
@@ -52,7 +54,7 @@ export const Route = createFileRoute("/fornecedores")({
               {fornecedores.filter((f) => (f.nome + " " + (f.email ?? "") + " " + (f.contacto ?? "")).toLowerCase().includes(q.toLowerCase())).map((f) => (
                 <TableRow key={f.id}>
                   <TableCell>{f.imagem ? <img src={f.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
-                  <TableCell className="font-medium">{f.nome}</TableCell>
+                  <TableCell className="font-medium">{tt(f.nome)}</TableCell>
                   <TableCell>{f.contacto}</TableCell>
                   <TableCell>{f.email}</TableCell>
                   <TableCell>{materiais.filter((m) => m.fornecedorId === f.id).length}</TableCell>
