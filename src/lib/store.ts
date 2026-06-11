@@ -260,6 +260,9 @@ export interface EtsyProdutoMap {
   id: ID;
   etsyListingId: string;
   nome: string;
+  variacao?: string;
+  tipo?: "fisico" | "digital";
+  ficheiroDigitalId?: ID;
   materiais: MaterialUsado[]; // BOM para descontar stock
 }
 
@@ -272,6 +275,32 @@ export interface FicheiroDigital {
   url?: string;
   ficheiroBase64?: string;
   notas?: string;
+  criadoEm: string;
+}
+
+export interface CatalogoItem {
+  id: ID;
+  nome: string;
+  descricao?: string;
+  precoVenda: number;
+  custoMateriais?: number;
+  custoHoras?: number;
+  margem?: number;
+  projetoId?: ID;
+  imagem?: string;
+  ativo: boolean;
+  criadoEm: string;
+}
+
+export interface BibliotecaItem {
+  id: ID;
+  titulo: string;
+  categoria: string;
+  tipo: "molde" | "receita" | "tutorial" | "outro";
+  descricao?: string;
+  url?: string;
+  ficheiroBase64?: string;
+  tamanhoKb?: number;
   criadoEm: string;
 }
 
