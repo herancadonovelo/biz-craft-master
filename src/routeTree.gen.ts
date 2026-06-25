@@ -46,6 +46,7 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ContasRouteImport } from './routes/contas'
+import { Route as ContadorRouteImport } from './routes/contador'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ClientesRouteImport } from './routes/clientes'
@@ -248,6 +249,11 @@ const ContasRoute = ContasRouteImport.update({
   path: '/contas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContadorRoute = ContadorRouteImport.update({
+  id: '/contador',
+  path: '/contador',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactoRoute = ContactoRouteImport.update({
   id: '/contacto',
   path: '/contacto',
@@ -344,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
@@ -399,6 +406,7 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
@@ -455,6 +463,7 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
@@ -622,6 +633,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
@@ -678,6 +690,7 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ContactoRoute: typeof ContactoRoute
+  ContadorRoute: typeof ContadorRoute
   ContasRoute: typeof ContasRoute
   CrescimentoRoute: typeof CrescimentoRoute
   CursosRoute: typeof CursosRoute
@@ -981,6 +994,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contador': {
+      id: '/contador'
+      path: '/contador'
+      fullPath: '/contador'
+      preLoaderRoute: typeof ContadorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contacto': {
       id: '/contacto'
       path: '/contacto'
@@ -1121,6 +1141,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ContactoRoute: ContactoRoute,
+  ContadorRoute: ContadorRoute,
   ContasRoute: ContasRoute,
   CrescimentoRoute: CrescimentoRoute,
   CursosRoute: CursosRoute,
