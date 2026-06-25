@@ -25,6 +25,7 @@ import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as NotasRouteImport } from './routes/notas'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
+import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -140,6 +141,11 @@ const MoodboardsRoute = MoodboardsRouteImport.update({
 const ModulosRoute = ModulosRouteImport.update({
   id: '/modulos',
   path: '/modulos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingCampanhasRoute = MarketingCampanhasRouteImport.update({
+  id: '/marketing-campanhas',
+  path: '/marketing-campanhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketingRoute = MarketingRouteImport.update({
@@ -358,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/notas': typeof NotasRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/notas': typeof NotasRoute
@@ -467,6 +475,7 @@ export interface FileRoutesById {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/notas': typeof NotasRoute
@@ -523,6 +532,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
     | '/moodboards'
     | '/notas'
@@ -577,6 +587,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
     | '/moodboards'
     | '/notas'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
     | '/moodboards'
     | '/notas'
@@ -686,6 +698,7 @@ export interface RootRouteChildren {
   InstagramRoute: typeof InstagramRoute
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
+  MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   ModulosRoute: typeof ModulosRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
   NotasRoute: typeof NotasRoute
@@ -819,6 +832,13 @@ declare module '@tanstack/react-router' {
       path: '/modulos'
       fullPath: '/modulos'
       preLoaderRoute: typeof ModulosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing-campanhas': {
+      id: '/marketing-campanhas'
+      path: '/marketing-campanhas'
+      fullPath: '/marketing-campanhas'
+      preLoaderRoute: typeof MarketingCampanhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketing': {
@@ -1121,6 +1141,7 @@ const rootRouteChildren: RootRouteChildren = {
   InstagramRoute: InstagramRoute,
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
+  MarketingCampanhasRoute: MarketingCampanhasRoute,
   ModulosRoute: ModulosRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
   NotasRoute: NotasRoute,
