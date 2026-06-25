@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
+import { useSubscription } from "@/lib/subscription";
 import {
   Undo2, Redo2, Trash2, Printer, Image as ImageIcon, MousePointer, PenLine,
   Copy, FlipHorizontal2, FlipVertical2, RotateCw, ZoomIn, ZoomOut, Type,
@@ -106,6 +107,7 @@ function pathMetrics(d: string, closed: boolean) {
 }
 
 function CriadorMoldes() {
+  const { requireAccess } = useSubscription();
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
   const [gridCm, setGridCm] = useState(1);
   const [showGrid, setShowGrid] = useState(true);
