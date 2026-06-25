@@ -24,7 +24,7 @@ export const Route = createFileRoute("/marketing-campanhas")({
 });
 
 function Page() {
-  const { datasFestivas, acoesMarketing, add, update, remove, design } = useStore();
+  const { datasFestivas, acoesMarketing, catalogo, add, update, remove, design } = useStore();
   const [pais, setPais] = useState("Portugal");
   const [openData, setOpenData] = useState(false);
   const [openAcao, setOpenAcao] = useState(false);
@@ -119,13 +119,14 @@ function Page() {
       </Tabs>
 
       <DialogNovaData open={openData} onClose={() => setOpenData(false)} pais={pais} add={(d) => add("datasFestivas", d)} />
-      <DialogNovaAcao open={openAcao} onClose={() => setOpenAcao(false)} add={(a) => add("acoesMarketing", a)} dataPreSel={null} />
+      <DialogNovaAcao open={openAcao} onClose={() => setOpenAcao(false)} add={(a) => add("acoesMarketing", a)} dataPreSel={null} catalogo={catalogo} />
       <DialogIdeiasIA data={detalheData} onClose={() => setDetalheData(null)} onCriarAcao={(titulo) => { setDetalheData(null); setOpenAcao(true); useStore.getState(); void titulo; }} />
     </div>
   );
 }
 
 function ListaAcoes({ acoes, remove, update }: { acoes: AcaoMarketing[]; remove: (id: string) => void; update: (id: string, p: Partial<AcaoMarketing>) => void }) {
+  const { catalogo } = useStore();
   if (acoes.length === 0) return <Card className="p-8 text-center text-muted-foreground">Sem ações ainda. Cria a primeira no separador "Calendário".</Card>;
   return (
     <div className="grid gap-3 sm:grid-cols-2">
@@ -139,6 +140,13 @@ function ListaAcoes({ acoes, remove, update }: { acoes: AcaoMarketing[]; remove:
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">{a.tipo}</div>
+            {a.imagem && <img src={a.imagem} alt={a.titulo} className="h-32 w-full rounded-md object-cover" />}
+            {a.catalogoId && (() => { const c = catalogo.find((x) => x.id === a.catalogoId); return c ? (
+              <div className="flex items-center gap-2 rounded-md border bg-muted/40 p-2">
+                {c.imagem && <img src={c.imagem} alt={c.nome} className="h-10 w-10 rounded object-cover" />}
+                <div className="text-xs"><div className="font-medium">{c.nome}</div><div className="text-muted-foreground">Catálogo</div></div>
+              </div>
+            ) : null; })()}
             {a.dataInicio && <div>📅 {a.dataInicio} — {a.dataFim || "?"}</div>}
             {a.meta && <div>🎯 {a.meta}</div>}
             {a.tipo === "promocao" && (
