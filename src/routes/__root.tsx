@@ -18,6 +18,9 @@ import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { AutoTranslator } from "@/components/AutoTranslator";
 import { WellnessTimer } from "@/components/WellnessTimer";
+import { AuthProvider } from "@/lib/auth-state";
+import { SupabaseSync } from "@/components/SupabaseSync";
+import { AuthBanner } from "@/components/AuthBanner";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -184,10 +187,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <AppSidebar />
           <div className="flex flex-1 flex-col">
+            <AuthBanner />
             <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
               <SidebarTrigger />
               <RootSubtitle />
@@ -201,7 +206,9 @@ function RootComponent() {
         <WebhookPoller />
         <AutoTranslator />
         <WellnessTimer />
+        <SupabaseSync />
       </SidebarProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

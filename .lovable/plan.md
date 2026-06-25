@@ -1,34 +1,60 @@
-Este pedido junta ~15 funcionalidades grandes (algumas já parcialmente feitas, outras novas e extensas). Para evitar partir a app proponho faseá-lo. Confirma a ordem ou ajusta antes de eu começar.
+# Reestruturação Global: localStorage → Supabase
 
-## Fase 1 — Correções e melhorias rápidas (pedidos curtos)
-1. **Modal de Módulos**: após guardar, fechar modal + redirect para `/` com refresh do dashboard.
-2. **Biblioteca — pré-visualização**: preview do PDF/imagem antes de upload e ao abrir item (lightbox + `<embed>` para PDF).
-3. **Traduções — export CSV/JSON**: botões em `/traducoes` que descarregam o relatório de chaves em falta.
-4. **WhatsApp — auto-associação**: ao receber mensagem, procurar cliente por telefone/email e encomenda mais recente; fallback "não associado" com botão para associar manualmente.
-5. **Auditoria Etsy**: nova página `/etsy-auditoria` mostrando o mapeamento variantes/downloads → materiais/stock com avisos de stock baixo.
-6. **Etsy webhook — modo teste**: endpoint que permite reenviar o mesmo `event_id` e mostra que foi ignorado (idempotência); painel em `/etsy` para disparar manualmente.
-7. **Calculadora → Catálogo**: já existe botão "Guardar no Catálogo" — validar e adicionar campos custo materiais + horas + margem ao registo.
-8. **Banner de motivação no dashboard**: frase diária rotativa pastel.
+## Contexto
 
-## Fase 2 — Secções novas médias
-9. **Bloco de Notas** (`/notas`): grid masonry, texto/checklist, cores pastel, tags, fixar, pesquisa.
-10. **Moodboards** (`/moodboards`): grid Pinterest-style, detalhe com galeria/lightbox, paleta de cores com indicador de stock, links, vincular a encomenda.
-11. **Marketing e Campanhas** (`/campanhas`): calendário festivo por país (PT/BR/AO/INT), sugestões IA (Lovable AI), formulário campanhas/promoções/giveaways.
-12. **Estados de encomenda personalizáveis** (`/estados-encomendas` já existe — expandir): CRUD de estados com cor, badge dinâmico nas encomendas.
+Hoje praticamente todos os dados da app vivem num único store Zustand persistido em `localStorage` (`src/lib/store.ts`), incluindo: materiais, fornecedores, clientes, encomendas, projetos, horas, caixa, vendas, despesas, cotações, faturas, catálogo, biblioteca, moodboards, notas, marketing, contadores, cursos, alunos, posts Instagram, ficheiros digitais, etiquetas, traduções, módulos, perfil de negócio, contas (PIN), to-dos, auditoria, etc. São ~30 coleções distintas usadas em ~50 rotas.
 
-## Fase 3 — Funcionalidades grandes (cada uma é um pedido por si só)
-13. **Contador de carreiras** (dentro da Biblioteca): modo produção, multi-contadores, memória por receita, alertas ergonómicos a cada X min.
-14. **Sistema bem-estar transversal**: timer global, modal de pausa, frases motivacionais.
-15. **Hub de Criação de Moldes/Receitas**: editor amigurumi por blocos/carreiras + editor vetorial tricotin com Fabric.js/Konva, cálculo de comprimento de arame, exportação PDF, tabela `projects` no Supabase.
+Migrar tudo de uma vez num único turno seria irrealista (centenas de chamadas, alto risco de regressão silenciosa em rotas que não cabem no contexto). Proponho fazê-lo em **fases verificáveis**, cada uma deixando a app funcional.
 
----
+## Plano por fases
 
-## Notas técnicas
-- O hub vetorial (15) precisa de instalar `fabric` ou `konva` e desenhar PDF — é o item mais pesado, ~1 dia de trabalho sozinho.
-- Sugestões IA do marketing vão usar o Lovable AI Gateway (precisa ativar Cloud).
-- Persistência atual é Zustand+localStorage. As tabelas Supabase pedidas em (15) e (12) implicam migrar essas entidades para a base de dados — confirmar se queres migração total ou só essas duas tabelas novas.
+### Fase 0 — Fundações (este turno, se aprovado)
+- Ativar Lovable Cloud (Supabase) se ainda não estiver.
+- Criar autenticação Email/Password + Google (página `/auth`, layout `_authenticated`).
+- Criar enum `app_role` + tabela `user_roles` + função `has_role` (padrão de segurança).
+- Criar helper genérico `useSupabaseCollection<T>(table)` que substitui `useStore().<colecao>` com a mesma API (`add/update/remove`) mas faz CRUD no Supabase + cache via TanStack Query + toasts de loading/erro.
+- Adicionar gate global: rotas com dados sensíveis movidas progressivamente para `_authenticated/`. Rotas públicas mostram um aviso "Inicia sessão para guardar os teus dados".
 
-## Proposta de execução
-Faço **Fase 1 inteira agora** (alto valor, baixo risco). Depois confirmas se queres Fase 2 e/ou Fase 3 nas mensagens seguintes.
+### Fase 1 — Núcleo operacional
+Tabelas + migração de UI:
+- `materiais`, `material_fornecedores` (N:N preço por fornecedor)
+- `fornecedores`
+- `clientes`
+- `encomendas`, `encomenda_itens`
+- `projetos`, `projeto_materiais`
+- `horas_trabalhadas`
 
-Confirmas: "avança Fase 1" ou diz-me o que reordenar/remover.
+### Fase 2 — Financeiro
+- `caixa_movimentos`, `vendas`, `despesas_fixas`, `cotacoes`, `faturas`, `perfil_negocio`
+
+### Fase 3 — Criação / conteúdo
+- `catalogo`, `biblioteca`, `moldes`, `moodboards`, `moodboard_imagens`, `notas`, `editor_receitas`, `contadores`
+
+### Fase 4 — Marketing / integrações / sistema
+- `marketing_acoes`, `campanhas`, `instagram_posts`, `cursos`, `alunos`
+- `whatsapp_mensagens`, `etsy_mapeamentos`, `ficheiros_digitais`
+- `todos`, `auditoria`, `notificacoes`, `etiquetas`
+- `modulos`, `design_settings`, `contas_credenciais` (cifradas), `traducoes`
+
+Todas as tabelas:
+```sql
+id uuid pk default gen_random_uuid()
+user_id uuid not null references auth.users(id) on delete cascade
+created_at, updated_at timestamps
+-- + campos específicos
+```
+Mais `GRANT SELECT,INSERT,UPDATE,DELETE ON … TO authenticated;` + RLS `using (auth.uid() = user_id)`.
+
+### Fase 5 — Limpeza
+- Remover `persist` do Zustand para coleções migradas.
+- Manter no Zustand apenas estado puramente local (UI ephemeral, ex: tema atual).
+- Importador "uma vez" que lê o `localStorage` legado e faz upload das coleções existentes do utilizador para o seu user_id.
+
+## O que peço para confirmar antes de avançar
+
+1. **Avanço por fases?** Posso começar agora pela Fase 0 + Fase 1 (núcleo: materiais, fornecedores, clientes, encomendas, projetos, horas). Depois confirmamos cada fase seguinte. Isto evita um turno gigante onde algo se parte sem darmos por isso.
+2. **Autenticação:** Email/Password + Google por defeito. Confirmas?
+3. **Dados atuais em localStorage:** Queres que faça um importador automático (ao primeiro login, faz upload do que existe no browser para a tua conta) ou começa-se com base limpa?
+4. **Módulos desativados:** mantemos as tabelas mesmo para módulos desligados, ou só criamos quando o módulo for ativado?
+
+Assim que respondas, começo pela Fase 0 + Fase 1 já neste fluxo.
