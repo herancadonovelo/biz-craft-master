@@ -53,6 +53,7 @@ import {
   PenSquare,
   Ruler,
   HardDriveDownload,
+  Crown,
 } from "lucide-react";
 import {
   Sidebar,
@@ -144,6 +145,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
       { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: "Backup & Restauro", url: "/backup", icon: HardDriveDownload },
+      { title: "Planos e Subscrições", url: "/planos", icon: Crown },
       { title: t("nav.settings"), url: "/configuracoes", icon: Settings },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
     ],
