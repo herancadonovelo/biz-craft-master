@@ -3,8 +3,9 @@ import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, HardDriveDownload } from "lucide-react";
+import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, HardDriveDownload, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
+import { loadDemoData } from "@/lib/seed-demo";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações" }] }),
@@ -36,12 +37,19 @@ export const Route = createFileRoute("/configuracoes")({
         <Card><CardContent className="space-y-3 p-4">
           <h3 className="font-display text-lg flex items-center gap-2"><Database className="h-5 w-5" />Dados locais</h3>
           <p className="text-sm text-muted-foreground">A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar.</p>
-          <Button variant="destructive" onClick={() => {
-            if (!confirm("Tens a certeza? Isto apaga TODOS os dados locais.")) return;
-            localStorage.removeItem("atelier-store-v1");
-            toast.success("Dados apagados. A recarregar…");
-            setTimeout(() => location.reload(), 600);
-          }}><Trash2 className="mr-1 h-4 w-4" />Apagar todos os dados</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={() => {
+              if (!confirm("Vai acrescentar dados de demonstração (clientes, encomendas, materiais, faturas, cash-flow, etc.). Continuar?")) return;
+              loadDemoData();
+              toast.success("Dados de demonstração carregados em todas as categorias");
+            }}><FlaskConical className="mr-1 h-4 w-4" />Carregar dados de demonstração</Button>
+            <Button variant="destructive" onClick={() => {
+              if (!confirm("Tens a certeza? Isto apaga TODOS os dados locais.")) return;
+              localStorage.removeItem("atelier-store-v1");
+              toast.success("Dados apagados. A recarregar…");
+              setTimeout(() => location.reload(), 600);
+            }}><Trash2 className="mr-1 h-4 w-4" />Apagar todos os dados</Button>
+          </div>
         </CardContent></Card>
       </div>
     );
