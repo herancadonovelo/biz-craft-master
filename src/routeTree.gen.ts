@@ -33,6 +33,7 @@ import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-forneced
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
 import { Route as FaturacaoRouteImport } from './routes/faturacao'
+import { Route as EtsyAuditoriaRouteImport } from './routes/etsy-auditoria'
 import { Route as EtsyRouteImport } from './routes/etsy'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
@@ -176,6 +177,11 @@ const FicheirosDigitaisRoute = FicheirosDigitaisRouteImport.update({
 const FaturacaoRoute = FaturacaoRouteImport.update({
   id: '/faturacao',
   path: '/faturacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtsyAuditoriaRoute = EtsyAuditoriaRouteImport.update({
+  id: '/etsy-auditoria',
+  path: '/etsy-auditoria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EtsyRoute = EtsyRouteImport.update({
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
+  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -373,6 +380,7 @@ export interface FileRoutesByTo {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
+  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
+  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -476,6 +485,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
+    | '/etsy-auditoria'
     | '/faturacao'
     | '/ficheiros-digitais'
     | '/fornecedores'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
+    | '/etsy-auditoria'
     | '/faturacao'
     | '/ficheiros-digitais'
     | '/fornecedores'
@@ -576,6 +587,7 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
+    | '/etsy-auditoria'
     | '/faturacao'
     | '/ficheiros-digitais'
     | '/fornecedores'
@@ -627,6 +639,7 @@ export interface RootRouteChildren {
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
   EtsyRoute: typeof EtsyRoute
+  EtsyAuditoriaRoute: typeof EtsyAuditoriaRoute
   FaturacaoRoute: typeof FaturacaoRoute
   FicheirosDigitaisRoute: typeof FicheirosDigitaisRoute
   FornecedoresRoute: typeof FornecedoresRoute
@@ -826,6 +839,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaturacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/etsy-auditoria': {
+      id: '/etsy-auditoria'
+      path: '/etsy-auditoria'
+      fullPath: '/etsy-auditoria'
+      preLoaderRoute: typeof EtsyAuditoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/etsy': {
       id: '/etsy'
       path: '/etsy'
@@ -1019,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
   EtsyRoute: EtsyRoute,
+  EtsyAuditoriaRoute: EtsyAuditoriaRoute,
   FaturacaoRoute: FaturacaoRoute,
   FicheirosDigitaisRoute: FicheirosDigitaisRoute,
   FornecedoresRoute: FornecedoresRoute,
