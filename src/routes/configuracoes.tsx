@@ -3,7 +3,7 @@ import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, Globe } from "lucide-react";
+import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
