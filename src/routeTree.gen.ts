@@ -45,6 +45,7 @@ import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as CursosRouteImport } from './routes/cursos'
+import { Route as CriadorMoldesRouteImport } from './routes/criador-moldes'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ContasRouteImport } from './routes/contas'
 import { Route as ContadorRouteImport } from './routes/contador'
@@ -245,6 +246,11 @@ const CursosRoute = CursosRouteImport.update({
   path: '/cursos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CriadorMoldesRoute = CriadorMoldesRouteImport.update({
+  id: '/criador-moldes',
+  path: '/criador-moldes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrescimentoRoute = CrescimentoRouteImport.update({
   id: '/crescimento',
   path: '/crescimento',
@@ -359,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -416,6 +423,7 @@ export interface FileRoutesByTo {
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -474,6 +482,7 @@ export interface FileRoutesById {
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
+  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
     | '/contador'
     | '/contas'
     | '/crescimento'
+    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -590,6 +600,7 @@ export interface FileRouteTypes {
     | '/contador'
     | '/contas'
     | '/crescimento'
+    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '/contador'
     | '/contas'
     | '/crescimento'
+    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -705,6 +717,7 @@ export interface RootRouteChildren {
   ContadorRoute: typeof ContadorRoute
   ContasRoute: typeof ContasRoute
   CrescimentoRoute: typeof CrescimentoRoute
+  CriadorMoldesRoute: typeof CriadorMoldesRoute
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
@@ -1000,6 +1013,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CursosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/criador-moldes': {
+      id: '/criador-moldes'
+      path: '/criador-moldes'
+      fullPath: '/criador-moldes'
+      preLoaderRoute: typeof CriadorMoldesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crescimento': {
       id: '/crescimento'
       path: '/crescimento'
@@ -1164,6 +1184,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContadorRoute: ContadorRoute,
   ContasRoute: ContasRoute,
   CrescimentoRoute: CrescimentoRoute,
+  CriadorMoldesRoute: CriadorMoldesRoute,
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
