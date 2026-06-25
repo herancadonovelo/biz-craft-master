@@ -18,6 +18,7 @@ import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
@@ -110,6 +111,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
@@ -400,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -459,6 +466,7 @@ export interface FileRoutesByTo {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -519,6 +527,7 @@ export interface FileRoutesById {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
@@ -580,6 +589,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planos'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
@@ -639,6 +649,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planos'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
@@ -698,6 +709,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planos'
     | '/portfolio'
     | '/privacidade'
     | '/projeto-personalizado'
@@ -758,6 +770,7 @@ export interface RootRouteChildren {
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
+  PlanosRoute: typeof PlanosRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
@@ -835,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil-negocio': {
@@ -1233,6 +1253,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
+  PlanosRoute: PlanosRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,

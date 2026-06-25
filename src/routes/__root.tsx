@@ -21,6 +21,8 @@ import { WellnessTimer } from "@/components/WellnessTimer";
 import { AuthProvider } from "@/lib/auth-state";
 import { SupabaseSync } from "@/components/SupabaseSync";
 import { AuthBanner } from "@/components/AuthBanner";
+import { SubscriptionProvider } from "@/lib/subscription";
+import { PaywallDialog } from "@/components/PaywallDialog";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -188,6 +190,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+      <SubscriptionProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <AppSidebar />
@@ -207,7 +210,9 @@ function RootComponent() {
         <AutoTranslator />
         <WellnessTimer />
         <SupabaseSync />
+        <PaywallDialog />
       </SidebarProvider>
+      </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
