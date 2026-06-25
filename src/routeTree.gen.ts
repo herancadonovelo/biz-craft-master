@@ -56,6 +56,7 @@ import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
@@ -295,6 +296,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MoodboardsRoute,
+} as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
@@ -347,7 +353,7 @@ export interface FileRoutesByFullPath {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
-  '/moodboards': typeof MoodboardsRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -361,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -399,7 +406,7 @@ export interface FileRoutesByTo {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
-  '/moodboards': typeof MoodboardsRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -413,6 +420,7 @@ export interface FileRoutesByTo {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -452,7 +460,7 @@ export interface FileRoutesById {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
-  '/moodboards': typeof MoodboardsRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -466,6 +474,7 @@ export interface FileRoutesById {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -624,6 +635,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -663,7 +675,7 @@ export interface RootRouteChildren {
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
   ModulosRoute: typeof ModulosRoute
-  MoodboardsRoute: typeof MoodboardsRoute
+  MoodboardsRoute: typeof MoodboardsRouteWithChildren
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
@@ -1013,6 +1025,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/moodboards/$id': {
+      id: '/moodboards/$id'
+      path: '/$id'
+      fullPath: '/moodboards/$id'
+      preLoaderRoute: typeof MoodboardsIdRouteImport
+      parentRoute: typeof MoodboardsRoute
+    }
     '/api/public/webhooks/whatsapp': {
       id: '/api/public/webhooks/whatsapp'
       path: '/api/public/webhooks/whatsapp'
@@ -1036,6 +1055,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface MoodboardsRouteChildren {
+  MoodboardsIdRoute: typeof MoodboardsIdRoute
+}
+
+const MoodboardsRouteChildren: MoodboardsRouteChildren = {
+  MoodboardsIdRoute: MoodboardsIdRoute,
+}
+
+const MoodboardsRouteWithChildren = MoodboardsRoute._addFileChildren(
+  MoodboardsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1071,7 +1102,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
   ModulosRoute: ModulosRoute,
-  MoodboardsRoute: MoodboardsRoute,
+  MoodboardsRoute: MoodboardsRouteWithChildren,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
