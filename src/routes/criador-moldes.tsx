@@ -25,6 +25,8 @@ function CriadorMoldes() {
   const [mode, setMode] = useState<"draw" | "edit">("draw");
   const [bg, setBg] = useState<string | null>(null);
   const [bgOpacity, setBgOpacity] = useState(0.4);
+  const [snap, setSnap] = useState(true);
+  const [snapStepCm, setSnapStepCm] = useState(0.5);
 
   const [paths, setPaths] = useState<Path[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -69,7 +71,14 @@ function CriadorMoldes() {
     const ctm = svg.getScreenCTM();
     if (!ctm) return null;
     const loc = pt.matrixTransform(ctm.inverse());
-    return { x: loc.x, y: loc.y };
+    let x = loc.x;
+    let y = loc.y;
+    if (snap) {
+      const s = snapStepCm * MM_PER_CM;
+      x = Math.round(x / s) * s;
+      y = Math.round(y / s) * s;
+    }
+    return { x, y };
   }
 
   function onSvgClick(evt: React.MouseEvent) {
@@ -218,6 +227,18 @@ function CriadorMoldes() {
           <div className="space-y-2">
             <Label>Espaçamento grelha (cm)</Label>
             <Input type="number" min={0.5} step={0.5} value={gridCm} onChange={(e) => setGridCm(Math.max(0.5, Number(e.target.value) || 1))} />
+          </div>
+
+          <div className="flex items-center justify-between border-t border-border pt-4">
+            <Label htmlFor="snap">Snap à grelha</Label>
+            <Switch id="snap" checked={snap} onCheckedChange={setSnap} />
+          </div>
+          <div className="space-y-2">
+            <Label>Passo de snap</Label>
+            <div className="flex gap-2">
+              <Button size="sm" variant={snapStepCm === 0.5 ? "default" : "outline"} onClick={() => setSnapStepCm(0.5)} className="flex-1" disabled={!snap}>0,5 cm</Button>
+              <Button size="sm" variant={snapStepCm === 1 ? "default" : "outline"} onClick={() => setSnapStepCm(1)} className="flex-1" disabled={!snap}>1 cm</Button>
+            </div>
           </div>
 
           <div className="space-y-2 border-t border-border pt-4">
