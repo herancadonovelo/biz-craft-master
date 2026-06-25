@@ -724,7 +724,7 @@ function CriadorMoldes() {
               <SelectTrigger className="h-8"><SelectValue placeholder="Ligar a receita (opc.)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">— Nenhuma —</SelectItem>
-                {receitas.map((r) => <SelectItem key={r.id} value={r.id}>{r.titulo}</SelectItem>)}
+                {receitas.map((r) => <SelectItem key={r.id} value={r.id}>{r.nome}</SelectItem>)}
               </SelectContent>
             </Select>
             <Button size="sm" className="w-full" onClick={saveToLibrary} disabled={shapes.length === 0}><Save className="h-3 w-3 mr-1" />Guardar na biblioteca</Button>
