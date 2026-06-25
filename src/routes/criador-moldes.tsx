@@ -353,6 +353,7 @@ function CriadorMoldes() {
 
   // Save / load library
   function saveToLibrary() {
+    if (!requireAccess("premium", "Guardar molde na biblioteca")) return;
     const nome = moldeNome.trim() || `Molde ${new Date().toLocaleDateString("pt-PT")}`;
     const payload = { v: 1, orientation, shapes };
     const json = JSON.stringify(payload);
@@ -405,7 +406,10 @@ function CriadorMoldes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapes, activeId]);
 
-  function doPrint() { window.print(); }
+  function doPrint() {
+    if (!requireAccess("premium", "Exportação A4 do molde")) return;
+    window.print();
+  }
 
   const active = activeShape();
   const activePath = active?.kind === "path" ? active : null;
