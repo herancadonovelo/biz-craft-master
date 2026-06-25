@@ -40,7 +40,6 @@ import {
   BellRing,
   ShoppingBasket,
   FileDigit,
-  Globe,
   BookOpen,
   Layers,
   Search,
@@ -142,7 +141,6 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: t("nav.settings"), url: "/configuracoes", icon: Settings },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
-      { title: t("nav.translations"), url: "/traducoes", icon: Globe },
     ],
   },
   {

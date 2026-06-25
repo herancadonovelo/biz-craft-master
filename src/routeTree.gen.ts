@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as VendasRouteImport } from './routes/vendas'
-import { Route as TraducoesRouteImport } from './routes/traducoes'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
@@ -74,11 +73,6 @@ const WhatsappRoute = WhatsappRouteImport.update({
 const VendasRoute = VendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TraducoesRoute = TraducoesRouteImport.update({
-  id: '/traducoes',
-  path: '/traducoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TodoRoute = TodoRouteImport.update({
@@ -399,7 +393,6 @@ export interface FileRoutesByFullPath {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
-  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
@@ -457,7 +450,6 @@ export interface FileRoutesByTo {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
-  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
@@ -516,7 +508,6 @@ export interface FileRoutesById {
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
-  '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
@@ -576,7 +567,6 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
-    | '/traducoes'
     | '/vendas'
     | '/whatsapp'
     | '/moodboards/$id'
@@ -634,7 +624,6 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
-    | '/traducoes'
     | '/vendas'
     | '/whatsapp'
     | '/moodboards/$id'
@@ -692,7 +681,6 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/stock'
     | '/todo'
-    | '/traducoes'
     | '/vendas'
     | '/whatsapp'
     | '/moodboards/$id'
@@ -751,7 +739,6 @@ export interface RootRouteChildren {
   SincronizacaoRoute: typeof SincronizacaoRoute
   StockRoute: typeof StockRoute
   TodoRoute: typeof TodoRoute
-  TraducoesRoute: typeof TraducoesRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
@@ -773,13 +760,6 @@ declare module '@tanstack/react-router' {
       path: '/vendas'
       fullPath: '/vendas'
       preLoaderRoute: typeof VendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/traducoes': {
-      id: '/traducoes'
-      path: '/traducoes'
-      fullPath: '/traducoes'
-      preLoaderRoute: typeof TraducoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/todo': {
@@ -1218,7 +1198,6 @@ const rootRouteChildren: RootRouteChildren = {
   SincronizacaoRoute: SincronizacaoRoute,
   StockRoute: StockRoute,
   TodoRoute: TodoRoute,
-  TraducoesRoute: TraducoesRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,

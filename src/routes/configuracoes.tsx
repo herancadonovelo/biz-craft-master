@@ -3,7 +3,7 @@ import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, Globe } from "lucide-react";
+import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
@@ -11,7 +11,6 @@ export const Route = createFileRoute("/configuracoes")({
   component: () => {
     const items = [
       { to: "/idioma", icon: Languages, title: "Idioma", desc: "Mudar a língua da app" },
-      { to: "/traducoes", icon: Globe, title: "Traduções de conteúdo", desc: "Traduz textos próprios (descrições, títulos)" },
       { to: "/modulos", icon: ToggleLeft, title: "Módulos ativos", desc: "Liga/desliga categorias do menu" },
       { to: "/onboarding", icon: Sparkles, title: "Configuração inicial", desc: "Voltar ao assistente de setup" },
       { to: "/design", icon: Palette, title: "Aparência", desc: "Cores, tema, preço-hora base" },
