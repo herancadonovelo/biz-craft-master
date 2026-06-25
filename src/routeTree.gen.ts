@@ -41,6 +41,7 @@ import { Route as EtsyRouteImport } from './routes/etsy'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
+import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as CursosRouteImport } from './routes/cursos'
@@ -224,6 +225,11 @@ const EncomendasRoute = EncomendasRouteImport.update({
   path: '/encomendas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorReceitaRoute = EditorReceitaRouteImport.update({
+  id: '/editor-receita',
+  path: '/editor-receita',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
@@ -356,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -527,6 +536,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -583,6 +593,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -639,6 +650,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -696,6 +708,7 @@ export interface RootRouteChildren {
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
+  EditorReceitaRoute: typeof EditorReceitaRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
@@ -959,6 +972,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EncomendasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor-receita': {
+      id: '/editor-receita'
+      path: '/editor-receita'
+      fullPath: '/editor-receita'
+      preLoaderRoute: typeof EditorReceitaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/despesas': {
       id: '/despesas'
       path: '/despesas'
@@ -1147,6 +1167,7 @@ const rootRouteChildren: RootRouteChildren = {
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
+  EditorReceitaRoute: EditorReceitaRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
