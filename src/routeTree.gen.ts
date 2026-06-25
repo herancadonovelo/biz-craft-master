@@ -22,7 +22,10 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as NotasRouteImport } from './routes/notas'
+import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
+import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -38,11 +41,13 @@ import { Route as EtsyRouteImport } from './routes/etsy'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
+import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ContasRouteImport } from './routes/contas'
+import { Route as ContadorRouteImport } from './routes/contador'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ClientesRouteImport } from './routes/clientes'
@@ -55,6 +60,7 @@ import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
@@ -124,9 +130,24 @@ const NotificacoesRoute = NotificacoesRouteImport.update({
   path: '/notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotasRoute = NotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoodboardsRoute = MoodboardsRouteImport.update({
+  id: '/moodboards',
+  path: '/moodboards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModulosRoute = ModulosRouteImport.update({
   id: '/modulos',
   path: '/modulos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingCampanhasRoute = MarketingCampanhasRouteImport.update({
+  id: '/marketing-campanhas',
+  path: '/marketing-campanhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketingRoute = MarketingRouteImport.update({
@@ -204,6 +225,11 @@ const EncomendasRoute = EncomendasRouteImport.update({
   path: '/encomendas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorReceitaRoute = EditorReceitaRouteImport.update({
+  id: '/editor-receita',
+  path: '/editor-receita',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
@@ -227,6 +253,11 @@ const CrescimentoRoute = CrescimentoRouteImport.update({
 const ContasRoute = ContasRouteImport.update({
   id: '/contas',
   path: '/contas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContadorRoute = ContadorRouteImport.update({
+  id: '/contador',
+  path: '/contador',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactoRoute = ContactoRouteImport.update({
@@ -289,6 +320,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MoodboardsRoute,
+} as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
@@ -320,11 +356,13 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -340,7 +378,10 @@ export interface FileRoutesByFullPath {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -354,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -371,11 +413,13 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -391,7 +435,10 @@ export interface FileRoutesByTo {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -405,6 +452,7 @@ export interface FileRoutesByTo {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -423,11 +471,13 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
+  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/crescimento': typeof CrescimentoRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -443,7 +493,10 @@ export interface FileRoutesById {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -457,6 +510,7 @@ export interface FileRoutesById {
   '/traducoes': typeof TraducoesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -476,11 +530,13 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -496,7 +552,10 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
+    | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -510,6 +569,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -527,11 +587,13 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -547,7 +609,10 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
+    | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -561,6 +626,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -578,11 +644,13 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
+    | '/contador'
     | '/contas'
     | '/crescimento'
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -598,7 +666,10 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/modulos'
+    | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -612,6 +683,7 @@ export interface FileRouteTypes {
     | '/traducoes'
     | '/vendas'
     | '/whatsapp'
+    | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
@@ -630,11 +702,13 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ContactoRoute: typeof ContactoRoute
+  ContadorRoute: typeof ContadorRoute
   ContasRoute: typeof ContasRoute
   CrescimentoRoute: typeof CrescimentoRoute
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
+  EditorReceitaRoute: typeof EditorReceitaRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
@@ -650,7 +724,10 @@ export interface RootRouteChildren {
   InstagramRoute: typeof InstagramRoute
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
+  MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   ModulosRoute: typeof ModulosRoute
+  MoodboardsRoute: typeof MoodboardsRouteWithChildren
+  NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
@@ -762,11 +839,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notas': {
+      id: '/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof NotasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moodboards': {
+      id: '/moodboards'
+      path: '/moodboards'
+      fullPath: '/moodboards'
+      preLoaderRoute: typeof MoodboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/modulos': {
       id: '/modulos'
       path: '/modulos'
       fullPath: '/modulos'
       preLoaderRoute: typeof ModulosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing-campanhas': {
+      id: '/marketing-campanhas'
+      path: '/marketing-campanhas'
+      fullPath: '/marketing-campanhas'
+      preLoaderRoute: typeof MarketingCampanhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketing': {
@@ -874,6 +972,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EncomendasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor-receita': {
+      id: '/editor-receita'
+      path: '/editor-receita'
+      fullPath: '/editor-receita'
+      preLoaderRoute: typeof EditorReceitaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/despesas': {
       id: '/despesas'
       path: '/despesas'
@@ -907,6 +1012,13 @@ declare module '@tanstack/react-router' {
       path: '/contas'
       fullPath: '/contas'
       preLoaderRoute: typeof ContasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contador': {
+      id: '/contador'
+      path: '/contador'
+      fullPath: '/contador'
+      preLoaderRoute: typeof ContadorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contacto': {
@@ -993,6 +1105,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/moodboards/$id': {
+      id: '/moodboards/$id'
+      path: '/$id'
+      fullPath: '/moodboards/$id'
+      preLoaderRoute: typeof MoodboardsIdRouteImport
+      parentRoute: typeof MoodboardsRoute
+    }
     '/api/public/webhooks/whatsapp': {
       id: '/api/public/webhooks/whatsapp'
       path: '/api/public/webhooks/whatsapp'
@@ -1017,6 +1136,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MoodboardsRouteChildren {
+  MoodboardsIdRoute: typeof MoodboardsIdRoute
+}
+
+const MoodboardsRouteChildren: MoodboardsRouteChildren = {
+  MoodboardsIdRoute: MoodboardsIdRoute,
+}
+
+const MoodboardsRouteWithChildren = MoodboardsRoute._addFileChildren(
+  MoodboardsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjudaRoute: AjudaRoute,
@@ -1030,11 +1161,13 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ContactoRoute: ContactoRoute,
+  ContadorRoute: ContadorRoute,
   ContasRoute: ContasRoute,
   CrescimentoRoute: CrescimentoRoute,
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
+  EditorReceitaRoute: EditorReceitaRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
@@ -1050,7 +1183,10 @@ const rootRouteChildren: RootRouteChildren = {
   InstagramRoute: InstagramRoute,
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
+  MarketingCampanhasRoute: MarketingCampanhasRoute,
   ModulosRoute: ModulosRoute,
+  MoodboardsRoute: MoodboardsRouteWithChildren,
+  NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,

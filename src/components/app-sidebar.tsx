@@ -44,6 +44,11 @@ import {
   BookOpen,
   Layers,
   Search,
+  Palette as PaletteIcon,
+  StickyNote,
+  CalendarHeart,
+  Hash,
+  PenSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -84,6 +89,10 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.labels"), url: "/etiquetas", icon: Tags },
       { title: t("nav.catalog"), url: "/catalogo", icon: Layers },
       { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
+      { title: "Moodboards", url: "/moodboards", icon: PaletteIcon },
+      { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
+      { title: "Contador de Carreiras", url: "/contador", icon: Hash },
+      { title: "Editor de Receita", url: "/editor-receita", icon: PenSquare },
     ],
   },
   {
@@ -103,6 +112,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.billing"), url: "/faturacao", icon: Receipt },
       { title: t("nav.invoiceHistory"), url: "/historico-faturas", icon: History },
       { title: t("nav.marketing"), url: "/marketing", icon: Megaphone },
+      { title: "Marketing & Campanhas", url: "/marketing-campanhas", icon: CalendarHeart },
       { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
       { title: t("nav.whatsapp"), url: "/whatsapp", icon: MessageCircle },
       { title: t("nav.notifications"), url: "/notificacoes", icon: BellRing },

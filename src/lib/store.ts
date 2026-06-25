@@ -313,6 +313,91 @@ export interface ModulosAtivos {
   [url: string]: boolean;
 }
 
+export interface MoodboardImagem { id: ID; url: string; legenda?: string }
+export interface PaletaCor { id: ID; nome: string; hex: string; materialId?: ID }
+export interface LinkRef { id: ID; titulo: string; url: string }
+export interface Moodboard {
+  id: ID;
+  titulo: string;
+  descricao?: string;
+  tags: string[];
+  imagens: MoodboardImagem[];
+  paleta: PaletaCor[];
+  links: LinkRef[];
+  encomendaId?: ID;
+  criadoEm: string;
+}
+
+export interface ChecklistItem { id: ID; texto: string; feito: boolean }
+export interface NotaRapida {
+  id: ID;
+  titulo?: string;
+  conteudo: string;
+  checklist?: ChecklistItem[];
+  tipo: "texto" | "checklist";
+  cor: string;
+  fixada: boolean;
+  tags: string[];
+  categoria?: "Ideias" | "Receitas" | "Tarefas" | "Fornecedores" | "Outro";
+  modificadaEm: string;
+}
+
+export interface DataFestiva {
+  id: ID;
+  nome: string;
+  dia: number;
+  mes: number;
+  pais: string;
+  descricao?: string;
+  alertaAtivo: boolean;
+  diasAntes: number;
+  custom?: boolean;
+}
+
+export interface AcaoMarketing {
+  id: ID;
+  tipo: "campanha" | "promocao" | "giveaway";
+  titulo: string;
+  dataInicio?: string;
+  dataFim?: string;
+  meta?: string;
+  notas?: string;
+  descontoTipo?: "percentagem" | "fixo";
+  descontoValor?: number;
+  alvo?: "todo" | "especifico";
+  alvoNotas?: string;
+  peca?: string;
+  custoProducao?: number;
+  regras?: string;
+  resultado?: string;
+  dataFestivaId?: ID;
+  estado: "planeada" | "ativa" | "concluida";
+  criadoEm: string;
+}
+
+export interface ContadorReceita {
+  id: ID;
+  receitaId?: ID;
+  receitaNome: string;
+  contadores: { id: ID; nome: string; valor: number }[];
+  ultimaSessao: string;
+}
+
+export interface ReceitaEditor {
+  id: ID;
+  nome: string;
+  categoria: "amigurumi" | "crochet" | "tricotin";
+  materiais: { id: ID; nome: string; quantidade: string }[];
+  seccoes: {
+    id: ID;
+    nome: string;
+    imagem?: string;
+    carreiras: { id: ID; texto: string; totalPontos?: number }[];
+  }[];
+  notas?: string;
+  criadoEm: string;
+}
+
 export const MODULOS_PRESETS = {
   essencial: [
     "/", "/encomendas", "/estado-encomendas", "/clientes", "/stock",
@@ -438,6 +523,12 @@ interface State {
   traducoes: TraducoesCustom;
   modulos: ModulosAtivos;
   onboardingFeito: boolean;
+  moodboards: Moodboard[];
+  notas: NotaRapida[];
+  datasFestivas: DataFestiva[];
+  acoesMarketing: AcaoMarketing[];
+  contadores: ContadorReceita[];
+  receitasEditor: ReceitaEditor[];
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -489,6 +580,12 @@ type CollectionMap = {
   ficheirosDigitais: FicheiroDigital;
   catalogo: CatalogoItem;
   biblioteca: BibliotecaItem;
+  moodboards: Moodboard;
+  notas: NotaRapida;
+  datasFestivas: DataFestiva;
+  acoesMarketing: AcaoMarketing;
+  contadores: ContadorReceita;
+  receitasEditor: ReceitaEditor;
 };
 
 const seed = (): Pick<
@@ -644,6 +741,22 @@ export const useStore = create<State>()(
       traducoes: {},
       modulos: {},
       onboardingFeito: false,
+      moodboards: [],
+      notas: [],
+      datasFestivas: [
+        { id: uid(), nome: "Dia do Artesão", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Dia do Pai", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Dia da Mãe", dia: 4, mes: 5, pais: "Portugal", alertaAtivo: true, diasAntes: 45 },
+        { id: uid(), nome: "Dia da Criança", dia: 1, mes: 6, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Magusto / S. Martinho", dia: 11, mes: 11, pais: "Portugal", alertaAtivo: false, diasAntes: 30 },
+        { id: uid(), nome: "Natal", dia: 25, mes: 12, pais: "Portugal", alertaAtivo: true, diasAntes: 60 },
+        { id: uid(), nome: "Dia das Mães (BR)", dia: 11, mes: 5, pais: "Brasil", alertaAtivo: false, diasAntes: 45 },
+        { id: uid(), nome: "Dia dos Pais (BR)", dia: 10, mes: 8, pais: "Brasil", alertaAtivo: false, diasAntes: 30 },
+        { id: uid(), nome: "Natal", dia: 25, mes: 12, pais: "Brasil", alertaAtivo: false, diasAntes: 60 },
+      ],
+      acoesMarketing: [],
+      contadores: [],
+      receitasEditor: [],
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
