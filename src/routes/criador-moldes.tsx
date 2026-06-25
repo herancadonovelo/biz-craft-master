@@ -32,6 +32,7 @@ function CriadorMoldes() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [history, setHistory] = useState<Path[][]>([[]]);
   const [hIdx, setHIdx] = useState(0);
+  const [hover, setHover] = useState<Pt | null>(null);
   const draggingRef = useRef<{ pathId: string; idx: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -116,9 +117,10 @@ function CriadorMoldes() {
     draggingRef.current = { pathId, idx };
   }
   function onSvgMove(e: React.MouseEvent) {
-    if (!draggingRef.current) return;
     const p = svgPoint(e);
     if (!p) return;
+    setHover(p);
+    if (!draggingRef.current) return;
     const { pathId, idx } = draggingRef.current;
     setPaths((prev) =>
       prev.map((pa) =>
@@ -319,6 +321,15 @@ function CriadorMoldes() {
                 <text x={25} y={32} textAnchor="middle" fontSize={2} fill="#0f172a" fontFamily="sans-serif">após imprimir</text>
                 <text x={25} y={40} textAnchor="middle" fontSize={3} fill="#0f172a" fontFamily="sans-serif" fontWeight="bold">5cm × 5cm</text>
               </g>
+
+              {snap && hover && (mode === "draw" || draggingRef.current) && (
+                <g className="no-print-handle" pointerEvents="none">
+                  <line x1={hover.x - 3} y1={hover.y} x2={hover.x + 3} y2={hover.y} stroke="#10b981" strokeWidth={0.3} />
+                  <line x1={hover.x} y1={hover.y - 3} x2={hover.x} y2={hover.y + 3} stroke="#10b981" strokeWidth={0.3} />
+                  <circle cx={hover.x} cy={hover.y} r={1.6} fill="none" stroke="#10b981" strokeWidth={0.35} />
+                  <circle cx={hover.x} cy={hover.y} r={0.5} fill="#10b981" />
+                </g>
+              )}
             </svg>
           </div>
         </div>
