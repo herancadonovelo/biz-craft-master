@@ -40,7 +40,6 @@ import {
   BellRing,
   ShoppingBasket,
   FileDigit,
-  Globe,
   BookOpen,
   Layers,
   Search,
