@@ -523,6 +523,12 @@ interface State {
   traducoes: TraducoesCustom;
   modulos: ModulosAtivos;
   onboardingFeito: boolean;
+  moodboards: Moodboard[];
+  notas: NotaRapida[];
+  datasFestivas: DataFestiva[];
+  acoesMarketing: AcaoMarketing[];
+  contadores: ContadorReceita[];
+  receitasEditor: ReceitaEditor[];
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
