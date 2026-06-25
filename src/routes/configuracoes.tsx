@@ -3,7 +3,7 @@ import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles } from "lucide-react";
+import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, HardDriveDownload } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/configuracoes")({
       { to: "/design", icon: Palette, title: "Aparência", desc: "Cores, tema, preço-hora base" },
       { to: "/contas", icon: Lock, title: "Contas & PIN", desc: "Passwords e PIN de acesso" },
       { to: "/calendario", icon: Bell, title: "Alarmes & toques", desc: "Toque padrão e alertas" },
+      { to: "/backup", icon: HardDriveDownload, title: "Backup & Restauro", desc: "Exportar JSON/CSV e restaurar" },
     ];
     return (
       <div className="space-y-6">
