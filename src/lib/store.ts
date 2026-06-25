@@ -373,6 +373,8 @@ export interface AcaoMarketing {
   dataFestivaId?: ID;
   estado: "planeada" | "ativa" | "concluida";
   criadoEm: string;
+  imagem?: string;
+  catalogoId?: ID;
 }
 
 export interface ContadorReceita {
