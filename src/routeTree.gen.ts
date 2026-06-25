@@ -22,6 +22,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as NotasRouteImport } from './routes/notas'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingRouteImport } from './routes/marketing'
@@ -124,6 +125,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const NotificacoesRoute = NotificacoesRouteImport.update({
   id: '/notificacoes',
   path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotasRoute = NotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoodboardsRoute = MoodboardsRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -407,6 +414,7 @@ export interface FileRoutesByTo {
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -461,6 +469,7 @@ export interface FileRoutesById {
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -516,6 +525,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/modulos'
     | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -569,6 +579,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/modulos'
     | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -622,6 +633,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/modulos'
     | '/moodboards'
+    | '/notas'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -676,6 +688,7 @@ export interface RootRouteChildren {
   MarketingRoute: typeof MarketingRoute
   ModulosRoute: typeof ModulosRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
+  NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
@@ -785,6 +798,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/notificacoes'
       preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notas': {
+      id: '/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof NotasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/moodboards': {
@@ -1103,6 +1123,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingRoute: MarketingRoute,
   ModulosRoute: ModulosRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
+  NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
