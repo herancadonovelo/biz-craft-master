@@ -16,6 +16,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { AutoTranslator } from "@/components/AutoTranslator";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -197,6 +198,7 @@ function RootComponent() {
         </div>
         <Toaster richColors position="top-right" />
         <WebhookPoller />
+        <AutoTranslator />
       </SidebarProvider>
     </QueryClientProvider>
   );
