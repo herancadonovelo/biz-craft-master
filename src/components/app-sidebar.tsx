@@ -52,6 +52,7 @@ import {
   Hash,
   PenSquare,
   Ruler,
+  HardDriveDownload,
 } from "lucide-react";
 import {
   Sidebar,
