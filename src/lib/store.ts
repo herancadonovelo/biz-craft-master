@@ -580,6 +580,12 @@ type CollectionMap = {
   ficheirosDigitais: FicheiroDigital;
   catalogo: CatalogoItem;
   biblioteca: BibliotecaItem;
+  moodboards: Moodboard;
+  notas: NotaRapida;
+  datasFestivas: DataFestiva;
+  acoesMarketing: AcaoMarketing;
+  contadores: ContadorReceita;
+  receitasEditor: ReceitaEditor;
 };
 
 const seed = (): Pick<
@@ -735,6 +741,22 @@ export const useStore = create<State>()(
       traducoes: {},
       modulos: {},
       onboardingFeito: false,
+      moodboards: [],
+      notas: [],
+      datasFestivas: [
+        { id: uid(), nome: "Dia do Artesão", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Dia do Pai", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Dia da Mãe", dia: 4, mes: 5, pais: "Portugal", alertaAtivo: true, diasAntes: 45 },
+        { id: uid(), nome: "Dia da Criança", dia: 1, mes: 6, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
+        { id: uid(), nome: "Magusto / S. Martinho", dia: 11, mes: 11, pais: "Portugal", alertaAtivo: false, diasAntes: 30 },
+        { id: uid(), nome: "Natal", dia: 25, mes: 12, pais: "Portugal", alertaAtivo: true, diasAntes: 60 },
+        { id: uid(), nome: "Dia das Mães (BR)", dia: 11, mes: 5, pais: "Brasil", alertaAtivo: false, diasAntes: 45 },
+        { id: uid(), nome: "Dia dos Pais (BR)", dia: 10, mes: 8, pais: "Brasil", alertaAtivo: false, diasAntes: 30 },
+        { id: uid(), nome: "Natal", dia: 25, mes: 12, pais: "Brasil", alertaAtivo: false, diasAntes: 60 },
+      ],
+      acoesMarketing: [],
+      contadores: [],
+      receitasEditor: [],
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
