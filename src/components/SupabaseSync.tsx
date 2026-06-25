@@ -1,0 +1,86 @@
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth-state";
+import { toast } from "sonner";
+import { Cloud, CloudOff, Loader2 } from "lucide-react";
+
+// Keys we sync (skip functions & ephemeral)
+const PERSIST_KEYS = [
+  "clientes","fornecedores","materiais","projetos","encomendas","horas","despesas",
+  "faturas","vendas","todos","campanhas","caixa","cotacoes","contas","portfolio",
+  "cursos","alunos","instagram","eventos","auditoria","etiquetas","perfilNegocio",
+  "sincronizacao","design","whatsappTemplates","whatsappMensagens","notificacoes",
+  "gatilhos","etsyConfig","etsyProdutos","ficheirosDigitais","catalogo","biblioteca",
+  "traducoes","modulos","onboardingFeito","moodboards","notas","datasFestivas",
+  "acoesMarketing","contadores","receitasEditor",
+] as const;
+
+function pickState(s: any) {
+  const out: any = {};
+  for (const k of PERSIST_KEYS) out[k] = s[k];
+  return out;
+}
+
+export function SupabaseSync() {
+  const { user, loading } = useAuth();
+  const [status, setStatus] = useState<"idle" | "syncing" | "synced" | "error" | "offline">("offline");
+  const hydrated = useRef(false);
+  const timer = useRef<number | undefined>(undefined);
+
+  // Pull on login
+  useEffect(() => {
+    if (loading || !user) { setStatus("offline"); hydrated.current = false; return; }
+    let cancelled = false;
+    (async () => {
+      setStatus("syncing");
+      const { data, error } = await supabase
+        .from("app_state")
+        .select("state")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) { setStatus("error"); toast.error("Falha a carregar dados da conta"); return; }
+      if (data?.state && typeof data.state === "object") {
+        useStore.setState(data.state as any);
+        toast.success("Dados sincronizados da tua conta");
+      } else {
+        // First login: upload current local state
+        const cur = pickState(useStore.getState());
+        await supabase.from("app_state").upsert({ user_id: user.id, state: cur });
+        toast.success("Conta criada — dados locais carregados na nuvem");
+      }
+      hydrated.current = true;
+      setStatus("synced");
+    })();
+    return () => { cancelled = true; };
+  }, [user, loading]);
+
+  // Push on change (debounced)
+  useEffect(() => {
+    if (!user) return;
+    const unsub = useStore.subscribe((s) => {
+      if (!hydrated.current) return;
+      window.clearTimeout(timer.current);
+      setStatus("syncing");
+      const snapshot = pickState(s);
+      timer.current = window.setTimeout(async () => {
+        const { error } = await supabase
+          .from("app_state")
+          .upsert({ user_id: user.id, state: snapshot });
+        if (error) { setStatus("error"); toast.error("Falha a guardar na nuvem"); }
+        else setStatus("synced");
+      }, 800);
+    });
+    return () => { unsub(); window.clearTimeout(timer.current); };
+  }, [user]);
+
+  return (
+    <div className="pointer-events-none fixed bottom-3 right-3 z-50 flex items-center gap-1.5 rounded-full border border-border bg-background/90 px-2.5 py-1 text-xs shadow-sm backdrop-blur">
+      {status === "syncing" && <><Loader2 className="h-3 w-3 animate-spin" /> A sincronizar…</>}
+      {status === "synced" && <><Cloud className="h-3 w-3 text-emerald-600" /> Sincronizado</>}
+      {status === "error" && <><CloudOff className="h-3 w-3 text-rose-600" /> Erro</>}
+      {status === "offline" && <><CloudOff className="h-3 w-3 text-muted-foreground" /> Local</>}
+    </div>
+  );
+}
