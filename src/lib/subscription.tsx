@@ -32,7 +32,7 @@ export type BillingCycle = "mensal" | "anual";
 
 export const PLANS: PlanDef[] = [
   {
-    id: "light", nome: "Light", ...mkPrices(10.99), trial: true,
+    id: "light", nome: "Light", precoMensal: 0, precoAnualMensal: 0, precoAnualTotal: 0, trial: false,
     resumo: "Para começar e organizar o essencial do atelier.",
     beneficios: [
       "Dashboard básico",
@@ -44,7 +44,7 @@ export const PLANS: PlanDef[] = [
     limitacoes: ["Sem Criador de Moldes", "Sem exportação A4 / PDF", "Sem Assistente IA", "Sem sincronização na nuvem ilimitada"],
   },
   {
-    id: "base", nome: "Base", ...mkPrices(4.99), trial: true,
+    id: "base", nome: "Base", ...mkPrices(10.99), trial: true,
     resumo: "Para quem já vende e precisa de gerir encomendas e finanças.",
     beneficios: [
       "Tudo do Light, sem limites",
