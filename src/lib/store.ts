@@ -313,6 +313,91 @@ export interface ModulosAtivos {
   [url: string]: boolean;
 }
 
+export interface MoodboardImagem { id: ID; url: string; legenda?: string }
+export interface PaletaCor { id: ID; nome: string; hex: string; materialId?: ID }
+export interface LinkRef { id: ID; titulo: string; url: string }
+export interface Moodboard {
+  id: ID;
+  titulo: string;
+  descricao?: string;
+  tags: string[];
+  imagens: MoodboardImagem[];
+  paleta: PaletaCor[];
+  links: LinkRef[];
+  encomendaId?: ID;
+  criadoEm: string;
+}
+
+export interface ChecklistItem { id: ID; texto: string; feito: boolean }
+export interface NotaRapida {
+  id: ID;
+  titulo?: string;
+  conteudo: string;
+  checklist?: ChecklistItem[];
+  tipo: "texto" | "checklist";
+  cor: string;
+  fixada: boolean;
+  tags: string[];
+  categoria?: "Ideias" | "Receitas" | "Tarefas" | "Fornecedores" | "Outro";
+  modificadaEm: string;
+}
+
+export interface DataFestiva {
+  id: ID;
+  nome: string;
+  dia: number;
+  mes: number;
+  pais: string;
+  descricao?: string;
+  alertaAtivo: boolean;
+  diasAntes: number;
+  custom?: boolean;
+}
+
+export interface AcaoMarketing {
+  id: ID;
+  tipo: "campanha" | "promocao" | "giveaway";
+  titulo: string;
+  dataInicio?: string;
+  dataFim?: string;
+  meta?: string;
+  notas?: string;
+  descontoTipo?: "percentagem" | "fixo";
+  descontoValor?: number;
+  alvo?: "todo" | "especifico";
+  alvoNotas?: string;
+  peca?: string;
+  custoProducao?: number;
+  regras?: string;
+  resultado?: string;
+  dataFestivaId?: ID;
+  estado: "planeada" | "ativa" | "concluida";
+  criadoEm: string;
+}
+
+export interface ContadorReceita {
+  id: ID;
+  receitaId?: ID;
+  receitaNome: string;
+  contadores: { id: ID; nome: string; valor: number }[];
+  ultimaSessao: string;
+}
+
+export interface ReceitaEditor {
+  id: ID;
+  nome: string;
+  categoria: "amigurumi" | "crochet" | "tricotin";
+  materiais: { id: ID; nome: string; quantidade: string }[];
+  seccoes: {
+    id: ID;
+    nome: string;
+    imagem?: string;
+    carreiras: { id: ID; texto: string; totalPontos?: number }[];
+  }[];
+  notas?: string;
+  criadoEm: string;
+}
+
 export const MODULOS_PRESETS = {
   essencial: [
     "/", "/encomendas", "/estado-encomendas", "/clientes", "/stock",
