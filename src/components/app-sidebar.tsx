@@ -1,4 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-state";
+import { supabase } from "@/integrations/supabase/client";
+import { LogIn, LogOut } from "lucide-react";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -221,6 +224,30 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <AccountFooter />
     </Sidebar>
+  );
+}
+
+function AccountFooter() {
+  const { user } = useAuth();
+  return (
+    <div className="mt-auto border-t border-sidebar-border px-3 py-2 text-xs">
+      {user ? (
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sidebar-foreground/80 hover:bg-sidebar-accent"
+          title={user.email ?? ""}
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span className="truncate">Terminar sessão</span>
+        </button>
+      ) : (
+        <Link to="/auth" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sidebar-foreground/80 hover:bg-sidebar-accent">
+          <LogIn className="h-3.5 w-3.5" />
+          <span>Entrar / Registar</span>
+        </Link>
+      )}
+    </div>
   );
 }
