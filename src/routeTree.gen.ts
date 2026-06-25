@@ -22,6 +22,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
@@ -122,6 +123,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const NotificacoesRoute = NotificacoesRouteImport.update({
   id: '/notificacoes',
   path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoodboardsRoute = MoodboardsRouteImport.update({
+  id: '/moodboards',
+  path: '/moodboards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModulosRoute = ModulosRouteImport.update({
@@ -341,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -392,6 +399,7 @@ export interface FileRoutesByTo {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/modulos': typeof ModulosRoute
+  '/moodboards': typeof MoodboardsRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
@@ -497,6 +506,7 @@ export interface FileRouteTypes {
     | '/lista-compras'
     | '/marketing'
     | '/modulos'
+    | '/moodboards'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -548,6 +558,7 @@ export interface FileRouteTypes {
     | '/lista-compras'
     | '/marketing'
     | '/modulos'
+    | '/moodboards'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -599,6 +610,7 @@ export interface FileRouteTypes {
     | '/lista-compras'
     | '/marketing'
     | '/modulos'
+    | '/moodboards'
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
@@ -651,6 +663,7 @@ export interface RootRouteChildren {
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
   ModulosRoute: typeof ModulosRoute
+  MoodboardsRoute: typeof MoodboardsRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
@@ -760,6 +773,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/notificacoes'
       preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moodboards': {
+      id: '/moodboards'
+      path: '/moodboards'
+      fullPath: '/moodboards'
+      preLoaderRoute: typeof MoodboardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modulos': {
@@ -1051,6 +1071,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
   ModulosRoute: ModulosRoute,
+  MoodboardsRoute: MoodboardsRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
