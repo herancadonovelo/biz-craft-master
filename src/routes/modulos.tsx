@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,15 +65,24 @@ export const Route = createFileRoute("/modulos")({
     const modulos = useStore((s) => s.modulos);
     const setModulo = useStore((s) => s.setModulo);
     const aplicarPreset = useStore((s) => s.aplicarPreset);
+    const setOnboardingFeito = useStore((s) => s.setOnboardingFeito);
+    const nav = useNavigate();
+    const aplicar = (p: "essencial" | "padrao" | "completo", label: string) => {
+      aplicarPreset(p);
+      setOnboardingFeito(true);
+      toast.success(`${label} aplicado — a abrir o painel…`);
+      setTimeout(() => nav({ to: "/" }), 250);
+    };
     const algumAtivo = Object.values(modulos).some((v) => v === true);
     const isOn = (url: string) => !algumAtivo || modulos[url] === true;
     return (
       <div className="space-y-6">
         <PageHeader title="Módulos ativos" description="Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo." />
         <Card><CardContent className="flex flex-wrap gap-2 p-4">
-          <Button variant="outline" onClick={() => { aplicarPreset("essencial"); toast.success("Preset essencial aplicado"); }}>Essencial</Button>
-          <Button variant="outline" onClick={() => { aplicarPreset("padrao"); toast.success("Preset padrão aplicado"); }}>Padrão</Button>
-          <Button variant="outline" onClick={() => { aplicarPreset("completo"); toast.success("Todos os módulos ativos"); }}>Completo</Button>
+          <Button variant="outline" onClick={() => aplicar("essencial", "Preset essencial")}>Essencial</Button>
+          <Button variant="outline" onClick={() => aplicar("padrao", "Preset padrão")}>Padrão</Button>
+          <Button variant="outline" onClick={() => aplicar("completo", "Todos os módulos")}>Completo</Button>
+          <Button className="ml-auto" onClick={() => nav({ to: "/" })}>Aplicar e abrir painel</Button>
         </CardContent></Card>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {CATALOGO.map((g) => (

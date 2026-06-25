@@ -43,6 +43,7 @@ import {
   Globe,
   BookOpen,
   Layers,
+  Search,
 } from "lucide-react";
 import {
   Sidebar,
@@ -106,6 +107,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.whatsapp"), url: "/whatsapp", icon: MessageCircle },
       { title: t("nav.notifications"), url: "/notificacoes", icon: BellRing },
       { title: t("nav.etsy"), url: "/etsy", icon: ShoppingBasket },
+      { title: "Auditoria Etsy", url: "/etsy-auditoria", icon: Search },
       { title: t("nav.digitalFiles"), url: "/ficheiros-digitais", icon: FileDigit },
     ],
   },

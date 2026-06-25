@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShoppingBag, Wallet, Clock, Package } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useMemo } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -38,6 +40,21 @@ function Dashboard() {
   const horasTotais = horas.reduce((s, h) => s + h.horas, 0);
   const stockBaixo = materiais.filter((m) => m.stock < 5).length;
 
+  const FRASES = [
+    "Um atelier de sucesso constrói-se um ponto de cada vez. Não te esqueças de descansar hoje!",
+    "O valor do teu trabalho está em cada detalhe e carinho que colocas nele. Boa jornada de trabalho!",
+    "Gerir um negócio a solo é um desafio corajoso. Orgulha-te do caminho que estás a trilhar!",
+    "A tua criatividade precisa de uma mente descansada. Se sentires bloqueio, faz uma pausa.",
+    "Cada fio é uma decisão. Cada decisão é progresso. Vai com calma e com confiança.",
+    "Cuida das tuas mãos como cuidas das tuas peças — alonga, respira, hidrata.",
+  ];
+  const frase = useMemo(() => {
+    const dia = new Date();
+    const i = (dia.getFullYear() * 1000 + dia.getMonth() * 50 + dia.getDate()) % FRASES.length;
+    return FRASES[i];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // cashflow chart by day
   const byDay: Record<string, { data: string; entradas: number; saidas: number }> = {};
   caixa.forEach((m) => {
@@ -65,6 +82,11 @@ function Dashboard() {
           </Button>
         }
       />
+
+      <div className="flex items-start gap-3 rounded-lg border-l-4 border-primary/60 bg-gradient-to-r from-primary/5 to-transparent px-4 py-3">
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <p className="text-sm leading-relaxed text-foreground/80">{frase}</p>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k) => (

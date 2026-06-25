@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Trash2, AlertCircle, FileDown } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/traducoes")({
@@ -39,6 +39,26 @@ export const Route = createFileRoute("/traducoes")({
     const dicionarioAlvo = traducoes[lang] || {};
     const emFalta = lang === "pt" ? [] : dinamicos.filter((t) => !dicionarioAlvo[t]);
 
+    const downloadFile = (nome: string, mime: string, conteudo: string) => {
+      const blob = new Blob([conteudo], { type: mime });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = nome;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 500);
+    };
+    const exportJson = () => {
+      const dados = dinamicos.map((source) => ({ source, target: dicionarioAlvo[source] || "" }));
+      downloadFile(`traducoes-${lang}.json`, "application/json", JSON.stringify(dados, null, 2));
+      toast.success("JSON exportado");
+    };
+    const exportCsv = () => {
+      const esc = (s: string) => `"${(s || "").replace(/"/g, '""')}"`;
+      const linhas = ["source,target,status", ...dinamicos.map((s) => `${esc(s)},${esc(dicionarioAlvo[s] || "")},${dicionarioAlvo[s] ? "ok" : "em_falta"}`)];
+      downloadFile(`traducoes-${lang}.csv`, "text/csv;charset=utf-8", linhas.join("\n"));
+      toast.success("CSV exportado");
+    };
+
     return (
       <div className="space-y-6">
         <PageHeader title="Traduções de conteúdo" description="Adiciona traduções para títulos, descrições e textos que tu próprio escreveste (PT → outro idioma). Aplicam-se automaticamente." />
@@ -52,6 +72,15 @@ export const Route = createFileRoute("/traducoes")({
           <Input placeholder="Texto original (PT)" value={src} onChange={(e) => setSrc(e.target.value)} />
           <Input placeholder="Tradução" value={tgt} onChange={(e) => setTgt(e.target.value)} />
           <Button onClick={() => { if (!src || !tgt) return toast.error("Preenche ambos"); setTraducao(lang, src, tgt); setSrc(""); setTgt(""); toast.success("Tradução guardada"); }}><Plus className="mr-1 h-4 w-4" />Guardar</Button>
+        </CardContent></Card>
+
+        <Card><CardContent className="flex flex-wrap items-center gap-2 p-4">
+          <span className="text-sm font-medium">Relatório:</span>
+          <span className="text-xs text-muted-foreground">{dinamicos.length} textos · {emFalta.length} em falta para {lang.toUpperCase()}</span>
+          <div className="ml-auto flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportCsv}><FileDown className="mr-1 h-4 w-4" />CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportJson}><FileDown className="mr-1 h-4 w-4" />JSON</Button>
+          </div>
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-4">

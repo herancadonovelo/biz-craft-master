@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, FileDown, BookOpen, Cloud } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/biblioteca")({
   head: () => ({ meta: [{ title: "Biblioteca de moldes e receitas" }] }),
@@ -17,10 +18,13 @@ export const Route = createFileRoute("/biblioteca")({
     const { biblioteca, add, remove } = useStore();
     const tt = useTT();
     const [q, setQ] = useState("");
+    const [aberto, setAberto] = useState<string | null>(null);
     const [novo, setNovo] = useState({
       titulo: "", categoria: "", tipo: "molde" as const,
       descricao: "", url: "", ficheiroBase64: "", tamanhoKb: 0,
     });
+    const ehImagem = (s?: string) => !!s && /^data:image\//i.test(s);
+    const ehPdf = (s?: string) => !!s && /^data:application\/pdf/i.test(s);
     const upload = (f?: File) => {
       if (!f) return;
       if (f.size > 4_000_000) {
@@ -38,6 +42,7 @@ export const Route = createFileRoute("/biblioteca")({
     };
     const categorias = useMemo(() => Array.from(new Set(biblioteca.map((b) => b.categoria))).filter(Boolean), [biblioteca]);
     const filtrados = biblioteca.filter((b) => !q || (b.titulo + b.categoria + (b.descricao || "")).toLowerCase().includes(q.toLowerCase()));
+    const itemAberto = biblioteca.find((b) => b.id === aberto);
     return (
       <div className="space-y-6">
         <PageHeader title="Biblioteca de moldes e receitas" description="Guarda PDFs, imagens e tutoriais. Prefere links cloud (Drive/Dropbox/R2) para poupar espaço." />
@@ -58,6 +63,14 @@ export const Route = createFileRoute("/biblioteca")({
           <Input placeholder="Descrição" className="md:col-span-3" value={novo.descricao} onChange={(e) => setNovo({ ...novo, descricao: e.target.value })} />
           <div className="md:col-span-2"><Label className="text-xs flex items-center gap-1"><Cloud className="h-3 w-3" />URL cloud (preferível)</Label><Input placeholder="https://drive.google.com/..." value={novo.url} onChange={(e) => setNovo({ ...novo, url: e.target.value })} /></div>
           <div><Label className="text-xs">Ou ficheiro local</Label><Input type="file" accept="application/pdf,image/*" onChange={(e) => upload(e.target.files?.[0])} /></div>
+          {novo.ficheiroBase64 && (
+            <div className="md:col-span-3 rounded border border-dashed border-border p-3">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">Pré-visualização ({novo.tamanhoKb} KB)</p>
+              {ehImagem(novo.ficheiroBase64) && <img src={novo.ficheiroBase64} alt="preview" className="max-h-64 rounded" />}
+              {ehPdf(novo.ficheiroBase64) && <embed src={novo.ficheiroBase64} type="application/pdf" className="h-64 w-full rounded" />}
+              {!ehImagem(novo.ficheiroBase64) && !ehPdf(novo.ficheiroBase64) && <p className="text-xs text-muted-foreground">Formato sem pré-visualização disponível.</p>}
+            </div>
+          )}
           <Button className="md:col-span-3" onClick={guardar}><Plus className="mr-1 h-4 w-4" />Guardar</Button>
         </CardContent></Card>
 
@@ -70,16 +83,36 @@ export const Route = createFileRoute("/biblioteca")({
                 <div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /><span className="font-display font-semibold">{tt(b.titulo)}</span></div>
                 <Button size="icon" variant="ghost" onClick={() => remove("biblioteca", b.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>
+              {ehImagem(b.ficheiroBase64) && (
+                <button onClick={() => setAberto(b.id)} className="block w-full">
+                  <img src={b.ficheiroBase64} alt={b.titulo} className="h-32 w-full rounded object-cover" />
+                </button>
+              )}
+              {ehPdf(b.ficheiroBase64) && (
+                <button onClick={() => setAberto(b.id)} className="flex h-20 w-full items-center justify-center rounded bg-muted text-xs text-muted-foreground hover:bg-accent">📄 Pré-visualizar PDF</button>
+              )}
               <div className="text-xs text-muted-foreground">{tt(b.categoria)} · {tt(b.tipo)}{b.tamanhoKb ? ` · ${b.tamanhoKb} KB` : ""}</div>
               {b.descricao && <p className="text-sm">{tt(b.descricao)}</p>}
               <div className="flex gap-2">
                 {b.url && <a className="text-xs text-primary underline inline-flex items-center gap-1" href={b.url} target="_blank" rel="noreferrer"><Cloud className="h-3 w-3" />Abrir</a>}
                 {b.ficheiroBase64 && <a className="text-xs inline-flex items-center gap-1 text-primary" href={b.ficheiroBase64} download={b.titulo}><FileDown className="h-3 w-3" />Download</a>}
+                {b.ficheiroBase64 && <button className="text-xs text-primary underline" onClick={() => setAberto(b.id)}>Abrir</button>}
               </div>
             </CardContent></Card>
           ))}
           {filtrados.length === 0 && <p className="text-sm text-muted-foreground">Sem itens.</p>}
         </div>
+
+        <Dialog open={!!aberto} onOpenChange={(o) => !o && setAberto(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader><DialogTitle>{itemAberto ? tt(itemAberto.titulo) : ""}</DialogTitle></DialogHeader>
+            {itemAberto && ehImagem(itemAberto.ficheiroBase64) && <img src={itemAberto.ficheiroBase64} alt={itemAberto.titulo} className="max-h-[75vh] w-full object-contain" />}
+            {itemAberto && ehPdf(itemAberto.ficheiroBase64) && <embed src={itemAberto.ficheiroBase64} type="application/pdf" className="h-[75vh] w-full" />}
+            {itemAberto?.url && !itemAberto.ficheiroBase64 && (
+              <iframe src={itemAberto.url} title={itemAberto.titulo} className="h-[75vh] w-full rounded border border-border" />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   },
