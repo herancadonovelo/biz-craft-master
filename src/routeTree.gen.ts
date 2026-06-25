@@ -56,6 +56,7 @@ import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as BibliotecaRouteImport } from './routes/biblioteca'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
@@ -300,6 +301,11 @@ const BibliotecaRoute = BibliotecaRouteImport.update({
   path: '/biblioteca',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuditoriaRoute = AuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -463,6 +471,7 @@ export interface FileRoutesById {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
   '/calendario': typeof CalendarioRoute
@@ -522,6 +531,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/auth'
     | '/biblioteca'
     | '/calculadora'
     | '/calendario'
@@ -579,6 +589,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/auth'
     | '/biblioteca'
     | '/calculadora'
     | '/calendario'
@@ -636,6 +647,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/auditoria'
+    | '/auth'
     | '/biblioteca'
     | '/calculadora'
     | '/calendario'
@@ -694,6 +706,7 @@ export interface RootRouteChildren {
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   AuditoriaRoute: typeof AuditoriaRoute
+  AuthRoute: typeof AuthRoute
   BibliotecaRoute: typeof BibliotecaRoute
   CalculadoraRoute: typeof CalculadoraRoute
   CalendarioRoute: typeof CalendarioRoute
@@ -1077,6 +1090,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auditoria': {
       id: '/auditoria'
       path: '/auditoria'
@@ -1153,6 +1173,7 @@ const rootRouteChildren: RootRouteChildren = {
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   AuditoriaRoute: AuditoriaRoute,
+  AuthRoute: AuthRoute,
   BibliotecaRoute: BibliotecaRoute,
   CalculadoraRoute: CalculadoraRoute,
   CalendarioRoute: CalendarioRoute,
