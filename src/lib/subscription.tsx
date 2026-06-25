@@ -73,13 +73,14 @@ export const PLANS: PlanDef[] = [
 
 interface SubCtx {
   plan: Plan;
+  billingCycle: BillingCycle;
   trialEnds: Date | null;
   trialActive: boolean;
   effectivePlan: Plan; // se o trial estiver ativo, premium
   loading: boolean;
   refresh: () => Promise<void>;
-  startTrial: (plan: Exclude<Plan, "light">) => Promise<void>;
-  setPlan: (plan: Plan) => Promise<void>;
+  startTrial: (plan: Plan, cycle?: BillingCycle) => Promise<void>;
+  setPlan: (plan: Plan, cycle?: BillingCycle) => Promise<void>;
   paywall: { open: boolean; required: Plan; feature?: string } | null;
   showPaywall: (required: Plan, feature?: string) => void;
   closePaywall: () => void;
@@ -92,6 +93,7 @@ const Ctx = createContext<SubCtx | null>(null);
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [plan, setPlanState] = useState<Plan>("light");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("mensal");
   const [trialEnds, setTrialEnds] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [paywall, setPaywall] = useState<SubCtx["paywall"]>(null);
@@ -104,12 +106,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("subscription_status,subscription_trial_ends")
+      .select("subscription_status,subscription_trial_ends,billing_cycle")
       .eq("user_id", user.id)
       .maybeSingle();
     if (!error && data) {
       setPlanState((data.subscription_status as Plan) ?? "light");
       setTrialEnds(data.subscription_trial_ends ? new Date(data.subscription_trial_ends) : null);
+      setBillingCycle(((data as { billing_cycle?: BillingCycle }).billing_cycle ?? "mensal") as BillingCycle);
     } else if (!error && !data) {
       // First time — ensure a row exists (trigger should have done this; safety net)
       await supabase.from("profiles").upsert({ user_id: user.id });
@@ -119,23 +122,23 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { if (!authLoading) refresh(); /* eslint-disable-next-line */ }, [user?.id, authLoading]);
 
-  const setPlan = async (next: Plan) => {
+  const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
-    const { error } = await supabase.from("profiles").update({ subscription_status: next }).eq("user_id", user.id);
+    const { error } = await supabase.from("profiles").update({ subscription_status: next, billing_cycle: cycle } as never).eq("user_id", user.id);
     if (error) { toast.error("Falha a atualizar plano"); return; }
-    setPlanState(next);
-    toast.success(`Plano ${next.toUpperCase()} ativo`);
+    setPlanState(next); setBillingCycle(cycle);
+    toast.success(`Plano ${next.toUpperCase()} (${cycle}) ativo`);
   };
 
-  const startTrial = async (next: Exclude<Plan, "light">) => {
+  const startTrial = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para iniciar o teste"); return; }
     const ends = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     const { error } = await supabase
       .from("profiles")
-      .update({ subscription_status: next, subscription_trial_ends: ends.toISOString() })
+      .update({ subscription_status: next, subscription_trial_ends: ends.toISOString(), billing_cycle: cycle } as never)
       .eq("user_id", user.id);
     if (error) { toast.error("Falha a iniciar teste"); return; }
-    setPlanState(next); setTrialEnds(ends);
+    setPlanState(next); setTrialEnds(ends); setBillingCycle(cycle);
     toast.success("Teste gratuito de 14 dias ativado");
   };
 
@@ -149,7 +152,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ plan, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess }}>
+    <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess }}>
       {children}
     </Ctx.Provider>
   );
@@ -167,11 +170,12 @@ export const useSubscription = () => {
  * lançará o fluxo de compra do Google Play e, no sucesso, deverá chamar
  * `setPlan(planId)` (ou `startTrial`) com o plano correspondente.
  */
-export async function handleGooglePlayPurchase(planId: Exclude<Plan, "light">): Promise<{ ok: boolean; reason?: string }> {
+export async function handleGooglePlayPurchase(planId: Plan, cycle: BillingCycle = "mensal"): Promise<{ ok: boolean; reason?: string }> {
   // TODO: integrar com Google Play Billing
-  //   const purchase = await GooglePlay.purchase({ productId: `subscription_${planId}` });
+  //   const productId = `subscription_${planId}_${cycle}`; // ex: subscription_premium_anual
+  //   const purchase = await GooglePlay.purchase({ productId });
   //   await verifyOnServer(purchase.purchaseToken);
   //   await setPlan(planId);
-  console.info("[GooglePlay] handleGooglePlayPurchase →", planId);
+  console.info("[GooglePlay] handleGooglePlayPurchase →", planId, cycle);
   return { ok: false, reason: "google_play_billing_not_wired" };
 }
