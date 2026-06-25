@@ -9,7 +9,9 @@ const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2 };
 export interface PlanDef {
   id: Plan;
   nome: string;
-  preco: string;
+  precoMensal: number; // €/mês
+  precoAnualMensal: number; // €/mês quando faturado anualmente (15% desc.)
+  precoAnualTotal: number; // €/ano
   destaque?: boolean;
   trial: boolean;
   resumo: string;
@@ -17,9 +19,20 @@ export interface PlanDef {
   limitacoes?: string[];
 }
 
+const ANNUAL_DISCOUNT = 0.15;
+const mkPrices = (mensal: number) => {
+  const anualMensal = +(mensal * (1 - ANNUAL_DISCOUNT)).toFixed(2);
+  const anualTotal = +(anualMensal * 12).toFixed(2);
+  return { precoMensal: mensal, precoAnualMensal: anualMensal, precoAnualTotal: anualTotal };
+};
+
+export const ANNUAL_DISCOUNT_PCT = Math.round(ANNUAL_DISCOUNT * 100);
+
+export type BillingCycle = "mensal" | "anual";
+
 export const PLANS: PlanDef[] = [
   {
-    id: "light", nome: "Light", preco: "Grátis", trial: false,
+    id: "light", nome: "Light", ...mkPrices(10.99), trial: true,
     resumo: "Para começar e organizar o essencial do atelier.",
     beneficios: [
       "Dashboard básico",
@@ -31,7 +44,7 @@ export const PLANS: PlanDef[] = [
     limitacoes: ["Sem Criador de Moldes", "Sem exportação A4 / PDF", "Sem Assistente IA", "Sem sincronização na nuvem ilimitada"],
   },
   {
-    id: "base", nome: "Base", preco: "4,99 €/mês", trial: true,
+    id: "base", nome: "Base", ...mkPrices(4.99), trial: true,
     resumo: "Para quem já vende e precisa de gerir encomendas e finanças.",
     beneficios: [
       "Tudo do Light, sem limites",
@@ -44,7 +57,7 @@ export const PLANS: PlanDef[] = [
     limitacoes: ["Sem Criador de Moldes", "Sem exportação A4 do molde", "Assistente IA limitado"],
   },
   {
-    id: "premium", nome: "Premium", preco: "9,99 €/mês", trial: true, destaque: true,
+    id: "premium", nome: "Premium", ...mkPrices(16.99), trial: true, destaque: true,
     resumo: "Tudo desbloqueado — pensado para artesãos que vivem do negócio.",
     beneficios: [
       "Tudo do Base",
