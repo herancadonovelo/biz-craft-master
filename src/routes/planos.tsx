@@ -4,10 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Sparkles, Star, Loader2 } from "lucide-react";
-import { PLANS, useSubscription, handleGooglePlayPurchase, type Plan } from "@/lib/subscription";
+import { PLANS, useSubscription, handleGooglePlayPurchase, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { useAuth } from "@/lib/auth-state";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/planos")({
   head: () => ({ meta: [
@@ -21,26 +22,27 @@ function PlanosPage() {
   const { user } = useAuth();
   const { plan, trialEnds, trialActive, startTrial, setPlan, loading } = useSubscription();
   const [busy, setBusy] = useState<Plan | null>(null);
+  const [cycle, setCycle] = useState<BillingCycle>("mensal");
 
-  const onSubscribe = async (id: Exclude<Plan, "light">) => {
+  const onSubscribe = async (id: Plan) => {
     if (!user) { toast.error("Inicia sessão para subscrever"); return; }
     setBusy(id);
     try {
       // Placeholder: futura ligação ao Google Play
-      const res = await handleGooglePlayPurchase(id);
+      const res = await handleGooglePlayPurchase(id, cycle);
       if (!res.ok) {
         // sem billing ligado ainda — fluxo de demonstração: inicia o trial
-        await startTrial(id);
+        await startTrial(id, cycle);
       } else {
-        await setPlan(id);
+        await setPlan(id, cycle);
       }
     } finally { setBusy(null); }
   };
 
-  const onStartTrial = async (id: Exclude<Plan, "light">) => {
+  const onStartTrial = async (id: Plan) => {
     if (!user) { toast.error("Inicia sessão para começar o teste"); return; }
     setBusy(id);
-    try { await startTrial(id); } finally { setBusy(null); }
+    try { await startTrial(id, cycle); } finally { setBusy(null); }
   };
 
   return (
@@ -49,6 +51,20 @@ function PlanosPage() {
         title="Planos e Subscrições"
         description="Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso."
       />
+
+      <div className="flex flex-col items-center gap-2">
+        <Tabs value={cycle} onValueChange={(v) => setCycle(v as BillingCycle)}>
+          <TabsList>
+            <TabsTrigger value="mensal">Mensal</TabsTrigger>
+            <TabsTrigger value="anual" className="gap-2">
+              Anual <Badge variant="secondary">-{ANNUAL_DISCOUNT_PCT}%</Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <p className="text-xs text-muted-foreground">
+          {cycle === "anual" ? `Poupas ${ANNUAL_DISCOUNT_PCT}% face ao plano mensal.` : `Subscreve anualmente e poupa ${ANNUAL_DISCOUNT_PCT}%.`}
+        </p>
+      </div>
 
       {!user && (
         <Card className="border-amber-500/40 bg-amber-500/5"><CardContent className="p-4 text-sm">
@@ -78,6 +94,7 @@ function PlanosPage() {
         {PLANS.map((p) => {
           const isCurrent = plan === p.id && !trialActive;
           const highlighted = p.destaque;
+          const precoMostrar = cycle === "anual" ? p.precoAnualMensal : p.precoMensal;
           return (
             <Card key={p.id} className={`relative flex flex-col ${highlighted ? "border-primary shadow-lg ring-1 ring-primary/40" : ""}`}>
               {highlighted && (
@@ -88,7 +105,19 @@ function PlanosPage() {
               <CardContent className="flex flex-1 flex-col gap-4 p-5">
                 <div>
                   <h3 className="font-display text-2xl">{p.nome}</h3>
-                  <p className="mt-1 text-3xl font-semibold">{p.preco}</p>
+                  <p className="mt-1 text-3xl font-semibold">
+                    {precoMostrar.toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                  </p>
+                  {cycle === "anual" ? (
+                    <p className="text-xs text-muted-foreground">
+                      faturado anualmente — {p.precoAnualTotal.toFixed(2).replace(".", ",")} €/ano
+                      <span className="ml-1 font-medium text-primary">(poupa {ANNUAL_DISCOUNT_PCT}%)</span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      ou {p.precoAnualMensal.toFixed(2).replace(".", ",")} €/mês no plano anual
+                    </p>
+                  )}
                   {p.trial && <p className="mt-1 text-sm font-medium text-primary">Experimente Grátis por 14 Dias</p>}
                   <p className="mt-2 text-sm text-muted-foreground">{p.resumo}</p>
                 </div>
@@ -103,30 +132,24 @@ function PlanosPage() {
                 </ul>
 
                 <div className="mt-auto space-y-2 pt-2">
-                  {p.id === "light" ? (
-                    <Button variant="outline" className="w-full" disabled={isCurrent} onClick={() => setPlan("light")}>
-                      {isCurrent ? "Plano atual" : "Usar plano gratuito"}
+                  <Button
+                    className="w-full"
+                    variant={highlighted ? "default" : "secondary"}
+                    disabled={busy === p.id || isCurrent}
+                    onClick={() => onSubscribe(p.id)}
+                  >
+                    {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    {isCurrent ? "Plano atual" : `Subscrever ${p.nome} (${cycle === "anual" ? "Anual" : "Mensal"})`}
+                  </Button>
+                  {p.trial && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      disabled={busy === p.id}
+                      onClick={() => onStartTrial(p.id)}
+                    >
+                      Começar Teste Gratuito de 14 Dias
                     </Button>
-                  ) : (
-                    <>
-                      <Button
-                        className="w-full"
-                        variant={highlighted ? "default" : "secondary"}
-                        disabled={busy === p.id}
-                        onClick={() => onSubscribe(p.id as Exclude<Plan, "light">)}
-                      >
-                        {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Subscrever {p.nome}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        disabled={busy === p.id}
-                        onClick={() => onStartTrial(p.id as Exclude<Plan, "light">)}
-                      >
-                        Começar Teste Gratuito de 14 Dias
-                      </Button>
-                    </>
                   )}
                 </div>
               </CardContent>

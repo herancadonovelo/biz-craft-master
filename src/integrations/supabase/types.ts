@@ -34,6 +34,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          billing_cycle: Database["public"]["Enums"]["billing_cycle"]
           created_at: string
           subscription_status: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends: string | null
@@ -41,6 +42,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
@@ -64,6 +67,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      billing_cycle: "mensal" | "anual"
       subscription_plan: "light" | "base" | "premium"
     }
     CompositeTypes: {
@@ -192,6 +196,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      billing_cycle: ["mensal", "anual"],
       subscription_plan: ["light", "base", "premium"],
     },
   },
