@@ -53,6 +53,7 @@ import {
   PenSquare,
   Ruler,
   HardDriveDownload,
+  Crown,
 } from "lucide-react";
 import {
   Sidebar,
