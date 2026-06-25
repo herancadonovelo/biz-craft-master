@@ -9,13 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, RefreshCw } from "lucide-react";
+import { Beaker } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/etsy")({
   head: () => ({ meta: [{ title: "Etsy" }] }),
   component: () => {
-    const { etsyConfig, setEtsy, etsyProdutos, materiais, add, remove, consumirStockPorEtsy, update } = useStore();
+    const { etsyConfig, setEtsy, etsyProdutos, materiais, add, remove, consumirStockPorEtsy, processarWebhookEtsy } = useStore();
     const [novo, setNovo] = useState({ etsyListingId: "", nome: "", materialId: "", qtd: 1 });
+    const [teste, setTeste] = useState({ eventId: "teste-001", listingId: "", quantidade: 1, variacao: "" });
+    const [logTeste, setLogTeste] = useState<{ at: string; ok: boolean; motivo?: string }[]>([]);
     const adicionar = () => {
       if (!novo.etsyListingId || !novo.nome) return toast.error("Listing ID e nome são obrigatórios");
       add("etsyProdutos", { etsyListingId: novo.etsyListingId, nome: novo.nome, materiais: novo.materialId ? [{ materialId: novo.materialId, quantidade: novo.qtd }] : [] } as any);
@@ -25,6 +28,18 @@ export const Route = createFileRoute("/etsy")({
       const r = consumirStockPorEtsy(listingId, 1);
       if (r.ok) toast.success("Stock descontado");
       else toast.error(`Falta: ${r.faltas.join(", ")}`);
+    };
+    const enviarTeste = () => {
+      if (!teste.listingId || !teste.eventId) return toast.error("Event ID e Listing ID obrigatórios");
+      const r = processarWebhookEtsy({
+        id: teste.eventId,
+        listingId: teste.listingId,
+        quantidade: teste.quantidade,
+        variacao: teste.variacao || undefined,
+      } as any);
+      setLogTeste((l) => [{ at: new Date().toLocaleTimeString("pt-PT"), ok: r.ok, motivo: r.motivo }, ...l].slice(0, 10));
+      if (r.ok) toast.success("Evento processado · stock descontado");
+      else toast.info(`Ignorado: ${r.motivo}`);
     };
     return (
       <div className="space-y-6">
@@ -69,6 +84,26 @@ export const Route = createFileRoute("/etsy")({
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-3 p-4">
+          <h3 className="flex items-center gap-2 font-display font-semibold"><Beaker className="h-4 w-4" />Modo de teste do webhook</h3>
+          <p className="text-xs text-muted-foreground">Envia o mesmo evento várias vezes para confirmar que o stock só é descontado uma vez (idempotência por <code>event id</code>).</p>
+          <div className="grid gap-2 md:grid-cols-5">
+            <Input placeholder="Event ID (único)" value={teste.eventId} onChange={(e) => setTeste({ ...teste, eventId: e.target.value })} />
+            <Input placeholder="Listing ID" value={teste.listingId} onChange={(e) => setTeste({ ...teste, listingId: e.target.value })} />
+            <Input placeholder="Variação" value={teste.variacao} onChange={(e) => setTeste({ ...teste, variacao: e.target.value })} />
+            <Input type="number" min={1} value={teste.quantidade} onChange={(e) => setTeste({ ...teste, quantidade: +e.target.value })} />
+            <Button onClick={enviarTeste}>Enviar evento</Button>
+          </div>
+          <div className="space-y-1">
+            {logTeste.map((l, i) => (
+              <div key={i} className={`rounded border p-2 text-xs ${l.ok ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30" : "border-amber-300 bg-amber-50 dark:bg-amber-950/30"}`}>
+                {l.at} · {l.ok ? "✅ processado" : `↩ ignorado (${l.motivo})`}
+              </div>
+            ))}
+            {logTeste.length === 0 && <p className="text-xs text-muted-foreground">Sem eventos de teste enviados.</p>}
           </div>
         </CardContent></Card>
       </div>

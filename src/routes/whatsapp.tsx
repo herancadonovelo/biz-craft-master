@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Send, Trash2, MessageCircle } from "lucide-react";
+import { Plus, Send, Trash2, MessageCircle, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/whatsapp")({
   head: () => ({ meta: [{ title: "WhatsApp Business" }] }),
   component: () => {
-    const { whatsappTemplates, whatsappMensagens, clientes, encomendas, add, remove, sincronizacao, setSync } = useStore();
+    const { whatsappTemplates, whatsappMensagens, clientes, encomendas, add, remove, update, sincronizacao, setSync } = useStore();
     const [tpl, setTpl] = useState({ nome: "", texto: "" });
     const [msg, setMsg] = useState({ clienteId: "", encomendaId: "", texto: "" });
     const sendMsg = () => {
@@ -77,13 +77,25 @@ export const Route = createFileRoute("/whatsapp")({
 
         <Card><CardContent className="space-y-2 p-4">
           <h3 className="font-display font-semibold">Histórico de conversas</h3>
+          <p className="text-xs text-muted-foreground">Mensagens recebidas tentam associar-se automaticamente ao cliente por telefone e à encomenda mais recente. Sem correspondência, podes associar manualmente abaixo.</p>
           {whatsappMensagens.length === 0 && <p className="text-sm text-muted-foreground">Sem mensagens.</p>}
           {whatsappMensagens.map((m) => {
             const c = clientes.find((x) => x.id === m.clienteId);
+            const semCliente = !m.clienteId;
             return (
               <div key={m.id} className="rounded border border-border p-2 text-sm">
                 <div className="flex justify-between text-xs text-muted-foreground"><span>{c?.nome ?? "—"} · {m.direcao}</span><span>{new Date(m.data).toLocaleString()}</span></div>
                 <div>{m.texto}</div>
+                {semCliente && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+                    <Link2 className="h-3 w-3 text-amber-600" />
+                    <span>Sem correspondência automática — associar manualmente:</span>
+                    <Select onValueChange={(v) => { update("whatsappMensagens", m.id, { clienteId: v } as any); toast.success("Mensagem associada ao cliente"); }}>
+                      <SelectTrigger className="h-7 w-48"><SelectValue placeholder="Escolher cliente" /></SelectTrigger>
+                      <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             );
           })}
