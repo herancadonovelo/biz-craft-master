@@ -202,9 +202,10 @@ function DialogNovaData({ open, onClose, pais, add }: { open: boolean; onClose: 
   );
 }
 
-function DialogNovaAcao({ open, onClose, add }: { open: boolean; onClose: () => void; add: (a: Omit<AcaoMarketing, "id">) => void; dataPreSel: DataFestiva | null }) {
+function DialogNovaAcao({ open, onClose, add, catalogo }: { open: boolean; onClose: () => void; add: (a: Omit<AcaoMarketing, "id">) => void; dataPreSel: DataFestiva | null; catalogo: { id: string; nome: string; imagem?: string }[] }) {
   const [tipo, setTipo] = useState<AcaoMarketing["tipo"]>("campanha");
   const [f, setF] = useState<Partial<AcaoMarketing>>({ titulo: "", estado: "planeada", descontoTipo: "percentagem", alvo: "todo" });
+  const uploadImg = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setF((s) => ({ ...s, imagem: r.result as string })); r.readAsDataURL(file); };
   const salvar = () => {
     if (!f.titulo) return toast.error("Título obrigatório");
     add({
@@ -212,6 +213,7 @@ function DialogNovaAcao({ open, onClose, add }: { open: boolean; onClose: () => 
       dataInicio: f.dataInicio, dataFim: f.dataFim, meta: f.meta, notas: f.notas,
       descontoTipo: f.descontoTipo, descontoValor: f.descontoValor, alvo: f.alvo, alvoNotas: f.alvoNotas,
       peca: f.peca, custoProducao: f.custoProducao, regras: f.regras, resultado: f.resultado,
+      imagem: f.imagem, catalogoId: f.catalogoId,
       criadoEm: new Date().toISOString(),
     });
     onClose();
@@ -231,6 +233,28 @@ function DialogNovaAcao({ open, onClose, add }: { open: boolean; onClose: () => 
             </SelectContent>
           </Select>
           <div><Label>Título</Label><Input value={f.titulo || ""} onChange={(e) => setF({ ...f, titulo: e.target.value })} /></div>
+          <div className="grid gap-2 rounded-md border border-dashed p-3">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Visual da ação</Label>
+            <div>
+              <Label className="text-xs">Peça do catálogo (opcional)</Label>
+              <Select value={f.catalogoId || "__none"} onValueChange={(v) => {
+                if (v === "__none") { setF((s) => ({ ...s, catalogoId: undefined })); return; }
+                const c = catalogo.find((x) => x.id === v);
+                setF((s) => ({ ...s, catalogoId: v, imagem: s.imagem || c?.imagem }));
+              }}>
+                <SelectTrigger><SelectValue placeholder="Selecionar peça…" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">— Nenhuma —</SelectItem>
+                  {catalogo.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Imagem (opcional)</Label>
+              <Input type="file" accept="image/*" onChange={(e) => uploadImg(e.target.files?.[0])} />
+            </div>
+            {f.imagem && <img src={f.imagem} alt="preview" className="h-28 w-full rounded object-cover" />}
+          </div>
           {tipo === "campanha" && (
             <>
               <div className="grid grid-cols-2 gap-2">
