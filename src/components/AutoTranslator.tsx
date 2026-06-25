@@ -39,7 +39,7 @@ type Job = {
 
 export function AutoTranslator() {
   const lang = useStore((s) => s.design.idioma);
-  const cache = useStore((s) => s.traducoes);
+  
   const setTraducao = useStore((s) => s.setTraducao);
   const run = useServerFn(translateBatch);
   const queueRef = useRef<Map<string, Job[]>>(new Map());
@@ -51,7 +51,7 @@ export function AutoTranslator() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const langCache: Record<string, string> = (cache as any)?.[lang] || {};
+    const getLangCache = (): Record<string, string> => ((useStore.getState().traducoes as any) || {})[lang] || {};
 
     const flush = async () => {
       timerRef.current = null;
@@ -93,7 +93,7 @@ export function AutoTranslator() {
         // React updated text? If current matches stored translation for any lang, keep original.
         // If current differs from both original and known translations, refresh original.
         if (current !== original) {
-          const knownTranslation = langCache[original];
+          const knownTranslation = getLangCache()[original];
           if (knownTranslation && current === knownTranslation) {
             // already translated, nothing to do
             return;
@@ -111,7 +111,7 @@ export function AutoTranslator() {
         if (n.data !== original) n.data = original;
         return;
       }
-      const cached = langCache[original];
+      const cached = getLangCache()[original];
       if (cached) {
         if (n.data !== cached) n.data = cached;
         return;
@@ -131,7 +131,7 @@ export function AutoTranslator() {
           original = v;
           store[a] = original;
         } else if (v !== original) {
-          const known = langCache[original];
+          const known = getLangCache()[original];
           if (known && v === known) continue;
           if (shouldTranslate(v)) {
             original = v;
@@ -142,7 +142,7 @@ export function AutoTranslator() {
           if (v !== original) el.setAttribute(a, original);
           continue;
         }
-        const cached = langCache[original];
+        const cached = getLangCache()[original];
         if (cached) {
           if (v !== cached) el.setAttribute(a, cached);
           continue;
@@ -203,7 +203,7 @@ export function AutoTranslator() {
       obs.disconnect();
       if (timerRef.current != null) { window.clearTimeout(timerRef.current); timerRef.current = null; }
     };
-  }, [lang, cache, run, setTraducao]);
+  }, [lang, run, setTraducao]);
 
   return null;
 }
