@@ -94,6 +94,7 @@ function PlanosPage() {
         {PLANS.map((p) => {
           const isCurrent = plan === p.id && !trialActive;
           const highlighted = p.destaque;
+          const isFree = p.precoMensal === 0;
           const precoMostrar = cycle === "anual" ? p.precoAnualMensal : p.precoMensal;
           return (
             <Card key={p.id} className={`relative flex flex-col ${highlighted ? "border-primary shadow-lg ring-1 ring-primary/40" : ""}`}>
@@ -105,18 +106,24 @@ function PlanosPage() {
               <CardContent className="flex flex-1 flex-col gap-4 p-5">
                 <div>
                   <h3 className="font-display text-2xl">{p.nome}</h3>
-                  <p className="mt-1 text-3xl font-semibold">
-                    {precoMostrar.toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
-                  </p>
-                  {cycle === "anual" ? (
-                    <p className="text-xs text-muted-foreground">
-                      faturado anualmente — {p.precoAnualTotal.toFixed(2).replace(".", ",")} €/ano
-                      <span className="ml-1 font-medium text-primary">(poupa {ANNUAL_DISCOUNT_PCT}%)</span>
-                    </p>
+                  {isFree ? (
+                    <p className="mt-1 text-3xl font-semibold">Grátis</p>
                   ) : (
-                    <p className="text-xs text-muted-foreground">
-                      ou {p.precoAnualMensal.toFixed(2).replace(".", ",")} €/mês no plano anual
-                    </p>
+                    <>
+                      <p className="mt-1 text-3xl font-semibold">
+                        {precoMostrar.toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                      </p>
+                      {cycle === "anual" ? (
+                        <p className="text-xs text-muted-foreground">
+                          faturado anualmente — {p.precoAnualTotal.toFixed(2).replace(".", ",")} €/ano
+                          <span className="ml-1 font-medium text-primary">(poupa {ANNUAL_DISCOUNT_PCT}%)</span>
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          ou {p.precoAnualMensal.toFixed(2).replace(".", ",")} €/mês no plano anual
+                        </p>
+                      )}
+                    </>
                   )}
                   {p.trial && <p className="mt-1 text-sm font-medium text-primary">Experimente Grátis por 14 Dias</p>}
                   <p className="mt-2 text-sm text-muted-foreground">{p.resumo}</p>
@@ -132,15 +139,21 @@ function PlanosPage() {
                 </ul>
 
                 <div className="mt-auto space-y-2 pt-2">
-                  <Button
-                    className="w-full"
-                    variant={highlighted ? "default" : "secondary"}
-                    disabled={busy === p.id || isCurrent}
-                    onClick={() => onSubscribe(p.id)}
-                  >
-                    {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    {isCurrent ? "Plano atual" : `Subscrever ${p.nome} (${cycle === "anual" ? "Anual" : "Mensal"})`}
-                  </Button>
+                  {isFree ? (
+                    <Button variant="outline" className="w-full" disabled={isCurrent} onClick={() => setPlan("light")}>
+                      {isCurrent ? "Plano atual" : "Usar plano gratuito"}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      variant={highlighted ? "default" : "secondary"}
+                      disabled={busy === p.id || isCurrent}
+                      onClick={() => onSubscribe(p.id)}
+                    >
+                      {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                      {isCurrent ? "Plano atual" : `Subscrever ${p.nome} (${cycle === "anual" ? "Anual" : "Mensal"})`}
+                    </Button>
+                  )}
                   {p.trial && (
                     <Button
                       variant="outline"
