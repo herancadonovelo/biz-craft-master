@@ -201,6 +201,13 @@ export interface PerfilNegocio {
   iban?: string;
 }
 
+export interface MarketingInfo {
+  personaQuem: string;
+  personaDificuldades: string;
+  personaValoriza: string;
+  mercadoNotas: string;
+}
+
 export interface SincronizacaoConfig {
   websiteUrl: string;
   websiteApiKey: string;
