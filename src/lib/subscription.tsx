@@ -86,6 +86,7 @@ interface SubCtx {
   closePaywall: () => void;
   hasAccess: (required: Plan) => boolean;
   requireAccess: (required: Plan, feature?: string) => boolean;
+  redeemPromoCode: (code: string) => Promise<{ ok: boolean; lifetime?: boolean; discountPercent?: number; message: string }>;
 }
 
 const Ctx = createContext<SubCtx | null>(null);
@@ -152,8 +153,40 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
+  const redeemPromoCode: SubCtx["redeemPromoCode"] = async (rawCode) => {
+    const code = rawCode.trim();
+    if (!code) return { ok: false, message: "Introduz um código." };
+    if (!user) return { ok: false, message: "Inicia sessão para aplicar um código." };
+    const { data, error } = await supabase
+      .from("promo_codes")
+      .select("code,discount_percent,is_lifetime,active,expires_at")
+      .ilike("code", code)
+      .maybeSingle();
+    if (error) return { ok: false, message: "Erro a validar o código." };
+    if (!data || !data.active) return { ok: false, message: "Código inválido ou inativo." };
+    if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
+      return { ok: false, message: "Código expirado." };
+    }
+    if (data.is_lifetime) {
+      const { error: upErr } = await supabase
+        .from("profiles")
+        .update({ subscription_status: "premium_vitalicio", subscription_trial_ends: null } as never)
+        .eq("user_id", user.id);
+      if (upErr) return { ok: false, message: "Falha a ativar acesso vitalício." };
+      setPlanState("premium_vitalicio");
+      setTrialEnds(null);
+      toast.success("Acesso vitalício Premium ativado 🎉");
+      return { ok: true, lifetime: true, message: "Acesso vitalício ativado com sucesso." };
+    }
+    return {
+      ok: true,
+      discountPercent: data.discount_percent,
+      message: `Código aplicado: ${data.discount_percent}% de desconto.`,
+    };
+  };
+
   return (
-    <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess }}>
+    <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess, redeemPromoCode }}>
       {children}
     </Ctx.Provider>
   );
