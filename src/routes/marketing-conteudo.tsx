@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, Calendar, Sparkles, Loader2, CalendarHeart, Palette as PaletteIcon, Save } from "lucide-react";
+import { Plus, Trash2, Calendar, Sparkles, Loader2, CalendarHeart, Palette as PaletteIcon, Save, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 import { askAssistant } from "@/lib/ai.functions";
 
@@ -184,25 +184,113 @@ function Kpi({ label, value }: { label: string; value: string }) {
 }
 
 function DialogIdeiasIA({ data, onClose }: { data: DataFestiva | null; onClose: () => void }) {
+  const { add } = useStore();
   const [loading, setLoading] = useState(false);
-  const [resp, setResp] = useState<string>("");
+  const [ideias, setIdeias] = useState<{ titulo: string; notas: string; hora: string; diasAntes: number }[]>([]);
+  const [addedIdx, setAddedIdx] = useState<Set<number>>(new Set());
+
+  const dataEventoISO = (offsetDias: number) => {
+    if (!data) return new Date().toISOString().slice(0, 10);
+    const ano = new Date().getFullYear();
+    let alvo = new Date(ano, data.mes - 1, data.dia);
+    if (alvo < new Date()) alvo = new Date(ano + 1, data.mes - 1, data.dia);
+    alvo.setDate(alvo.getDate() - Math.max(0, offsetDias));
+    return alvo.toISOString().slice(0, 10);
+  };
+
   const carregar = async () => {
     if (!data) return;
-    setLoading(true); setResp("");
+    setLoading(true); setIdeias([]); setAddedIdx(new Set());
     const r = await askAssistant({ data: {
       contexto: `Data festiva: ${data.nome} (${data.dia}/${data.mes}), país ${data.pais}.`,
-      messages: [{ role: "user", content: `Dá ideias para o Atelier Tricotin para esta data festiva. Devolve 3 secções curtas em markdown: "Projetos relevantes" (4 ideias), "Ideia de campanha" (1 frase), "Ideia de promoção" (1 frase) e "Ideia de giveaway" (1 frase).` }],
+      messages: [{ role: "user", content: `Gera 5 ideias acionáveis de marketing/conteúdo para o Atelier Tricotin para a data festiva "${data.nome}". Devolve APENAS JSON válido (sem markdown, sem texto extra) no formato: {"ideias":[{"titulo":"...","notas":"...","hora":"HH:MM","diasAntes":N}]}. "titulo" curto (max 60 chars). "notas" 1-2 frases acionáveis. "hora" sugestão de horário (ex.: "10:00"). "diasAntes" número de dias antes da data festiva para agendar (0 a 14).` }],
     } });
     setLoading(false);
-    if (r.ok) setResp(r.content); else toast.error(r.error);
+    if (!r.ok) { toast.error(r.error); return; }
+    try {
+      const clean = r.content.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+      const parsed = JSON.parse(clean);
+      const list = Array.isArray(parsed?.ideias) ? parsed.ideias : [];
+      setIdeias(list.map((i: any) => ({
+        titulo: String(i.titulo ?? "").slice(0, 80),
+        notas: String(i.notas ?? ""),
+        hora: typeof i.hora === "string" && /^\d{2}:\d{2}$/.test(i.hora) ? i.hora : "10:00",
+        diasAntes: Number.isFinite(+i.diasAntes) ? Math.max(0, Math.min(30, +i.diasAntes)) : 3,
+      })));
+    } catch {
+      toast.error("Não foi possível interpretar a resposta da IA.");
+    }
   };
+
+  const atualizar = (i: number, patch: Partial<typeof ideias[number]>) => {
+    setIdeias((arr) => arr.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
+  };
+
+  const adicionar = (i: number) => {
+    const ideia = ideias[i];
+    if (!ideia.titulo.trim()) return toast.error("Título obrigatório");
+    add("eventos", {
+      titulo: ideia.titulo,
+      notas: `[${data?.nome}] ${ideia.notas}`,
+      data: dataEventoISO(ideia.diasAntes),
+      hora: ideia.hora,
+      alarmeMinAntes: 60,
+    });
+    setAddedIdx((s) => new Set(s).add(i));
+    toast.success("Adicionado ao calendário");
+  };
+
+  const adicionarTodos = () => {
+    ideias.forEach((_, i) => { if (!addedIdx.has(i)) adicionar(i); });
+  };
+
   return (
-    <Dialog open={!!data} onOpenChange={(o) => { if (!o) { onClose(); setResp(""); } }}>
-      <DialogContent className="max-w-lg">
+    <Dialog open={!!data} onOpenChange={(o) => { if (!o) { onClose(); setIdeias([]); setAddedIdx(new Set()); } }}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader><DialogTitle>Ideias e Inspirações da IA · {data?.nome}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          {!resp && <Button onClick={carregar} disabled={loading} className="w-full">{loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />A gerar…</> : "Gerar ideias com IA"}</Button>}
-          {resp && <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-md border border-border bg-card p-3 text-sm">{resp}</div>}
+          {ideias.length === 0 && (
+            <Button onClick={carregar} disabled={loading} className="w-full">
+              {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />A gerar…</> : <><Sparkles className="mr-2 h-4 w-4" />Gerar ideias com IA</>}
+            </Button>
+          )}
+          {ideias.length > 0 && (
+            <>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Edita cada ideia antes de adicionar ao calendário.</p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={carregar} disabled={loading}>
+                    {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Regenerar"}
+                  </Button>
+                  <Button size="sm" onClick={adicionarTodos} disabled={addedIdx.size === ideias.length}>
+                    <CalendarPlus className="mr-1 h-3 w-3" />Adicionar todos
+                  </Button>
+                </div>
+              </div>
+              {ideias.map((ideia, i) => (
+                <div key={i} className="space-y-2 rounded-md border border-border bg-card p-3">
+                  <Input value={ideia.titulo} onChange={(e) => atualizar(i, { titulo: e.target.value })} placeholder="Título" />
+                  <Textarea rows={2} value={ideia.notas} onChange={(e) => atualizar(i, { notas: e.target.value })} placeholder="Notas" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">Hora</Label>
+                      <Input type="time" value={ideia.hora} onChange={(e) => atualizar(i, { hora: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Dias antes</Label>
+                      <Input type="number" min={0} max={30} value={ideia.diasAntes} onChange={(e) => atualizar(i, { diasAntes: +e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Agendar para {dataEventoISO(ideia.diasAntes)}</span>
+                    <Button size="sm" variant={addedIdx.has(i) ? "secondary" : "default"} onClick={() => adicionar(i)} disabled={addedIdx.has(i)}>
+                      <CalendarPlus className="mr-1 h-3 w-3" />{addedIdx.has(i) ? "Adicionado" : "Adicionar"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
