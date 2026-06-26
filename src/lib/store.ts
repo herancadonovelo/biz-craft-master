@@ -201,6 +201,13 @@ export interface PerfilNegocio {
   iban?: string;
 }
 
+export interface MarketingInfo {
+  personaQuem: string;
+  personaDificuldades: string;
+  personaValoriza: string;
+  mercadoNotas: string;
+}
+
 export interface SincronizacaoConfig {
   websiteUrl: string;
   websiteApiKey: string;
@@ -532,6 +539,7 @@ interface State {
   acoesMarketing: AcaoMarketing[];
   contadores: ContadorReceita[];
   receitasEditor: ReceitaEditor[];
+  marketingInfo: MarketingInfo;
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -540,6 +548,7 @@ interface State {
   setDesign: (patch: Partial<DesignSettings>) => void;
   setPerfil: (patch: Partial<PerfilNegocio>) => void;
   setSync: (patch: Partial<SincronizacaoConfig>) => void;
+  setMarketingInfo: (patch: Partial<MarketingInfo>) => void;
   audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
   setEtsy: (patch: Partial<EtsyConfig>) => void;
   setModulo: (url: string, ativo: boolean) => void;
@@ -760,6 +769,7 @@ export const useStore = create<State>()(
       acoesMarketing: [],
       contadores: [],
       receitasEditor: [],
+      marketingInfo: { personaQuem: "", personaDificuldades: "", personaValoriza: "", mercadoNotas: "" },
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
@@ -771,6 +781,7 @@ export const useStore = create<State>()(
       setDesign: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
       setPerfil: (patch) => set((s) => ({ perfilNegocio: { ...s.perfilNegocio, ...patch } })),
       setSync: (patch) => set((s) => ({ sincronizacao: { ...s.sincronizacao, ...patch } })),
+      setMarketingInfo: (patch) => set((s) => ({ marketingInfo: { ...s.marketingInfo, ...patch } })),
       audit: (acao, entidade, entidadeId, detalhes) =>
         set((s) => ({
           auditoria: [

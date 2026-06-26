@@ -36,7 +36,7 @@ const CATALOGO: { grupo: string; itens: { url: string; titulo: string }[] }[] = 
     { url: "/vendas", titulo: "Vendas" },
     { url: "/faturacao", titulo: "Faturação" },
     { url: "/historico-faturas", titulo: "Histórico de faturas" },
-    { url: "/marketing", titulo: "Marketing" },
+    { url: "/marketing-conteudo", titulo: "Marketing e Conteúdo" },
     { url: "/instagram", titulo: "Instagram" },
     { url: "/whatsapp", titulo: "WhatsApp" },
     { url: "/notificacoes", titulo: "Notificações" },
