@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, FileDown, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 function readImage(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -23,7 +24,7 @@ function readImage(file: File): Promise<string> {
 export const Route = createFileRoute("/portfolio")({
   head: () => ({ meta: [{ title: "Portefólio" }] }),
   component: () => {
-    const { portfolio, add, remove, design } = useStore();
+    const { portfolio, add, remove, update, design } = useStore();
     const [form, setForm] = useState({ titulo: "", descricao: "", tecnica: "", ano: String(new Date().getFullYear()), cliente: "", imagem: "" });
 
     const exportPDF = async () => {
@@ -84,12 +85,9 @@ export const Route = createFileRoute("/portfolio")({
           <div><Label>Ano</Label><Input value={form.ano} onChange={(e) => setForm({ ...form, ano: e.target.value })} /></div>
           <div><Label>Cliente</Label><Input value={form.cliente} onChange={(e) => setForm({ ...form, cliente: e.target.value })} /></div>
           <div className="md:col-span-2"><Label>Descrição</Label><Textarea rows={2} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
-          <div className="md:col-span-2"><Label>Imagem</Label>
-            <Input type="file" accept="image/*" onChange={async (e) => {
-              const f = e.target.files?.[0]; if (f) setForm({ ...form, imagem: await readImage(f) });
-            }} />
+          <div className="md:col-span-3"><Label>Imagem</Label>
+            <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} size="h-28 w-28" /></div>
           </div>
-          {form.imagem && <img src={form.imagem} alt="" className="h-24 w-24 rounded object-cover" />}
           <div className="md:col-span-3"><Button onClick={() => {
             if (!form.titulo) return toast.error("Título obrigatório");
             add("portfolio", form);
@@ -100,7 +98,7 @@ export const Route = createFileRoute("/portfolio")({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {portfolio.map((p) => (
             <Card key={p.id} className="overflow-hidden">
-              {p.imagem && <img src={p.imagem} alt={p.titulo} className="h-44 w-full object-cover" />}
+              <ImagePicker value={p.imagem} onChange={(v) => update("portfolio", p.id, { imagem: v })} size="h-44 w-full" className="rounded-none border-0" />
               <CardContent className="space-y-1 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-display font-semibold">{p.titulo}</h3>

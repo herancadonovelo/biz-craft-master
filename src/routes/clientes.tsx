@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/clientes")({
   head: () => ({ meta: [{ title: "Clientes" }] }),
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/clientes")({
 });
 
 function ClientesPage() {
-  const { clientes, add, remove } = useStore();
+  const { clientes, add, remove, update } = useStore();
   const tt = useTT();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -31,13 +32,6 @@ function ClientesPage() {
     setForm({ nome: "", email: "", telefone: "", morada: "", notas: "", imagem: "" });
     setOpen(false);
     toast.success("Cliente adicionado");
-  };
-
-  const onImg = (file?: File) => {
-    if (!file) return;
-    const r = new FileReader();
-    r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string }));
-    r.readAsDataURL(file);
   };
 
   return (
@@ -58,8 +52,9 @@ function ClientesPage() {
                 <div><Label>Telefone</Label><Input value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} /></div>
                 <div><Label>Morada</Label><Input value={form.morada} onChange={(e) => setForm({ ...form, morada: e.target.value })} /></div>
                 <div><Label>Notas</Label><Textarea value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} /></div>
-                <div><Label>Foto</Label><Input type="file" accept="image/*" onChange={(e) => onImg(e.target.files?.[0])} />
-                  {form.imagem && <img src={form.imagem} alt="" className="mt-2 h-16 w-16 rounded-full object-cover" />}
+                <div>
+                  <Label>Foto</Label>
+                  <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} shape="round" size="h-20 w-20" /></div>
                 </div>
                 <Button onClick={submit}>Guardar</Button>
               </div>
@@ -79,7 +74,9 @@ function ClientesPage() {
           <TableBody>
             {clientes.filter((c) => (c.nome + " " + (c.email ?? "") + " " + (c.telefone ?? "")).toLowerCase().includes(q.toLowerCase())).map((c) => (
               <TableRow key={c.id}>
-                <TableCell>{c.imagem ? <img src={c.imagem} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-muted" />}</TableCell>
+                <TableCell>
+                  <ImagePicker value={c.imagem} onChange={(v) => update("clientes", c.id, { imagem: v })} shape="round" size="h-8 w-8" />
+                </TableCell>
                 <TableCell className="font-medium">{tt(c.nome)}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.telefone}</TableCell>

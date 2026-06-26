@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, RefreshCw, Link as LinkIcon, Users } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 function readImage(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -22,7 +23,7 @@ function readImage(file: File): Promise<string> {
 export const Route = createFileRoute("/cursos")({
   head: () => ({ meta: [{ title: "Cursos" }] }),
   component: () => {
-    const { cursos, alunos, add, remove } = useStore();
+    const { cursos, alunos, add, remove, update } = useStore();
     const [form, setForm] = useState({ nome: "", descricao: "", preco: 0, linkCompra: "", grupos: "", paginas: "", imagem: "" });
     const [alunoForm, setAlunoForm] = useState({ cursoId: cursos[0]?.id ?? "", nome: "", email: "", moduloAtual: "Módulo 1" });
 
@@ -39,7 +40,9 @@ export const Route = createFileRoute("/cursos")({
           <div className="md:col-span-3"><Label>Descrição</Label><Textarea rows={2} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
           <div><Label>Grupos</Label><Input value={form.grupos} onChange={(e) => setForm({ ...form, grupos: e.target.value })} placeholder="Facebook, WhatsApp…" /></div>
           <div><Label>Páginas do curso</Label><Input value={form.paginas} onChange={(e) => setForm({ ...form, paginas: e.target.value })} placeholder="URLs" /></div>
-          <div><Label>Imagem</Label><Input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setForm({ ...form, imagem: await readImage(f) }); }} /></div>
+          <div><Label>Imagem</Label>
+            <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} size="h-20 w-20" /></div>
+          </div>
           <div className="md:col-span-3"><Button onClick={() => {
             if (!form.nome) return toast.error("Nome obrigatório");
             add("cursos", form); setForm({ nome: "", descricao: "", preco: 0, linkCompra: "", grupos: "", paginas: "", imagem: "" });
@@ -52,7 +55,7 @@ export const Route = createFileRoute("/cursos")({
             const seusAlunos = alunos.filter((a) => a.cursoId === c.id);
             return (
               <Card key={c.id} className="overflow-hidden">
-                {c.imagem && <img src={c.imagem} alt={c.nome} className="h-32 w-full object-cover" />}
+                <ImagePicker value={c.imagem} onChange={(v) => update("cursos", c.id, { imagem: v })} size="h-32 w-full" className="rounded-none border-0" />
                 <CardContent className="space-y-2 p-4">
                   <div className="flex items-start justify-between">
                     <h3 className="font-display font-semibold">{c.nome}</h3>

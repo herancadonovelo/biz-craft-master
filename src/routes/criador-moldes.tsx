@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 import { useSubscription } from "@/lib/subscription";
 import {
   Undo2, Redo2, Trash2, Printer, Image as ImageIcon, MousePointer, PenLine,
@@ -523,7 +524,7 @@ function CriadorMoldes() {
 
           <div className="space-y-2 border-t border-border pt-4">
             <Label className="flex items-center gap-2"><ImageIcon className="h-4 w-4" />Imagem de fundo</Label>
-            <Input type="file" accept="image/*" onChange={onUpload} />
+            <ImagePicker value={bg ?? undefined} onChange={(v) => setBg(v)} size="h-24 w-full" />
             {bg && (
               <>
                 <Label>Opacidade {(bgOpacity * 100).toFixed(0)}%</Label>

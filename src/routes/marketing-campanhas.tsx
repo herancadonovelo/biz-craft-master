@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImagePicker } from "@/components/ImagePicker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -251,9 +252,8 @@ function DialogNovaAcao({ open, onClose, add, catalogo }: { open: boolean; onClo
             </div>
             <div>
               <Label className="text-xs">Imagem (opcional)</Label>
-              <Input type="file" accept="image/*" onChange={(e) => uploadImg(e.target.files?.[0])} />
+              <div className="mt-1"><ImagePicker value={f.imagem} onChange={(v) => setF((s) => ({ ...s, imagem: v }))} size="h-28 w-full" /></div>
             </div>
-            {f.imagem && <img src={f.imagem} alt="preview" className="h-28 w-full rounded object-cover" />}
           </div>
           {tipo === "campanha" && (
             <>

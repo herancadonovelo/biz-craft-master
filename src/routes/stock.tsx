@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/stock")({
   head: () => ({ meta: [{ title: "Stock de material" }] }),
@@ -22,7 +23,6 @@ export const Route = createFileRoute("/stock")({
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", codigo: "", unidade: "novelo", stock: 0, stockMinimo: 5, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" });
-    const onImg = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string })); r.readAsDataURL(file); };
     const addFornecedorAlt = (id: string) => {
       const fid = window.prompt("ID/Nome do fornecedor (escolhe da lista — copia o nome):", fornecedores[0]?.nome ?? "");
       if (!fid) return;
@@ -61,8 +61,9 @@ export const Route = createFileRoute("/stock")({
                       <SelectContent>{fornecedores.map((f) => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div><Label>Imagem</Label><Input type="file" accept="image/*" onChange={(e) => onImg(e.target.files?.[0])} />
-                    {form.imagem && <img src={form.imagem} alt="" className="mt-2 h-16 w-16 rounded object-cover" />}</div>
+                  <div><Label>Imagem</Label>
+                    <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} size="h-20 w-20" /></div>
+                  </div>
                   <Button onClick={() => { if (!form.nome) return toast.error("Nome obrigatório"); add("materiais", form as any); setForm({ nome: "", codigo: "", unidade: "novelo", stock: 0, stockMinimo: 5, precoCompra: 0, fornecedorId: "", notas: "", imagem: "" }); setOpen(false); toast.success("Material adicionado"); }}>Guardar</Button>
                 </div>
               </DialogContent>
@@ -82,7 +83,9 @@ export const Route = createFileRoute("/stock")({
                 const baixo = m.stock <= (m.stockMinimo ?? 5);
                 return (
                   <TableRow key={m.id}>
-                    <TableCell>{m.imagem ? <img src={m.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
+                    <TableCell>
+                      <ImagePicker value={m.imagem} onChange={(v) => update("materiais", m.id, { imagem: v })} size="h-8 w-8" />
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{m.codigo ?? "—"}</TableCell>
                     <TableCell className="font-medium">{tt(m.nome)}</TableCell>
                     <TableCell>

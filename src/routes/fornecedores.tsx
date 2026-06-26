@@ -11,16 +11,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/fornecedores")({
   head: () => ({ meta: [{ title: "Fornecedores" }] }),
   component: () => {
-    const { fornecedores, materiais, add, remove } = useStore();
+    const { fornecedores, materiais, add, remove, update } = useStore();
     const tt = useTT();
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ nome: "", contacto: "", email: "", website: "", notas: "", imagem: "" });
-    const onImg = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setForm((f) => ({ ...f, imagem: r.result as string })); r.readAsDataURL(file); };
     return (
       <div className="space-y-6">
         <PageHeader
@@ -35,8 +35,9 @@ export const Route = createFileRoute("/fornecedores")({
                   {(["nome", "contacto", "email", "website", "notas"] as const).map((k) => (
                     <div key={k}><Label className="capitalize">{k}</Label><Input value={(form as any)[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} /></div>
                   ))}
-                  <div><Label>Logo / Imagem</Label><Input type="file" accept="image/*" onChange={(e) => onImg(e.target.files?.[0])} />
-                    {form.imagem && <img src={form.imagem} alt="" className="mt-2 h-16 w-16 rounded object-cover" />}</div>
+                  <div><Label>Logo / Imagem</Label>
+                    <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} size="h-20 w-20" /></div>
+                  </div>
                   <Button onClick={() => { if (!form.nome) return toast.error("Nome obrigatório"); add("fornecedores", form); setForm({ nome: "", contacto: "", email: "", website: "", notas: "", imagem: "" }); setOpen(false); toast.success("Fornecedor adicionado"); }}>Guardar</Button>
                 </div>
               </DialogContent>
@@ -53,7 +54,7 @@ export const Route = createFileRoute("/fornecedores")({
             <TableBody>
               {fornecedores.filter((f) => (f.nome + " " + (f.email ?? "") + " " + (f.contacto ?? "")).toLowerCase().includes(q.toLowerCase())).map((f) => (
                 <TableRow key={f.id}>
-                  <TableCell>{f.imagem ? <img src={f.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
+                  <TableCell><ImagePicker value={f.imagem} onChange={(v) => update("fornecedores", f.id, { imagem: v })} size="h-8 w-8" /></TableCell>
                   <TableCell className="font-medium">{tt(f.nome)}</TableCell>
                   <TableCell>{f.contacto}</TableCell>
                   <TableCell>{f.email}</TableCell>
