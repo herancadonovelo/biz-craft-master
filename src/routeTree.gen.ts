@@ -26,6 +26,7 @@ import { Route as NotasRouteImport } from './routes/notas'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
+import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -151,6 +152,11 @@ const ModulosRoute = ModulosRouteImport.update({
 const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
   id: '/marketing-conteudo',
   path: '/marketing-conteudo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingCampanhasRoute = MarketingCampanhasRouteImport.update({
+  id: '/marketing-campanhas',
+  path: '/marketing-campanhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketingRoute = MarketingRouteImport.update({
@@ -399,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -459,6 +466,7 @@ export interface FileRoutesByTo {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -520,6 +528,7 @@ export interface FileRoutesById {
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
+  '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -582,6 +591,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -642,6 +652,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -702,6 +713,7 @@ export interface FileRouteTypes {
     | '/instagram'
     | '/lista-compras'
     | '/marketing'
+    | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -763,6 +775,7 @@ export interface RootRouteChildren {
   InstagramRoute: typeof InstagramRoute
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
+  MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   ModulosRoute: typeof ModulosRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
@@ -904,6 +917,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing-conteudo'
       fullPath: '/marketing-conteudo'
       preLoaderRoute: typeof MarketingConteudoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing-campanhas': {
+      id: '/marketing-campanhas'
+      path: '/marketing-campanhas'
+      fullPath: '/marketing-campanhas'
+      preLoaderRoute: typeof MarketingCampanhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketing': {
@@ -1246,6 +1266,7 @@ const rootRouteChildren: RootRouteChildren = {
   InstagramRoute: InstagramRoute,
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
+  MarketingCampanhasRoute: MarketingCampanhasRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
   ModulosRoute: ModulosRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
