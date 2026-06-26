@@ -265,9 +265,9 @@ export function loadDemoData() {
 
   // --- Biblioteca ---
   const biblioteca: BibliotecaItem[] = [
-    { id: uid(), titulo: "Molde manta tricotin XL", categoria: "Tricotin", tipo: "molde", descricao: "Molde 1.5×1.5m com grelha 1cm.", criadoEm: daysAgo(20), imagem: img("knitting,pattern", 401, 600, 400) } as any,
-    { id: uid(), titulo: "Receita coelho amigurumi", categoria: "Amigurumi", tipo: "receita", descricao: "PDF com fotos passo-a-passo.", criadoEm: daysAgo(15), imagem: img("amigurumi,rabbit,pattern", 402, 600, 400) } as any,
-    { id: uid(), titulo: "Tutorial tricotin em quadro", categoria: "Tricotin", tipo: "tutorial", url: "https://youtu.be/exemplo", criadoEm: daysAgo(40), imagem: img("embroidery,tutorial", 403, 600, 400) } as any,
+    { id: uid(), titulo: "Molde manta tricotin XL", categoria: "Tricotin", tipo: "molde", descricao: "Molde 1.5×1.5m com grelha 1cm.", criadoEm: daysAgo(20), imagem: img("knitting,pattern", 401, 600, 400) },
+    { id: uid(), titulo: "Receita coelho amigurumi", categoria: "Amigurumi", tipo: "receita", descricao: "PDF com fotos passo-a-passo.", criadoEm: daysAgo(15), imagem: img("amigurumi,rabbit,pattern", 402, 600, 400) },
+    { id: uid(), titulo: "Tutorial tricotin em quadro", categoria: "Tricotin", tipo: "tutorial", url: "https://youtu.be/exemplo", criadoEm: daysAgo(40), imagem: img("embroidery,tutorial", 403, 600, 400) },
   ];
 
   // Aplica tudo de uma só vez para minimizar renders / saves remotos
