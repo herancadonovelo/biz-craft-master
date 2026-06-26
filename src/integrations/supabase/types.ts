@@ -59,6 +59,39 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          is_lifetime: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_lifetime?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_lifetime?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -68,7 +101,7 @@ export type Database = {
     }
     Enums: {
       billing_cycle: "mensal" | "anual"
-      subscription_plan: "light" | "base" | "premium"
+      subscription_plan: "light" | "base" | "premium" | "premium_vitalicio"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -197,7 +230,7 @@ export const Constants = {
   public: {
     Enums: {
       billing_cycle: ["mensal", "anual"],
-      subscription_plan: ["light", "base", "premium"],
+      subscription_plan: ["light", "base", "premium", "premium_vitalicio"],
     },
   },
 } as const
