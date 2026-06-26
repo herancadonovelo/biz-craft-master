@@ -3,12 +3,13 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Sparkles, Star, Loader2 } from "lucide-react";
+import { Check, X, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
 import { PLANS, useSubscription, handleGooglePlayPurchase, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { useAuth } from "@/lib/auth-state";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/planos")({
   head: () => ({ meta: [
@@ -20,9 +21,31 @@ export const Route = createFileRoute("/planos")({
 
 function PlanosPage() {
   const { user } = useAuth();
-  const { plan, trialEnds, trialActive, startTrial, setPlan, loading } = useSubscription();
+  const { plan, trialEnds, trialActive, startTrial, setPlan, loading, redeemPromoCode } = useSubscription();
   const [busy, setBusy] = useState<Plan | null>(null);
   const [cycle, setCycle] = useState<BillingCycle>("mensal");
+  const [promoInput, setPromoInput] = useState("");
+  const [promoBusy, setPromoBusy] = useState(false);
+  const [promoFeedback, setPromoFeedback] = useState<{ ok: boolean; message: string } | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState<{ code: string; pct: number } | null>(null);
+  const isLifetime = plan === "premium_vitalicio";
+
+  const onApplyPromo = async () => {
+    setPromoBusy(true);
+    setPromoFeedback(null);
+    try {
+      const res = await redeemPromoCode(promoInput);
+      setPromoFeedback({ ok: res.ok, message: res.message });
+      if (res.ok && res.lifetime) {
+        setPromoDiscount(null);
+        setPromoInput("");
+      } else if (res.ok && res.discountPercent) {
+        setPromoDiscount({ code: promoInput.trim().toUpperCase(), pct: res.discountPercent });
+      }
+    } finally { setPromoBusy(false); }
+  };
+
+  const applyDiscount = (price: number) => promoDiscount ? +(price * (1 - promoDiscount.pct / 100)).toFixed(2) : price;
 
   const onSubscribe = async (id: Plan) => {
     if (!user) { toast.error("Inicia sessão para subscrever"); return; }
@@ -79,12 +102,13 @@ function PlanosPage() {
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Plano atual</p>
               <p className="font-display text-lg">
-                {loading ? "A carregar…" : (PLANS.find((p) => p.id === plan)?.nome ?? "Light")}
-                {trialActive && <Badge variant="secondary" className="ml-2">Teste ativo</Badge>}
+                {loading ? "A carregar…" : isLifetime ? "Premium Vitalício" : (PLANS.find((p) => p.id === plan)?.nome ?? "Light")}
+                {isLifetime && <Badge className="ml-2 gap-1"><InfinityIcon className="h-3 w-3" />Vitalício</Badge>}
+                {trialActive && !isLifetime && <Badge variant="secondary" className="ml-2">Teste ativo</Badge>}
               </p>
             </div>
           </div>
-          {trialActive && trialEnds && (
+          {trialActive && !isLifetime && trialEnds && (
             <p className="text-sm text-muted-foreground">Teste termina em <strong>{trialEnds.toLocaleDateString("pt-PT")}</strong></p>
           )}
         </CardContent></Card>
@@ -111,16 +135,24 @@ function PlanosPage() {
                   ) : (
                     <>
                       <p className="mt-1 text-3xl font-semibold">
-                        {precoMostrar.toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                        {promoDiscount && (
+                          <span className="mr-2 text-lg font-normal text-muted-foreground line-through">
+                            {precoMostrar.toFixed(2).replace(".", ",")} €
+                          </span>
+                        )}
+                        {applyDiscount(precoMostrar).toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
                       </p>
+                      {promoDiscount && (
+                        <p className="text-xs font-medium text-emerald-600">Código {promoDiscount.code} (-{promoDiscount.pct}%)</p>
+                      )}
                       {cycle === "anual" ? (
                         <p className="text-xs text-muted-foreground">
-                          faturado anualmente — {p.precoAnualTotal.toFixed(2).replace(".", ",")} €/ano
+                          faturado anualmente — {applyDiscount(p.precoAnualTotal).toFixed(2).replace(".", ",")} €/ano
                           <span className="ml-1 font-medium text-primary">(poupa {ANNUAL_DISCOUNT_PCT}%)</span>
                         </p>
                       ) : (
                         <p className="text-xs text-muted-foreground">
-                          ou {p.precoAnualMensal.toFixed(2).replace(".", ",")} €/mês no plano anual
+                          ou {applyDiscount(p.precoAnualMensal).toFixed(2).replace(".", ",")} €/mês no plano anual
                         </p>
                       )}
                     </>
@@ -174,6 +206,49 @@ function PlanosPage() {
       <p className="text-center text-xs text-muted-foreground">
         Pagamentos serão processados via Google Play assim que a integração estiver ativa. Podes cancelar a qualquer momento.
       </p>
+
+      <Card>
+        <CardContent className="space-y-3 p-5">
+          <div className="flex items-center gap-2">
+            <Ticket className="h-4 w-4 text-primary" />
+            <h3 className="font-display text-lg">Tens um código promocional?</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Introduz o teu código para aplicar um desconto ou ativar um acesso especial.
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              value={promoInput}
+              onChange={(e) => { setPromoInput(e.target.value); setPromoFeedback(null); }}
+              placeholder="Ex: PROMO10"
+              className="font-mono uppercase"
+              disabled={promoBusy || isLifetime}
+              onKeyDown={(e) => { if (e.key === "Enter") onApplyPromo(); }}
+            />
+            <Button onClick={onApplyPromo} disabled={promoBusy || !promoInput.trim() || isLifetime}>
+              {promoBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Aplicar
+            </Button>
+          </div>
+          {promoFeedback && (
+            <p
+              role="status"
+              className={`rounded-md border px-3 py-2 text-sm ${
+                promoFeedback.ok
+                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  : "border-destructive/40 bg-destructive/10 text-destructive"
+              }`}
+            >
+              {promoFeedback.message}
+            </p>
+          )}
+          {isLifetime && (
+            <p className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
+              Tens acesso <strong>Premium Vitalício</strong> ativo — todas as funcionalidades desbloqueadas, sem expirar.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
