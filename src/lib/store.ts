@@ -302,6 +302,7 @@ export interface BibliotecaItem {
   ficheiroBase64?: string;
   tamanhoKb?: number;
   criadoEm: string;
+  imagem?: string;
 }
 
 export interface TraducoesCustom {

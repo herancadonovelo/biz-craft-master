@@ -6,6 +6,12 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString()
 const daysFwd = (n: number) => new Date(Date.now() + n * 86400000).toISOString();
 const dateOnly = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
+// Imagens ilustrativas estáveis (loremflickr — devolve fotos reais com base nas tags).
+// O "lock" garante a mesma foto entre sessões.
+const img = (tags: string, lock: number, w = 400, h = 400) =>
+  `https://loremflickr.com/${w}/${h}/${encodeURIComponent(tags)}?lock=${lock}`;
+const avatar = (seed: string) => `https://i.pravatar.cc/200?u=${encodeURIComponent(seed)}`;
+
 /**
  * Acrescenta dados de demonstração ricos a TODAS as categorias da app.
  * Não substitui os dados existentes — só faz append.
@@ -15,11 +21,11 @@ export function loadDemoData() {
 
   // --- Fornecedores ---
   const fornecedores: Fornecedor[] = [
-    { id: uid(), nome: "Lãs do Minho", contacto: "+351 253 100 200", email: "geral@lasdominho.pt", website: "https://lasdominho.pt", notas: "Lã merino e alpaca, entregas em 2 dias." },
-    { id: uid(), nome: "Algodões do Sul", contacto: "+351 289 555 777", email: "vendas@algodoes-sul.pt", website: "https://algodoes-sul.pt", notas: "Algodão orgânico certificado GOTS." },
-    { id: uid(), nome: "Tecidos Porto", contacto: "+351 220 808 909", email: "encomendas@tecidosporto.pt", notas: "Telas de linho e juta para tricotin em quadro." },
-    { id: uid(), nome: "Botões & Cª", contacto: "+351 211 222 333", email: "botoes@cia.pt", notas: "Botões de madeira, olhos de segurança para amigurumi." },
-    { id: uid(), nome: "Embalagens Verde", contacto: "+351 234 999 888", email: "info@embalagensverde.pt", notas: "Caixas e papel kraft reciclado." },
+    { id: uid(), nome: "Lãs do Minho", contacto: "+351 253 100 200", email: "geral@lasdominho.pt", website: "https://lasdominho.pt", notas: "Lã merino e alpaca, entregas em 2 dias.", imagem: img("wool,yarn,shop", 11) },
+    { id: uid(), nome: "Algodões do Sul", contacto: "+351 289 555 777", email: "vendas@algodoes-sul.pt", website: "https://algodoes-sul.pt", notas: "Algodão orgânico certificado GOTS.", imagem: img("cotton,plant", 12) },
+    { id: uid(), nome: "Tecidos Porto", contacto: "+351 220 808 909", email: "encomendas@tecidosporto.pt", notas: "Telas de linho e juta para tricotin em quadro.", imagem: img("fabric,linen,textile", 13) },
+    { id: uid(), nome: "Botões & Cª", contacto: "+351 211 222 333", email: "botoes@cia.pt", notas: "Botões de madeira, olhos de segurança para amigurumi.", imagem: img("buttons,sewing", 14) },
+    { id: uid(), nome: "Embalagens Verde", contacto: "+351 234 999 888", email: "info@embalagensverde.pt", notas: "Caixas e papel kraft reciclado.", imagem: img("kraft,box,packaging", 15) },
   ];
 
   // --- Materiais ---
@@ -27,29 +33,29 @@ export function loadDemoData() {
     id: uid(), nome, unidade, stock, precoCompra, fornecedorId, stockMinimo: 5, ...extra,
   });
   const materiais: Material[] = [
-    m("Lã merino bege", "novelo", 28, 5.2, fornecedores[0].id, { codigo: "LM-001" }),
-    m("Lã merino rosa velho", "novelo", 14, 5.2, fornecedores[0].id, { codigo: "LM-002" }),
-    m("Lã alpaca cinza", "novelo", 9, 8.9, fornecedores[0].id, { codigo: "LA-010", stockMinimo: 6 }),
-    m("Algodão branco amigurumi", "novelo", 32, 2.6, fornecedores[1].id, { codigo: "AL-100" }),
-    m("Algodão mostarda", "novelo", 6, 2.9, fornecedores[1].id, { codigo: "AL-105" }),
-    m("Tela linho natural 1.5m", "m", 12, 11.5, fornecedores[2].id, { codigo: "TL-150" }),
-    m("Tela juta crua 1m", "m", 5, 7.4, fornecedores[2].id, { codigo: "TJ-100" }),
-    m("Enchimento siliconado", "g", 2400, 0.014, fornecedores[3].id, { codigo: "EN-S" }),
-    m("Olhos segurança 8mm", "un", 120, 0.18, fornecedores[3].id, { codigo: "OS-08" }),
-    m("Botões madeira 15mm", "un", 80, 0.25, fornecedores[3].id, { codigo: "BM-15" }),
-    m("Caixa kraft 20x20", "un", 35, 0.85, fornecedores[4].id, { codigo: "CK-20" }),
-    m("Papel seda creme", "un", 200, 0.05, fornecedores[4].id, { codigo: "PS-CR" }),
+    m("Lã merino bege", "novelo", 28, 5.2, fornecedores[0].id, { codigo: "LM-001", imagem: img("wool,beige,yarn", 101) }),
+    m("Lã merino rosa velho", "novelo", 14, 5.2, fornecedores[0].id, { codigo: "LM-002", imagem: img("yarn,pink,wool", 102) }),
+    m("Lã alpaca cinza", "novelo", 9, 8.9, fornecedores[0].id, { codigo: "LA-010", stockMinimo: 6, imagem: img("alpaca,grey,yarn", 103) }),
+    m("Algodão branco amigurumi", "novelo", 32, 2.6, fornecedores[1].id, { codigo: "AL-100", imagem: img("cotton,white,yarn", 104) }),
+    m("Algodão mostarda", "novelo", 6, 2.9, fornecedores[1].id, { codigo: "AL-105", imagem: img("yarn,mustard,cotton", 105) }),
+    m("Tela linho natural 1.5m", "m", 12, 11.5, fornecedores[2].id, { codigo: "TL-150", imagem: img("linen,fabric,natural", 106) }),
+    m("Tela juta crua 1m", "m", 5, 7.4, fornecedores[2].id, { codigo: "TJ-100", imagem: img("burlap,jute,fabric", 107) }),
+    m("Enchimento siliconado", "g", 2400, 0.014, fornecedores[3].id, { codigo: "EN-S", imagem: img("stuffing,fiber,white", 108) }),
+    m("Olhos segurança 8mm", "un", 120, 0.18, fornecedores[3].id, { codigo: "OS-08", imagem: img("plastic,eyes,craft", 109) }),
+    m("Botões madeira 15mm", "un", 80, 0.25, fornecedores[3].id, { codigo: "BM-15", imagem: img("wooden,buttons", 110) }),
+    m("Caixa kraft 20x20", "un", 35, 0.85, fornecedores[4].id, { codigo: "CK-20", imagem: img("kraft,box,brown", 111) }),
+    m("Papel seda creme", "un", 200, 0.05, fornecedores[4].id, { codigo: "PS-CR", imagem: img("tissue,paper,cream", 112) }),
   ];
 
   // --- Clientes ---
   const clientes: Cliente[] = [
-    { id: uid(), nome: "Ana Pereira", email: "ana.pereira@example.pt", telefone: "+351 911 222 333", morada: "Rua das Flores 12, Porto", notas: "Prefere tons pastel.", criadoEm: daysAgo(120) },
-    { id: uid(), nome: "João Silva", email: "joao.silva@example.pt", telefone: "+351 922 333 444", morada: "Av. da República 88, Lisboa", criadoEm: daysAgo(90) },
-    { id: uid(), nome: "Marta Oliveira", email: "marta.o@example.pt", telefone: "+351 933 444 555", morada: "Praceta do Sol 4, Braga", notas: "Cliente recorrente — peças para bebés.", criadoEm: daysAgo(60) },
-    { id: uid(), nome: "Pedro Costa", email: "pedro.costa@example.pt", telefone: "+351 944 555 666", morada: "Rua Nova 7, Coimbra", criadoEm: daysAgo(45) },
-    { id: uid(), nome: "Sofia Mendes", email: "sofia.mendes@example.pt", telefone: "+351 955 666 777", morada: "Largo do Pelourinho 3, Évora", notas: "Encomenda grandes mantas.", criadoEm: daysAgo(30) },
-    { id: uid(), nome: "Inês Rocha", email: "ines.rocha@example.pt", telefone: "+351 966 777 888", morada: "Rua do Comércio 21, Faro", criadoEm: daysAgo(20) },
-    { id: uid(), nome: "Rui Tavares", email: "rui.tavares@example.pt", telefone: "+351 977 888 999", morada: "Av. Central 100, Viseu", criadoEm: daysAgo(7) },
+    { id: uid(), nome: "Ana Pereira", email: "ana.pereira@example.pt", telefone: "+351 911 222 333", morada: "Rua das Flores 12, Porto", notas: "Prefere tons pastel.", criadoEm: daysAgo(120), imagem: avatar("ana.pereira") },
+    { id: uid(), nome: "João Silva", email: "joao.silva@example.pt", telefone: "+351 922 333 444", morada: "Av. da República 88, Lisboa", criadoEm: daysAgo(90), imagem: avatar("joao.silva") },
+    { id: uid(), nome: "Marta Oliveira", email: "marta.o@example.pt", telefone: "+351 933 444 555", morada: "Praceta do Sol 4, Braga", notas: "Cliente recorrente — peças para bebés.", criadoEm: daysAgo(60), imagem: avatar("marta.oliveira") },
+    { id: uid(), nome: "Pedro Costa", email: "pedro.costa@example.pt", telefone: "+351 944 555 666", morada: "Rua Nova 7, Coimbra", criadoEm: daysAgo(45), imagem: avatar("pedro.costa") },
+    { id: uid(), nome: "Sofia Mendes", email: "sofia.mendes@example.pt", telefone: "+351 955 666 777", morada: "Largo do Pelourinho 3, Évora", notas: "Encomenda grandes mantas.", criadoEm: daysAgo(30), imagem: avatar("sofia.mendes") },
+    { id: uid(), nome: "Inês Rocha", email: "ines.rocha@example.pt", telefone: "+351 966 777 888", morada: "Rua do Comércio 21, Faro", criadoEm: daysAgo(20), imagem: avatar("ines.rocha") },
+    { id: uid(), nome: "Rui Tavares", email: "rui.tavares@example.pt", telefone: "+351 977 888 999", morada: "Av. Central 100, Viseu", criadoEm: daysAgo(7), imagem: avatar("rui.tavares") },
   ];
 
   // --- Projetos ---
@@ -146,9 +152,9 @@ export function loadDemoData() {
   ];
 
   const acoesMarketing: AcaoMarketing[] = [
-    { id: uid(), tipo: "promocao", titulo: "Desconto Dia da Mãe", dataInicio: dateOnly(-20), dataFim: dateOnly(-5), descontoTipo: "percentagem", descontoValor: 15, alvo: "todo", peca: "Amigurumis", estado: "concluida", criadoEm: daysAgo(25), resultado: "12 vendas adicionais" },
-    { id: uid(), tipo: "campanha", titulo: "Lançamento coleção Inverno", dataInicio: dateOnly(10), dataFim: dateOnly(40), meta: "20 encomendas em 30 dias", estado: "planeada", criadoEm: daysAgo(2) },
-    { id: uid(), tipo: "giveaway", titulo: "Sorteio Amigurumi Coelho", dataInicio: dateOnly(-7), dataFim: dateOnly(7), regras: "Seguir, like e marcar 2 amigos.", alvo: "todo", estado: "ativa", criadoEm: daysAgo(8) },
+    { id: uid(), tipo: "promocao", titulo: "Desconto Dia da Mãe", dataInicio: dateOnly(-20), dataFim: dateOnly(-5), descontoTipo: "percentagem", descontoValor: 15, alvo: "todo", peca: "Amigurumis", estado: "concluida", criadoEm: daysAgo(25), resultado: "12 vendas adicionais", imagem: img("mothers,day,flowers", 601, 600, 400) },
+    { id: uid(), tipo: "campanha", titulo: "Lançamento coleção Inverno", dataInicio: dateOnly(10), dataFim: dateOnly(40), meta: "20 encomendas em 30 dias", estado: "planeada", criadoEm: daysAgo(2), imagem: img("winter,knit,collection", 602, 600, 400) },
+    { id: uid(), tipo: "giveaway", titulo: "Sorteio Amigurumi Coelho", dataInicio: dateOnly(-7), dataFim: dateOnly(7), regras: "Seguir, like e marcar 2 amigos.", alvo: "todo", estado: "ativa", criadoEm: daysAgo(8), imagem: img("amigurumi,rabbit,gift", 603, 600, 400) },
   ];
 
   // --- Cotações ---
@@ -183,10 +189,10 @@ export function loadDemoData() {
 
   // --- Catálogo ---
   const catalogo: CatalogoItem[] = [
-    { id: uid(), nome: "Manta tricotin XL bege", descricao: "Manta artesanal 1.5×1.5m em lã merino.", precoVenda: 280, custoMateriais: 42, custoHoras: 216, margem: 70, projetoId: projetos[0].id, ativo: true, criadoEm: daysAgo(20) },
-    { id: uid(), nome: "Amigurumi coelho clássico", descricao: "Coelho de algodão, 25cm, com olhos de segurança.", precoVenda: 48, custoMateriais: 12, custoHoras: 84, margem: 70, projetoId: projetos[1].id, ativo: true, criadoEm: daysAgo(35) },
-    { id: uid(), nome: "Quadro tricotin em tela 40×60", descricao: "Peça decorativa em tela de linho.", precoVenda: 95, custoMateriais: 16, custoHoras: 108, margem: 70, projetoId: projetos[2].id, ativo: true, criadoEm: daysAgo(10) },
-    { id: uid(), nome: "Amigurumi gato laranja", descricao: "Gato em algodão mostarda, 22cm.", precoVenda: 42, custoMateriais: 11, custoHoras: 72, margem: 70, projetoId: projetos[5].id, ativo: true, criadoEm: daysAgo(50) },
+    { id: uid(), nome: "Manta tricotin XL bege", descricao: "Manta artesanal 1.5×1.5m em lã merino.", precoVenda: 280, custoMateriais: 42, custoHoras: 216, margem: 70, projetoId: projetos[0].id, ativo: true, criadoEm: daysAgo(20), imagem: img("chunky,blanket,knit", 201, 600, 400) },
+    { id: uid(), nome: "Amigurumi coelho clássico", descricao: "Coelho de algodão, 25cm, com olhos de segurança.", precoVenda: 48, custoMateriais: 12, custoHoras: 84, margem: 70, projetoId: projetos[1].id, ativo: true, criadoEm: daysAgo(35), imagem: img("amigurumi,rabbit,crochet", 202, 600, 400) },
+    { id: uid(), nome: "Quadro tricotin em tela 40×60", descricao: "Peça decorativa em tela de linho.", precoVenda: 95, custoMateriais: 16, custoHoras: 108, margem: 70, projetoId: projetos[2].id, ativo: true, criadoEm: daysAgo(10), imagem: img("embroidery,frame,wall", 203, 600, 400) },
+    { id: uid(), nome: "Amigurumi gato laranja", descricao: "Gato em algodão mostarda, 22cm.", precoVenda: 42, custoMateriais: 11, custoHoras: 72, margem: 70, projetoId: projetos[5].id, ativo: true, criadoEm: daysAgo(50), imagem: img("amigurumi,cat,crochet", 204, 600, 400) },
   ];
 
   // --- Cursos & alunos ---
@@ -220,10 +226,10 @@ export function loadDemoData() {
 
   // --- Portfólio ---
   const portfolio: PortfolioItem[] = [
-    { id: uid(), titulo: "Manta tricotin XL bege", descricao: "Lã merino, 1.5×1.5m.", tecnica: "Tricotin manual", ano: "2026", cliente: clientes[0].nome },
-    { id: uid(), titulo: "Amigurumi coelho", descricao: "Algodão branco, 25cm.", tecnica: "Crochê amigurumi", ano: "2026", cliente: clientes[1].nome },
-    { id: uid(), titulo: "Quadro tricotin em tela", descricao: "Linho natural + lã rosa.", tecnica: "Tricotin em quadro", ano: "2026", cliente: clientes[2].nome },
-    { id: uid(), titulo: "Conjunto bebé crochê", descricao: "Sapatinhos + touca.", tecnica: "Crochê", ano: "2025" },
+    { id: uid(), titulo: "Manta tricotin XL bege", descricao: "Lã merino, 1.5×1.5m.", tecnica: "Tricotin manual", ano: "2026", cliente: clientes[0].nome, imagem: img("chunky,blanket", 301, 600, 400) },
+    { id: uid(), titulo: "Amigurumi coelho", descricao: "Algodão branco, 25cm.", tecnica: "Crochê amigurumi", ano: "2026", cliente: clientes[1].nome, imagem: img("amigurumi,rabbit", 302, 600, 400) },
+    { id: uid(), titulo: "Quadro tricotin em tela", descricao: "Linho natural + lã rosa.", tecnica: "Tricotin em quadro", ano: "2026", cliente: clientes[2].nome, imagem: img("embroidery,hoop", 303, 600, 400) },
+    { id: uid(), titulo: "Conjunto bebé crochê", descricao: "Sapatinhos + touca.", tecnica: "Crochê", ano: "2025", imagem: img("baby,crochet,booties", 304, 600, 400) },
   ];
 
   // --- Notas & moodboards ---
@@ -234,7 +240,11 @@ export function loadDemoData() {
   ];
 
   const moodboards: Moodboard[] = [
-    { id: uid(), titulo: "Coleção Inverno 2026", descricao: "Tons quentes e texturas chunky.", tags: ["inverno", "chunky"], imagens: [], paleta: [{ id: uid(), nome: "Terracota", hex: "#C97B5A" }, { id: uid(), nome: "Creme", hex: "#F2E8DC" }, { id: uid(), nome: "Verde musgo", hex: "#6A7F5C" }], links: [{ id: uid(), titulo: "Inspiração Pinterest", url: "https://pinterest.com" }], criadoEm: daysAgo(5) },
+    { id: uid(), titulo: "Coleção Inverno 2026", descricao: "Tons quentes e texturas chunky.", tags: ["inverno", "chunky"], imagens: [
+      { id: uid(), url: img("chunky,knit,winter", 501, 600, 400), legenda: "Texturas chunky" },
+      { id: uid(), url: img("terracotta,wool", 502, 600, 400), legenda: "Paleta terracota" },
+      { id: uid(), url: img("moss,green,yarn", 503, 600, 400), legenda: "Verde musgo" },
+    ], paleta: [{ id: uid(), nome: "Terracota", hex: "#C97B5A" }, { id: uid(), nome: "Creme", hex: "#F2E8DC" }, { id: uid(), nome: "Verde musgo", hex: "#6A7F5C" }], links: [{ id: uid(), titulo: "Inspiração Pinterest", url: "https://pinterest.com" }], criadoEm: daysAgo(5) },
   ];
 
   // --- Contas plataformas (PIN protege na UI) ---
@@ -259,9 +269,9 @@ export function loadDemoData() {
 
   // --- Biblioteca ---
   const biblioteca: BibliotecaItem[] = [
-    { id: uid(), titulo: "Molde manta tricotin XL", categoria: "Tricotin", tipo: "molde", descricao: "Molde 1.5×1.5m com grelha 1cm.", criadoEm: daysAgo(20) },
-    { id: uid(), titulo: "Receita coelho amigurumi", categoria: "Amigurumi", tipo: "receita", descricao: "PDF com fotos passo-a-passo.", criadoEm: daysAgo(15) },
-    { id: uid(), titulo: "Tutorial tricotin em quadro", categoria: "Tricotin", tipo: "tutorial", url: "https://youtu.be/exemplo", criadoEm: daysAgo(40) },
+    { id: uid(), titulo: "Molde manta tricotin XL", categoria: "Tricotin", tipo: "molde", descricao: "Molde 1.5×1.5m com grelha 1cm.", criadoEm: daysAgo(20), imagem: img("knitting,pattern", 401, 600, 400) },
+    { id: uid(), titulo: "Receita coelho amigurumi", categoria: "Amigurumi", tipo: "receita", descricao: "PDF com fotos passo-a-passo.", criadoEm: daysAgo(15), imagem: img("amigurumi,rabbit,pattern", 402, 600, 400) },
+    { id: uid(), titulo: "Tutorial tricotin em quadro", categoria: "Tricotin", tipo: "tutorial", url: "https://youtu.be/exemplo", criadoEm: daysAgo(40), imagem: img("embroidery,tutorial", 403, 600, 400) },
   ];
 
   // Aplica tudo de uma só vez para minimizar renders / saves remotos
