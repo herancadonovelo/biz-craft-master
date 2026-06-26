@@ -83,7 +83,9 @@ export const Route = createFileRoute("/stock")({
                 const baixo = m.stock <= (m.stockMinimo ?? 5);
                 return (
                   <TableRow key={m.id}>
-                    <TableCell>{m.imagem ? <img src={m.imagem} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}</TableCell>
+                    <TableCell>
+                      <ImagePicker value={m.imagem} onChange={(v) => update("materiais", m.id, { imagem: v })} size="h-8 w-8" />
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{m.codigo ?? "—"}</TableCell>
                     <TableCell className="font-medium">{tt(m.nome)}</TableCell>
                     <TableCell>
