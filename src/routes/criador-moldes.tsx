@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 import { useSubscription } from "@/lib/subscription";
 import {
   Undo2, Redo2, Trash2, Printer, Image as ImageIcon, MousePointer, PenLine,
