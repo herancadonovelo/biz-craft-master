@@ -74,7 +74,9 @@ function ClientesPage() {
           <TableBody>
             {clientes.filter((c) => (c.nome + " " + (c.email ?? "") + " " + (c.telefone ?? "")).toLowerCase().includes(q.toLowerCase())).map((c) => (
               <TableRow key={c.id}>
-                <TableCell>{c.imagem ? <img src={c.imagem} alt="" className="h-8 w-8 rounded-full object-cover" /> : <div className="h-8 w-8 rounded-full bg-muted" />}</TableCell>
+                <TableCell>
+                  <ImagePicker value={c.imagem} onChange={(v) => useStore.getState().update("clientes", c.id, { imagem: v })} shape="round" size="h-8 w-8" />
+                </TableCell>
                 <TableCell className="font-medium">{tt(c.nome)}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.telefone}</TableCell>
