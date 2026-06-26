@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/perfil-negocio")({
   head: () => ({ meta: [{ title: "Perfil do negócio" }] }),
@@ -13,7 +14,6 @@ export const Route = createFileRoute("/perfil-negocio")({
     const perfil = useStore((s) => s.perfilNegocio);
     const setPerfil = useStore((s) => s.setPerfil);
     const audit = useStore((s) => s.audit);
-    const onLogo = (file?: File) => { if (!file) return; const r = new FileReader(); r.onload = () => setPerfil({ logo: r.result as string }); r.readAsDataURL(file); };
     const fields: { k: keyof typeof perfil; label: string }[] = [
       { k: "nome", label: "Nome do negócio" },
       { k: "slogan", label: "Slogan" },
@@ -40,8 +40,7 @@ export const Route = createFileRoute("/perfil-negocio")({
           ))}
           <div className="md:col-span-2">
             <Label>Logo</Label>
-            <Input type="file" accept="image/*" onChange={(e) => onLogo(e.target.files?.[0])} />
-            {perfil.logo && <img src={perfil.logo} alt="" className="mt-2 h-20 w-20 rounded object-cover" />}
+            <div className="mt-1"><ImagePicker value={perfil.logo} onChange={(v) => setPerfil({ logo: v })} size="h-24 w-24" /></div>
           </div>
           <div className="md:col-span-2 flex justify-end">
             <Button onClick={() => { audit("atualizou perfil", "perfilNegocio", undefined, perfil.nome); toast.success("Perfil guardado"); }}>Guardar alterações</Button>
