@@ -769,6 +769,7 @@ export const useStore = create<State>()(
       acoesMarketing: [],
       contadores: [],
       receitasEditor: [],
+      marketingInfo: { personaQuem: "", personaDificuldades: "", personaValoriza: "", mercadoNotas: "" },
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
@@ -780,6 +781,7 @@ export const useStore = create<State>()(
       setDesign: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
       setPerfil: (patch) => set((s) => ({ perfilNegocio: { ...s.perfilNegocio, ...patch } })),
       setSync: (patch) => set((s) => ({ sincronizacao: { ...s.sincronizacao, ...patch } })),
+      setMarketingInfo: (patch) => set((s) => ({ marketingInfo: { ...s.marketingInfo, ...patch } })),
       audit: (acao, entidade, entidadeId, detalhes) =>
         set((s) => ({
           auditoria: [
