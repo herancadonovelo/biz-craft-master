@@ -6,6 +6,12 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString()
 const daysFwd = (n: number) => new Date(Date.now() + n * 86400000).toISOString();
 const dateOnly = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
+// Imagens ilustrativas estáveis (loremflickr — devolve fotos reais com base nas tags).
+// O "lock" garante a mesma foto entre sessões.
+const img = (tags: string, lock: number, w = 400, h = 400) =>
+  `https://loremflickr.com/${w}/${h}/${encodeURIComponent(tags)}?lock=${lock}`;
+const avatar = (seed: string) => `https://i.pravatar.cc/200?u=${encodeURIComponent(seed)}`;
+
 /**
  * Acrescenta dados de demonstração ricos a TODAS as categorias da app.
  * Não substitui os dados existentes — só faz append.
