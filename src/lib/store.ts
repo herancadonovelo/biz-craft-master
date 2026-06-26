@@ -539,6 +539,7 @@ interface State {
   acoesMarketing: AcaoMarketing[];
   contadores: ContadorReceita[];
   receitasEditor: ReceitaEditor[];
+  marketingInfo: MarketingInfo;
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -547,6 +548,7 @@ interface State {
   setDesign: (patch: Partial<DesignSettings>) => void;
   setPerfil: (patch: Partial<PerfilNegocio>) => void;
   setSync: (patch: Partial<SincronizacaoConfig>) => void;
+  setMarketingInfo: (patch: Partial<MarketingInfo>) => void;
   audit: (acao: string, entidade: string, entidadeId?: ID, detalhes?: string) => void;
   setEtsy: (patch: Partial<EtsyConfig>) => void;
   setModulo: (url: string, ativo: boolean) => void;
