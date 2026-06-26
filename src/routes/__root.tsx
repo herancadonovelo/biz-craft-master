@@ -24,6 +24,7 @@ import { AuthBanner } from "@/components/AuthBanner";
 import { SubscriptionProvider } from "@/lib/subscription";
 import { PaywallDialog } from "@/components/PaywallDialog";
 import { PreviewModeBanner } from "@/components/PreviewModeBanner";
+import { PreviewExitFab } from "@/components/PreviewExitFab";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -213,6 +214,7 @@ function RootComponent() {
         <WellnessTimer />
         <SupabaseSync />
         <PaywallDialog />
+        <PreviewExitFab />
       </SidebarProvider>
       </SubscriptionProvider>
       </AuthProvider>
