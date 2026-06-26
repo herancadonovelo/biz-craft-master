@@ -23,6 +23,7 @@ import { SupabaseSync } from "@/components/SupabaseSync";
 import { AuthBanner } from "@/components/AuthBanner";
 import { SubscriptionProvider } from "@/lib/subscription";
 import { PaywallDialog } from "@/components/PaywallDialog";
+import { PreviewModeBanner } from "@/components/PreviewModeBanner";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -196,6 +197,7 @@ function RootComponent() {
           <AppSidebar />
           <div className="flex flex-1 flex-col">
             <AuthBanner />
+            <PreviewModeBanner />
             <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
               <SidebarTrigger />
               <RootSubtitle />
