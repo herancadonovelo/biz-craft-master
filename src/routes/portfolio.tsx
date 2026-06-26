@@ -98,7 +98,7 @@ export const Route = createFileRoute("/portfolio")({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {portfolio.map((p) => (
             <Card key={p.id} className="overflow-hidden">
-              {p.imagem && <img src={p.imagem} alt={p.titulo} className="h-44 w-full object-cover" />}
+              <ImagePicker value={p.imagem} onChange={(v) => update("portfolio", p.id, { imagem: v })} size="h-44 w-full" className="rounded-none border-0" />
               <CardContent className="space-y-1 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-display font-semibold">{p.titulo}</h3>
