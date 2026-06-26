@@ -569,12 +569,14 @@ function CriadorMoldes() {
                 viewBox={`0 0 ${wMm} ${hMm}`}
                 width="100%" height="100%"
                 onClick={onSvgClick}
-                onMouseMove={onSvgMove}
-                onMouseUp={onSvgUp}
-                onMouseLeave={onSvgUp}
+                onPointerMove={onSvgMove}
+                onPointerUp={onSvgUp}
+                onPointerCancel={onSvgUp}
+                onPointerLeave={onSvgUp}
                 style={{
                   cursor: mode === "draw" || mode === "text" || mode === "insert" ? "crosshair" : "default",
                   display: "block",
+                  touchAction: "none",
                 }}
               >
                 {bg && (
@@ -585,11 +587,11 @@ function CriadorMoldes() {
                 {shapes.filter((s) => s.visible).map((s) => {
                   if (s.kind === "text") {
                     return (
-                      <g key={s.id} onMouseDown={(e) => { setActiveId(s.id); e.stopPropagation(); }}>
+                      <g key={s.id} onPointerDown={(e) => { setActiveId(s.id); e.stopPropagation(); }}>
                         <text x={s.x} y={s.y} fontSize={s.fontSize} fill={s.stroke} fontFamily="sans-serif" style={{ cursor: "pointer" }}>{s.text}</text>
                         {mode === "edit" && (
                           <circle cx={s.x} cy={s.y} r={1.2} fill={s.stroke} data-handle="1" className="no-print-handle"
-                            onMouseDown={(e) => { e.stopPropagation(); setActiveId(s.id); draggingPt.current = { shapeId: s.id, idx: 0 }; }} />
+                            onPointerDown={(e) => { e.stopPropagation(); setActiveId(s.id); draggingPt.current = { shapeId: s.id, idx: 0 }; try { (e.currentTarget as Element).setPointerCapture(e.pointerId); } catch { /* noop */ } }} />
                         )}
                       </g>
                     );
@@ -604,7 +606,7 @@ function CriadorMoldes() {
                         strokeWidth={s.strokeWidth + (isActive ? 0.15 : 0)}
                         strokeDasharray={dashFor(s.dash, s.strokeWidth)}
                         strokeLinejoin="round" strokeLinecap="round"
-                        onMouseDown={(e) => onShapeDown(s.id, e)}
+                        onPointerDown={(e) => onShapeDown(s.id, e)}
                         style={{ cursor: (mode === "edit" || mode === "insert") && !s.locked ? "move" : "default" }}
                       />
                       {showMeasurements && !s.smooth && s.points.length > 1 && s.points.map((p, i) => {
@@ -616,12 +618,12 @@ function CriadorMoldes() {
                         return <text key={`m${i}`} x={mx} y={my - 1} fontSize={2.2} fill={s.stroke} textAnchor="middle" className="no-print-handle" pointerEvents="none">{(len / 10).toFixed(1)} cm</text>;
                       })}
                       {mode === "edit" && !s.locked && s.points.map((pt, i) => (
-                        <circle key={i} cx={pt.x} cy={pt.y} r={isActive ? 1.4 : 1.2}
+                        <circle key={i} cx={pt.x} cy={pt.y} r={isActive ? 2.2 : 2}
                           fill={isActive ? "#ef4444" : s.stroke}
                           data-handle="1"
-                          onMouseDown={(e) => onHandleDown(s.id, i, e)}
+                          onPointerDown={(e) => onHandleDown(s.id, i, e)}
                           onContextMenu={(e) => onHandleContext(s.id, i, e)}
-                          style={{ cursor: "grab" }} className="no-print-handle" />
+                          style={{ cursor: "grab", touchAction: "none" }} className="no-print-handle" />
                       ))}
                     </g>
                   );
