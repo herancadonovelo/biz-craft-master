@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
 
-export type Plan = "light" | "base" | "premium";
-const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2 };
+export type Plan = "light" | "base" | "premium" | "premium_vitalicio";
+const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2, premium_vitalicio: 3 };
 
 export interface PlanDef {
   id: Plan;
@@ -98,8 +98,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [paywall, setPaywall] = useState<SubCtx["paywall"]>(null);
 
-  const trialActive = !!(trialEnds && trialEnds.getTime() > Date.now());
-  const effectivePlan: Plan = trialActive ? "premium" : plan;
+  const isLifetime = plan === "premium_vitalicio";
+  const trialActive = !isLifetime && !!(trialEnds && trialEnds.getTime() > Date.now());
+  const effectivePlan: Plan = isLifetime ? "premium_vitalicio" : (trialActive ? "premium" : plan);
 
   const refresh = async () => {
     if (!user) { setPlanState("light"); setTrialEnds(null); setLoading(false); return; }
