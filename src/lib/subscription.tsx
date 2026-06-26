@@ -179,22 +179,38 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       return { ok: false, message: "Já resgataste este código anteriormente." };
     }
 
-    const { error: redErr } = await supabase.from("promo_redemptions").insert({
-      user_id: user.id,
-      promo_code_id: data.id,
-      code: data.code,
-      discount_percent: data.discount_percent,
-      is_lifetime: data.is_lifetime,
-    } as never);
-    if (redErr) {
+    const { data: redemption, error: redErr } = await supabase
+      .from("promo_redemptions")
+      .insert({
+        user_id: user.id,
+        promo_code_id: data.id,
+        code: data.code,
+        discount_percent: data.discount_percent,
+        is_lifetime: data.is_lifetime,
+      } as never)
+      .select("id,code,discount_percent,is_lifetime,redeemed_at")
+      .single();
+    if (redErr || !redemption) {
       // unique violation (corrida) → mesma mensagem
-      if ((redErr as { code?: string }).code === "23505") {
+      if (redErr && (redErr as { code?: string }).code === "23505") {
         return { ok: false, message: "Já resgataste este código anteriormente." };
       }
       return { ok: false, message: "Falha a registar o resgate." };
     }
 
-    if (data.is_lifetime) {
+    // Fonte da verdade: usar os valores efetivamente persistidos na BD (não os pedidos pelo cliente).
+    const persisted = redemption as { code: string; discount_percent: number; is_lifetime: boolean };
+    // Integridade: alinhar com o promo_code servido (defesa contra manipulação local).
+    if (
+      persisted.discount_percent !== data.discount_percent ||
+      persisted.is_lifetime !== data.is_lifetime ||
+      persisted.code !== data.code
+    ) {
+      console.warn("[promo] divergência entre promo_codes e promo_redemptions", { server: data, persisted });
+      return { ok: false, message: "Inconsistência detetada no resgate. Tenta novamente." };
+    }
+
+    if (persisted.is_lifetime) {
       const { error: upErr } = await supabase
         .from("profiles")
         .update({ subscription_status: "premium_vitalicio", subscription_trial_ends: null } as never)
@@ -207,8 +223,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
     return {
       ok: true,
-      discountPercent: data.discount_percent,
-      message: `Código aplicado: ${data.discount_percent}% de desconto.`,
+      discountPercent: persisted.discount_percent,
+      message: `Código ${persisted.code} aplicado e registado no servidor: ${persisted.discount_percent}% de desconto confirmado.`,
     };
   };
 
