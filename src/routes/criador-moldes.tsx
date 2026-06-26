@@ -153,7 +153,7 @@ function CriadorMoldes() {
   function redo() { if (hIdx < history.length - 1) { setHIdx(hIdx + 1); setShapes(history[hIdx + 1]); } }
   function clearAll() { commit([]); setActiveId(null); }
 
-  function svgPoint(evt: React.MouseEvent): Pt | null {
+  function svgPoint(evt: { clientX: number; clientY: number }): Pt | null {
     const svg = svgRef.current;
     if (!svg) return null;
     const pt = svg.createSVGPoint();
@@ -238,15 +238,29 @@ function CriadorMoldes() {
   function closeActivePath() {
     const a = activeShape();
     if (!a || a.kind !== "path") return;
-    commit(shapes.map((s) => (s.id === a.id ? { ...a, closed: true } : s)));
+    let pts = a.points.slice();
+    // Remove pontos finais que coincidam (ou estejam muito perto) do primeiro
+    while (pts.length > 2) {
+      const f = pts[0], l = pts[pts.length - 1];
+      if (Math.hypot(f.x - l.x, f.y - l.y) < 1.5) pts.pop();
+      else break;
+    }
+    if (pts.length < 3) {
+      toast.error("Adiciona pelo menos 3 pontos para fechar o molde");
+      return;
+    }
+    commit(shapes.map((s) => (s.id === a.id ? { ...a, points: pts, closed: true } : s)));
+    toast.success("Molde fechado");
   }
 
-  function onHandleDown(shapeId: string, idx: number, e: React.MouseEvent) {
+  function onHandleDown(shapeId: string, idx: number, e: React.PointerEvent) {
     e.stopPropagation();
     const sh = shapes.find((x) => x.id === shapeId);
     if (!sh || sh.locked) return;
+    if (mode !== "edit") setMode("edit");
     setActiveId(shapeId);
     draggingPt.current = { shapeId, idx };
+    try { (e.currentTarget as Element).setPointerCapture(e.pointerId); } catch { /* noop */ }
   }
   function onHandleContext(shapeId: string, idx: number, e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
@@ -256,7 +270,7 @@ function CriadorMoldes() {
     const newPts = sh.points.filter((_, i) => i !== idx);
     commit(shapes.map((s) => (s.id === shapeId ? { ...sh, points: newPts } : s)));
   }
-  function onShapeDown(shapeId: string, e: React.MouseEvent) {
+  function onShapeDown(shapeId: string, e: React.PointerEvent) {
     if (mode !== "edit" && mode !== "insert") return;
     if ((e.target as Element).getAttribute("data-handle") === "1") return;
     const sh = shapes.find((x) => x.id === shapeId);
@@ -267,8 +281,9 @@ function CriadorMoldes() {
     const p = svgPoint(e);
     if (!p) return;
     draggingShape.current = { shapeId, startMouse: p, startPts: sh.points };
+    try { (e.currentTarget as Element).setPointerCapture(e.pointerId); } catch { /* noop */ }
   }
-  function onSvgMove(e: React.MouseEvent) {
+  function onSvgMove(e: React.PointerEvent) {
     const p = svgPoint(e);
     if (!p) return;
     setHover(p);
@@ -291,7 +306,14 @@ function CriadorMoldes() {
     if (draggingPt.current || draggingShape.current) {
       draggingPt.current = null;
       draggingShape.current = null;
-      commit(shapes);
+      // Usa o estado mais recente (após o arrasto) para gravar no histórico
+      setShapes((latest) => {
+        const trimmed = history.slice(0, hIdx + 1);
+        trimmed.push(latest);
+        setHistory(trimmed);
+        setHIdx(trimmed.length - 1);
+        return latest;
+      });
     }
   }
 
@@ -547,12 +569,14 @@ function CriadorMoldes() {
                 viewBox={`0 0 ${wMm} ${hMm}`}
                 width="100%" height="100%"
                 onClick={onSvgClick}
-                onMouseMove={onSvgMove}
-                onMouseUp={onSvgUp}
-                onMouseLeave={onSvgUp}
+                onPointerMove={onSvgMove}
+                onPointerUp={onSvgUp}
+                onPointerCancel={onSvgUp}
+                onPointerLeave={onSvgUp}
                 style={{
                   cursor: mode === "draw" || mode === "text" || mode === "insert" ? "crosshair" : "default",
                   display: "block",
+                  touchAction: "none",
                 }}
               >
                 {bg && (
@@ -563,11 +587,11 @@ function CriadorMoldes() {
                 {shapes.filter((s) => s.visible).map((s) => {
                   if (s.kind === "text") {
                     return (
-                      <g key={s.id} onMouseDown={(e) => { setActiveId(s.id); e.stopPropagation(); }}>
+                      <g key={s.id} onPointerDown={(e) => { setActiveId(s.id); e.stopPropagation(); }}>
                         <text x={s.x} y={s.y} fontSize={s.fontSize} fill={s.stroke} fontFamily="sans-serif" style={{ cursor: "pointer" }}>{s.text}</text>
                         {mode === "edit" && (
                           <circle cx={s.x} cy={s.y} r={1.2} fill={s.stroke} data-handle="1" className="no-print-handle"
-                            onMouseDown={(e) => { e.stopPropagation(); setActiveId(s.id); draggingPt.current = { shapeId: s.id, idx: 0 }; }} />
+                            onPointerDown={(e) => { e.stopPropagation(); setActiveId(s.id); draggingPt.current = { shapeId: s.id, idx: 0 }; try { (e.currentTarget as Element).setPointerCapture(e.pointerId); } catch { /* noop */ } }} />
                         )}
                       </g>
                     );
@@ -582,7 +606,7 @@ function CriadorMoldes() {
                         strokeWidth={s.strokeWidth + (isActive ? 0.15 : 0)}
                         strokeDasharray={dashFor(s.dash, s.strokeWidth)}
                         strokeLinejoin="round" strokeLinecap="round"
-                        onMouseDown={(e) => onShapeDown(s.id, e)}
+                        onPointerDown={(e) => onShapeDown(s.id, e)}
                         style={{ cursor: (mode === "edit" || mode === "insert") && !s.locked ? "move" : "default" }}
                       />
                       {showMeasurements && !s.smooth && s.points.length > 1 && s.points.map((p, i) => {
@@ -594,12 +618,12 @@ function CriadorMoldes() {
                         return <text key={`m${i}`} x={mx} y={my - 1} fontSize={2.2} fill={s.stroke} textAnchor="middle" className="no-print-handle" pointerEvents="none">{(len / 10).toFixed(1)} cm</text>;
                       })}
                       {mode === "edit" && !s.locked && s.points.map((pt, i) => (
-                        <circle key={i} cx={pt.x} cy={pt.y} r={isActive ? 1.4 : 1.2}
+                        <circle key={i} cx={pt.x} cy={pt.y} r={isActive ? 2.2 : 2}
                           fill={isActive ? "#ef4444" : s.stroke}
                           data-handle="1"
-                          onMouseDown={(e) => onHandleDown(s.id, i, e)}
+                          onPointerDown={(e) => onHandleDown(s.id, i, e)}
                           onContextMenu={(e) => onHandleContext(s.id, i, e)}
-                          style={{ cursor: "grab" }} className="no-print-handle" />
+                          style={{ cursor: "grab", touchAction: "none" }} className="no-print-handle" />
                       ))}
                     </g>
                   );
