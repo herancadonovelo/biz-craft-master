@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/catalogo")({
   head: () => ({ meta: [{ title: "Catálogo" }] }),
@@ -17,7 +18,6 @@ export const Route = createFileRoute("/catalogo")({
     const { catalogo, add, remove, update } = useStore();
     const tt = useTT();
     const [novo, setNovo] = useState({ nome: "", descricao: "", precoVenda: 0, imagem: "" });
-    const upload = (f?: File) => { if (!f) return; const r = new FileReader(); r.onload = () => setNovo((s) => ({ ...s, imagem: r.result as string })); r.readAsDataURL(f); };
     const guardar = () => {
       if (!novo.nome || novo.precoVenda <= 0) return toast.error("Nome e preço obrigatórios");
       add("catalogo", { ...novo, ativo: true, criadoEm: new Date().toISOString() } as any);
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/catalogo")({
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-4">
           <Input placeholder="Nome" value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} />
           <Input type="number" min={0} step={0.5} placeholder="Preço (€)" value={novo.precoVenda || ""} onChange={(e) => setNovo({ ...novo, precoVenda: +e.target.value })} />
-          <Input type="file" accept="image/*" onChange={(e) => upload(e.target.files?.[0])} />
+          <ImagePicker value={novo.imagem} onChange={(v) => setNovo({ ...novo, imagem: v })} size="h-10 w-full" />
           <Button onClick={guardar}><Plus className="mr-1 h-4 w-4" />Adicionar</Button>
           <Textarea className="md:col-span-4" rows={2} placeholder="Descrição" value={novo.descricao} onChange={(e) => setNovo({ ...novo, descricao: e.target.value })} />
         </CardContent></Card>
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/catalogo")({
                 <div className="flex items-center gap-2"><Package className="h-5 w-5 text-primary" /><span className="font-display font-semibold">{tt(c.nome)}</span></div>
                 <Button size="icon" variant="ghost" onClick={() => remove("catalogo", c.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>
-              {c.imagem && <img src={c.imagem} alt={c.nome} className="h-32 w-full rounded object-cover" />}
+              <ImagePicker value={c.imagem} onChange={(v) => update("catalogo", c.id, { imagem: v })} size="h-32 w-full" />
               {c.descricao && <p className="text-sm text-muted-foreground">{tt(c.descricao)}</p>}
               <div className="flex items-center justify-between">
                 <span className="font-display text-lg">{formatEUR(c.precoVenda)}</span>
