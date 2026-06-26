@@ -159,7 +159,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (!user) return { ok: false, message: "Inicia sessão para aplicar um código." };
     const { data, error } = await supabase
       .from("promo_codes")
-      .select("code,discount_percent,is_lifetime,active,expires_at")
+      .select("id,code,discount_percent,is_lifetime,active,expires_at")
       .ilike("code", code)
       .maybeSingle();
     if (error) return { ok: false, message: "Erro a validar o código." };
@@ -167,6 +167,33 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
       return { ok: false, message: "Código expirado." };
     }
+
+    // Bloquear resgate duplicado por utilizador
+    const { data: prev } = await supabase
+      .from("promo_redemptions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("promo_code_id", data.id)
+      .maybeSingle();
+    if (prev) {
+      return { ok: false, message: "Já resgataste este código anteriormente." };
+    }
+
+    const { error: redErr } = await supabase.from("promo_redemptions").insert({
+      user_id: user.id,
+      promo_code_id: data.id,
+      code: data.code,
+      discount_percent: data.discount_percent,
+      is_lifetime: data.is_lifetime,
+    } as never);
+    if (redErr) {
+      // unique violation (corrida) → mesma mensagem
+      if ((redErr as { code?: string }).code === "23505") {
+        return { ok: false, message: "Já resgataste este código anteriormente." };
+      }
+      return { ok: false, message: "Falha a registar o resgate." };
+    }
+
     if (data.is_lifetime) {
       const { error: upErr } = await supabase
         .from("profiles")
