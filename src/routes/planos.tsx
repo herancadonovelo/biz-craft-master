@@ -39,6 +39,8 @@ function PlanosPage() {
     }
     setPromoBusy(true);
     setPromoFeedback({ ok: true, message: "A validar código…" });
+    // Limpa qualquer desconto previamente aplicado — só voltará a aparecer se este resgate for bem-sucedido
+    setPromoDiscount(null);
     const codeSnapshot = promoInput.trim().toUpperCase();
     const p = (async () => {
       try {
@@ -49,9 +51,13 @@ function PlanosPage() {
           setPromoInput("");
         } else if (res.ok && res.discountPercent) {
           setPromoDiscount({ code: codeSnapshot, pct: res.discountPercent });
+        } else {
+          // Falha → garante que nenhum desconto antigo persiste
+          setPromoDiscount(null);
         }
       } catch {
         setPromoFeedback({ ok: false, message: "Erro inesperado ao validar o código." });
+        setPromoDiscount(null);
       } finally {
         setPromoBusy(false);
         promoInflight.current = null;
