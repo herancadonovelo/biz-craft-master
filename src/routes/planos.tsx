@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
 import { PLANS, useSubscription, handleGooglePlayPurchase, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { useAuth } from "@/lib/auth-state";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -29,20 +29,36 @@ function PlanosPage() {
   const [promoFeedback, setPromoFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [promoDiscount, setPromoDiscount] = useState<{ code: string; pct: number } | null>(null);
   const isLifetime = plan === "premium_vitalicio";
+  const promoInflight = useRef<Promise<unknown> | null>(null);
 
   const onApplyPromo = async () => {
+    // Bloqueia cliques/Enter simultâneos: reaproveita a chamada em curso
+    if (promoInflight.current) {
+      await promoInflight.current;
+      return;
+    }
     setPromoBusy(true);
-    setPromoFeedback(null);
-    try {
-      const res = await redeemPromoCode(promoInput);
-      setPromoFeedback({ ok: res.ok, message: res.message });
-      if (res.ok && res.lifetime) {
-        setPromoDiscount(null);
-        setPromoInput("");
-      } else if (res.ok && res.discountPercent) {
-        setPromoDiscount({ code: promoInput.trim().toUpperCase(), pct: res.discountPercent });
+    setPromoFeedback({ ok: true, message: "A validar código…" });
+    const codeSnapshot = promoInput.trim().toUpperCase();
+    const p = (async () => {
+      try {
+        const res = await redeemPromoCode(promoInput);
+        setPromoFeedback({ ok: res.ok, message: res.message });
+        if (res.ok && res.lifetime) {
+          setPromoDiscount(null);
+          setPromoInput("");
+        } else if (res.ok && res.discountPercent) {
+          setPromoDiscount({ code: codeSnapshot, pct: res.discountPercent });
+        }
+      } catch {
+        setPromoFeedback({ ok: false, message: "Erro inesperado ao validar o código." });
+      } finally {
+        setPromoBusy(false);
+        promoInflight.current = null;
       }
-    } finally { setPromoBusy(false); }
+    })();
+    promoInflight.current = p;
+    await p;
   };
 
   const applyDiscount = (price: number) => promoDiscount ? +(price * (1 - promoDiscount.pct / 100)).toFixed(2) : price;
@@ -223,18 +239,26 @@ function PlanosPage() {
               placeholder="Ex: PROMO10"
               className="font-mono uppercase"
               disabled={promoBusy || isLifetime}
-              onKeyDown={(e) => { if (e.key === "Enter") onApplyPromo(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !promoBusy && !isLifetime && promoInput.trim()) {
+                  e.preventDefault();
+                  onApplyPromo();
+                }
+              }}
             />
             <Button onClick={onApplyPromo} disabled={promoBusy || !promoInput.trim() || isLifetime}>
               {promoBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Aplicar
+              {promoBusy ? "A validar…" : "Aplicar"}
             </Button>
           </div>
           {promoFeedback && (
             <p
               role="status"
+              aria-live="polite"
               className={`rounded-md border px-3 py-2 text-sm ${
-                promoFeedback.ok
+                promoBusy
+                  ? "border-muted bg-muted/40 text-muted-foreground"
+                  : promoFeedback.ok
                   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                   : "border-destructive/40 bg-destructive/10 text-destructive"
               }`}
