@@ -22,6 +22,7 @@ import {
   ClipboardList,
   PiggyBank,
   Palette,
+  Palette as PaletteIcon,
   Calculator,
   Lock,
   Image as ImageIcon,
