@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Trash2, Calendar, Sparkles, Loader2, CalendarHeart, Palette as PaletteIcon, Save } from "lucide-react";
+import { Plus, Trash2, Calendar, Sparkles, Loader2, CalendarHeart, Palette as PaletteIcon, Save, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 import { askAssistant } from "@/lib/ai.functions";
 
