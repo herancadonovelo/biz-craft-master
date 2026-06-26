@@ -20,7 +20,7 @@ export const Route = createFileRoute("/clientes")({
 });
 
 function ClientesPage() {
-  const { clientes, add, remove } = useStore();
+  const { clientes, add, remove, update } = useStore();
   const tt = useTT();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -75,7 +75,7 @@ function ClientesPage() {
             {clientes.filter((c) => (c.nome + " " + (c.email ?? "") + " " + (c.telefone ?? "")).toLowerCase().includes(q.toLowerCase())).map((c) => (
               <TableRow key={c.id}>
                 <TableCell>
-                  <ImagePicker value={c.imagem} onChange={(v) => useStore.getState().update("clientes", c.id, { imagem: v })} shape="round" size="h-8 w-8" />
+                  <ImagePicker value={c.imagem} onChange={(v) => update("clientes", c.id, { imagem: v })} shape="round" size="h-8 w-8" />
                 </TableCell>
                 <TableCell className="font-medium">{tt(c.nome)}</TableCell>
                 <TableCell>{c.email}</TableCell>
