@@ -258,10 +258,10 @@ function PlanosPage() {
             </Button>
           </div>
           {promoFeedback && (
-            <p
+            <div
               role="status"
               aria-live="polite"
-              className={`rounded-md border px-3 py-2 text-sm ${
+              className={`rounded-lg border p-4 text-sm space-y-3 ${
                 promoBusy
                   ? "border-muted bg-muted/40 text-muted-foreground"
                   : promoFeedback.ok
@@ -269,13 +269,58 @@ function PlanosPage() {
                   : "border-destructive/40 bg-destructive/10 text-destructive"
               }`}
             >
-              {promoFeedback.message}
-            </p>
+              <div className="flex items-start gap-3">
+                {promoFeedback.ok && !promoBusy ? (
+                  <div className="rounded-full bg-emerald-500/20 p-1.5 text-emerald-600 dark:text-emerald-400">
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                  </div>
+                ) : null}
+                <div className="space-y-1">
+                  <p className="font-semibold">
+                    {promoBusy
+                      ? "A validar..."
+                      : promoFeedback.ok
+                      ? "Código Resgatado com Sucesso! 🎉"
+                      : "Não foi possível aplicar o código"}
+                  </p>
+                  <p className="opacity-90">{promoFeedback.message}</p>
+                </div>
+              </div>
+
+              {promoFeedback.ok && !promoBusy && (
+                <div className="rounded-md bg-emerald-500/5 p-3 border border-emerald-500/20 text-xs space-y-2">
+                  <p className="font-medium text-emerald-800 dark:text-emerald-300">Resumo do benefício ativado:</p>
+                  <ul className="list-disc pl-4 space-y-1 text-emerald-700/90 dark:text-emerald-400/90">
+                    {promoDiscount ? (
+                      <>
+                        <li><strong>Código Aplicado:</strong> {promoDiscount.code}</li>
+                        <li><strong>Desconto Ganho:</strong> {promoDiscount.pct}% de desconto imediato em todos os planos</li>
+                        <li><strong>Novos Preços:</strong> Os valores exibidos nos cartões de plano acima já incluem este desconto!</li>
+                      </>
+                    ) : isLifetime ? (
+                      <>
+                        <li><strong>Acesso Vitalício:</strong> Ativado gratuitamente para sempre!</li>
+                        <li><strong>Tipo de Plano:</strong> Premium Vitalício</li>
+                        <li><strong>Vantagem:</strong> Acesso total a todas as ferramentas (Criador de Moldes, Assistente IA, Exportações e mais), sem necessidade de pagamentos recorrentes ou subscrições futuras.</li>
+                      </>
+                    ) : (
+                      <li>Código aplicado com sucesso no seu perfil do atelier.</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
-          {isLifetime && (
-            <p className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
-              Tens acesso <strong>Premium Vitalício</strong> ativo — todas as funcionalidades desbloqueadas, sem expirar.
-            </p>
+          {isLifetime && !promoFeedback && (
+            <div className="rounded-lg border border-primary/40 bg-primary/5 p-4 text-sm space-y-2">
+              <div className="flex items-center gap-2 font-semibold text-primary">
+                <InfinityIcon className="h-5 w-5" />
+                <span>Acesso Premium Vitalício Ativo</span>
+              </div>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Parabéns! Tens acesso vitalício gratuito com todas as funcionalidades da aplicação desbloqueadas, sem expirar e sem qualquer mensalidade.
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
