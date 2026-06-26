@@ -152,9 +152,9 @@ export function loadDemoData() {
   ];
 
   const acoesMarketing: AcaoMarketing[] = [
-    { id: uid(), tipo: "promocao", titulo: "Desconto Dia da Mãe", dataInicio: dateOnly(-20), dataFim: dateOnly(-5), descontoTipo: "percentagem", descontoValor: 15, alvo: "todo", peca: "Amigurumis", estado: "concluida", criadoEm: daysAgo(25), resultado: "12 vendas adicionais" },
-    { id: uid(), tipo: "campanha", titulo: "Lançamento coleção Inverno", dataInicio: dateOnly(10), dataFim: dateOnly(40), meta: "20 encomendas em 30 dias", estado: "planeada", criadoEm: daysAgo(2) },
-    { id: uid(), tipo: "giveaway", titulo: "Sorteio Amigurumi Coelho", dataInicio: dateOnly(-7), dataFim: dateOnly(7), regras: "Seguir, like e marcar 2 amigos.", alvo: "todo", estado: "ativa", criadoEm: daysAgo(8) },
+    { id: uid(), tipo: "promocao", titulo: "Desconto Dia da Mãe", dataInicio: dateOnly(-20), dataFim: dateOnly(-5), descontoTipo: "percentagem", descontoValor: 15, alvo: "todo", peca: "Amigurumis", estado: "concluida", criadoEm: daysAgo(25), resultado: "12 vendas adicionais", imagem: img("mothers,day,flowers", 601, 600, 400) },
+    { id: uid(), tipo: "campanha", titulo: "Lançamento coleção Inverno", dataInicio: dateOnly(10), dataFim: dateOnly(40), meta: "20 encomendas em 30 dias", estado: "planeada", criadoEm: daysAgo(2), imagem: img("winter,knit,collection", 602, 600, 400) },
+    { id: uid(), tipo: "giveaway", titulo: "Sorteio Amigurumi Coelho", dataInicio: dateOnly(-7), dataFim: dateOnly(7), regras: "Seguir, like e marcar 2 amigos.", alvo: "todo", estado: "ativa", criadoEm: daysAgo(8), imagem: img("amigurumi,rabbit,gift", 603, 600, 400) },
   ];
 
   // --- Cotações ---
