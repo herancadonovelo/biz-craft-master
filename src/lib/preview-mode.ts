@@ -39,8 +39,8 @@ export function exitPreviewMode() {
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      // Replace state entirely to discard any demo additions/edits.
-      useStore.setState(parsed, true as any);
+      // Merge snapshot back — keeps action methods intact while restoring data.
+      useStore.setState(parsed);
     } catch {
       // If parsing fails, hard reload restores from localStorage.
       window.location.reload();
