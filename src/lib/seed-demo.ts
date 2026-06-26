@@ -240,7 +240,11 @@ export function loadDemoData() {
   ];
 
   const moodboards: Moodboard[] = [
-    { id: uid(), titulo: "Coleção Inverno 2026", descricao: "Tons quentes e texturas chunky.", tags: ["inverno", "chunky"], imagens: [], paleta: [{ id: uid(), nome: "Terracota", hex: "#C97B5A" }, { id: uid(), nome: "Creme", hex: "#F2E8DC" }, { id: uid(), nome: "Verde musgo", hex: "#6A7F5C" }], links: [{ id: uid(), titulo: "Inspiração Pinterest", url: "https://pinterest.com" }], criadoEm: daysAgo(5) },
+    { id: uid(), titulo: "Coleção Inverno 2026", descricao: "Tons quentes e texturas chunky.", tags: ["inverno", "chunky"], imagens: [
+      { id: uid(), url: img("chunky,knit,winter", 501, 600, 400), legenda: "Texturas chunky" },
+      { id: uid(), url: img("terracotta,wool", 502, 600, 400), legenda: "Paleta terracota" },
+      { id: uid(), url: img("moss,green,yarn", 503, 600, 400), legenda: "Verde musgo" },
+    ], paleta: [{ id: uid(), nome: "Terracota", hex: "#C97B5A" }, { id: uid(), nome: "Creme", hex: "#F2E8DC" }, { id: uid(), nome: "Verde musgo", hex: "#6A7F5C" }], links: [{ id: uid(), titulo: "Inspiração Pinterest", url: "https://pinterest.com" }], criadoEm: daysAgo(5) },
   ];
 
   // --- Contas plataformas (PIN protege na UI) ---
