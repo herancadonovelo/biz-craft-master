@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Search, ImagePlus } from "lucide-react";
+import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTT } from "@/lib/i18n";
+import { ImagePicker } from "@/components/ImagePicker";
 
 const ESTADO_COR: Record<string, string> = {
   pendente: "bg-amber-500/15 text-amber-700",
@@ -93,16 +94,8 @@ export const Route = createFileRoute("/encomendas")({
                     <TableCell className="max-w-xs truncate text-xs text-muted-foreground">{mats}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {e.imagemEmbalagem ? <img src={e.imagemEmbalagem} alt="" className="h-8 w-8 rounded object-cover" title="Embalagem" /> : (
-                          <label className="grid h-8 w-8 cursor-pointer place-items-center rounded border border-dashed text-muted-foreground" title="Embalagem">
-                            <ImagePlus className="h-3 w-3" /><input type="file" accept="image/*" className="hidden" onChange={(ev) => onImg(e.id, "imagemEmbalagem", ev.target.files?.[0])} />
-                          </label>
-                        )}
-                        {e.imagemEtiqueta ? <img src={e.imagemEtiqueta} alt="" className="h-8 w-8 rounded object-cover" title="Etiqueta" /> : (
-                          <label className="grid h-8 w-8 cursor-pointer place-items-center rounded border border-dashed text-muted-foreground" title="Etiqueta">
-                            <ImagePlus className="h-3 w-3" /><input type="file" accept="image/*" className="hidden" onChange={(ev) => onImg(e.id, "imagemEtiqueta", ev.target.files?.[0])} />
-                          </label>
-                        )}
+                        <ImagePicker value={e.imagemEmbalagem} title="Embalagem (clica para alterar)" size="h-8 w-8" onChange={(v) => { update("encomendas", e.id, { imagemEmbalagem: v }); audit("anexou imagem", "encomenda", e.id, "imagemEmbalagem"); }} />
+                        <ImagePicker value={e.imagemEtiqueta} title="Etiqueta (clica para alterar)" size="h-8 w-8" onChange={(v) => { update("encomendas", e.id, { imagemEtiqueta: v }); audit("anexou imagem", "encomenda", e.id, "imagemEtiqueta"); }} />
                       </div>
                     </TableCell>
                     <TableCell>{e.prazo ?? "—"}</TableCell>
