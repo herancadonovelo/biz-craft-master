@@ -26,6 +26,7 @@ import { Route as NotasRouteImport } from './routes/notas'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
+import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as InstagramRouteImport } from './routes/instagram'
 import { Route as IdiomaRouteImport } from './routes/idioma'
@@ -150,6 +151,11 @@ const ModulosRoute = ModulosRouteImport.update({
 const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
   id: '/marketing-conteudo',
   path: '/marketing-conteudo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingRoute = MarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListaComprasRoute = ListaComprasRouteImport.update({
@@ -392,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
+  '/marketing': typeof MarketingRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -451,6 +458,7 @@ export interface FileRoutesByTo {
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
+  '/marketing': typeof MarketingRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -511,6 +519,7 @@ export interface FileRoutesById {
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
   '/lista-compras': typeof ListaComprasRoute
+  '/marketing': typeof MarketingRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -572,6 +581,7 @@ export interface FileRouteTypes {
     | '/idioma'
     | '/instagram'
     | '/lista-compras'
+    | '/marketing'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -631,6 +641,7 @@ export interface FileRouteTypes {
     | '/idioma'
     | '/instagram'
     | '/lista-compras'
+    | '/marketing'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -690,6 +701,7 @@ export interface FileRouteTypes {
     | '/idioma'
     | '/instagram'
     | '/lista-compras'
+    | '/marketing'
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
@@ -750,6 +762,7 @@ export interface RootRouteChildren {
   IdiomaRoute: typeof IdiomaRoute
   InstagramRoute: typeof InstagramRoute
   ListaComprasRoute: typeof ListaComprasRoute
+  MarketingRoute: typeof MarketingRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   ModulosRoute: typeof ModulosRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
@@ -891,6 +904,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing-conteudo'
       fullPath: '/marketing-conteudo'
       preLoaderRoute: typeof MarketingConteudoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing': {
+      id: '/marketing'
+      path: '/marketing'
+      fullPath: '/marketing'
+      preLoaderRoute: typeof MarketingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lista-compras': {
@@ -1225,6 +1245,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdiomaRoute: IdiomaRoute,
   InstagramRoute: InstagramRoute,
   ListaComprasRoute: ListaComprasRoute,
+  MarketingRoute: MarketingRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
   ModulosRoute: ModulosRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
