@@ -355,7 +355,6 @@ function CriadorMoldes() {
 
   // Save / load library
   function saveToLibrary() {
-    if (!requireAccess("premium", "Guardar molde na biblioteca")) return;
     const nome = moldeNome.trim() || `Molde ${new Date().toLocaleDateString("pt-PT")}`;
     const payload = { v: 1, orientation, shapes };
     const json = JSON.stringify(payload);
