@@ -31,12 +31,6 @@ export const Route = createFileRoute("/encomendas")({
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const [form, setForm] = useState({ clienteId: "", projetoId: "", descricao: "", estado: "pendente" as const, prazo: "", preco: 0 });
-    const onImg = (id: string, campo: "imagemEmbalagem" | "imagemEtiqueta", file?: File) => {
-      if (!file) return;
-      const r = new FileReader();
-      r.onload = () => { update("encomendas", id, { [campo]: r.result as string } as any); audit("anexou imagem", "encomenda", id, campo); };
-      r.readAsDataURL(file);
-    };
     return (
       <div className="space-y-6">
         <PageHeader title="Encomendas" description="Detalhes de encomendas, incluindo material usado."
