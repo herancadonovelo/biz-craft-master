@@ -203,6 +203,15 @@ export interface PerfilNegocio {
   logo?: string;
   slogan?: string;
   iban?: string;
+  // Perfil Pessoal
+  fotoPerfil?: string;
+  nomeProfissional?: string;
+  bio?: string;
+  emailPessoal?: string;
+  telefonePessoal?: string;
+  // Presença digital extra
+  pinterest?: string;
+  lojaOnline?: string;
 }
 
 export interface MarketingInfo {
