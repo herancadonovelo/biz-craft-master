@@ -615,12 +615,19 @@ function TricotinTab() {
           <Label className="text-xs">Ferramenta</Label>
           <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => { if (polyPts.length >= 2) terminarPoli(false); else { setPolyPts([]); setHoverPt(null); } setTool("select"); }} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
+            <ToolBtn active={tool === "move"} onClick={() => { if (polyPts.length >= 2) terminarPoli(false); else { setPolyPts([]); setHoverPt(null); } setTool("move"); }} icon={<Move className="h-4 w-4" />} label="Mover" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => { setTool("curve"); setPolyPts([]); setHoverPt(null); }} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
             <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
             <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
+          </div>
+          <div className="flex items-center gap-1 pt-1">
+            <Label className="text-xs flex-1">Zoom ({Math.round(zoom * 100)}%)</Label>
+            <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.max(0.3, z / 1.2))}><ZoomOut className="h-3 w-3" /></Button>
+            <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.min(4, z * 1.2))}><ZoomIn className="h-3 w-3" /></Button>
+            <Button size="sm" variant="ghost" onClick={resetView}>Reset</Button>
           </div>
           {(tool === "line" || tool === "curve") && polyPts.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1">
