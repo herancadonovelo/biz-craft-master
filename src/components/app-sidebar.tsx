@@ -71,6 +71,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { useSubscription } from "@/lib/subscription";
+import { requiredPlanFor } from "@/lib/access-control";
+import { Lock } from "lucide-react";
 
 const getGroups = (t: (k: string) => string) => [
   {
@@ -174,6 +177,7 @@ export function AppSidebar() {
   const modulos = useStore((s) => s.modulos);
   const t = useT();
   const allGroups = getGroups(t);
+  const { hasAccess, showPaywall } = useSubscription();
   // Se algum módulo estiver configurado, filtra; URLs nunca ocultadas: /modulos, /configuracoes, /onboarding
   // Fechar drawer automaticamente em mobile ao mudar de rota
   useEffect(() => {
@@ -223,14 +227,36 @@ export function AppSidebar() {
               <SidebarMenu>
                 {g.items.map((it) => {
                   const active = pathname === it.url;
+                  const required = requiredPlanFor(it.url);
+                  const locked = !hasAccess(required);
                   return (
                     <SidebarMenuItem key={it.url}>
-                      <SidebarMenuButton asChild isActive={active} tooltip={it.title}>
-                        <Link to={it.url} className="flex items-center gap-2">
+                      {locked ? (
+                        <SidebarMenuButton
+                          isActive={active}
+                          tooltip={`${it.title} — requer ${required.toUpperCase()}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            showPaywall(required, it.title);
+                          }}
+                          className="opacity-60"
+                        >
                           <it.icon className="h-4 w-4" />
-                          {!collapsed && <span>{it.title}</span>}
-                        </Link>
-                      </SidebarMenuButton>
+                          {!collapsed && (
+                            <span className="flex flex-1 items-center justify-between gap-2">
+                              <span className="truncate">{it.title}</span>
+                              <Lock className="h-3 w-3 shrink-0" />
+                            </span>
+                          )}
+                        </SidebarMenuButton>
+                      ) : (
+                        <SidebarMenuButton asChild isActive={active} tooltip={it.title}>
+                          <Link to={it.url} className="flex items-center gap-2">
+                            <it.icon className="h-4 w-4" />
+                            {!collapsed && <span>{it.title}</span>}
+                          </Link>
+                        </SidebarMenuButton>
+                      )}
                     </SidebarMenuItem>
                   );
                 })}
