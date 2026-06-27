@@ -18,7 +18,7 @@ import {
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
   Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
-  Pen,
+  Pen, Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -292,6 +292,35 @@ function TricotinTab() {
       { id, kind: "path", d: merged, x: 0, y: 0, rot: 0, scale: 1, stroke: sel[0].stroke, strokeWidth: sel[0].strokeWidth }]);
     setSelected(new Set([id]));
     toast.success("Traços unidos.");
+  };
+
+  /** Fecha o molde: liga o último ponto ao primeiro com uma linha + Z.
+   *  Se as extremidades já estiverem próximas (< 1cm) usa apenas Z. */
+  const fecharPath = () => {
+    const sel = objs.filter((o) => selected.has(o.id) && o.kind === "path") as PathObj[];
+    if (sel.length === 0) { toast.error("Seleciona um traço para fechar."); return; }
+    setObjs((s) => s.map((o) => {
+      if (!selected.has(o.id) || o.kind !== "path") return o;
+      const p = o as PathObj;
+      if (/Z\s*$/i.test(p.d)) return p;
+      if (typeof document === "undefined") return p;
+      const ns = "http://www.w3.org/2000/svg";
+      const el = document.createElementNS(ns, "path");
+      el.setAttribute("d", p.d);
+      let total = 0;
+      try { total = el.getTotalLength(); } catch { return p; }
+      if (total <= 0) return p;
+      const start = el.getPointAtLength(0);
+      const end = el.getPointAtLength(total);
+      const dist = Math.hypot(end.x - start.x, end.y - start.y);
+      const near = dist < PX_PER_CM; // < 1 cm => fecha direto
+      const newD = near
+        ? `${p.d} Z`
+        : `${p.d} L ${start.x.toFixed(2)} ${start.y.toFixed(2)} Z`;
+      if (!near) toast.message(`Extremidades a ${(dist / PX_PER_CM).toFixed(1)} cm — ligadas com linha reta.`);
+      else toast.success("Molde fechado.");
+      return { ...p, d: newD };
+    }));
   };
 
   const inserirSilhueta = (s: { nome: string; d: string }) => {
