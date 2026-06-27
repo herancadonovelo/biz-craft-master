@@ -143,7 +143,7 @@ function TricotinTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
 
-  type Tool = "select" | "line" | "curve" | "text" | "measure" | "number" | "label";
+  type Tool = "select" | "move" | "line" | "curve" | "text" | "measure" | "number" | "label";
   const [tool, setTool] = useState<Tool>("curve");
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [stroke, setStroke] = useState("#000000");
@@ -159,6 +159,17 @@ function TricotinTab() {
   const [polyPts, setPolyPts] = useState<{ x: number; y: number }[]>([]);
   const [polyMode, setPolyMode] = useState<"line" | "curve">("line");
   const [hoverPt, setHoverPt] = useState<{ x: number; y: number } | null>(null);
+
+  // Zoom & pan (ferramenta "Mover")
+  const [zoom, setZoom] = useState(1);
+  const [viewDx, setViewDx] = useState(0);
+  const [viewDy, setViewDy] = useState(0);
+  const panRef = useRef<{ sx: number; sy: number; dx: number; dy: number } | null>(null);
+
+  // Estilo das setas por path
+  const [arrowStyles, setArrowStyles] = useState<Record<string, "triangle" | "open" | "line">>({});
+  // Drag de vértice individual
+  const vertexDragRef = useRef<{ pathId: string; index: number } | null>(null);
 
   const buildPoly = (pts: { x: number; y: number }[], mode: "line" | "curve", fechar: boolean) => {
     if (pts.length < 2) return "";
@@ -184,7 +195,12 @@ function TricotinTab() {
   const terminarPoli = (fechar = false) => {
     if (polyPts.length < 2) { setPolyPts([]); return; }
     const d = buildPoly(polyPts, polyMode, fechar);
-    if (d) addPath(d);
+    if (d) {
+      const id = crypto.randomUUID();
+      const ptsCopy = polyPts.map((q) => ({ ...q }));
+      setObjs((s) => [...s, { id, kind: "path", d, pts: ptsCopy, mode: polyMode, closed: fechar, x: 0, y: 0, rot: 0, scale: 1, stroke, strokeWidth }]);
+      setSelected(new Set([id]));
+    }
     setPolyPts([]);
     setHoverPt(null);
   };
