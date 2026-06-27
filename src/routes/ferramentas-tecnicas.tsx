@@ -564,12 +564,17 @@ function TricotinTab() {
               <Button size="sm" variant="secondary" onClick={unirPaths}><Combine className="mr-1 h-3 w-3" />Unir linhas</Button>
             )}
             {selObj.kind === "path" && (
-              <Button size="sm" variant={arrowedPaths.has(selObj.id) ? "default" : "outline"} onClick={() => setArrowedPaths((s) => {
-                const n = new Set(s); n.has(selObj.id) ? n.delete(selObj.id) : n.add(selObj.id); return n;
-              })}>
-                <ArrowRightCircle className="mr-1 h-3 w-3" />
-                {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
-              </Button>
+              <>
+                <Button size="sm" variant="secondary" onClick={fecharPath}>
+                  <Link2 className="mr-1 h-3 w-3" />Fechar molde
+                </Button>
+                <Button size="sm" variant={arrowedPaths.has(selObj.id) ? "default" : "outline"} onClick={() => setArrowedPaths((s) => {
+                  const n = new Set(s); n.has(selObj.id) ? n.delete(selObj.id) : n.add(selObj.id); return n;
+                })}>
+                  <ArrowRightCircle className="mr-1 h-3 w-3" />
+                  {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
+                </Button>
+              </>
             )}
           </CardContent></Card>
         )}
