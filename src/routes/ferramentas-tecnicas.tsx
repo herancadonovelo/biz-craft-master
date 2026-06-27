@@ -565,12 +565,50 @@ function TricotinTab() {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
           <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
-          <button onClick={saveMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar</button>
-          <button onClick={loadMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Carregar</button>
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white">
+      {/* Gestão do Molde */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
+        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
+        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na APP</button>
+        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
+        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
+        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
+        />
+        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
+        {savedMolds.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <select
+              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            <select
+              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Apagar…</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
         <canvas
           ref={canvasRef}
           width={W}
@@ -580,12 +618,33 @@ function TricotinTab() {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           className="block touch-none"
-          style={{ width: "100%", height: "auto", cursor: mode === "select" ? "grab" : "crosshair" }}
+          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
+      {/* Hidden print host: only visible during window.print() */}
+      <div id="tricotin-print-host" className="tricotin-print-host" aria-hidden="true" />
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 0; }
+          body.tricotin-printing > *:not(#tricotin-print-host-portal) { /* fallback */ }
+          body.tricotin-printing #tricotin-print-host {
+            position: fixed; inset: 0; background: #fff; z-index: 999999;
+            display: block; page-break-inside: avoid;
+          }
+          body.tricotin-printing .tricotin-no-print,
+          body.tricotin-printing header,
+          body.tricotin-printing nav,
+          body.tricotin-printing aside,
+          body.tricotin-printing footer { display: none !important; }
+          body.tricotin-printing { background: #fff !important; }
+          body.tricotin-printing #tricotin-print-host img { page-break-inside: avoid; }
+        }
+        #tricotin-print-host { display: none; }
+        body.tricotin-printing #tricotin-print-host { display: block; }
+      `}</style>
     </div>
   );
 }
