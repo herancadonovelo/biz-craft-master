@@ -2,57 +2,74 @@ import { useEffect, useState } from "react";
 import logo from "@/assets/craft-business-master-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+
+const MAX_ATTEMPTS = 4;
+const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
 
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const navigate = useNavigate();
+  const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     let cancelled = false;
     const start = Date.now();
     const MIN = 5000;
-    const MAX = 7000;
 
-    const finish = () => {
+    const finish = (user: { id: string } | null) => {
       if (cancelled) return;
       const elapsed = Date.now() - start;
       const wait = Math.max(0, MIN - elapsed);
       window.setTimeout(() => {
         if (cancelled) return;
+        // Redirect to /auth when no session and we're on a protected/home route
+        if (!user && !currentPath.startsWith("/auth")) {
+          navigate({ to: "/auth", replace: true });
+        }
         setFading(true);
         window.setTimeout(() => !cancelled && setVisible(false), 700);
       }, wait);
     };
 
-    const hardCap = window.setTimeout(() => {
-      if (cancelled) return;
-      // Timed out — surface friendly error unless already done
-      setError("Demorou mais do que o esperado a carregar. Verifica a tua ligação e tenta novamente.");
-    }, MAX);
+    const sleep = (ms: number) =>
+      new Promise<void>((res) => window.setTimeout(res, ms));
 
     (async () => {
-      try {
-        const { error: authErr } = await supabase.auth.getSession();
-        if (authErr) throw authErr;
+      let lastErr: any = null;
+      for (let i = 1; i <= MAX_ATTEMPTS; i++) {
         if (cancelled) return;
-        window.clearTimeout(hardCap);
-        finish();
-      } catch (e: any) {
-        if (cancelled) return;
-        window.clearTimeout(hardCap);
-        setError(
-          e?.message
-            ? `Não foi possível iniciar a aplicação: ${e.message}`
-            : "Não foi possível iniciar a aplicação. Verifica a tua ligação e tenta novamente.",
-        );
+        setAttempt(i);
+        try {
+          const { data, error: authErr } = await supabase.auth.getSession();
+          if (authErr) throw authErr;
+          if (cancelled) return;
+          finish(data.session?.user ? { id: data.session.user.id } : null);
+          return;
+        } catch (e) {
+          lastErr = e;
+          if (i < MAX_ATTEMPTS) {
+            const delay = BASE_DELAY * Math.pow(2, i - 1); // exponential backoff
+            await sleep(delay);
+          }
+        }
       }
+      if (cancelled) return;
+      const msg = (lastErr as any)?.message;
+      setError(
+        msg
+          ? `Não foi possível iniciar a aplicação após ${MAX_ATTEMPTS} tentativas: ${msg}`
+          : `Não foi possível iniciar a aplicação após ${MAX_ATTEMPTS} tentativas. Verifica a tua ligação e tenta novamente.`,
+      );
     })();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(hardCap);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!visible) return null;
@@ -73,12 +90,19 @@ export function SplashScreen() {
           draggable={false}
         />
         {!error ? (
-          <div
-            className="h-1 w-40 overflow-hidden rounded-full bg-foreground/10"
-            role="progressbar"
-            aria-label="A carregar"
-          >
-            <div className="h-full w-1/3 animate-[splash-slide_1.2s_ease-in-out_infinite] rounded-full bg-foreground/50" />
+          <div className="flex flex-col items-center gap-2">
+            <div
+              className="h-1 w-40 overflow-hidden rounded-full bg-foreground/10"
+              role="progressbar"
+              aria-label="A carregar"
+            >
+              <div className="h-full w-1/3 animate-[splash-slide_1.2s_ease-in-out_infinite] rounded-full bg-foreground/50" />
+            </div>
+            {attempt > 1 && (
+              <p className="text-[11px] text-foreground/55">
+                A tentar novamente… ({attempt}/{MAX_ATTEMPTS})
+              </p>
+            )}
           </div>
         ) : (
           <div className="mx-auto max-w-sm rounded-xl border border-foreground/10 bg-background/60 p-5 text-center shadow-sm">
