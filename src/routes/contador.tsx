@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, RotateCcw, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
+import { useStore, type Idioma } from "@/lib/store";
 
 export const Route = createFileRoute("/contador")({
   head: () => ({ meta: [{ title: "Contador de Carreiras & Pontos" }] }),
@@ -13,7 +14,103 @@ export const Route = createFileRoute("/contador")({
 
 type SR = any;
 
+const VOICE_CONFIG: Record<Idioma, {
+  lang: string;
+  incC: RegExp; decC: RegExp;
+  incP: RegExp; decP: RegExp;
+  reset: RegExp; stop: RegExp;
+  hint: string; hint2: string;
+  activate: string; deactivate: string; active: string;
+}> = {
+  pt: {
+    lang: "pt-PT",
+    incC: /\b(pr[oó]xima|carreira|avan[çc]ar)\b/,
+    decC: /\b(voltar carreira|menos carreira)\b/,
+    incP: /\b(ponto|mais um|contar)\b/,
+    decP: /\b(voltar ponto|menos ponto)\b/,
+    reset: /\b(zerar|reset|reiniciar)\b/,
+    stop: /\b(parar voz|desligar voz|parar)\b/,
+    hint: 'Comandos: "Ponto" para somar pontos | "Próxima" para mudar de carreira',
+    hint2: 'Também: "Voltar ponto", "Voltar carreira", "Zerar", "Parar voz"',
+    activate: "Ativar Modo Mãos-Livres (Voz)",
+    deactivate: "Desativar Modo Mãos-Livres",
+    active: "Modo mãos-livres ativo",
+  },
+  en: {
+    lang: "en-US",
+    incC: /\b(next|row|advance)\b/,
+    decC: /\b(back row|previous row|minus row)\b/,
+    incP: /\b(stitch|point|count|plus one)\b/,
+    decP: /\b(back stitch|minus stitch|back point)\b/,
+    reset: /\b(reset|zero|restart)\b/,
+    stop: /\b(stop voice|stop listening|stop)\b/,
+    hint: 'Commands: "Stitch" to add stitches | "Next" to change row',
+    hint2: 'Also: "Back stitch", "Back row", "Reset", "Stop voice"',
+    activate: "Enable Hands-Free Mode (Voice)",
+    deactivate: "Disable Hands-Free Mode",
+    active: "Hands-free mode active",
+  },
+  es: {
+    lang: "es-ES",
+    incC: /\b(siguiente|vuelta|avanzar|hilera)\b/,
+    decC: /\b(volver vuelta|menos vuelta)\b/,
+    incP: /\b(punto|m[aá]s uno|contar)\b/,
+    decP: /\b(volver punto|menos punto)\b/,
+    reset: /\b(reiniciar|cero|reset)\b/,
+    stop: /\b(parar voz|detener|parar)\b/,
+    hint: 'Comandos: "Punto" para sumar puntos | "Siguiente" para cambiar de vuelta',
+    hint2: 'También: "Volver punto", "Volver vuelta", "Reiniciar", "Parar voz"',
+    activate: "Activar Modo Manos Libres (Voz)",
+    deactivate: "Desactivar Modo Manos Libres",
+    active: "Modo manos libres activo",
+  },
+  fr: {
+    lang: "fr-FR",
+    incC: /\b(suivant|suivante|rang|avancer)\b/,
+    decC: /\b(rang pr[eé]c[eé]dent|moins rang)\b/,
+    incP: /\b(point|plus un|compter)\b/,
+    decP: /\b(retour point|moins point)\b/,
+    reset: /\b(r[eé]initialiser|z[eé]ro|reset)\b/,
+    stop: /\b(arr[eê]ter voix|arr[eê]ter|stop)\b/,
+    hint: 'Commandes : "Point" pour ajouter | "Suivant" pour changer de rang',
+    hint2: 'Aussi : "Retour point", "Rang précédent", "Réinitialiser", "Arrêter"',
+    activate: "Activer le mode mains libres (voix)",
+    deactivate: "Désactiver le mode mains libres",
+    active: "Mode mains libres actif",
+  },
+  de: {
+    lang: "de-DE",
+    incC: /\b(n[aä]chste|reihe|weiter)\b/,
+    decC: /\b(reihe zur[uü]ck|minus reihe)\b/,
+    incP: /\b(masche|punkt|plus eins|z[aä]hlen)\b/,
+    decP: /\b(masche zur[uü]ck|minus masche)\b/,
+    reset: /\b(zur[uü]cksetzen|null|reset)\b/,
+    stop: /\b(stimme stopp|stopp|anhalten)\b/,
+    hint: 'Befehle: "Masche" zum Zählen | "Nächste" für neue Reihe',
+    hint2: 'Auch: "Masche zurück", "Reihe zurück", "Zurücksetzen", "Stopp"',
+    activate: "Freisprechmodus aktivieren (Sprache)",
+    deactivate: "Freisprechmodus deaktivieren",
+    active: "Freisprechmodus aktiv",
+  },
+  it: {
+    lang: "it-IT",
+    incC: /\b(prossima|giro|ferro|avanti)\b/,
+    decC: /\b(giro indietro|meno giro)\b/,
+    incP: /\b(punto|pi[uù] uno|contare)\b/,
+    decP: /\b(punto indietro|meno punto)\b/,
+    reset: /\b(azzerare|reset|ricomincia)\b/,
+    stop: /\b(ferma voce|ferma|stop)\b/,
+    hint: 'Comandi: "Punto" per aggiungere | "Prossima" per cambiare giro',
+    hint2: 'Anche: "Punto indietro", "Giro indietro", "Azzerare", "Ferma voce"',
+    activate: "Attiva modalità vivavoce (voce)",
+    deactivate: "Disattiva modalità vivavoce",
+    active: "Modalità vivavoce attiva",
+  },
+};
+
 function Page() {
+  const idioma = useStore((s) => s.design.idioma);
+  const cfg = VOICE_CONFIG[idioma] || VOICE_CONFIG.pt;
   const [carreiras, setCarreiras] = useState(0);
   const [pontos, setPontos] = useState(0);
   const [voiceOn, setVoiceOn] = useState(false);
@@ -40,20 +137,20 @@ function Page() {
 
   const handleTranscript = useCallback((raw: string) => {
     const t = raw.toLowerCase().trim();
-    if (/\b(pr[oó]xima|carreira|avan[çc]ar)\b/.test(t)) return incC();
-    if (/\b(voltar carreira|menos carreira)\b/.test(t)) return decC();
-    if (/\b(voltar ponto|menos ponto)\b/.test(t)) return decP();
-    if (/\b(ponto|mais um|contar)\b/.test(t)) return incP();
-    if (/\b(zerar|reset|reiniciar)\b/.test(t)) return zerar();
-    if (/\b(parar voz|desligar voz|parar)\b/.test(t)) return stopVoice();
-  }, [incC, decC, incP, decP, zerar, stopVoice]);
+    if (cfg.decC.test(t)) return decC();
+    if (cfg.incC.test(t)) return incC();
+    if (cfg.decP.test(t)) return decP();
+    if (cfg.incP.test(t)) return incP();
+    if (cfg.reset.test(t)) return zerar();
+    if (cfg.stop.test(t)) return stopVoice();
+  }, [cfg, incC, decC, incP, decP, zerar, stopVoice]);
 
   const startVoice = useCallback(async () => {
     const SRC = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SRC) { toast.error("Reconhecimento de voz não suportado neste navegador"); return; }
     try {
       const rec = new SRC();
-      rec.lang = "pt-PT";
+      rec.lang = cfg.lang;
       rec.continuous = true;
       rec.interimResults = false;
       rec.onresult = (e: any) => {
@@ -70,13 +167,22 @@ function Page() {
         // @ts-ignore
         wakeRef.current = await navigator.wakeLock?.request("screen");
       } catch {}
-      toast.success("Modo mãos-livres ativo");
+      toast.success(cfg.active);
     } catch {
       toast.error("Não foi possível iniciar o microfone");
     }
-  }, [handleTranscript, stopVoice]);
+  }, [handleTranscript, stopVoice, cfg]);
 
   useEffect(() => () => stopVoice(), [stopVoice]);
+
+  // Restart recognition when language changes mid-session
+  useEffect(() => {
+    if (voiceOn) {
+      stopVoice();
+      setTimeout(() => startVoice(), 150);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idioma]);
 
   return (
     <div className="space-y-6">
@@ -94,18 +200,14 @@ function Page() {
           <Button
             size="lg"
             onClick={voiceOn ? stopVoice : startVoice}
-            aria-label={voiceOn ? "Desativar modo mãos-livres" : "Ativar modo mãos-livres por voz"}
+            aria-label={voiceOn ? cfg.deactivate : cfg.activate}
             className={`h-14 px-6 text-base ${voiceOn ? "bg-emerald-600 hover:bg-emerald-700 ring-4 ring-emerald-300 animate-pulse" : ""}`}
           >
             {voiceOn ? <MicOff className="mr-2 h-5 w-5" /> : <Mic className="mr-2 h-5 w-5" />}
-            {voiceOn ? "Desativar Modo Mãos-Livres" : "Ativar Modo Mãos-Livres (Voz)"}
+            {voiceOn ? cfg.deactivate : cfg.activate}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            Comandos: <strong>"Ponto"</strong> para somar pontos | <strong>"Próxima"</strong> para mudar de carreira
-          </p>
-          <p className="text-center text-[11px] text-muted-foreground">
-            Também: "Voltar ponto", "Voltar carreira", "Zerar", "Parar voz"
-          </p>
+          <p className="text-center text-xs text-muted-foreground">{cfg.hint}</p>
+          <p className="text-center text-[11px] text-muted-foreground">{cfg.hint2}</p>
           <Button variant="outline" size="sm" onClick={zerar} className="mt-2">
             <RotateCcw className="mr-2 h-4 w-4" /> Zerar tudo
           </Button>
