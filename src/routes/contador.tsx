@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +10,11 @@ import { useStore, type Idioma } from "@/lib/store";
 
 export const Route = createFileRoute("/contador")({
   head: () => ({ meta: [{ title: "Contador de Carreiras & Pontos" }] }),
-  component: Page,
+  component: () => (
+    <PremiumRoute feature="Contador de Carreiras & Pontos">
+      <Page />
+    </PremiumRoute>
+  ),
 });
 
 type SR = any;
