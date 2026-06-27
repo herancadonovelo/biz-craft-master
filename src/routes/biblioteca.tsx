@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, FileDown, BookOpen, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+const AREAS_BIB = ["Tricotin", "Amigurumi", "Crochê", "Costura", "Ponto cruz", "Bordado"] as const;
 
 export const Route = createFileRoute("/biblioteca")({
   head: () => ({ meta: [{ title: "Biblioteca de moldes e receitas" }] }),
@@ -43,9 +46,10 @@ export const Route = createFileRoute("/biblioteca")({
     const categorias = useMemo(() => Array.from(new Set(biblioteca.map((b) => b.categoria))).filter(Boolean), [biblioteca]);
     const filtrados = biblioteca.filter((b) => !q || (b.titulo + b.categoria + (b.descricao || "")).toLowerCase().includes(q.toLowerCase()));
     const itemAberto = biblioteca.find((b) => b.id === aberto);
+    const porArea = (area: string) => filtrados.filter((b) => (b.categoria || "").toLowerCase() === area.toLowerCase());
     return (
       <div className="space-y-6">
-        <PageHeader title="Biblioteca de moldes e receitas" description="Guarda PDFs, imagens e tutoriais. Prefere links cloud (Drive/Dropbox/R2) para poupar espaço." />
+        <PageHeader title="Biblioteca" description="Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos." />
 
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-3">
           <Input placeholder="Título" value={novo.titulo} onChange={(e) => setNovo({ ...novo, titulo: e.target.value })} />
@@ -76,9 +80,44 @@ export const Route = createFileRoute("/biblioteca")({
 
         <Input placeholder="Pesquisar…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
 
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {filtrados.map((b) => (
-            <Card key={b.id}><CardContent className="space-y-2 p-4">
+        <Tabs defaultValue="todos">
+          <TabsList className="flex flex-wrap">
+            <TabsTrigger value="todos">Todos</TabsTrigger>
+            {AREAS_BIB.map((a) => <TabsTrigger key={a} value={a}>{a}</TabsTrigger>)}
+          </TabsList>
+          <TabsContent value="todos" className="mt-4">
+            <Grelha items={filtrados} tt={tt} remove={remove} setAberto={setAberto} />
+          </TabsContent>
+          {AREAS_BIB.map((a) => (
+            <TabsContent key={a} value={a} className="mt-4">
+              <Grelha items={porArea(a)} tt={tt} remove={remove} setAberto={setAberto} />
+            </TabsContent>
+          ))}
+        </Tabs>
+
+        <Dialog open={!!aberto} onOpenChange={(o) => !o && setAberto(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader><DialogTitle>{itemAberto ? tt(itemAberto.titulo) : ""}</DialogTitle></DialogHeader>
+            {itemAberto && ehImagem(itemAberto.ficheiroBase64) && <img src={itemAberto.ficheiroBase64} alt={itemAberto.titulo} className="max-h-[75vh] w-full object-contain" />}
+            {itemAberto && ehPdf(itemAberto.ficheiroBase64) && <embed src={itemAberto.ficheiroBase64} type="application/pdf" className="h-[75vh] w-full" />}
+            {itemAberto?.url && !itemAberto.ficheiroBase64 && (
+              <iframe src={itemAberto.url} title={itemAberto.titulo} className="h-[75vh] w-full rounded border border-border" />
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  },
+});
+
+function Grelha({ items, tt, remove, setAberto }: { items: any[]; tt: (s: string) => string; remove: any; setAberto: (id: string) => void }) {
+  const ehImagem = (s?: string) => !!s && /^data:image\//i.test(s);
+  const ehPdf = (s?: string) => !!s && /^data:application\/pdf/i.test(s);
+  if (items.length === 0) return <p className="text-sm text-muted-foreground">Sem itens nesta categoria.</p>;
+  return (
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      {items.map((b) => (
+        <Card key={b.id}><CardContent className="space-y-2 p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /><span className="font-display font-semibold">{tt(b.titulo)}</span></div>
                 <Button size="icon" variant="ghost" onClick={() => remove("biblioteca", b.id)}><Trash2 className="h-4 w-4" /></Button>
@@ -98,22 +137,8 @@ export const Route = createFileRoute("/biblioteca")({
                 {b.ficheiroBase64 && <a className="text-xs inline-flex items-center gap-1 text-primary" href={b.ficheiroBase64} download={b.titulo}><FileDown className="h-3 w-3" />Download</a>}
                 {b.ficheiroBase64 && <button className="text-xs text-primary underline" onClick={() => setAberto(b.id)}>Abrir</button>}
               </div>
-            </CardContent></Card>
-          ))}
-          {filtrados.length === 0 && <p className="text-sm text-muted-foreground">Sem itens.</p>}
-        </div>
-
-        <Dialog open={!!aberto} onOpenChange={(o) => !o && setAberto(null)}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader><DialogTitle>{itemAberto ? tt(itemAberto.titulo) : ""}</DialogTitle></DialogHeader>
-            {itemAberto && ehImagem(itemAberto.ficheiroBase64) && <img src={itemAberto.ficheiroBase64} alt={itemAberto.titulo} className="max-h-[75vh] w-full object-contain" />}
-            {itemAberto && ehPdf(itemAberto.ficheiroBase64) && <embed src={itemAberto.ficheiroBase64} type="application/pdf" className="h-[75vh] w-full" />}
-            {itemAberto?.url && !itemAberto.ficheiroBase64 && (
-              <iframe src={itemAberto.url} title={itemAberto.titulo} className="h-[75vh] w-full rounded border border-border" />
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  },
-});
+        </CardContent></Card>
+      ))}
+    </div>
+  );
+}

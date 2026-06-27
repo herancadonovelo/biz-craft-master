@@ -43,6 +43,10 @@ export interface Material {
   fornecedoresExtra?: FornecedorPreco[];
   notas?: string;
   imagem?: string;
+  categoria?: "fios" | "meadas" | "acessorios";
+  marca?: string; // DMC, Anchor, Sulinha, Finca, ...
+  codigoCor?: string; // ex: 310
+  tipoLinha?: "mulinê" | "étoile" | "metalizada" | "outro";
 }
 
 export interface MaterialUsado {
