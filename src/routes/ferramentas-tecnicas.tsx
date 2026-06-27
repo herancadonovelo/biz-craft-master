@@ -158,6 +158,31 @@ function TricotinTab() {
   // Calibração: régua mm/cm sobreposta (1:1 com A4 quando impresso)
   const [showRuler, setShowRuler] = React.useState(false);
   const [printRuler, setPrintRuler] = React.useState(false);
+  // Calibração automática: fator multiplicativo aplicado à impressão A4.
+  // Se a barra de 100 mm sair com L mm na régua física, scale = 100 / L.
+  const CAL_KEY = "tricotin-cal-scale-v1";
+  const [calScale, setCalScale] = React.useState<number>(() => {
+    if (typeof window === "undefined") return 1;
+    const v = parseFloat(localStorage.getItem(CAL_KEY) || "1");
+    return Number.isFinite(v) && v > 0.5 && v < 2 ? v : 1;
+  });
+  const [measuredMm, setMeasuredMm] = React.useState<string>("");
+  const applyCalibration = () => {
+    const m = parseFloat(measuredMm.replace(",", "."));
+    if (!Number.isFinite(m) || m < 50 || m > 150) {
+      alert("Insere um valor entre 50 e 150 mm (a barra esperada é 100 mm).");
+      return;
+    }
+    const newScale = (100 / m) * calScale; // compõe com a calibração anterior
+    setCalScale(newScale);
+    try { localStorage.setItem(CAL_KEY, String(newScale)); } catch { /* noop */ }
+  };
+  const resetCalibration = () => {
+    setCalScale(1); setMeasuredMm("");
+    try { localStorage.removeItem(CAL_KEY); } catch { /* noop */ }
+  };
+  const measuredNum = parseFloat(measuredMm.replace(",", "."));
+  const errorMm = Number.isFinite(measuredNum) ? measuredNum - 100 : null;
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
