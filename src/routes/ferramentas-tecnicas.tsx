@@ -339,7 +339,7 @@ function TricotinTab() {
       const { pathId, index } = vertexDragRef.current;
       setObjs((s) => s.map((o) => {
         if (o.id !== pathId || o.kind !== "path" || !o.pts) return o;
-        const npts = o.pts.map((q, i) => i === index ? { x: wx, y: wy } : q);
+        const npts = o.pts.map((q, i) => i === index ? { x: wx - (o.x || 0), y: wy - (o.y || 0) } : q);
         return { ...o, pts: npts, d: buildPoly(npts, o.mode ?? "line", !!o.closed) };
       }));
       return;
