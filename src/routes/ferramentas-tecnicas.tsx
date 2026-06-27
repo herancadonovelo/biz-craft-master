@@ -18,7 +18,7 @@ import {
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
   Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
-  Pen, Link2,
+  Pen, Link2, Move, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -81,7 +81,7 @@ function InstrucoesTab() {
  */
 
 type ObjBase = { id: string; x: number; y: number; rot: number; scale: number; stroke: string; strokeWidth: number };
-type PathObj = ObjBase & { kind: "path"; d: string };
+type PathObj = ObjBase & { kind: "path"; d: string; pts?: { x: number; y: number }[]; mode?: "line" | "curve"; closed?: boolean };
 type TextObj = ObjBase & { kind: "text"; text: string; font: string; size: number };
 type AnyObj = PathObj | TextObj;
 
@@ -143,7 +143,7 @@ function TricotinTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
 
-  type Tool = "select" | "line" | "curve" | "text" | "measure" | "number" | "label";
+  type Tool = "select" | "move" | "line" | "curve" | "text" | "measure" | "number" | "label";
   const [tool, setTool] = useState<Tool>("curve");
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [stroke, setStroke] = useState("#000000");
@@ -159,6 +159,17 @@ function TricotinTab() {
   const [polyPts, setPolyPts] = useState<{ x: number; y: number }[]>([]);
   const [polyMode, setPolyMode] = useState<"line" | "curve">("line");
   const [hoverPt, setHoverPt] = useState<{ x: number; y: number } | null>(null);
+
+  // Zoom & pan (ferramenta "Mover")
+  const [zoom, setZoom] = useState(1);
+  const [viewDx, setViewDx] = useState(0);
+  const [viewDy, setViewDy] = useState(0);
+  const panRef = useRef<{ sx: number; sy: number; dx: number; dy: number } | null>(null);
+
+  // Estilo das setas por path
+  const [arrowStyles, setArrowStyles] = useState<Record<string, "triangle" | "open" | "line">>({});
+  // Drag de vértice individual
+  const vertexDragRef = useRef<{ pathId: string; index: number } | null>(null);
 
   const buildPoly = (pts: { x: number; y: number }[], mode: "line" | "curve", fechar: boolean) => {
     if (pts.length < 2) return "";
@@ -184,7 +195,12 @@ function TricotinTab() {
   const terminarPoli = (fechar = false) => {
     if (polyPts.length < 2) { setPolyPts([]); return; }
     const d = buildPoly(polyPts, polyMode, fechar);
-    if (d) addPath(d);
+    if (d) {
+      const id = crypto.randomUUID();
+      const ptsCopy = polyPts.map((q) => ({ ...q }));
+      setObjs((s) => [...s, { id, kind: "path", d, pts: ptsCopy, mode: polyMode, closed: fechar, x: 0, y: 0, rot: 0, scale: 1, stroke, strokeWidth }]);
+      setSelected(new Set([id]));
+    }
     setPolyPts([]);
     setHoverPt(null);
   };
@@ -222,7 +238,9 @@ function TricotinTab() {
 
   const ptSvg = (e: React.PointerEvent<SVGSVGElement>) => {
     const p = ponto(e, svgRef.current!);
-    return { x: snap(p.x, snapOn), y: snap(p.y, snapOn) };
+    const wx = (p.x - viewDx) / zoom;
+    const wy = (p.y - viewDy) / zoom;
+    return { x: snap(wx, snapOn), y: snap(wy, snapOn) };
   };
 
   const addPath = (d: string) => {
@@ -234,6 +252,12 @@ function TricotinTab() {
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     const p = ptSvg(e);
     if (tool === "select") { setSelected(new Set()); return; }
+    if (tool === "move") {
+      const raw = ponto(e, svgRef.current!);
+      panRef.current = { sx: raw.x, sy: raw.y, dx: viewDx, dy: viewDy };
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      return;
+    }
     if (tool === "measure") {
       setMeasurePts((m) => (m.length >= 2 ? [p] : [...m, p]));
       return;
@@ -269,10 +293,16 @@ function TricotinTab() {
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
     if ((tool === "line" || tool === "curve") && polyPts.length > 0) {
-      setHoverPt(ponto(e, svgRef.current!));
+      const r = ponto(e, svgRef.current!);
+      setHoverPt({ x: (r.x - viewDx) / zoom, y: (r.y - viewDy) / zoom });
+    }
+    if (panRef.current) {
+      const raw = ponto(e, svgRef.current!);
+      setViewDx(panRef.current.dx + (raw.x - panRef.current.sx));
+      setViewDy(panRef.current.dy + (raw.y - panRef.current.sy));
     }
   };
-  const onUp = () => {};
+  const onUp = () => { panRef.current = null; };
 
   const selectObj = (id: string, additive = false) => {
     setSelected((s) => {
@@ -283,24 +313,46 @@ function TricotinTab() {
   };
 
   const startDrag = (e: React.PointerEvent, id: string) => {
-    // Permite mover qualquer vetor independentemente da ferramenta ativa
+    if (tool === "move") return;
     e.stopPropagation();
-    const p = ponto(e as any, svgRef.current!);
+    const raw = ponto(e as any, svgRef.current!);
+    const p = { x: (raw.x - viewDx) / zoom, y: (raw.y - viewDy) / zoom };
     const o = objs.find((x) => x.id === id)!;
     dragRef.current = { id, sx: p.x, sy: p.y, ox: o.x, oy: o.y };
     selectObj(id, e.shiftKey);
     (e.target as Element).setPointerCapture?.(e.pointerId);
   };
+
+  const startVertexDrag = (e: React.PointerEvent, pathId: string, index: number) => {
+    if (tool !== "select") return;
+    e.stopPropagation();
+    vertexDragRef.current = { pathId, index };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  };
+
   const onSvgPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
     onMove(e);
+    if (vertexDragRef.current) {
+      const raw = ponto(e, svgRef.current!);
+      const wx = snap((raw.x - viewDx) / zoom, snapOn);
+      const wy = snap((raw.y - viewDy) / zoom, snapOn);
+      const { pathId, index } = vertexDragRef.current;
+      setObjs((s) => s.map((o) => {
+        if (o.id !== pathId || o.kind !== "path" || !o.pts) return o;
+        const npts = o.pts.map((q, i) => i === index ? { x: wx, y: wy } : q);
+        return { ...o, pts: npts, d: buildPoly(npts, o.mode ?? "line", !!o.closed) };
+      }));
+      return;
+    }
     if (!dragRef.current) return;
-    const p = ponto(e, svgRef.current!);
+    const raw = ponto(e, svgRef.current!);
+    const p = { x: (raw.x - viewDx) / zoom, y: (raw.y - viewDy) / zoom };
     const dx = p.x - dragRef.current.sx;
     const dy = p.y - dragRef.current.sy;
     const id = dragRef.current.id;
     setObjs((s) => s.map((o) => o.id === id ? { ...o, x: snap(dragRef.current!.ox + dx, snapOn), y: snap(dragRef.current!.oy + dy, snapOn) } : o));
   };
-  const endDrag = () => { dragRef.current = null; onUp(); };
+  const endDrag = () => { dragRef.current = null; vertexDragRef.current = null; onUp(); };
 
   const apagar = () => setObjs((s) => s.filter((o) => !selected.has(o.id)));
   const unirPaths = () => {
@@ -371,6 +423,14 @@ function TricotinTab() {
     return { a, b, cm };
   }, [measurePts]);
 
+  const onWheelSvg = (e: React.WheelEvent<SVGSVGElement>) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    setZoom((z) => Math.min(4, Math.max(0.3, z * factor)));
+  };
+  const resetView = () => { setZoom(1); setViewDx(0); setViewDy(0); };
+
   const bbox = (o: AnyObj) => {
     if (o.kind === "text") return { w: (o.text.length * o.size) / 2, h: o.size };
     return { w: 100, h: 100 };
@@ -425,7 +485,9 @@ function TricotinTab() {
           <div className="pl-6 pt-5">
             <A4Stage innerRef={ref} watermark={w}>
               <svg ref={svgRef} viewBox={`0 0 ${A4_W} ${A4_H}`} className="absolute inset-0 h-full w-full touch-none"
-                   onPointerDown={onDown} onPointerMove={onSvgPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
+                   onPointerDown={onDown} onPointerMove={onSvgPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}
+                   onWheel={onWheelSvg}
+                   style={{ cursor: tool === "move" ? "grab" : undefined }}>
                 <defs>
                   <pattern id="grid-mm" width={PX_PER_CM / 2} height={PX_PER_CM / 2} patternUnits="userSpaceOnUse">
                     <path d={`M ${PX_PER_CM / 2} 0 L 0 0 0 ${PX_PER_CM / 2}`} fill="none" stroke="#eee" strokeWidth="0.5" />
@@ -442,6 +504,7 @@ function TricotinTab() {
                   <rect width="100%" height="100%" fill="url(#grid-mm)" />
                   <rect width="100%" height="100%" fill="url(#grid-cm)" />
                 </>}
+                <g transform={`translate(${viewDx} ${viewDy}) scale(${zoom})`}>
 
                 {/* Pauta de caligrafia */}
                 {pautaOn && (() => {
@@ -465,19 +528,29 @@ function TricotinTab() {
                   const transform = `translate(${o.x} ${o.y}) rotate(${o.rot}) scale(${o.scale})`;
                   if (o.kind === "path") {
                     const corLinha = caligrafia ? "#cbd5e1" : o.stroke;
+                    const aStyle = arrowStyles[o.id] ?? "triangle";
                     return (
-                      <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : "crosshair" }}>
+                      <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : tool === "move" ? "grab" : "crosshair" }}>
+                        {sel && (
+                          <path d={o.d} stroke="#1e88e5" strokeWidth={o.strokeWidth + 6} fill="none"
+                                strokeLinecap="round" strokeLinejoin="round" opacity={0.25} pointerEvents="none" />
+                        )}
                         <path d={o.d} stroke={corLinha} strokeWidth={o.strokeWidth} fill="none"
                               strokeLinecap="round" strokeLinejoin="round"
                               filter={realista ? "url(#yarn)" : undefined}
                               style={realista ? { strokeDasharray: `${o.strokeWidth * 0.6} ${o.strokeWidth * 0.3}` } : undefined} />
                         {arrowedPaths.has(o.id) && arrowsForPath(o.d).map((a, i) => (
-                          <polygon key={i}
-                            points="-6,-4 0,0 -6,4"
-                            fill="#111"
-                            transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`} />
+                          <g key={i} transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`}>
+                            {aStyle === "triangle" && <polygon points="-8,-5 0,0 -8,5" fill="#111" />}
+                            {aStyle === "open" && <polyline points="-8,-5 0,0 -8,5" fill="none" stroke="#111" strokeWidth="1.5" />}
+                            {aStyle === "line" && <line x1="-10" y1="0" x2="0" y2="0" stroke="#111" strokeWidth="2" />}
+                          </g>
                         ))}
-                        {sel && <SelectionFrame w={120} h={120} />}
+                        {sel && tool === "select" && o.pts && o.pts.map((q, i) => (
+                          <circle key={`v${i}`} cx={q.x} cy={q.y} r={5 / Math.max(0.5, zoom)} fill="#ef4444" stroke="#fff" strokeWidth={1.5 / Math.max(0.5, zoom)}
+                            style={{ cursor: "grab" }}
+                            onPointerDown={(e) => startVertexDrag(e, o.id, i)} />
+                        ))}
                       </g>
                     );
                   }
@@ -529,6 +602,7 @@ function TricotinTab() {
                     <text x={(medicao.a.x + medicao.b.x) / 2} y={(medicao.a.y + medicao.b.y) / 2 - 6} textAnchor="middle" fontSize="12" fill="#1e88e5">{medicao.cm.toFixed(1)} cm</text>
                   </g>
                 )}
+                </g>
               </svg>
             </A4Stage>
           </div>
@@ -541,12 +615,19 @@ function TricotinTab() {
           <Label className="text-xs">Ferramenta</Label>
           <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => { if (polyPts.length >= 2) terminarPoli(false); else { setPolyPts([]); setHoverPt(null); } setTool("select"); }} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
+            <ToolBtn active={tool === "move"} onClick={() => { if (polyPts.length >= 2) terminarPoli(false); else { setPolyPts([]); setHoverPt(null); } setTool("move"); }} icon={<Move className="h-4 w-4" />} label="Mover" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => { setTool("curve"); setPolyPts([]); setHoverPt(null); }} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
             <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
             <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
+          </div>
+          <div className="flex items-center gap-1 pt-1">
+            <Label className="text-xs flex-1">Zoom ({Math.round(zoom * 100)}%)</Label>
+            <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.max(0.3, z / 1.2))}><ZoomOut className="h-3 w-3" /></Button>
+            <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.min(4, z * 1.2))}><ZoomIn className="h-3 w-3" /></Button>
+            <Button size="sm" variant="ghost" onClick={resetView}>Reset</Button>
           </div>
           {(tool === "line" || tool === "curve") && polyPts.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1">
@@ -617,6 +698,20 @@ function TricotinTab() {
                   <ArrowRightCircle className="mr-1 h-3 w-3" />
                   {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
                 </Button>
+                {arrowedPaths.has(selObj.id) && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Formato da seta</Label>
+                    <Select value={arrowStyles[selObj.id] ?? "triangle"}
+                      onValueChange={(v) => setArrowStyles((s) => ({ ...s, [selObj.id]: v as "triangle" | "open" | "line" }))}>
+                      <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="triangle">Triângulo cheio</SelectItem>
+                        <SelectItem value="open">Cabeça aberta (V)</SelectItem>
+                        <SelectItem value="line">Traço simples</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </>
             )}
           </CardContent></Card>
