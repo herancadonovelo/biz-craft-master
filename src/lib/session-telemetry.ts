@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export type SessionEventType =
   | "session_expired"
@@ -22,7 +23,7 @@ export async function logSessionEvent(type: SessionEventType, opts: LogOpts = {}
     reason: opts.reason ?? null,
     path: opts.path ?? window.location.pathname,
     user_agent: navigator.userAgent,
-    metadata: opts.metadata ?? null,
+    metadata: (opts.metadata ?? null) as Json | null,
   };
   // Always console-trace for local diagnosis
   // eslint-disable-next-line no-console
