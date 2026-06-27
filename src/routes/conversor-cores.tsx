@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,11 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/conversor-cores")({
   head: () => ({ meta: [{ title: "Conversor de cores DMC/Anchor" }] }),
-  component: ConversorPage,
+  component: () => (
+    <PremiumRoute feature="Conversor de Cores: DMC/ANCHOR">
+      <ConversorPage />
+    </PremiumRoute>
+  ),
 });
 
 function ConversorPage() {
