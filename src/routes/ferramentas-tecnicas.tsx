@@ -149,16 +149,100 @@ function TricotinTab() {
   const [isClosedPath, setIsClosedPath] = React.useState(false);
   const [lineWidthTricotin, setLineWidthTricotin] = React.useState(12);
   const [mode, setMode] = React.useState<Mode>("straight");
-  const dragRef = React.useRef<{ id: string; kind: "main" | "ctrl" } | null>(null);
+  const dragRef = React.useRef<
+    | { kind: "main" | "ctrl"; id: string }
+    | { kind: "segment"; aId: string; bId: string; lastX: number; lastY: number }
+    | null
+  >(null);
+  const didDragRef = React.useRef(false);
 
-  const W = 900, H = 560, HIT = 10;
+  const W = 900, H = 560, HIT = 12;
+
+  // ---------- Undo / Redo ----------
+  type Snap = { nodes: PtNode[]; isClosedPath: boolean };
+  const undoRef = React.useRef<Snap[]>([]);
+  const redoRef = React.useRef<Snap[]>([]);
+  const [, forceRender] = React.useState(0);
+  const snapshot = React.useCallback((): Snap => ({
+    nodes: nodes.map((n) => ({ ...n })),
+    isClosedPath,
+  }), [nodes, isClosedPath]);
+  const pushHistory = React.useCallback(() => {
+    undoRef.current.push(snapshot());
+    if (undoRef.current.length > 100) undoRef.current.shift();
+    redoRef.current = [];
+    forceRender((v) => v + 1);
+  }, [snapshot]);
+  const apply = (s: Snap) => {
+    setNodes(s.nodes.map((n) => ({ ...n })));
+    setIsClosedPath(s.isClosedPath);
+  };
+  const undo = () => {
+    const prev = undoRef.current.pop();
+    if (!prev) return;
+    redoRef.current.push(snapshot());
+    apply(prev);
+    forceRender((v) => v + 1);
+  };
+  const redo = () => {
+    const next = redoRef.current.pop();
+    if (!next) return;
+    undoRef.current.push(snapshot());
+    apply(next);
+    forceRender((v) => v + 1);
+  };
+
+  // ---------- Save / Load ----------
+  const STORAGE_KEY = "tricotin-mold-v1";
+  const saveMold = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, isClosedPath, lineWidthTricotin }));
+      alert("Molde guardado.");
+    } catch { alert("Erro ao guardar."); }
+  };
+  const loadMold = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) { alert("Nenhum molde guardado."); return; }
+      const data = JSON.parse(raw);
+      pushHistory();
+      setNodes(Array.isArray(data.nodes) ? data.nodes : []);
+      setIsClosedPath(!!data.isClosedPath);
+      if (typeof data.lineWidthTricotin === "number") setLineWidthTricotin(data.lineWidthTricotin);
+    } catch { alert("Erro ao carregar."); }
+  };
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      const meta = e.ctrlKey || e.metaKey;
+      if (!meta) return;
+      if (e.key === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+      else if ((e.key === "z" && e.shiftKey) || e.key === "y") { e.preventDefault(); redo(); }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  });
 
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const c = canvasRef.current!;
     const r = c.getBoundingClientRect();
-    return { x: ((e.clientX - r.left) * c.width) / r.width, y: ((e.clientY - r.top) * c.height) / r.height };
+    return {
+      x: ((e.clientX - r.left) * c.width) / r.width,
+      y: ((e.clientY - r.top) * c.height) / r.height,
+    };
   };
   const dist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(ax - bx, ay - by);
+
+  // Distance from point (px,py) to segment (ax,ay)-(bx,by)
+  const distToSegment = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
+    const dx = bx - ax, dy = by - ay;
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return Math.hypot(px - ax, py - ay);
+    let t = ((px - ax) * dx + (py - ay) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+  };
 
   const draw = React.useCallback(() => {
     const c = canvasRef.current; if (!c) return;
@@ -170,9 +254,9 @@ function TricotinTab() {
     for (let y = 0; y <= c.height; y += 25) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(c.width, y); ctx.stroke(); }
 
     if (nodes.length > 0) {
-      // Layer 1: tricotin path
+      // Layer 1: tricotin path (black)
       ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.strokeStyle = "#e11d48"; ctx.lineWidth = lineWidthTricotin;
+      ctx.strokeStyle = "#000000"; ctx.lineWidth = lineWidthTricotin;
       ctx.beginPath();
       ctx.moveTo(nodes[0].x, nodes[0].y);
       for (let i = 1; i < nodes.length; i++) {
@@ -199,13 +283,14 @@ function TricotinTab() {
       });
       ctx.restore();
 
-      // Layer 3: nodes & control handles
+      // Layer 3: nodes (all red) & control handles (dark red w/ border)
       nodes.forEach((n) => {
         if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          ctx.fillStyle = "#f97316";
-          ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#7f1d1d";
+          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         }
-        ctx.fillStyle = n.type === "start" ? "#16a34a" : "#2563eb";
+        ctx.fillStyle = "#FF0000";
         ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
@@ -216,20 +301,39 @@ function TricotinTab() {
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getPos(e);
+    didDragRef.current = false;
     if (mode === "select") {
+      // 1) Control handle hit
       for (const n of nodes) {
         if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null && dist(x, y, n.ctrlX, n.ctrlY) <= HIT) {
-          dragRef.current = { id: n.id, kind: "ctrl" }; (e.target as Element).setPointerCapture(e.pointerId); return;
+          pushHistory();
+          dragRef.current = { kind: "ctrl", id: n.id };
+          (e.target as Element).setPointerCapture(e.pointerId); return;
         }
       }
+      // 2) Main node hit
       for (const n of nodes) {
         if (dist(x, y, n.x, n.y) <= HIT) {
-          dragRef.current = { id: n.id, kind: "main" }; (e.target as Element).setPointerCapture(e.pointerId); return;
+          pushHistory();
+          dragRef.current = { kind: "main", id: n.id };
+          (e.target as Element).setPointerCapture(e.pointerId); return;
+        }
+      }
+      // 3) Segment hit (drag whole line)
+      const segs: Array<[PtNode, PtNode]> = [];
+      for (let i = 1; i < nodes.length; i++) segs.push([nodes[i - 1], nodes[i]]);
+      if (isClosedPath && nodes.length > 1) segs.push([nodes[nodes.length - 1], nodes[0]]);
+      for (const [a, b] of segs) {
+        if (distToSegment(x, y, a.x, a.y, b.x, b.y) <= Math.max(8, lineWidthTricotin / 2)) {
+          pushHistory();
+          dragRef.current = { kind: "segment", aId: a.id, bId: b.id, lastX: x, lastY: y };
+          (e.target as Element).setPointerCapture(e.pointerId); return;
         }
       }
       return;
     }
     // add point
+    pushHistory();
     const id = Math.random().toString(36).slice(2, 9);
     if (nodes.length === 0) {
       setNodes([{ id, x, y, type: "start" }]);
@@ -242,9 +346,24 @@ function TricotinTab() {
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!dragRef.current) return;
+    const drag = dragRef.current;
+    if (!drag) return;
     const { x, y } = getPos(e);
-    const { id, kind } = dragRef.current;
+    didDragRef.current = true;
+    if (drag.kind === "segment") {
+      const dx = x - drag.lastX, dy = y - drag.lastY;
+      drag.lastX = x; drag.lastY = y;
+      setNodes((prev) => prev.map((n) => {
+        if (n.id !== drag.aId && n.id !== drag.bId) return n;
+        const upd: PtNode = { ...n, x: n.x + dx, y: n.y + dy };
+        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
+          upd.ctrlX = n.ctrlX + dx; upd.ctrlY = n.ctrlY + dy;
+        }
+        return upd;
+      }));
+      return;
+    }
+    const { id, kind } = drag;
     setNodes((prev) => prev.map((n) => {
       if (n.id !== id) return n;
       if (kind === "ctrl") return { ...n, ctrlX: x, ctrlY: y };
@@ -255,7 +374,15 @@ function TricotinTab() {
     }));
   };
 
-  const onPointerUp = () => { dragRef.current = null; };
+  const onPointerUp = () => {
+    if (dragRef.current && !didDragRef.current) {
+      // no movement → revert the history snapshot we eagerly pushed
+      undoRef.current.pop();
+      forceRender((v) => v + 1);
+    }
+    dragRef.current = null;
+    didDragRef.current = false;
+  };
 
   return (
     <div className="space-y-3">
@@ -264,7 +391,7 @@ function TricotinTab() {
         <button onClick={() => setMode("straight")} className={`rounded border px-3 py-1.5 text-xs ${mode === "straight" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Reto</button>
         <button onClick={() => setMode("curve")} className={`rounded border px-3 py-1.5 text-xs ${mode === "curve" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Curvo</button>
         {mode === "select" && nodes.length >= 2 && (
-          <button onClick={() => setIsClosedPath((v) => !v)} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">
+          <button onClick={() => { pushHistory(); setIsClosedPath((v) => !v); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">
             {isClosedPath ? "Abrir Molde" : "Fechar Molde"}
           </button>
         )}
@@ -273,7 +400,13 @@ function TricotinTab() {
           <input type="range" min={5} max={35} value={lineWidthTricotin} onChange={(e) => setLineWidthTricotin(Number(e.target.value))} />
           <span className="w-10 tabular-nums">{lineWidthTricotin}px</span>
         </div>
-        <button onClick={() => { setNodes([]); setIsClosedPath(false); }} className="ml-auto rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
+          <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
+          <button onClick={saveMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar</button>
+          <button onClick={loadMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Carregar</button>
+          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
+        </div>
       </div>
       <div className="overflow-auto rounded-lg border bg-white">
         <canvas
@@ -289,7 +422,7 @@ function TricotinTab() {
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Dica: usa "Adicionar Ponto Reto" ou "Curvo" para construir o molde. No "Modo Seleção" arrasta os nós azuis para reposicionar e os laranja para ajustar a curvatura. Fecha o molde para unir o último ao primeiro ponto.
+        Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
     </div>
   );
