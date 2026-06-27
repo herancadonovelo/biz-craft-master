@@ -151,7 +151,7 @@ function TricotinTab() {
   const [mode, setMode] = React.useState<Mode>("straight");
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
-    | { kind: "segment"; aId: string; bId: string; lastX: number; lastY: number }
+    | { kind: "segment"; aId: string; bId: string }
     | null
   >(null);
   const didDragRef = React.useRef(false);
@@ -326,7 +326,7 @@ function TricotinTab() {
       for (const [a, b] of segs) {
         if (distToSegment(x, y, a.x, a.y, b.x, b.y) <= Math.max(8, lineWidthTricotin / 2)) {
           pushHistory();
-          dragRef.current = { kind: "segment", aId: a.id, bId: b.id, lastX: x, lastY: y };
+          dragRef.current = { kind: "segment", aId: a.id, bId: b.id };
           (e.target as Element).setPointerCapture(e.pointerId); return;
         }
       }
@@ -351,16 +351,21 @@ function TricotinTab() {
     const { x, y } = getPos(e);
     didDragRef.current = true;
     if (drag.kind === "segment") {
-      const dx = x - drag.lastX, dy = y - drag.lastY;
-      drag.lastX = x; drag.lastY = y;
-      setNodes((prev) => prev.map((n) => {
-        if (n.id !== drag.aId && n.id !== drag.bId) return n;
-        const upd: PtNode = { ...n, x: n.x + dx, y: n.y + dy };
-        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          upd.ctrlX = n.ctrlX + dx; upd.ctrlY = n.ctrlY + dy;
-        }
-        return upd;
-      }));
+      // Adjust ONLY the curvature of this segment.
+      // Endpoints A and B stay fixed; node B carries the quadratic control point.
+      setNodes((prev) => {
+        const a = prev.find((n) => n.id === drag.aId);
+        const b = prev.find((n) => n.id === drag.bId);
+        if (!a || !b) return prev;
+        // Quadratic Bezier passing through cursor at t=0.5: ctrl = 2C - 0.5A - 0.5B
+        const cx = 2 * x - 0.5 * a.x - 0.5 * b.x;
+        const cy = 2 * y - 0.5 * a.y - 0.5 * b.y;
+        return prev.map((n) =>
+          n.id === drag.bId
+            ? { ...n, type: "curve", ctrlX: cx, ctrlY: cy }
+            : n
+        );
+      });
       return;
     }
     const { id, kind } = drag;
