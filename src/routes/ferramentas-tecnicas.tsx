@@ -749,6 +749,9 @@ function BordadoTab() {
   const [w, setW] = useMarcaDAgua();
   const [paths, setPaths] = useState<string[]>([]);
   const [imagemFundo, setImagemFundo] = useState<string>("");
+  const [contornos, setContornos] = useState<string[]>([]);
+  const [limiar, setLimiar] = useState(128);
+  const [aTrabalhar, setATrabalhar] = useState(false);
   const drawing = useRef(false);
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -763,12 +766,61 @@ function BordadoTab() {
   };
   const onUp = () => { drawing.current = false; };
 
+  /** Vetorização: marching-squares simplificado sobre a luminância da imagem. */
+  const vetorizar = async () => {
+    if (!imagemFundo) { toast.error("Importa uma imagem primeiro."); return; }
+    setATrabalhar(true);
+    try {
+      const img = new Image();
+      img.src = imagemFundo;
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("img")); });
+      const W = 240, H = Math.round((img.height / img.width) * 240);
+      const canvas = document.createElement("canvas");
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, W, H);
+      const { data } = ctx.getImageData(0, 0, W, H);
+      const lum = new Uint8Array(W * H);
+      for (let i = 0; i < W * H; i++) {
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        lum[i] = (0.299 * r + 0.587 * g + 0.114 * b) < limiar ? 1 : 0;
+      }
+      // Deteção de aresta simples (Sobel binário): pixel é contorno se vizinhança difere
+      const edge = new Uint8Array(W * H);
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const c = lum[y * W + x];
+        if (c !== lum[y * W + x + 1] || c !== lum[(y + 1) * W + x]) edge[y * W + x] = 1;
+      }
+      // Agrupar pixels em traços lineares por linha (fast & legível)
+      const novos: string[] = [];
+      const sx = A4_W / W, sy = A4_H / H;
+      for (let y = 0; y < H; y++) {
+        let start = -1;
+        for (let x = 0; x < W; x++) {
+          if (edge[y * W + x]) {
+            if (start < 0) start = x;
+          } else if (start >= 0) {
+            if (x - start >= 2) novos.push(`M ${(start * sx).toFixed(1)} ${(y * sy).toFixed(1)} L ${((x - 1) * sx).toFixed(1)} ${(y * sy).toFixed(1)}`);
+            start = -1;
+          }
+        }
+      }
+      setContornos(novos);
+      toast.success(`${novos.length} contornos gerados.`);
+    } catch (e) {
+      toast.error("Falha na vetorização: " + (e as Error).message);
+    } finally {
+      setATrabalhar(false);
+    }
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <A4Stage innerRef={ref} watermark={w}>
         {imagemFundo && <img src={imagemFundo} className="absolute inset-0 h-full w-full object-contain opacity-50" />}
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full"
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
+          {contornos.map((d, i) => <path key={`c${i}`} d={d} stroke="#1e88e5" strokeWidth="0.8" fill="none" />)}
           {paths.map((d, i) => <path key={i} d={d} stroke="#111" strokeWidth="1.5" fill="none" strokeLinecap="round" />)}
         </svg>
       </A4Stage>
@@ -779,6 +831,14 @@ function BordadoTab() {
             const f = e.target.files?.[0]; if (!f) return;
             const r = new FileReader(); r.onload = () => setImagemFundo(r.result as string); r.readAsDataURL(f);
           }} />
+          <div>
+            <Label className="text-xs">Limiar de contraste ({limiar})</Label>
+            <Slider value={[limiar]} min={40} max={220} step={5} onValueChange={(v) => setLimiar(v[0])} />
+          </div>
+          <Button size="sm" onClick={vetorizar} disabled={aTrabalhar || !imagemFundo}>
+            <Sparkles className="mr-1 h-3 w-3" />{aTrabalhar ? "A vetorizar..." : "Vetorizar imagem"}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setContornos([])}>Limpar contornos</Button>
           <Button size="sm" variant="ghost" onClick={() => setPaths([])}><Eraser className="mr-1 h-3 w-3" />Limpar traços</Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
