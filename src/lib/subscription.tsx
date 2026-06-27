@@ -42,7 +42,6 @@ export const PLANS: PlanDef[] = [
       "Calculadora de preços",
     ],
     limitacoes: [
-      "Sem Criador de Moldes",
       "Sem exportação A4 / PDF",
       "Sem Assistente IA",
       "Sem sincronização na nuvem ilimitada",
@@ -63,11 +62,10 @@ export const PLANS: PlanDef[] = [
       "Marketing & campanhas",
       "Backup & restauro completo",
       "Sincronização na nuvem",
+      "Assistente IA limitado",
+      "Exportação A4 / PDF",
     ],
     limitacoes: [
-      "Sem Criador de Moldes",
-      "Sem exportação A4 do molde",
-      "Assistente IA limitado",
       "Sem Contador de Carreiras & Pontos",
       "Sem Editor de Moodboards",
       "Sem Atelier Sounds & Foco",
@@ -80,8 +78,6 @@ export const PLANS: PlanDef[] = [
     resumo: "Tudo desbloqueado — pensado para artesãos que vivem do negócio.",
     beneficios: [
       "Tudo do Base",
-      "Criador de Moldes completo (camadas, curvas, biblioteca)",
-      "Exportação A4 / PDF de moldes",
       "Assistente IA sem limites",
       "Crescimento, relatórios e auditoria avançados",
       "Integrações Etsy / WhatsApp / Instagram",
