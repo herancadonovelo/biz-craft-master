@@ -807,7 +807,12 @@ function TricotinTab() {
         )}
       </div>
       <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
-        <canvas
+        <div className="relative">
+          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
+            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
+          </div>
+          <canvas
           ref={canvasRef}
           width={W}
           height={H}
@@ -817,7 +822,8 @@ function TricotinTab() {
           onPointerCancel={onPointerUp}
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
-        />
+          />
+        </div>
       </div>
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
