@@ -540,14 +540,14 @@ function TricotinTab() {
       });
       ctx.restore();
 
-      // Layer 3: nodes (all red) & control handles (dark red w/ border)
+      // Layer 3: nodes (cinza 70% escuro) & control handles (cinza mais escuro c/ contorno branco)
       nodes.forEach((n) => {
         if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          ctx.fillStyle = "#7f1d1d";
+          ctx.fillStyle = "#333333";
           ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         }
-        ctx.fillStyle = "#FF0000";
+        ctx.fillStyle = "#4d4d4d";
         ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
