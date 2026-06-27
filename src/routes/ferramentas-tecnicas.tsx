@@ -514,10 +514,10 @@ function TricotinTab() {
                   <g>
                     <path
                       d={buildPoly(hoverPt ? [...polyPts, hoverPt] : polyPts, tool, false)}
-                      stroke="#1e88e5" strokeWidth="1.5" fill="none" strokeDasharray="5 4"
+                      stroke="#000000" strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round"
                     />
                     {polyPts.map((q, i) => (
-                      <circle key={i} cx={q.x} cy={q.y} r={3} fill="#1e88e5" />
+                      <circle key={i} cx={q.x} cy={q.y} r={4} fill="#ef4444" stroke="#fff" strokeWidth={1} />
                     ))}
                   </g>
                 )}
@@ -540,7 +540,7 @@ function TricotinTab() {
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Ferramenta</Label>
           <div className="grid grid-cols-4 gap-1">
-            <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
+            <ToolBtn active={tool === "select"} onClick={() => { if (polyPts.length >= 2) terminarPoli(false); else { setPolyPts([]); setHoverPt(null); } setTool("select"); }} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => { setTool("curve"); setPolyPts([]); setHoverPt(null); }} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
