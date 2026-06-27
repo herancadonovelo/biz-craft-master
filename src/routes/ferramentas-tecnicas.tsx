@@ -89,6 +89,7 @@ type AnyObj = PathObj | TextObj;
 const A4_W = 595;
 const A4_H = 842;
 const PX_PER_CM = A4_W / 21; // ~28.33 px/cm
+const PX_PER_MM = PX_PER_CM / 10;
 
 const FONTES_50 = [
   "Inter","Roboto","Open Sans","Lato","Montserrat","Poppins","Oswald","Raleway","Nunito","Merriweather",
