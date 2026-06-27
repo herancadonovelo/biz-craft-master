@@ -94,6 +94,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.catalog"), url: "/catalogo", icon: Layers },
       { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
       { title: "Moodboards", url: "/moodboards", icon: PaletteIcon },
+      { title: "Editor de Moodboards", url: "/editor-moodboards", icon: PaletteIcon },
       { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
       { title: "Contador de Carreiras", url: "/contador", icon: Hash },
       { title: "Editor de Receita", url: "/editor-receita", icon: PenSquare },
