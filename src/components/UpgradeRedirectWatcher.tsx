@@ -21,7 +21,7 @@ export function UpgradeRedirectWatcher() {
       closePaywall();
       toast.success("Acesso desbloqueado — a regressar à página…");
       // Pequeno delay para permitir UI atualizar
-      setTimeout(() => navigate({ to: target, replace: true }), 200);
+      setTimeout(() => navigate({ to: target as never, replace: true }), 200);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectivePlan, pendingRedirect]);
