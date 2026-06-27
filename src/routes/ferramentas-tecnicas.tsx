@@ -423,6 +423,14 @@ function TricotinTab() {
     return { a, b, cm };
   }, [measurePts]);
 
+  const onWheelSvg = (e: React.WheelEvent<SVGSVGElement>) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    setZoom((z) => Math.min(4, Math.max(0.3, z * factor)));
+  };
+  const resetView = () => { setZoom(1); setViewDx(0); setViewDy(0); };
+
   const bbox = (o: AnyObj) => {
     if (o.kind === "text") return { w: (o.text.length * o.size) / 2, h: o.size };
     return { w: 100, h: 100 };
