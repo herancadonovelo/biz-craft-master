@@ -99,7 +99,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: "Conversor de cores: DMC/ANCHOR...", url: "/conversor-cores", icon: PaletteIcon },
       { title: "Ferramentas Técnicas: Editores", url: "/ferramentas-tecnicas", icon: Ruler },
       { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
-      { title: "Contador de Carreiras", url: "/contador", icon: Hash },
+      { title: "Contador de Carreiras & Pontos", url: "/contador", icon: Hash },
       { title: "Editor de Receita", url: "/editor-receita", icon: PenSquare },
       { title: "Criador de Moldes", url: "/criador-moldes", icon: Ruler },
     ],
