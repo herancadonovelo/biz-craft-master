@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Play, Pause, SkipForward, SkipBack, Volume2, Moon, X } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, Moon, X, CloudRain, Flame, Coffee, Wind, Waves, CloudLightning } from "lucide-react";
 import { AMBIENT_LIST, MUSIC_TRACKS, useAtelierSounds, type AmbientKey } from "@/lib/atelier-sounds";
 import { AudioVisualizer } from "@/components/AudioVisualizer";
 
@@ -18,6 +18,15 @@ export const Route = createFileRoute("/atelier-sounds")({
     </PremiumRoute>
   ),
 });
+
+const AMBIENT_ICONS: Record<AmbientKey, typeof Waves> = {
+  rain: CloudRain,
+  fire: Flame,
+  cafe: Coffee,
+  wind: Wind,
+  waves: Waves,
+  thunder: CloudLightning,
+};
 
 function Marquee({ text }: { text: string }) {
   const long = text.length > 28;
@@ -103,10 +112,15 @@ function Page() {
           <Card><CardContent className="grid gap-4 p-4 sm:grid-cols-2">
             {AMBIENT_LIST.map((a) => {
               const st = s.ambient[a.key as AmbientKey];
+              const Icon = AMBIENT_ICONS[a.key as AmbientKey];
               return (
                 <div key={a.key} className="rounded-lg border p-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 font-medium"><span className="text-xl">{a.emoji}</span>{a.label}</div>
+                    <div className="flex items-center gap-2 font-medium">
+                      <Icon className="h-4 w-4 text-primary" />
+                      <span className="text-xl" aria-hidden>{a.emoji}</span>
+                      {a.label}
+                    </div>
                     <Switch checked={st.enabled} onCheckedChange={(v) => s.setAmbient(a.key, { enabled: v })} />
                   </div>
                   <div className="mt-3 flex items-center gap-2">
