@@ -73,6 +73,7 @@ import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { useSubscription } from "@/lib/subscription";
 import { requiredPlanFor } from "@/lib/access-control";
+import logoAsset from "@/assets/craft-business-master-logo.png.asset.json";
 
 const getGroups = (t: (k: string) => string) => [
   {
@@ -203,9 +204,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground font-display font-bold">
-            A
-          </div>
+          <img
+            src={logoAsset.url}
+            alt={nome}
+            className="h-9 w-9 rounded-md object-contain"
+          />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-display text-sm font-semibold text-sidebar-foreground">
