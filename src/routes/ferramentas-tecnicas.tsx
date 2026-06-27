@@ -542,13 +542,26 @@ function TricotinTab() {
           <Label className="text-xs">Ferramenta</Label>
           <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
-            <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
+            <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => setTool("curve")} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
             <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
             <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
           </div>
+          {tool === "line" && polyPts.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              <Button size="sm" variant="secondary" onClick={() => terminarPoli(false)}>
+                Terminar linha ({polyPts.length} pts)
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => terminarPoli(true)}>
+                <Link2 className="mr-1 h-3 w-3" />Terminar e fechar
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setPolyPts((s) => s.slice(0, -1)); }}>
+                Anular último
+              </Button>
+            </div>
+          )}
           <div>
             <Label className="text-xs">Espessura ({strokeWidth}px)</Label>
             <Slider value={[strokeWidth]} min={1} max={20} step={1} onValueChange={(v) => {
