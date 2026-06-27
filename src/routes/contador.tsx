@@ -109,7 +109,7 @@ const VOICE_CONFIG: Record<Idioma, {
 };
 
 function Page() {
-  const idioma = useStore((s) => s.idioma);
+  const idioma = useStore((s) => s.design.idioma);
   const cfg = VOICE_CONFIG[idioma] || VOICE_CONFIG.pt;
   const [carreiras, setCarreiras] = useState(0);
   const [pontos, setPontos] = useState(0);
