@@ -30,6 +30,7 @@ import { AtelierSoundsProvider } from "@/lib/atelier-sounds";
 import { DailyInspirationNotifier } from "@/components/DailyInspirationNotifier";
 import { RouteAccessGuard } from "@/components/RouteAccessGuard";
 import { UpgradeRedirectWatcher } from "@/components/UpgradeRedirectWatcher";
+import { AuthGate } from "@/components/AuthGate";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -225,6 +226,7 @@ function RootComponent() {
         <PreviewExitFab />
         <SplashScreen />
         <DailyInspirationNotifier />
+        <AuthGate />
       </SidebarProvider>
       </AtelierSoundsProvider>
       </SubscriptionProvider>
