@@ -36,7 +36,7 @@ function FerramentasPage() {
       <Tabs defaultValue="instrucoes">
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="instrucoes">Instruções de uso</TabsTrigger>
-          <TabsTrigger value="tricotin">Editor de moldes: Tricotin</TabsTrigger>
+          <TabsTrigger value="tricotin">Editor de Moldes: Tricotin/i-cord</TabsTrigger>
           <TabsTrigger value="amigurumi">Editor de Receitas: Amigurumis & Crochê</TabsTrigger>
           <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
           <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
@@ -55,7 +55,7 @@ function FerramentasPage() {
 
 function InstrucoesTab() {
   const items = [
-    { t: "Editor de moldes: Tricotin", d: "Tela interativa para desenhar e moldar esquemas de arame para i-cord/tricotin. Usa o lápis para traçar o caminho e o A4 garante escala real ao imprimir." },
+    { t: "Editor de Moldes: Tricotin/i-cord", d: "Tela interativa para desenhar e moldar esquemas de arame para i-cord/tricotin. Usa o lápis para traçar o caminho e o A4 garante escala real ao imprimir." },
     { t: "Editor de Receitas: Amigurumis & Crochê", d: "Processador de texto e tabelas técnicas para escrever padrões, contar pontos linha-a-linha e adicionar notas de produção. Pensa em \"livro de receita\"." },
     { t: "Editor de Moldes: Costura", d: "Estúdio vetorial para moldes de vestuário, com linhas retas, curvas, introdução manual de medidas em cm e graduação por tamanhos (S, M, L, XL). Inclui cálculo financeiro." },
     { t: "Editor de Gráficos: Ponto Cruz", d: "Grelha pixel-art para criar gráficos quadriculados com cores DMC/Anchor. Permite alternar entre vista a cor e vista de símbolos a preto e branco para leitura em papel." },
