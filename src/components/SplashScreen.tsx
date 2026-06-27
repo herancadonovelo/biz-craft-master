@@ -6,26 +6,114 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
+const MIN_DURATION = 12000; // 12s
+const MAX_DURATION = 20000; // 20s
+const PHRASE_INTERVAL = 2500; // 2.5s
+
+const loadingPhrases = [
+  "Recortando o tecido para costurar...",
+  "Enfiando a linha na agulha de coser...",
+  "Organizando novelos de várias cores...",
+  "Procurando o tamanho ideal de agulha para o projeto...",
+  "Ajustando a tensão do fio no tricotin...",
+  "Contando os pontos do amigurumi...",
+  "Contornando o risco do bordado livre...",
+  "A moldar o arame para o próximo tricotin...",
+  "Preparando a meada de ponto cruz...",
+  "Enchendo o amigurumi com amor e fibra...",
+  "Desenhando as curvas do molde de costura...",
+  "Contando cruzinhas no tecido Aida...",
+  "Passando o risco do desenho para o linho...",
+  "A aquecer as mãos para tricotar...",
+  "Escolhendo a palete de cores perfeita...",
+  "Enchendo a bobine com a linha de costura...",
+  "Desfazendo um nó cego no novelo...",
+  "Terminando a última carreira do projeto...",
+  "Preparando o bastidor para começar a bordar...",
+  "Alinhando o viés na borda do tecido...",
+  "A fechar os pontos invisíveis do amigurumi...",
+  "Calculando os centímetros de arame necessários...",
+  "Esboçando uma nova receita de crochê...",
+  "Organizando a caixinha de meadas por códigos...",
+  "Ajustando o ponto da máquina de costura...",
+  "Nivelando a pauta de caligrafia para o tricotin...",
+  "Verificando os códigos DMC no stock...",
+  "Dando o nó final para prender o bordado...",
+  "Esticando o tecido para ficar bem firme...",
+  "Criando magia com linhas, fios e agulhas...",
+  "Escondendo a ponta do fio para o acabamento perfeito...",
+  "Dando vida ao desenho através do ponto cruz...",
+  "Alfinetando o molde ao tecido com precisão...",
+  "A desenrolar o cordão de tricotin com cuidado...",
+  "Escolhendo o melhor ponto de bordado para as folhas...",
+  "A colocar os olhos de segurança no amigurumi...",
+  "Desenrolando o arame galvanizado para o molde...",
+  "Suavizando as curvas da letra cursiva no tricotin...",
+  "A calcular a quantidade de meadas para o gráfico...",
+  "Encaixando o tecido no bastidor de madeira...",
+  "Passando a ferro o tecido para tirar os vincos...",
+  "A dar o nó francês com toda a paciência...",
+  "Pintando o gráfico com pontos e linhas...",
+  "Verificando se a tensão do ponto de crochê está certa...",
+  "Costurando a etiqueta da marca na peça final...",
+  "A alinhar as réguas de alfaiate na mesa de corte...",
+  "Cortando as sobrinhas de linha com a tesoura de garça...",
+  "Medindo o contorno com a fita métrica digital...",
+  "A tecer memórias com cada ponto e carreira...",
+  "Preparando a encomenda com projetos finalizados...",
+];
+
+const pickPhrase = (prev?: string) => {
+  let p = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
+  if (prev && loadingPhrases.length > 1) {
+    let guard = 0;
+    while (p === prev && guard++ < 5) {
+      p = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
+    }
+  }
+  return p;
+};
 
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [phrase, setPhrase] = useState<string>(() => pickPhrase());
+  const [phraseVisible, setPhraseVisible] = useState(true);
+  const [progress, setProgress] = useState(0); // 0..1
   const navigate = useNavigate();
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
+
+  // Rotating phrases with fade in/out
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setPhraseVisible(false);
+      window.setTimeout(() => {
+        setPhrase((prev) => pickPhrase(prev));
+        setPhraseVisible(true);
+      }, 400);
+    }, PHRASE_INTERVAL);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     const start = Date.now();
-    const MIN = 5000;
+
+    // Progress ticker (capped at MAX_DURATION)
+    const progressId = window.setInterval(() => {
+      const e = Date.now() - start;
+      setProgress(Math.min(1, e / MAX_DURATION));
+    }, 100);
 
     const finish = (user: { id: string } | null) => {
       if (cancelled) return;
       const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN - elapsed);
+      const wait = Math.max(0, MIN_DURATION - elapsed);
       window.setTimeout(() => {
         if (cancelled) return;
+        setProgress(1);
         // Redirect to /auth when no session and we're on a protected/home route
         if (!user && !currentPath.startsWith("/auth")) {
           navigate({ to: "/auth", replace: true });
@@ -34,6 +122,16 @@ export function SplashScreen() {
         window.setTimeout(() => !cancelled && setVisible(false), 700);
       }, wait);
     };
+
+    // Hard cap: never exceed MAX_DURATION
+    const maxTimer = window.setTimeout(() => {
+      if (cancelled) return;
+      if (!error) {
+        setProgress(1);
+        setFading(true);
+        window.setTimeout(() => !cancelled && setVisible(false), 700);
+      }
+    }, MAX_DURATION);
 
     const sleep = (ms: number) =>
       new Promise<void>((res) => window.setTimeout(res, ms));
@@ -68,11 +166,15 @@ export function SplashScreen() {
 
     return () => {
       cancelled = true;
+      window.clearInterval(progressId);
+      window.clearTimeout(maxTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!visible) return null;
+
+  const pct = Math.round(progress * 100);
 
   return (
     <div
@@ -80,9 +182,9 @@ export function SplashScreen() {
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-700 ease-out ${
         fading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
-      style={{ backgroundColor: "oklch(0.985 0.005 95)" }}
+      style={{ backgroundColor: "#F5EFE6" }}
     >
-      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 w-full">
+      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 w-full">
         <img
           src={logo.url}
           alt="Craft Business Master"
@@ -90,20 +192,65 @@ export function SplashScreen() {
           draggable={false}
         />
         {!error ? (
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className="h-1 w-40 overflow-hidden rounded-full bg-foreground/10"
-              role="progressbar"
-              aria-label="A carregar"
+          <>
+            {/* Dynamic phrase */}
+            <p
+              className={`min-h-[2.5rem] max-w-[20rem] text-center text-base sm:text-lg italic text-[#6B5B73] transition-opacity duration-400 ease-in-out ${
+                phraseVisible ? "opacity-100" : "opacity-0"
+              }`}
+              style={{ fontFamily: '"Caveat", "Quicksand", "Comfortaa", cursive' }}
             >
-              <div className="h-full w-1/3 animate-[splash-slide_1.2s_ease-in-out_infinite] rounded-full bg-foreground/50" />
+              {phrase}
+            </p>
+
+            {/* Yarn ball loading bar */}
+            <div className="flex flex-col items-center gap-2 w-[min(80vw,320px)]">
+              <div
+                className="relative h-2 w-full overflow-visible rounded-full"
+                style={{ backgroundColor: "rgba(212, 165, 165, 0.25)" }}
+                role="progressbar"
+                aria-label="A carregar"
+                aria-valuenow={pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                {/* filled trail (unwound yarn) */}
+                <div
+                  className="h-full rounded-full transition-[width] duration-200 ease-linear"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundImage:
+                      "repeating-linear-gradient(90deg, #E8A5A5 0 6px, #D48A8A 6px 12px)",
+                  }}
+                />
+                {/* pink yarn ball */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+                  style={{ left: `${pct}%` }}
+                >
+                  <div
+                    className="relative h-6 w-6 rounded-full shadow-md animate-[yarn-roll_1.6s_linear_infinite]"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 35% 30%, #FFC4C4 0%, #F4A6A6 45%, #D88080 100%)",
+                    }}
+                  >
+                    <span className="absolute inset-0 rounded-full opacity-60"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(45deg, transparent 0 3px, rgba(255,255,255,0.35) 3px 4px), repeating-linear-gradient(-45deg, transparent 0 3px, rgba(160,80,80,0.25) 3px 4px)",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              {attempt > 1 && (
+                <p className="text-[11px] text-[#6B5B73]/70">
+                  A tentar novamente… ({attempt}/{MAX_ATTEMPTS})
+                </p>
+              )}
             </div>
-            {attempt > 1 && (
-              <p className="text-[11px] text-foreground/55">
-                A tentar novamente… ({attempt}/{MAX_ATTEMPTS})
-              </p>
-            )}
-          </div>
+          </>
         ) : (
           <div className="mx-auto max-w-sm rounded-xl border border-foreground/10 bg-background/60 p-5 text-center shadow-sm">
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
@@ -122,14 +269,14 @@ export function SplashScreen() {
         )}
       </div>
       <footer className="pb-[max(1.25rem,env(safe-area-inset-bottom))] px-6 text-center">
-        <p className="font-display text-[11px] tracking-wide text-foreground/55">
+        <p className="font-display text-[11px] tracking-wide text-[#6B5B73]/70">
           © 2026 Crafts Business Master. All rights reserved to Craft Mistress.
         </p>
       </footer>
       <style>{`
-        @keyframes splash-slide {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
+        @keyframes yarn-roll {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
