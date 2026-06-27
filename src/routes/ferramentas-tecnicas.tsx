@@ -294,18 +294,20 @@ function TricotinTab() {
     const off = document.createElement("canvas");
     renderClean(off);
     const dataUrl = off.toDataURL("image/png");
-    const host = document.getElementById("tricotin-print-host");
-    if (host) {
-      host.innerHTML = `<img src="${dataUrl}" style="width:21cm;height:29.7cm;display:block;" />`;
-      document.body.classList.add("tricotin-printing");
-      const cleanup = () => {
-        document.body.classList.remove("tricotin-printing");
-        host.innerHTML = "";
-        window.removeEventListener("afterprint", cleanup);
-      };
-      window.addEventListener("afterprint", cleanup);
-      setTimeout(() => window.print(), 50);
-    }
+    // Build a top-level overlay attached directly to <body> so the print CSS
+    // can reliably hide everything else.
+    const host = document.createElement("div");
+    host.id = "tricotin-print-host";
+    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:21cm;height:29.7cm;display:block;page-break-inside:avoid;" />`;
+    document.body.appendChild(host);
+    document.body.classList.add("tricotin-printing");
+    const cleanup = () => {
+      document.body.classList.remove("tricotin-printing");
+      host.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    setTimeout(() => window.print(), 80);
   };
 
   // Keyboard shortcuts
