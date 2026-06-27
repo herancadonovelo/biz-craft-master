@@ -6,8 +6,8 @@ export function SplashScreen() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = window.setTimeout(() => setFading(true), 1800);
-    const removeTimer = window.setTimeout(() => setVisible(false), 2500);
+    const fadeTimer = window.setTimeout(() => setFading(true), 6300);
+    const removeTimer = window.setTimeout(() => setVisible(false), 7000);
     return () => {
       window.clearTimeout(fadeTimer);
       window.clearTimeout(removeTimer);
