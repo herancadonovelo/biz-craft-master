@@ -493,7 +493,8 @@ function TricotinTab() {
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
     }
-  }, [nodes, isClosedPath, lineWidthTricotin]);
+    if (showRuler) drawRuler(ctx);
+  }, [nodes, isClosedPath, lineWidthTricotin, showRuler]);
 
   React.useEffect(() => { draw(); }, [draw]);
 
