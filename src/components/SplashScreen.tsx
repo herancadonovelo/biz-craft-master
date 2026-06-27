@@ -116,13 +116,13 @@ export function SplashScreen() {
     const kick = window.setTimeout(() => {
       setPhrase((prev) => pickPhrase(prev));
       setPhraseVisible(true);
-    }, 400);
+    }, FADE_DURATION);
     const id = window.setInterval(() => {
       setPhraseVisible(false);
       window.setTimeout(() => {
         setPhrase((prev) => pickPhrase(prev));
         setPhraseVisible(true);
-      }, 400);
+      }, FADE_DURATION);
     }, PHRASE_INTERVAL);
     return () => {
       window.clearTimeout(kick);
@@ -228,10 +228,10 @@ export function SplashScreen() {
           <>
             {/* Dynamic phrase */}
             <p
-              className={`min-h-[2.5rem] max-w-[20rem] text-center text-base sm:text-lg italic text-[#6B5B73] transition-opacity duration-400 ease-in-out ${
+              className={`min-h-[2.5rem] max-w-[22rem] text-center text-base sm:text-lg font-medium text-[#5A4A63] transition-opacity duration-[900ms] ease-in-out ${
                 phraseVisible ? "opacity-100" : "opacity-0"
               }`}
-              style={{ fontFamily: '"Caveat", "Quicksand", "Comfortaa", cursive' }}
+              style={{ fontFamily: '"Quicksand", "Nunito", "Comfortaa", system-ui, sans-serif' }}
             >
               {phrase}
             </p>
