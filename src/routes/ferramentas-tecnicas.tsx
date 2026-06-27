@@ -528,19 +528,29 @@ function TricotinTab() {
                   const transform = `translate(${o.x} ${o.y}) rotate(${o.rot}) scale(${o.scale})`;
                   if (o.kind === "path") {
                     const corLinha = caligrafia ? "#cbd5e1" : o.stroke;
+                    const aStyle = arrowStyles[o.id] ?? "triangle";
                     return (
-                      <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : "crosshair" }}>
+                      <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : tool === "move" ? "grab" : "crosshair" }}>
+                        {sel && (
+                          <path d={o.d} stroke="#1e88e5" strokeWidth={o.strokeWidth + 6} fill="none"
+                                strokeLinecap="round" strokeLinejoin="round" opacity={0.25} pointerEvents="none" />
+                        )}
                         <path d={o.d} stroke={corLinha} strokeWidth={o.strokeWidth} fill="none"
                               strokeLinecap="round" strokeLinejoin="round"
                               filter={realista ? "url(#yarn)" : undefined}
                               style={realista ? { strokeDasharray: `${o.strokeWidth * 0.6} ${o.strokeWidth * 0.3}` } : undefined} />
                         {arrowedPaths.has(o.id) && arrowsForPath(o.d).map((a, i) => (
-                          <polygon key={i}
-                            points="-6,-4 0,0 -6,4"
-                            fill="#111"
-                            transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`} />
+                          <g key={i} transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`}>
+                            {aStyle === "triangle" && <polygon points="-8,-5 0,0 -8,5" fill="#111" />}
+                            {aStyle === "open" && <polyline points="-8,-5 0,0 -8,5" fill="none" stroke="#111" strokeWidth="1.5" />}
+                            {aStyle === "line" && <line x1="-10" y1="0" x2="0" y2="0" stroke="#111" strokeWidth="2" />}
+                          </g>
                         ))}
-                        {sel && <SelectionFrame w={120} h={120} />}
+                        {sel && tool === "select" && o.pts && o.pts.map((q, i) => (
+                          <circle key={`v${i}`} cx={q.x} cy={q.y} r={5 / Math.max(0.5, zoom)} fill="#ef4444" stroke="#fff" strokeWidth={1.5 / Math.max(0.5, zoom)}
+                            style={{ cursor: "grab" }}
+                            onPointerDown={(e) => startVertexDrag(e, o.id, i)} />
+                        ))}
                       </g>
                     );
                   }
