@@ -141,6 +141,7 @@ function snap(v: number, on: boolean, step = PX_PER_CM / 2) {
 }
 
 function TricotinTab() {
+  const addToStore = useStore((s) => s.add);
   type NodeType = "start" | "straight" | "curve";
   type PtNode = { id: string; x: number; y: number; type: NodeType; ctrlX?: number; ctrlY?: number };
   type Mode = "select" | "straight" | "curve";
@@ -273,7 +274,23 @@ function TricotinTab() {
     const item: SavedMold = { id: Math.random().toString(36).slice(2, 9), name, nodes, isClosedPath, lineWidthTricotin, savedAt: Date.now() };
     const next = [item, ...savedMolds];
     setSavedMolds(next); writeSaved(next);
-    alert(`Guardado como "${name}".`);
+    // Também guarda na Biblioteca como snapshot PNG (categoria Tricotin)
+    try {
+      const off = document.createElement("canvas");
+      renderClean(off);
+      const dataUrl = off.toDataURL("image/png");
+      addToStore("biblioteca", {
+        titulo: name,
+        categoria: "Tricotin",
+        tipo: "molde",
+        descricao: `Molde de tricotin · ${nodes.length} nós · ${totalLengthCm.toFixed(1)} cm de arame`,
+        ficheiroBase64: dataUrl,
+        criadoEm: new Date().toISOString(),
+      } as any);
+      toast.success(`Molde "${name}" guardado na Biblioteca › Tricotin.`);
+    } catch {
+      alert(`Guardado como "${name}".`);
+    }
   };
   const loadSaved = (id: string) => {
     const item = savedMolds.find((m) => m.id === id); if (!item) return;
@@ -540,14 +557,14 @@ function TricotinTab() {
       });
       ctx.restore();
 
-      // Layer 3: nodes (all red) & control handles (dark red w/ border)
+      // Layer 3: nodes (cinza 70% escuro) & control handles (cinza mais escuro c/ contorno branco)
       nodes.forEach((n) => {
         if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          ctx.fillStyle = "#7f1d1d";
+          ctx.fillStyle = "#333333";
           ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         }
-        ctx.fillStyle = "#FF0000";
+        ctx.fillStyle = "#4d4d4d";
         ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
@@ -714,6 +731,65 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
+      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
+        <div className="relative">
+          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
+            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
+          </div>
+          <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          className="block touch-none"
+          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
+          />
+        </div>
+      </div>
+      {/* Gestão do Molde (abaixo da folha de desenho) */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
+        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
+        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na Biblioteca</button>
+        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
+        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
+        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
+        />
+        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
+        {savedMolds.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <select
+              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            <select
+              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Apagar…</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
       {/* Calibração de escala mm/cm */}
       <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
         <span className="font-medium text-muted-foreground">Calibração de escala:</span>
@@ -766,67 +842,8 @@ function TricotinTab() {
           </span>
         </div>
       </div>
-      {/* Gestão do Molde */}
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
-        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
-        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na APP</button>
-        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
-        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
-        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json"
-          className="hidden"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
-        />
-        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
-        {savedMolds.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">
-            <select
-              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
-              className="rounded border bg-background px-2 py-1 text-xs"
-              defaultValue=""
-            >
-              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
-              {savedMolds.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-            <select
-              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
-              className="rounded border bg-background px-2 py-1 text-xs"
-              defaultValue=""
-            >
-              <option value="" disabled>Apagar…</option>
-              {savedMolds.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
-        <div className="relative">
-          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
-            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
-            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
-          </div>
-          <canvas
-          ref={canvasRef}
-          width={W}
-          height={H}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          className="block touch-none"
-          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
-          />
-        </div>
-      </div>
       <p className="text-xs text-muted-foreground tricotin-no-print">
-        Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
+        Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
       <style>{`
         @media print {
