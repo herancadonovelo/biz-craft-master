@@ -161,7 +161,8 @@ function TricotinTab() {
   >(null);
   const didDragRef = React.useRef(false);
 
-  const W = 900, H = 560, HIT = 12;
+  // A4 portrait proportion (1 : 1.414). Use A4_W (595px) so PX_PER_CM stays exact.
+  const W = A4_W, H = A4_H, HIT = 12;
 
   // ---------- Undo / Redo ----------
   type Snap = { nodes: PtNode[]; isClosedPath: boolean };
@@ -198,23 +199,115 @@ function TricotinTab() {
   };
 
   // ---------- Save / Load ----------
-  const STORAGE_KEY = "tricotin-mold-v1";
-  const saveMold = () => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, isClosedPath, lineWidthTricotin }));
-      alert("Molde guardado.");
-    } catch { alert("Erro ao guardar."); }
+  // ---------- Saved molds (LocalStorage list) ----------
+  type SavedMold = { id: string; name: string; nodes: PtNode[]; isClosedPath: boolean; lineWidthTricotin: number; savedAt: number };
+  const STORAGE_KEY = "tricotin-molds-v1";
+  const readSaved = (): SavedMold[] => {
+    try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
   };
-  const loadMold = () => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) { alert("Nenhum molde guardado."); return; }
-      const data = JSON.parse(raw);
-      pushHistory();
-      setNodes(Array.isArray(data.nodes) ? data.nodes : []);
-      setIsClosedPath(!!data.isClosedPath);
-      if (typeof data.lineWidthTricotin === "number") setLineWidthTricotin(data.lineWidthTricotin);
-    } catch { alert("Erro ao carregar."); }
+  const writeSaved = (arr: SavedMold[]) => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch { /* noop */ }
+  };
+  const [savedMolds, setSavedMolds] = React.useState<SavedMold[]>(() => (typeof window !== "undefined" ? readSaved() : []));
+  const saveToApp = () => {
+    if (nodes.length === 0) { alert("Nada para guardar."); return; }
+    const name = window.prompt("Nome do molde:", `Molde ${new Date().toLocaleString()}`);
+    if (!name) return;
+    const item: SavedMold = { id: Math.random().toString(36).slice(2, 9), name, nodes, isClosedPath, lineWidthTricotin, savedAt: Date.now() };
+    const next = [item, ...savedMolds];
+    setSavedMolds(next); writeSaved(next);
+    alert(`Guardado como "${name}".`);
+  };
+  const loadSaved = (id: string) => {
+    const item = savedMolds.find((m) => m.id === id); if (!item) return;
+    pushHistory();
+    setNodes(item.nodes.map((n) => ({ ...n })));
+    setIsClosedPath(item.isClosedPath);
+    setLineWidthTricotin(item.lineWidthTricotin);
+  };
+  const deleteSaved = (id: string) => {
+    if (!confirm("Apagar este molde guardado?")) return;
+    const next = savedMolds.filter((m) => m.id !== id);
+    setSavedMolds(next); writeSaved(next);
+  };
+
+  // ---------- Render clean (no grid, no handles) — used for PNG/print ----------
+  const renderClean = (target: HTMLCanvasElement) => {
+    target.width = W; target.height = H;
+    const ctx = target.getContext("2d"); if (!ctx) return;
+    ctx.clearRect(0, 0, W, H);
+    if (nodes.length === 0) return;
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#000000"; ctx.lineWidth = lineWidthTricotin;
+    ctx.beginPath();
+    ctx.moveTo(nodes[0].x, nodes[0].y);
+    for (let i = 1; i < nodes.length; i++) {
+      const n = nodes[i];
+      if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) ctx.quadraticCurveTo(n.ctrlX, n.ctrlY, n.x, n.y);
+      else ctx.lineTo(n.x, n.y);
+    }
+    if (isClosedPath && nodes.length > 1) {
+      const first = nodes[0];
+      if (first.type === "curve" && first.ctrlX != null && first.ctrlY != null) ctx.quadraticCurveTo(first.ctrlX, first.ctrlY, first.x, first.y);
+      else ctx.lineTo(first.x, first.y);
+    }
+    ctx.stroke();
+  };
+
+  // ---------- Export: JSON ----------
+  const exportJSON = () => {
+    const payload = { version: 1, nodes, isClosedPath, lineWidthTricotin, pxPerCm: PX_PER_CM, canvas: { w: W, h: H } };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `molde-tricotin-${Date.now()}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+  // Load .json file from device into editor
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const importJSON = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result));
+        if (!Array.isArray(data.nodes)) throw new Error("inválido");
+        pushHistory();
+        setNodes(data.nodes);
+        setIsClosedPath(!!data.isClosedPath);
+        if (typeof data.lineWidthTricotin === "number") setLineWidthTricotin(data.lineWidthTricotin);
+      } catch { alert("Ficheiro inválido."); }
+    };
+    reader.readAsText(file);
+  };
+  // ---------- Export: PNG (transparent) ----------
+  const exportPNG = () => {
+    const off = document.createElement("canvas");
+    renderClean(off);
+    off.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = `molde-tricotin-${Date.now()}.png`;
+      a.click(); URL.revokeObjectURL(url);
+    }, "image/png");
+  };
+  // ---------- Print: A4 real size ----------
+  const printMold = () => {
+    const off = document.createElement("canvas");
+    renderClean(off);
+    const dataUrl = off.toDataURL("image/png");
+    // Build a top-level overlay attached directly to <body> so the print CSS
+    // can reliably hide everything else.
+    const host = document.createElement("div");
+    host.id = "tricotin-print-host";
+    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:21cm;height:29.7cm;display:block;page-break-inside:avoid;" />`;
+    document.body.appendChild(host);
+    document.body.classList.add("tricotin-printing");
+    const cleanup = () => {
+      document.body.classList.remove("tricotin-printing");
+      host.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    setTimeout(() => window.print(), 80);
   };
 
   // Keyboard shortcuts
@@ -474,12 +567,50 @@ function TricotinTab() {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
           <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
-          <button onClick={saveMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar</button>
-          <button onClick={loadMold} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Carregar</button>
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white">
+      {/* Gestão do Molde */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
+        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
+        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na APP</button>
+        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
+        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
+        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
+        />
+        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
+        {savedMolds.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <select
+              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            <select
+              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Apagar…</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
         <canvas
           ref={canvasRef}
           width={W}
@@ -489,12 +620,24 @@ function TricotinTab() {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           className="block touch-none"
-          style={{ width: "100%", height: "auto", cursor: mode === "select" ? "grab" : "crosshair" }}
+          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 0; }
+          body.tricotin-printing > *:not(#tricotin-print-host) { display: none !important; }
+          body.tricotin-printing #tricotin-print-host {
+            position: fixed; inset: 0; background: #fff; z-index: 999999;
+            display: block !important; page-break-inside: avoid;
+          }
+          body.tricotin-printing { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+          body.tricotin-printing #tricotin-print-host img { page-break-inside: avoid; }
+        }
+      `}</style>
     </div>
   );
 }
