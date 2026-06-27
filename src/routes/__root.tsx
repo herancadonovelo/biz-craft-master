@@ -26,6 +26,7 @@ import { PaywallDialog } from "@/components/PaywallDialog";
 import { PreviewModeBanner } from "@/components/PreviewModeBanner";
 import { PreviewExitFab } from "@/components/PreviewExitFab";
 import { SplashScreen } from "@/components/SplashScreen";
+import { AtelierSoundsProvider } from "@/lib/atelier-sounds";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -194,6 +195,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
       <SubscriptionProvider>
+      <AtelierSoundsProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <AppSidebar />
@@ -218,6 +220,7 @@ function RootComponent() {
         <PreviewExitFab />
         <SplashScreen />
       </SidebarProvider>
+      </AtelierSoundsProvider>
       </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>
