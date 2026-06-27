@@ -95,6 +95,8 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
       { title: "Moodboards & Inspiração", url: "/moodboards", icon: PaletteIcon },
       { title: "Editor de Moodboards", url: "/editor-moodboards", icon: PaletteIcon },
+      { title: "Conversor de cores: DMC/ANCHOR...", url: "/conversor-cores", icon: PaletteIcon },
+      { title: "Ferramentas Técnicas: Editores", url: "/ferramentas-tecnicas", icon: Ruler },
       { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
       { title: "Contador de Carreiras", url: "/contador", icon: Hash },
       { title: "Editor de Receita", url: "/editor-receita", icon: PenSquare },
