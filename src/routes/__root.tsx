@@ -190,8 +190,18 @@ function RootComponent() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", design.modo === "dark");
-    root.style.setProperty("--accent", `oklch(${design.accent})`);
-    root.style.setProperty("--sidebar-primary", `oklch(${design.accent})`);
+    const accent = `oklch(${design.accent})`;
+    // Determine readable foreground based on luminance (first oklch component)
+    const lum = Number(design.accent.split(/\s+/)[0]) || 0.7;
+    const fg = lum > 0.6 ? "oklch(0.18 0.03 258)" : "oklch(0.985 0.003 247)";
+    root.style.setProperty("--accent", accent);
+    root.style.setProperty("--accent-foreground", fg);
+    root.style.setProperty("--primary", accent);
+    root.style.setProperty("--primary-foreground", fg);
+    root.style.setProperty("--ring", accent);
+    root.style.setProperty("--sidebar-primary", accent);
+    root.style.setProperty("--sidebar-primary-foreground", fg);
+    root.style.setProperty("--sidebar-ring", accent);
     root.style.setProperty("--radius", `${design.raio}rem`);
   }, [design]);
 
