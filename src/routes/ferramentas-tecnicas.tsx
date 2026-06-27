@@ -238,7 +238,9 @@ function TricotinTab() {
 
   const ptSvg = (e: React.PointerEvent<SVGSVGElement>) => {
     const p = ponto(e, svgRef.current!);
-    return { x: snap(p.x, snapOn), y: snap(p.y, snapOn) };
+    const wx = (p.x - viewDx) / zoom;
+    const wy = (p.y - viewDy) / zoom;
+    return { x: snap(wx, snapOn), y: snap(wy, snapOn) };
   };
 
   const addPath = (d: string) => {
@@ -250,6 +252,12 @@ function TricotinTab() {
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     const p = ptSvg(e);
     if (tool === "select") { setSelected(new Set()); return; }
+    if (tool === "move") {
+      const raw = ponto(e, svgRef.current!);
+      panRef.current = { sx: raw.x, sy: raw.y, dx: viewDx, dy: viewDy };
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      return;
+    }
     if (tool === "measure") {
       setMeasurePts((m) => (m.length >= 2 ? [p] : [...m, p]));
       return;
@@ -285,10 +293,16 @@ function TricotinTab() {
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
     if ((tool === "line" || tool === "curve") && polyPts.length > 0) {
-      setHoverPt(ponto(e, svgRef.current!));
+      const r = ponto(e, svgRef.current!);
+      setHoverPt({ x: (r.x - viewDx) / zoom, y: (r.y - viewDy) / zoom });
+    }
+    if (panRef.current) {
+      const raw = ponto(e, svgRef.current!);
+      setViewDx(panRef.current.dx + (raw.x - panRef.current.sx));
+      setViewDy(panRef.current.dy + (raw.y - panRef.current.sy));
     }
   };
-  const onUp = () => {};
+  const onUp = () => { panRef.current = null; };
 
   const selectObj = (id: string, additive = false) => {
     setSelected((s) => {
@@ -299,24 +313,46 @@ function TricotinTab() {
   };
 
   const startDrag = (e: React.PointerEvent, id: string) => {
-    // Permite mover qualquer vetor independentemente da ferramenta ativa
+    if (tool === "move") return;
     e.stopPropagation();
-    const p = ponto(e as any, svgRef.current!);
+    const raw = ponto(e as any, svgRef.current!);
+    const p = { x: (raw.x - viewDx) / zoom, y: (raw.y - viewDy) / zoom };
     const o = objs.find((x) => x.id === id)!;
     dragRef.current = { id, sx: p.x, sy: p.y, ox: o.x, oy: o.y };
     selectObj(id, e.shiftKey);
     (e.target as Element).setPointerCapture?.(e.pointerId);
   };
+
+  const startVertexDrag = (e: React.PointerEvent, pathId: string, index: number) => {
+    if (tool !== "select") return;
+    e.stopPropagation();
+    vertexDragRef.current = { pathId, index };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  };
+
   const onSvgPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
     onMove(e);
+    if (vertexDragRef.current) {
+      const raw = ponto(e, svgRef.current!);
+      const wx = snap((raw.x - viewDx) / zoom, snapOn);
+      const wy = snap((raw.y - viewDy) / zoom, snapOn);
+      const { pathId, index } = vertexDragRef.current;
+      setObjs((s) => s.map((o) => {
+        if (o.id !== pathId || o.kind !== "path" || !o.pts) return o;
+        const npts = o.pts.map((q, i) => i === index ? { x: wx, y: wy } : q);
+        return { ...o, pts: npts, d: buildPoly(npts, o.mode ?? "line", !!o.closed) };
+      }));
+      return;
+    }
     if (!dragRef.current) return;
-    const p = ponto(e, svgRef.current!);
+    const raw = ponto(e, svgRef.current!);
+    const p = { x: (raw.x - viewDx) / zoom, y: (raw.y - viewDy) / zoom };
     const dx = p.x - dragRef.current.sx;
     const dy = p.y - dragRef.current.sy;
     const id = dragRef.current.id;
     setObjs((s) => s.map((o) => o.id === id ? { ...o, x: snap(dragRef.current!.ox + dx, snapOn), y: snap(dragRef.current!.oy + dy, snapOn) } : o));
   };
-  const endDrag = () => { dragRef.current = null; onUp(); };
+  const endDrag = () => { dragRef.current = null; vertexDragRef.current = null; onUp(); };
 
   const apagar = () => setObjs((s) => s.filter((o) => !selected.has(o.id)));
   const unirPaths = () => {
