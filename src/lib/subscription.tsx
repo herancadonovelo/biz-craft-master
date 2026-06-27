@@ -102,10 +102,12 @@ interface SubCtx {
   startTrial: (plan: Plan, cycle?: BillingCycle) => Promise<void>;
   setPlan: (plan: Plan, cycle?: BillingCycle) => Promise<void>;
   paywall: { open: boolean; required: Plan; feature?: string } | null;
-  showPaywall: (required: Plan, feature?: string) => void;
+  showPaywall: (required: Plan, feature?: string, redirectTo?: string) => void;
   closePaywall: () => void;
   hasAccess: (required: Plan) => boolean;
-  requireAccess: (required: Plan, feature?: string) => boolean;
+  requireAccess: (required: Plan, feature?: string, redirectTo?: string) => boolean;
+  pendingRedirect: string | null;
+  clearPendingRedirect: () => void;
   redeemPromoCode: (code: string) => Promise<{ ok: boolean; lifetime?: boolean; discountPercent?: number; message: string }>;
 }
 
@@ -118,6 +120,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [trialEnds, setTrialEnds] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [paywall, setPaywall] = useState<SubCtx["paywall"]>(null);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
 
   const isLifetime = plan === "premium_vitalicio";
   const trialActive = !isLifetime && !!(trialEnds && trialEnds.getTime() > Date.now());
@@ -144,6 +147,31 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { if (!authLoading) refresh(); /* eslint-disable-next-line */ }, [user?.id, authLoading]);
 
+  // Refresca permissões automaticamente quando a janela volta a ganhar foco
+  // (cobre cenários como upgrade feito noutra aba, Google Play, webhook, etc.)
+  useEffect(() => {
+    if (!user) return;
+    const onFocus = () => { refresh(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  // Realtime: ouve alterações ao perfil (upgrade, trial, vitalício) e refresca
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel(`profile-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
+        () => { refresh(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
     const { error } = await supabase.from("profiles").update({ subscription_status: next, billing_cycle: cycle } as never).eq("user_id", user.id);
@@ -165,11 +193,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   };
 
   const hasAccess = (required: Plan) => RANK[effectivePlan] >= RANK[required];
-  const showPaywall = (required: Plan, feature?: string) => setPaywall({ open: true, required, feature });
+  const showPaywall = (required: Plan, feature?: string, redirectTo?: string) => {
+    setPaywall({ open: true, required, feature });
+    if (redirectTo) setPendingRedirect(redirectTo);
+  };
   const closePaywall = () => setPaywall(null);
-  const requireAccess = (required: Plan, feature?: string) => {
+  const clearPendingRedirect = () => setPendingRedirect(null);
+  const requireAccess = (required: Plan, feature?: string, redirectTo?: string) => {
     if (hasAccess(required)) return true;
-    showPaywall(required, feature);
+    showPaywall(required, feature, redirectTo);
     return false;
   };
 
@@ -249,7 +281,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess, redeemPromoCode }}>
+    <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess, pendingRedirect, clearPendingRedirect, redeemPromoCode }}>
       {children}
     </Ctx.Provider>
   );

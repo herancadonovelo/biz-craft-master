@@ -236,7 +236,7 @@ export function AppSidebar() {
                           tooltip={`${it.title} — requer ${required.toUpperCase()}`}
                           onClick={(e) => {
                             e.preventDefault();
-                            showPaywall(required, it.title);
+                            showPaywall(required, it.title, it.url);
                           }}
                           className="opacity-60"
                         >
