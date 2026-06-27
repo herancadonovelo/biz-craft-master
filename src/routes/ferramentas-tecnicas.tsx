@@ -143,7 +143,7 @@ function TricotinTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
 
-  type Tool = "select" | "line" | "curve" | "text" | "measure";
+  type Tool = "select" | "line" | "curve" | "text" | "measure" | "number" | "label";
   const [tool, setTool] = useState<Tool>("curve");
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [stroke, setStroke] = useState("#222222");
@@ -159,6 +159,21 @@ function TricotinTab() {
   const drawPts = useRef<{ x: number; y: number }[]>([]);
   const drawing = useRef(false);
   const dragRef = useRef<{ id: string; sx: number; sy: number; ox: number; oy: number } | null>(null);
+
+  // Guias avançadas
+  const [pautaOn, setPautaOn] = useState(false);
+  const [pautaH, setPautaH] = useState(2);          // altura da letra em cm
+  const [pautaY, setPautaY] = useState(6);          // posição vertical do topo, cm
+  const [caligrafia, setCaligrafia] = useState(false);
+  const [arrowedPaths, setArrowedPaths] = useState<Set<string>>(new Set());
+  const [numeros, setNumeros] = useState<{ id: string; x: number; y: number; n: number }[]>([]);
+  const [etiquetas, setEtiquetas] = useState<{ id: string; x: number; y: number; lx: number; ly: number; texto: string }[]>([]);
+  const ETIQUETAS_PRE = ["Por trás", "Pela frente", "Cruzamento", "Início", "Fim", "Dobrar"];
+
+  // Integração com Stock de Material
+  const materiais = useStore((s) => s.materiais);
+  const [arameMaterialId, setArameMaterialId] = useState<string>("");
+  const addMaterial = useStore((s) => s.add);
 
   // Carregar fontes do Google sob demanda
   useEffect(() => {
