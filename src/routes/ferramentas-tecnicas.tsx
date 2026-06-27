@@ -933,6 +933,9 @@ function BordadoTab() {
   const [imagemFundo, setImagemFundo] = useState<string>("");
   const [contornos, setContornos] = useState<string[]>([]);
   const [limiar, setLimiar] = useState(128);
+  const [suavizar, setSuavizar] = useState(1);          // iterações de Chaikin
+  const [minSeg, setMinSeg] = useState(4);              // px mínimos
+  const [separados, setSeparados] = useState(true);     // gerar caminhos separados ou unidos
   const [aTrabalhar, setATrabalhar] = useState(false);
   const drawing = useRef(false);
 
@@ -973,22 +976,63 @@ function BordadoTab() {
         const c = lum[y * W + x];
         if (c !== lum[y * W + x + 1] || c !== lum[(y + 1) * W + x]) edge[y * W + x] = 1;
       }
-      // Agrupar pixels em traços lineares por linha (fast & legível)
-      const novos: string[] = [];
+      // Extrair segmentos contínuos de aresta linha-a-linha
       const sx = A4_W / W, sy = A4_H / H;
+      type Seg = { x1: number; y1: number; x2: number; y2: number };
+      const segs: Seg[] = [];
       for (let y = 0; y < H; y++) {
         let start = -1;
         for (let x = 0; x < W; x++) {
           if (edge[y * W + x]) {
             if (start < 0) start = x;
           } else if (start >= 0) {
-            if (x - start >= 2) novos.push(`M ${(start * sx).toFixed(1)} ${(y * sy).toFixed(1)} L ${((x - 1) * sx).toFixed(1)} ${(y * sy).toFixed(1)}`);
+            const len = x - start;
+            if (len >= minSeg) segs.push({ x1: start * sx, y1: y * sy, x2: (x - 1) * sx, y2: y * sy });
             start = -1;
           }
         }
       }
+      // Suavização Chaikin (cada iteração corta cantos)
+      const chaikin = (pts: { x: number; y: number }[], it: number) => {
+        let p = pts;
+        for (let k = 0; k < it; k++) {
+          const out: { x: number; y: number }[] = [];
+          for (let i = 0; i < p.length - 1; i++) {
+            const a = p[i], b = p[i + 1];
+            out.push({ x: a.x + (b.x - a.x) * 0.25, y: a.y + (b.y - a.y) * 0.25 });
+            out.push({ x: a.x + (b.x - a.x) * 0.75, y: a.y + (b.y - a.y) * 0.75 });
+          }
+          p = out;
+        }
+        return p;
+      };
+      const segToPath = (s: Seg) => {
+        const sm = chaikin([{ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 }], suavizar);
+        return "M " + sm.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ");
+      };
+      let novos: string[];
+      if (separados) {
+        novos = segs.map(segToPath);
+      } else {
+        // Encadear segmentos contíguos da mesma linha num único caminho
+        const grouped = new Map<number, Seg[]>();
+        segs.forEach((s) => {
+          const row = Math.round(s.y1);
+          (grouped.get(row) ?? grouped.set(row, []).get(row)!).push(s);
+        });
+        novos = [];
+        for (const list of grouped.values()) {
+          list.sort((a, b) => a.x1 - b.x1);
+          let d = "";
+          list.forEach((s, i) => {
+            const sm = chaikin([{ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 }], suavizar);
+            d += (i === 0 ? "M " : " M ") + sm.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ");
+          });
+          if (d) novos.push(d);
+        }
+      }
       setContornos(novos);
-      toast.success(`${novos.length} contornos gerados.`);
+      toast.success(`${novos.length} contorno(s) gerado(s).`);
     } catch (e) {
       toast.error("Falha na vetorização: " + (e as Error).message);
     } finally {
@@ -1016,6 +1060,20 @@ function BordadoTab() {
           <div>
             <Label className="text-xs">Limiar de contraste ({limiar})</Label>
             <Slider value={[limiar]} min={40} max={220} step={5} onValueChange={(v) => setLimiar(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Suavização ({suavizar}×)</Label>
+            <Slider value={[suavizar]} min={0} max={4} step={1} onValueChange={(v) => setSuavizar(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Remover áreas pequenas (&lt; {minSeg}px)</Label>
+            <Slider value={[minSeg]} min={1} max={30} step={1} onValueChange={(v) => setMinSeg(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Caminhos separados</Label>
+            <Button size="sm" variant={separados ? "default" : "outline"} onClick={() => setSeparados((v) => !v)}>
+              {separados ? "Sim" : "Unidos por linha"}
+            </Button>
           </div>
           <Button size="sm" onClick={vetorizar} disabled={aTrabalhar || !imagemFundo}>
             <Sparkles className="mr-1 h-3 w-3" />{aTrabalhar ? "A vetorizar..." : "Vetorizar imagem"}
