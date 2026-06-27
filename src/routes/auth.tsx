@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth-state";
+import { consumeIntendedPath } from "@/components/AuthGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,13 +25,23 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { if (!loading && user) nav({ to: "/" }); }, [user, loading, nav]);
+  useEffect(() => {
+    if (!loading && user) {
+      const target = consumeIntendedPath();
+      nav({ to: (target as any) || "/" });
+    }
+  }, [user, loading, nav]);
 
   const signIn = async () => {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) toast.error(error.message); else { toast.success("Sessão iniciada"); nav({ to: "/" }); }
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Sessão iniciada");
+      const target = consumeIntendedPath();
+      nav({ to: (target as any) || "/" });
+    }
   };
   const signUp = async () => {
     setBusy(true);
