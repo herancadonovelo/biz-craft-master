@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import logoAsset from "@/assets/craft-business-master-logo.png.asset.json";
 
 const CATALOGO: { grupo: string; itens: { url: string; titulo: string }[] }[] = [
   { grupo: "Visão geral", itens: [
@@ -76,6 +77,13 @@ export const Route = createFileRoute("/modulos")({
     const isOn = (url: string) => !algumAtivo || modulos[url] === true;
     return (
       <div className="space-y-6">
+        <div className="flex justify-center">
+          <img
+            src={logoAsset.url}
+            alt="Craft Business Master"
+            className="h-20 w-auto sm:h-24"
+          />
+        </div>
         <PageHeader title="Módulos ativos" description="Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo." />
         <Card><CardContent className="flex flex-wrap gap-2 p-4">
           <Button variant="outline" onClick={() => aplicar("essencial", "Preset essencial")}>Essencial</Button>
