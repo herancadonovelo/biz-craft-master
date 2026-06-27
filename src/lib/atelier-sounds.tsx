@@ -3,16 +3,18 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 export type MusicTrack = { id: string; title: string; artist?: string; url: string };
 export type AmbientKey = "rain" | "fire" | "cafe" | "wind" | "waves" | "thunder";
 
-// Public, royalty-free MP3s (Pixabay / cdn.pixabay.com). Direct, stable URLs.
+// Stable, copyright-free MP3s. SoundHelix tracks are public test files that
+// always respond with playable audio; Pixabay CDN links are kept as bonus
+// tracks. If any URL ever breaks, the player auto-skips to the next track.
 export const MUSIC_TRACKS: MusicTrack[] = [
-  { id: "px1", title: "Lo-Fi Study", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" },
-  { id: "px2", title: "Chill Lo-Fi", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/10/30/audio_347111d654.mp3?filename=chill-lofi-music-interior-122192.mp3" },
-  { id: "px3", title: "Coffee Relax", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=relaxing-145038.mp3" },
-  { id: "px4", title: "Jazz Lounge", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bdd.mp3?filename=jazzy-abstract-beat-8550.mp3" },
-  { id: "px5", title: "Slow Focus", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2023/06/05/audio_3c8d8c66a4.mp3?filename=lofi-chill-medium-version-159456.mp3" },
-  { id: "px6", title: "Late Night Tape", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/08/02/audio_2dde668d05.mp3?filename=lofi-chill-jazz-112190.mp3" },
-  { id: "px7", title: "Rainy Window Keys", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f49b83f.mp3?filename=piano-moment-9835.mp3" },
-  { id: "px8", title: "Crochet & Coffee", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2024/02/13/audio_8e83e2c92e.mp3?filename=relaxing-acoustic-guitar-191428.mp3" },
+  { id: "sh1", title: "Lo-Fi Study", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "sh2", title: "Chill Lo-Fi", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: "sh3", title: "Slow Focus", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+  { id: "sh4", title: "Late Night Tape", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+  { id: "sh5", title: "Crochet & Coffee", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+  { id: "sh6", title: "Atelier Beats", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+  { id: "sh7", title: "Soft Loom", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+  { id: "sh8", title: "Quiet Hands", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
 ];
 
 export const AMBIENT_LIST: { key: AmbientKey; label: string; emoji: string }[] = [
@@ -41,6 +43,8 @@ type Ctx = {
   // ambient mixer
   ambient: Record<AmbientKey, { enabled: boolean; volume: number }>;
   setAmbient: (k: AmbientKey, patch: Partial<{ enabled: boolean; volume: number }>) => void;
+  // playback error (auto-clears)
+  loadError: string | null;
   // sleep timer
   sleepRemaining: number; // seconds, 0 = off
   startSleep: (minutes: number) => void;
@@ -204,6 +208,15 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     thunder: { enabled: false, volume: 0.5 },
   });
   const [sleepRemaining, setSleepRemaining] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const failedRef = useRef<Set<number>>(new Set());
+  const errorClearRef = useRef<number | null>(null);
+
+  const flashError = (msg: string) => {
+    setLoadError(msg);
+    if (errorClearRef.current) window.clearTimeout(errorClearRef.current);
+    errorClearRef.current = window.setTimeout(() => setLoadError(null), 4000);
+  };
 
   // init audio element once
   useEffect(() => {
@@ -221,13 +234,40 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
         return n;
       });
     };
+    const onError = () => {
+      const idx = currentIndexRef.current;
+      console.error("[AtelierSounds] failed to load track", idx, MUSIC_TRACKS[idx]?.url);
+      failedRef.current.add(idx);
+      flashError("Erro ao carregar esta faixa, a tentar a próxima…");
+      if (failedRef.current.size >= MUSIC_TRACKS.length) {
+        flashError("Nenhuma faixa disponível de momento.");
+        setPlaying(false);
+        return;
+      }
+      // find next non-failed track
+      let n = (idx + 1) % MUSIC_TRACKS.length;
+      let guard = 0;
+      while (failedRef.current.has(n) && guard < MUSIC_TRACKS.length) {
+        n = (n + 1) % MUSIC_TRACKS.length;
+        guard++;
+      }
+      setCurrentIndex(n);
+      a.src = MUSIC_TRACKS[n].url;
+      a.play().catch(() => setPlaying(false));
+    };
     a.addEventListener("ended", onEnded);
+    a.addEventListener("error", onError);
     return () => {
       a.removeEventListener("ended", onEnded);
+      a.removeEventListener("error", onError);
       a.pause();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // keep a ref to current index so the error handler always sees the latest value
+  const currentIndexRef = useRef(currentIndex);
+  useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
 
   const ensureAudioContext = () => {
     if (acRef.current) return acRef.current;
@@ -256,6 +296,8 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     ensureAudioContext();
     acRef.current?.resume();
     const idx = typeof i === "number" ? i : currentIndex;
+    // a manual choice should clear that index from the failed set
+    if (typeof i === "number") failedRef.current.delete(idx);
     if (typeof i === "number" || !a.src) {
       a.src = MUSIC_TRACKS[idx].url;
       setCurrentIndex(idx);
@@ -316,9 +358,10 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     play, pause, toggle, next, prev,
     analyser,
     ambient, setAmbient,
+    loadError,
     sleepRemaining, startSleep, cancelSleep,
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [playing, currentIndex, volume, analyser, ambient, sleepRemaining]);
+  }), [playing, currentIndex, volume, analyser, ambient, sleepRemaining, loadError]);
 
   return <AtelierCtx.Provider value={value}>{children}</AtelierCtx.Provider>;
 }
