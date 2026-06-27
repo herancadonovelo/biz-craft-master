@@ -52,7 +52,7 @@ const CATALOGO: { grupo: string; itens: { url: string; titulo: string }[] }[] = 
     { url: "/gestao-fornecedores", titulo: "Gestão fornecedores" },
     { url: "/contas", titulo: "Contas & PIN" },
     { url: "/idioma", titulo: "Idioma" },
-    { url: "/perfil-negocio", titulo: "Perfil do negócio" },
+    { url: "/perfil-negocio", titulo: "Perfil Pessoal & Negócio" },
     { url: "/sincronizacao", titulo: "Sincronização" },
     { url: "/auditoria", titulo: "Auditoria" },
   ] },
