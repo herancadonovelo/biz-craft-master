@@ -18,7 +18,7 @@ import {
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
   Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
-  Pen, Link2,
+  Pen, Link2, Move, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -81,7 +81,7 @@ function InstrucoesTab() {
  */
 
 type ObjBase = { id: string; x: number; y: number; rot: number; scale: number; stroke: string; strokeWidth: number };
-type PathObj = ObjBase & { kind: "path"; d: string };
+type PathObj = ObjBase & { kind: "path"; d: string; pts?: { x: number; y: number }[]; mode?: "line" | "curve"; closed?: boolean };
 type TextObj = ObjBase & { kind: "text"; text: string; font: string; size: number };
 type AnyObj = PathObj | TextObj;
 
