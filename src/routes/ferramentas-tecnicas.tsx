@@ -17,7 +17,8 @@ import {
 } from "@/components/A4Export";
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
-  Combine, Sparkles, Grid3x3, Magnet, RotateCw,
+  Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
+  Pen,
 } from "lucide-react";
 import { toast } from "sonner";
 
