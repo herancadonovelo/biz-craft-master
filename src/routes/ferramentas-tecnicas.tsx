@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +15,11 @@ import { useStore, formatEUR } from "@/lib/store";
 import {
   A4Stage, ExportPanel, Watermark, WatermarkControls, useMarcaDAgua,
 } from "@/components/A4Export";
-import { Plus, Trash2, Eraser } from "lucide-react";
+import {
+  Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
+  Combine, Sparkles, Grid3x3, Magnet, RotateCw,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas: Editores" }] }),
