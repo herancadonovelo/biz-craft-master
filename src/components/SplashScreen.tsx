@@ -82,11 +82,11 @@ export function SplashScreen() {
       }`}
       style={{ backgroundColor: "oklch(0.985 0.005 95)" }}
     >
-      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 w-full">
         <img
           src={logo.url}
           alt="Craft Business Master"
-          className="w-96 max-w-[85vw] select-none animate-in fade-in zoom-in-95 duration-700"
+          className="select-none animate-in fade-in zoom-in-95 duration-700 object-contain mx-auto w-[min(70vw,70vh,420px)] h-auto"
           draggable={false}
         />
         {!error ? (
