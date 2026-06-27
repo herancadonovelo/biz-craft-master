@@ -89,6 +89,7 @@ type AnyObj = PathObj | TextObj;
 const A4_W = 595;
 const A4_H = 842;
 const PX_PER_CM = A4_W / 21; // ~28.33 px/cm
+const PX_PER_MM = PX_PER_CM / 10;
 
 const FONTES_50 = [
   "Inter","Roboto","Open Sans","Lato","Montserrat","Poppins","Oswald","Raleway","Nunito","Merriweather",
@@ -154,6 +155,9 @@ function TricotinTab() {
   const [gridStepCm, setGridStepCm] = React.useState<0.5 | 1>(0.5);
   const [snapAngleOn, setSnapAngleOn] = React.useState(false);
   const [angleStep, setAngleStep] = React.useState<15 | 45 | 90>(15);
+  // Calibração: régua mm/cm sobreposta (1:1 com A4 quando impresso)
+  const [showRuler, setShowRuler] = React.useState(false);
+  const [printRuler, setPrintRuler] = React.useState(false);
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
@@ -254,6 +258,86 @@ function TricotinTab() {
     ctx.stroke();
   };
 
+  // ---------- Régua mm/cm (calibração) ----------
+  // Desenha duas réguas (topo + esquerda) ao longo de toda a área A4.
+  // Tick 1mm (curto), 5mm (médio), 10mm = 1cm (longo, com número).
+  // Inclui ainda uma barra de verificação de 100 mm (10 cm) com etiqueta:
+  // se medires com régua física e der 10,0 cm => px↔mm está 1:1.
+  const drawRuler = (ctx: CanvasRenderingContext2D) => {
+    const BAND = 22; // espessura da régua em px (~7,8mm) — fora da área útil
+    ctx.save();
+    // Fundo das réguas
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.fillRect(0, 0, W, BAND);
+    ctx.fillRect(0, 0, BAND, H);
+    ctx.strokeStyle = "#111";
+    ctx.fillStyle = "#111";
+    ctx.lineWidth = 1;
+    ctx.font = "9px ui-sans-serif, system-ui, sans-serif";
+    ctx.textBaseline = "top";
+    // Linha base das réguas
+    ctx.beginPath();
+    ctx.moveTo(0, BAND + 0.5); ctx.lineTo(W, BAND + 0.5);
+    ctx.moveTo(BAND + 0.5, 0); ctx.lineTo(BAND + 0.5, H);
+    ctx.stroke();
+    // Topo: 0..210 mm
+    for (let mm = 0; mm <= 210; mm++) {
+      const x = BAND + mm * PX_PER_MM;
+      if (x > W) break;
+      const h = mm % 10 === 0 ? 12 : mm % 5 === 0 ? 8 : 4;
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, BAND);
+      ctx.lineTo(x + 0.5, BAND - h);
+      ctx.stroke();
+      if (mm % 10 === 0 && mm > 0) {
+        ctx.fillText(String(mm / 10), x + 1, 2);
+      }
+    }
+    // Esquerda: 0..297 mm
+    ctx.textBaseline = "alphabetic";
+    for (let mm = 0; mm <= 297; mm++) {
+      const y = BAND + mm * PX_PER_MM;
+      if (y > H) break;
+      const h = mm % 10 === 0 ? 12 : mm % 5 === 0 ? 8 : 4;
+      ctx.beginPath();
+      ctx.moveTo(BAND, y + 0.5);
+      ctx.lineTo(BAND - h, y + 0.5);
+      ctx.stroke();
+      if (mm % 10 === 0 && mm > 0) {
+        ctx.save();
+        ctx.translate(8, y + 3);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(String(mm / 10), 0, 0);
+        ctx.restore();
+      }
+    }
+    // Barra de verificação 10 cm (100 mm) — canto inferior esquerdo da área útil
+    const barLen = 100 * PX_PER_MM;
+    const barX = BAND + 20;
+    const barY = H - 28;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#111";
+    ctx.beginPath();
+    ctx.moveTo(barX, barY); ctx.lineTo(barX + barLen, barY);
+    ctx.moveTo(barX, barY - 6); ctx.lineTo(barX, barY + 6);
+    ctx.moveTo(barX + barLen, barY - 6); ctx.lineTo(barX + barLen, barY + 6);
+    ctx.stroke();
+    // ticks mm na barra
+    ctx.lineWidth = 1;
+    for (let mm = 0; mm <= 100; mm++) {
+      const x = barX + mm * PX_PER_MM;
+      const h = mm % 10 === 0 ? 6 : mm % 5 === 0 ? 4 : 2;
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, barY); ctx.lineTo(x + 0.5, barY - h);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#111";
+    ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillText("Verificação: 100 mm (10 cm) — mede com régua física", barX, barY + 6);
+    ctx.restore();
+  };
+
   // ---------- Export: JSON ----------
   const exportJSON = () => {
     const payload = { version: 1, nodes, isClosedPath, lineWidthTricotin, pxPerCm: PX_PER_CM, canvas: { w: W, h: H } };
@@ -293,6 +377,10 @@ function TricotinTab() {
   const printMold = () => {
     const off = document.createElement("canvas");
     renderClean(off);
+    if (printRuler) {
+      const ctx2 = off.getContext("2d");
+      if (ctx2) drawRuler(ctx2);
+    }
     const dataUrl = off.toDataURL("image/png");
     // Build a top-level overlay attached directly to <body> so the print CSS
     // can reliably hide everything else.
@@ -409,7 +497,8 @@ function TricotinTab() {
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
     }
-  }, [nodes, isClosedPath, lineWidthTricotin]);
+    if (showRuler) drawRuler(ctx);
+  }, [nodes, isClosedPath, lineWidthTricotin, showRuler]);
 
   React.useEffect(() => { draw(); }, [draw]);
 
@@ -569,6 +658,22 @@ function TricotinTab() {
           <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
+      </div>
+      {/* Calibração de escala mm/cm */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
+        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
+          Mostrar régua mm/cm no canvas
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
+          Incluir régua na impressão (verificação 1:1)
+        </label>
+        <span className="text-muted-foreground">
+          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
+          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
+        </span>
       </div>
       {/* Gestão do Molde */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
