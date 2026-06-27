@@ -126,8 +126,7 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.7;
     source.connect(bp).connect(gain);
     extra.push(bp);
-  } else {
-    // wind
+  } else if (key === "wind") {
     source = createNoise(ac, "pink");
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 500;
@@ -139,8 +138,7 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     lfo.start();
     source.connect(lp).connect(gain);
     extra.push(lp, lfo, lfoGain);
-  }
-  if (key === "waves") {
+  } else if (key === "waves") {
     source = createNoise(ac, "pink");
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 700;
@@ -155,7 +153,8 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     lfo.start();
     source.connect(lp).connect(tide).connect(gain);
     extra.push(lp, tide, lfo, lfoGain);
-  } else if (key === "thunder") {
+  } else {
+    // thunder
     // base: muffled rain
     source = createNoise(ac, "pink");
     const lp = ac.createBiquadFilter();
