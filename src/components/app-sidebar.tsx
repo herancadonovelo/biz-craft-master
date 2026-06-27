@@ -162,7 +162,7 @@ const getGroups = (t: (k: string) => string) => [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const nome = useStore((s) => s.design.nomeNegocio);
@@ -170,6 +170,11 @@ export function AppSidebar() {
   const t = useT();
   const allGroups = getGroups(t);
   // Se algum módulo estiver configurado, filtra; URLs nunca ocultadas: /modulos, /configuracoes, /onboarding
+  // Fechar drawer automaticamente em mobile ao mudar de rota
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname, isMobile, setOpenMobile]);
+
   const visivel = (url: string) => {
     if (["/modulos", "/configuracoes", "/onboarding"].includes(url)) return true;
     if (!modulos || Object.keys(modulos).length === 0) return true;
