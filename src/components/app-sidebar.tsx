@@ -93,7 +93,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.labels"), url: "/etiquetas", icon: Tags },
       { title: t("nav.catalog"), url: "/catalogo", icon: Layers },
       { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
-      { title: "Moodboards", url: "/moodboards", icon: PaletteIcon },
+      { title: "Moodboards & Inspiração", url: "/moodboards", icon: PaletteIcon },
       { title: "Editor de Moodboards", url: "/editor-moodboards", icon: PaletteIcon },
       { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
       { title: "Contador de Carreiras", url: "/contador", icon: Hash },
