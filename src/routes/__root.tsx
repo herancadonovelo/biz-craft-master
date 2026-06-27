@@ -25,6 +25,7 @@ import { SubscriptionProvider } from "@/lib/subscription";
 import { PaywallDialog } from "@/components/PaywallDialog";
 import { PreviewModeBanner } from "@/components/PreviewModeBanner";
 import { PreviewExitFab } from "@/components/PreviewExitFab";
+import { SplashScreen } from "@/components/SplashScreen";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -215,6 +216,7 @@ function RootComponent() {
         <SupabaseSync />
         <PaywallDialog />
         <PreviewExitFab />
+        <SplashScreen />
       </SidebarProvider>
       </SubscriptionProvider>
       </AuthProvider>
