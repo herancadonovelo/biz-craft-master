@@ -659,6 +659,22 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
+      {/* Calibração de escala mm/cm */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
+        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
+          Mostrar régua mm/cm no canvas
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
+          Incluir régua na impressão (verificação 1:1)
+        </label>
+        <span className="text-muted-foreground">
+          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
+          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
+        </span>
+      </div>
       {/* Gestão do Molde */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
         <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
