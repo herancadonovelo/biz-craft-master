@@ -146,7 +146,7 @@ function TricotinTab() {
   type Tool = "select" | "line" | "curve" | "text" | "measure" | "number" | "label";
   const [tool, setTool] = useState<Tool>("curve");
   const [strokeWidth, setStrokeWidth] = useState(4);
-  const [stroke, setStroke] = useState("#222222");
+  const [stroke, setStroke] = useState("#000000");
   const [grid, setGrid] = useState(true);
   const [snapOn, setSnapOn] = useState(true);
   const [realista, setRealista] = useState(false);
@@ -155,15 +155,36 @@ function TricotinTab() {
   const [objs, setObjs] = useState<AnyObj[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [linePending, setLinePending] = useState<{ x: number; y: number } | null>(null);
-  // Polilinha contínua: lista de vértices acumulados enquanto a ferramenta "Reta" está ativa
+  // Polilinha contínua de vértices (usada por "Reta" e "Curva")
   const [polyPts, setPolyPts] = useState<{ x: number; y: number }[]>([]);
+  const [polyMode, setPolyMode] = useState<"line" | "curve">("line");
   const [hoverPt, setHoverPt] = useState<{ x: number; y: number } | null>(null);
+
+  const buildPoly = (pts: { x: number; y: number }[], mode: "line" | "curve", fechar: boolean) => {
+    if (pts.length < 2) return "";
+    if (mode === "line") {
+      let d = `M ${pts[0].x} ${pts[0].y}` + pts.slice(1).map((q) => ` L ${q.x} ${q.y}`).join("");
+      if (fechar) d += " Z";
+      return d;
+    }
+    // Curva contínua suavizada passando pelos vértices
+    const arr = fechar ? [...pts, pts[0]] : pts;
+    let d = `M ${arr[0].x} ${arr[0].y}`;
+    if (arr.length === 2) { d += ` L ${arr[1].x} ${arr[1].y}`; return d + (fechar ? " Z" : ""); }
+    for (let i = 1; i < arr.length - 1; i++) {
+      const mx = (arr[i].x + arr[i + 1].x) / 2;
+      const my = (arr[i].y + arr[i + 1].y) / 2;
+      d += ` Q ${arr[i].x} ${arr[i].y} ${mx} ${my}`;
+    }
+    d += ` T ${arr[arr.length - 1].x} ${arr[arr.length - 1].y}`;
+    if (fechar) d += " Z";
+    return d;
+  };
 
   const terminarPoli = (fechar = false) => {
     if (polyPts.length < 2) { setPolyPts([]); return; }
-    let d = `M ${polyPts[0].x} ${polyPts[0].y}` + polyPts.slice(1).map((q) => ` L ${q.x} ${q.y}`).join("");
-    if (fechar) d += " Z";
-    addPath(d);
+    const d = buildPoly(polyPts, polyMode, fechar);
+    if (d) addPath(d);
     setPolyPts([]);
     setHoverPt(null);
   };
@@ -232,18 +253,11 @@ function TricotinTab() {
       setEtiquetas((s) => [...s, { id: crypto.randomUUID(), x: p.x, y: p.y, lx: p.x + 40, ly: p.y - 30, texto }]);
       return;
     }
-    if (tool === "line") {
-      // Polilinha contínua: cada clique acrescenta um vértice. Duplo clique termina.
-      if (e.detail === 2 && polyPts.length >= 2) {
-        terminarPoli(false);
-        return;
-      }
+    if (tool === "line" || tool === "curve") {
+      if (e.detail === 2 && polyPts.length >= 2) { terminarPoli(false); return; }
+      setPolyMode(tool);
       setPolyPts((s) => [...s, p]);
       return;
-    }
-    if (tool === "curve") {
-      drawing.current = true;
-      drawPts.current = [p];
     }
     if (tool === "text") {
       const t = window.prompt("Texto a inserir:", "Tricotin");
@@ -254,24 +268,11 @@ function TricotinTab() {
     }
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (tool === "line" && polyPts.length > 0) {
+    if ((tool === "line" || tool === "curve") && polyPts.length > 0) {
       setHoverPt(ponto(e, svgRef.current!));
-      return;
-    }
-    if (tool !== "curve" || !drawing.current) return;
-    const p = ponto(e, svgRef.current!);
-    drawPts.current.push(p);
-    // Re-render forced via state ping
-    setLinePending((x) => x);
-  };
-  const onUp = () => {
-    if (tool === "curve" && drawing.current) {
-      drawing.current = false;
-      const d = smoothPath(drawPts.current);
-      drawPts.current = [];
-      if (d) addPath(d);
     }
   };
+  const onUp = () => {};
 
   const selectObj = (id: string, additive = false) => {
     setSelected((s) => {
@@ -282,7 +283,7 @@ function TricotinTab() {
   };
 
   const startDrag = (e: React.PointerEvent, id: string) => {
-    if (tool !== "select") return;
+    // Permite mover qualquer vetor independentemente da ferramenta ativa
     e.stopPropagation();
     const p = ponto(e as any, svgRef.current!);
     const o = objs.find((x) => x.id === id)!;
@@ -543,16 +544,16 @@ function TricotinTab() {
           <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
-            <ToolBtn active={tool === "curve"} onClick={() => setTool("curve")} icon={<Spline className="h-4 w-4" />} label="Curva" />
+            <ToolBtn active={tool === "curve"} onClick={() => { setTool("curve"); setPolyPts([]); setHoverPt(null); }} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
             <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
             <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
           </div>
-          {tool === "line" && polyPts.length > 0 && (
+          {(tool === "line" || tool === "curve") && polyPts.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1">
               <Button size="sm" variant="secondary" onClick={() => terminarPoli(false)}>
-                Terminar linha ({polyPts.length} pts)
+                Terminar {tool === "curve" ? "curva" : "linha"} ({polyPts.length} pts)
               </Button>
               <Button size="sm" variant="outline" onClick={() => terminarPoli(true)}>
                 <Link2 className="mr-1 h-3 w-3" />Terminar e fechar
