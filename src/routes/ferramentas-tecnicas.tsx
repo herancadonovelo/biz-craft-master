@@ -480,12 +480,14 @@ function TricotinTab() {
         {/* Ferramentas */}
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Ferramenta</Label>
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => setTool("curve")} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
+            <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
+            <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
           </div>
           <div>
             <Label className="text-xs">Espessura ({strokeWidth}px)</Label>
@@ -532,6 +534,14 @@ function TricotinTab() {
             {selected.size >= 2 && (
               <Button size="sm" variant="secondary" onClick={unirPaths}><Combine className="mr-1 h-3 w-3" />Unir linhas</Button>
             )}
+            {selObj.kind === "path" && (
+              <Button size="sm" variant={arrowedPaths.has(selObj.id) ? "default" : "outline"} onClick={() => setArrowedPaths((s) => {
+                const n = new Set(s); n.has(selObj.id) ? n.delete(selObj.id) : n.add(selObj.id); return n;
+              })}>
+                <ArrowRightCircle className="mr-1 h-3 w-3" />
+                {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
+              </Button>
+            )}
           </CardContent></Card>
         )}
 
@@ -541,10 +551,83 @@ function TricotinTab() {
             <Button size="sm" variant={grid ? "default" : "outline"} onClick={() => setGrid((v) => !v)}><Grid3x3 className="mr-1 h-3 w-3" />Grelha</Button>
             <Button size="sm" variant={snapOn ? "default" : "outline"} onClick={() => setSnapOn((v) => !v)}><Magnet className="mr-1 h-3 w-3" />Snap</Button>
             <Button size="sm" variant={realista ? "default" : "outline"} onClick={() => setRealista((v) => !v)}><Sparkles className="mr-1 h-3 w-3" />Vista realista</Button>
+            <Button size="sm" variant={caligrafia ? "default" : "outline"} onClick={() => setCaligrafia((v) => !v)}><Pen className="mr-1 h-3 w-3" />Modo Caligrafia</Button>
           </div>
-          <Button size="sm" variant="ghost" onClick={() => { setObjs([]); setSelected(new Set()); setMeasurePts([]); }}>
+          <Button size="sm" variant="ghost" onClick={() => { setObjs([]); setSelected(new Set()); setMeasurePts([]); setNumeros([]); setEtiquetas([]); setArrowedPaths(new Set()); }}>
             <Eraser className="mr-1 h-3 w-3" />Limpar tudo
           </Button>
+        </CardContent></Card>
+
+        {/* Pauta de caligrafia */}
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold">Pauta escolar (linhas-guia)</div>
+            <Button size="sm" variant={pautaOn ? "default" : "outline"} onClick={() => setPautaOn((v) => !v)}>
+              {pautaOn ? "Ativa" : "Ativar"}
+            </Button>
+          </div>
+          {pautaOn && <>
+            <div>
+              <Label className="text-xs">Altura da letra ({pautaH} cm)</Label>
+              <Slider value={[pautaH * 10]} min={5} max={80} step={1} onValueChange={(v) => setPautaH(v[0] / 10)} />
+            </div>
+            <div>
+              <Label className="text-xs">Posição vertical ({pautaY} cm do topo)</Label>
+              <Slider value={[pautaY * 10]} min={10} max={250} step={5} onValueChange={(v) => setPautaY(v[0] / 10)} />
+            </div>
+          </>}
+        </CardContent></Card>
+
+        {/* Marcadores & Etiquetas */}
+        {(numeros.length > 0 || etiquetas.length > 0) && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-semibold">Marcadores no molde</div>
+            {numeros.length > 0 && <div className="text-[11px] text-muted-foreground">{numeros.length} marcador(es) numérico(s) — usa a ferramenta Selecionar e clica num círculo para remover.</div>}
+            {etiquetas.length > 0 && <div className="text-[11px] text-muted-foreground">{etiquetas.length} etiqueta(s) de sobreposição — clica para remover.</div>}
+            <div className="flex gap-1">
+              <Button size="sm" variant="ghost" onClick={() => setNumeros([])}>Limpar números</Button>
+              <Button size="sm" variant="ghost" onClick={() => setEtiquetas([])}>Limpar etiquetas</Button>
+            </div>
+          </CardContent></Card>
+        )}
+
+        {/* Stock & Custo do arame */}
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-semibold">Stock & Custo do arame</div>
+          <Label className="text-xs">Material (Stock de Material)</Label>
+          <Select value={arameMaterialId} onValueChange={setArameMaterialId}>
+            <SelectTrigger className="h-8"><SelectValue placeholder="Selecionar material…" /></SelectTrigger>
+            <SelectContent>
+              {materiais.length === 0 && <div className="px-2 py-1 text-xs text-muted-foreground">Sem materiais no stock.</div>}
+              {materiais.map((m) => <SelectItem key={m.id} value={m.id}>{m.nome} — {formatEUR(m.precoCompra)}/{m.unidade}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {arameMat ? (
+            <div className="space-y-1 text-xs">
+              <div>Necessário: <strong>{arameNecessarioM.toFixed(2)} m</strong> ({comprimentoTotal.toFixed(1)} cm)</div>
+              <div>Preço unitário: {formatEUR(arameMat.precoCompra)}/{arameMat.unidade}</div>
+              <div className="font-display text-sm">Custo estimado: <strong>{formatEUR(custoArame)}</strong></div>
+              <div>Stock atual: {arameMat.stock} {arameMat.unidade}</div>
+              {!stockSuficiente && (
+                <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2">
+                  <div className="font-semibold text-destructive">Lista de compras</div>
+                  <div>Falta comprar <strong>{faltaM.toFixed(2)} {arameMat.unidade}</strong> de {arameMat.nome}.</div>
+                  <Button size="sm" variant="outline" className="mt-1"
+                    onClick={() => {
+                      addMaterial("materiais", { ...arameMat, id: arameMat.id, stockMinimo: Math.max(arameMat.stockMinimo ?? 0, Math.ceil(arameNecessarioM)) } as any);
+                      toast.success("Stock mínimo atualizado — aparece em Lista de Compras.");
+                    }}>
+                    Adicionar à Lista de Compras
+                  </Button>
+                </div>
+              )}
+              {stockSuficiente && comprimentoTotal > 0 && (
+                <div className="text-emerald-600">Stock suficiente para o molde.</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-[11px] text-muted-foreground">Seleciona um material de arame/tricotin para ver custo automático e gerar lista de compras quando faltar.</div>
+          )}
         </CardContent></Card>
 
         {/* Biblioteca de silhuetas */}
