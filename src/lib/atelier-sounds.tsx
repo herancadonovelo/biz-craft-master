@@ -1,17 +1,18 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type MusicTrack = { id: string; title: string; artist?: string; url: string };
-export type AmbientKey = "rain" | "fire" | "cafe" | "wind";
+export type AmbientKey = "rain" | "fire" | "cafe" | "wind" | "waves" | "thunder";
 
+// Public, royalty-free MP3s (Pixabay / cdn.pixabay.com). Direct, stable URLs.
 export const MUSIC_TRACKS: MusicTrack[] = [
-  { id: "sh1", title: "Lo-Fi Study Beat", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: "sh2", title: "Café Piano Lounge", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "sh3", title: "Chillhop Mellow", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-  { id: "sh4", title: "Smooth Jazz Bossa", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-  { id: "sh5", title: "Slow Focus Groove", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-  { id: "sh6", title: "Late Night Tape", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-  { id: "sh7", title: "Rainy Window Keys", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
-  { id: "sh8", title: "Crochet & Coffee", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
+  { id: "px1", title: "Lo-Fi Study", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" },
+  { id: "px2", title: "Chill Lo-Fi", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/10/30/audio_347111d654.mp3?filename=chill-lofi-music-interior-122192.mp3" },
+  { id: "px3", title: "Coffee Relax", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=relaxing-145038.mp3" },
+  { id: "px4", title: "Jazz Lounge", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bdd.mp3?filename=jazzy-abstract-beat-8550.mp3" },
+  { id: "px5", title: "Slow Focus", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2023/06/05/audio_3c8d8c66a4.mp3?filename=lofi-chill-medium-version-159456.mp3" },
+  { id: "px6", title: "Late Night Tape", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/08/02/audio_2dde668d05.mp3?filename=lofi-chill-jazz-112190.mp3" },
+  { id: "px7", title: "Rainy Window Keys", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f49b83f.mp3?filename=piano-moment-9835.mp3" },
+  { id: "px8", title: "Crochet & Coffee", artist: "Pixabay", url: "https://cdn.pixabay.com/download/audio/2024/02/13/audio_8e83e2c92e.mp3?filename=relaxing-acoustic-guitar-191428.mp3" },
 ];
 
 export const AMBIENT_LIST: { key: AmbientKey; label: string; emoji: string }[] = [
@@ -19,6 +20,8 @@ export const AMBIENT_LIST: { key: AmbientKey; label: string; emoji: string }[] =
   { key: "fire", label: "Lareira a Estalar", emoji: "🔥" },
   { key: "cafe", label: "Sons de Café", emoji: "☕" },
   { key: "wind", label: "Vento na Floresta", emoji: "🌬️" },
+  { key: "waves", label: "Ondas do Mar", emoji: "🌊" },
+  { key: "thunder", label: "Trovoada", emoji: "⛈️" },
 ];
 
 type Ctx = {
@@ -123,8 +126,7 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.7;
     source.connect(bp).connect(gain);
     extra.push(bp);
-  } else {
-    // wind
+  } else if (key === "wind") {
     source = createNoise(ac, "pink");
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 500;
@@ -136,6 +138,46 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     lfo.start();
     source.connect(lp).connect(gain);
     extra.push(lp, lfo, lfoGain);
+  } else if (key === "waves") {
+    source = createNoise(ac, "pink");
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 700;
+    // slow swelling tide
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = ac.createGain();
+    lfoGain.gain.value = 0.6;
+    const tide = ac.createGain();
+    tide.gain.value = 0.4;
+    lfo.connect(lfoGain).connect(tide.gain);
+    lfo.start();
+    source.connect(lp).connect(tide).connect(gain);
+    extra.push(lp, tide, lfo, lfoGain);
+  } else {
+    // thunder
+    // base: muffled rain
+    source = createNoise(ac, "pink");
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 1800;
+    source.connect(lp).connect(gain);
+    extra.push(lp);
+    // periodic distant rumble
+    const rumble = () => {
+      const now = ac.currentTime;
+      const burst = createNoise(ac, "brown");
+      const bp = ac.createBiquadFilter();
+      bp.type = "lowpass"; bp.frequency.value = 220;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.9, now + 0.4);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+      burst.connect(bp).connect(g).connect(gain);
+      burst.start(now);
+      burst.stop(now + 3.6);
+      const next = 8000 + Math.random() * 12000;
+      (gain as any)._thunderTimer = window.setTimeout(rumble, next);
+    };
+    (gain as any)._thunderTimer = window.setTimeout(rumble, 4000);
   }
   source.start();
   return { source, gain, extra };
@@ -158,6 +200,8 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     fire: { enabled: false, volume: 0.5 },
     cafe: { enabled: false, volume: 0.5 },
     wind: { enabled: false, volume: 0.5 },
+    waves: { enabled: false, volume: 0.5 },
+    thunder: { enabled: false, volume: 0.5 },
   });
   const [sleepRemaining, setSleepRemaining] = useState(0);
 
