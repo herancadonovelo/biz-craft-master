@@ -12,7 +12,11 @@ import { AudioVisualizer } from "@/components/AudioVisualizer";
 
 export const Route = createFileRoute("/atelier-sounds")({
   head: () => ({ meta: [{ title: "Atelier Sounds & Foco" }] }),
-  component: Page,
+  component: () => (
+    <PremiumRoute feature="Atelier Sounds & Foco">
+      <Page />
+    </PremiumRoute>
+  ),
 });
 
 function Marquee({ text }: { text: string }) {
