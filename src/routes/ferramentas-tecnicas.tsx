@@ -173,7 +173,7 @@ function TricotinTab() {
   // Integração com Stock de Material
   const materiais = useStore((s) => s.materiais);
   const [arameMaterialId, setArameMaterialId] = useState<string>("");
-  const addMaterial = useStore((s) => s.add);
+  const updateMaterial = useStore((s) => s.update);
 
   // Carregar fontes do Google sob demanda
   useEffect(() => {
