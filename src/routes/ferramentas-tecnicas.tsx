@@ -377,6 +377,10 @@ function TricotinTab() {
   const printMold = () => {
     const off = document.createElement("canvas");
     renderClean(off);
+    if (printRuler) {
+      const ctx2 = off.getContext("2d");
+      if (ctx2) drawRuler(ctx2);
+    }
     const dataUrl = off.toDataURL("image/png");
     // Build a top-level overlay attached directly to <body> so the print CSS
     // can reliably hide everything else.
