@@ -509,13 +509,11 @@ function TricotinTab() {
                   </g>
                 ))}
 
-                {/* Polilinha em construção */}
-                {tool === "line" && polyPts.length > 0 && (
+                {/* Polilinha / curva em construção */}
+                {(tool === "line" || tool === "curve") && polyPts.length > 0 && (
                   <g>
                     <path
-                      d={`M ${polyPts[0].x} ${polyPts[0].y}` +
-                        polyPts.slice(1).map((q) => ` L ${q.x} ${q.y}`).join("") +
-                        (hoverPt ? ` L ${hoverPt.x} ${hoverPt.y}` : "")}
+                      d={buildPoly(hoverPt ? [...polyPts, hoverPt] : polyPts, tool, false)}
                       stroke="#1e88e5" strokeWidth="1.5" fill="none" strokeDasharray="5 4"
                     />
                     {polyPts.map((q, i) => (
