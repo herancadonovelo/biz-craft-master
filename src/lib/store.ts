@@ -324,6 +324,37 @@ export interface ModulosAtivos {
 export interface MoodboardImagem { id: ID; url: string; legenda?: string }
 export interface PaletaCor { id: ID; nome: string; hex: string; materialId?: ID }
 export interface LinkRef { id: ID; titulo: string; url: string }
+
+export type MoodboardElementType = "image" | "text" | "decor" | "shape";
+export interface MoodboardElement {
+  id: ID;
+  tipo: MoodboardElementType;
+  // posicionamento em px relativo à tela A4 (595x842 @ 72dpi base)
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotacao: number;
+  raioCantos?: number;
+  src?: string; // image/decor (dataURL ou URL)
+  texto?: string;
+  fonte?: string;
+  tamanhoFonte?: number;
+  corTexto?: string;
+  negrito?: boolean;
+  italico?: boolean;
+  sublinhado?: boolean;
+  alinhamento?: "left" | "center" | "right";
+  zIndex: number;
+}
+export interface MoodboardDesign {
+  largura: number; // 595
+  altura: number;  // 842
+  corFundo: string;
+  imagemFundo?: string;
+  elementos: MoodboardElement[];
+}
+
 export interface Moodboard {
   id: ID;
   titulo: string;
@@ -334,6 +365,8 @@ export interface Moodboard {
   links: LinkRef[];
   encomendaId?: ID;
   criadoEm: string;
+  design?: MoodboardDesign;
+  preview?: string; // thumbnail dataURL
 }
 
 export interface ChecklistItem { id: ID; texto: string; feito: boolean }
