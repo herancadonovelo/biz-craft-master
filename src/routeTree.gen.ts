@@ -23,6 +23,7 @@ import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as NotasRouteImport } from './routes/notas'
+import { Route as MuralRouteImport } from './routes/mural'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
@@ -141,6 +142,11 @@ const NotificacoesRoute = NotificacoesRouteImport.update({
 const NotasRoute = NotasRouteImport.update({
   id: '/notas',
   path: '/notas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MuralRoute = MuralRouteImport.update({
+  id: '/mural',
+  path: '/mural',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoodboardsRoute = MoodboardsRouteImport.update({
@@ -437,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
@@ -502,6 +509,7 @@ export interface FileRoutesByTo {
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
@@ -568,6 +576,7 @@ export interface FileRoutesById {
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
+  '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
@@ -635,6 +644,7 @@ export interface FileRouteTypes {
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
+    | '/mural'
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
@@ -700,6 +710,7 @@ export interface FileRouteTypes {
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
+    | '/mural'
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
@@ -765,6 +776,7 @@ export interface FileRouteTypes {
     | '/marketing-conteudo'
     | '/modulos'
     | '/moodboards'
+    | '/mural'
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
@@ -831,6 +843,7 @@ export interface RootRouteChildren {
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   ModulosRoute: typeof ModulosRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
+  MuralRoute: typeof MuralRoute
   NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -948,6 +961,13 @@ declare module '@tanstack/react-router' {
       path: '/notas'
       fullPath: '/notas'
       preLoaderRoute: typeof NotasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mural': {
+      id: '/mural'
+      path: '/mural'
+      fullPath: '/mural'
+      preLoaderRoute: typeof MuralRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/moodboards': {
@@ -1354,6 +1374,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingConteudoRoute: MarketingConteudoRoute,
   ModulosRoute: ModulosRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
+  MuralRoute: MuralRoute,
   NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
