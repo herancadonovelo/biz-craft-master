@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -139,9 +140,157 @@ function snap(v: number, on: boolean, step = PX_PER_CM / 2) {
 }
 
 function TricotinTab() {
+  type NodeType = "start" | "straight" | "curve";
+  type PtNode = { id: string; x: number; y: number; type: NodeType; ctrlX?: number; ctrlY?: number };
+  type Mode = "select" | "straight" | "curve";
+
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const [nodes, setNodes] = React.useState<PtNode[]>([]);
+  const [isClosedPath, setIsClosedPath] = React.useState(false);
+  const [lineWidthTricotin, setLineWidthTricotin] = React.useState(12);
+  const [mode, setMode] = React.useState<Mode>("straight");
+  const dragRef = React.useRef<{ id: string; kind: "main" | "ctrl" } | null>(null);
+
+  const W = 900, H = 560, HIT = 10;
+
+  const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const c = canvasRef.current!;
+    const r = c.getBoundingClientRect();
+    return { x: ((e.clientX - r.left) * c.width) / r.width, y: ((e.clientY - r.top) * c.height) / r.height };
+  };
+  const dist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(ax - bx, ay - by);
+
+  const draw = React.useCallback(() => {
+    const c = canvasRef.current; if (!c) return;
+    const ctx = c.getContext("2d"); if (!ctx) return;
+    ctx.clearRect(0, 0, c.width, c.height);
+    // grid
+    ctx.strokeStyle = "#eef2f7"; ctx.lineWidth = 1;
+    for (let x = 0; x <= c.width; x += 25) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, c.height); ctx.stroke(); }
+    for (let y = 0; y <= c.height; y += 25) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(c.width, y); ctx.stroke(); }
+
+    if (nodes.length > 0) {
+      // Layer 1: tricotin path
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "#e11d48"; ctx.lineWidth = lineWidthTricotin;
+      ctx.beginPath();
+      ctx.moveTo(nodes[0].x, nodes[0].y);
+      for (let i = 1; i < nodes.length; i++) {
+        const n = nodes[i];
+        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) ctx.quadraticCurveTo(n.ctrlX, n.ctrlY, n.x, n.y);
+        else ctx.lineTo(n.x, n.y);
+      }
+      if (isClosedPath && nodes.length > 1) {
+        const first = nodes[0];
+        if (first.type === "curve" && first.ctrlX != null && first.ctrlY != null) ctx.quadraticCurveTo(first.ctrlX, first.ctrlY, first.x, first.y);
+        else ctx.lineTo(first.x, first.y);
+      }
+      ctx.stroke();
+
+      // Layer 2: guides (dashed gray) from curve nodes to control
+      ctx.save();
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1;
+      nodes.forEach((n, i) => {
+        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
+          const prev = nodes[i - 1] ?? (isClosedPath ? nodes[nodes.length - 1] : null);
+          ctx.beginPath(); ctx.moveTo(n.ctrlX, n.ctrlY); ctx.lineTo(n.x, n.y); ctx.stroke();
+          if (prev) { ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(n.ctrlX, n.ctrlY); ctx.stroke(); }
+        }
+      });
+      ctx.restore();
+
+      // Layer 3: nodes & control handles
+      nodes.forEach((n) => {
+        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
+          ctx.fillStyle = "#f97316";
+          ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.fillStyle = n.type === "start" ? "#16a34a" : "#2563eb";
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      });
+    }
+  }, [nodes, isClosedPath, lineWidthTricotin]);
+
+  React.useEffect(() => { draw(); }, [draw]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const { x, y } = getPos(e);
+    if (mode === "select") {
+      for (const n of nodes) {
+        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null && dist(x, y, n.ctrlX, n.ctrlY) <= HIT) {
+          dragRef.current = { id: n.id, kind: "ctrl" }; (e.target as Element).setPointerCapture(e.pointerId); return;
+        }
+      }
+      for (const n of nodes) {
+        if (dist(x, y, n.x, n.y) <= HIT) {
+          dragRef.current = { id: n.id, kind: "main" }; (e.target as Element).setPointerCapture(e.pointerId); return;
+        }
+      }
+      return;
+    }
+    // add point
+    const id = Math.random().toString(36).slice(2, 9);
+    if (nodes.length === 0) {
+      setNodes([{ id, x, y, type: "start" }]);
+    } else if (mode === "straight") {
+      setNodes((p) => [...p, { id, x, y, type: "straight" }]);
+    } else {
+      const prev = nodes[nodes.length - 1];
+      setNodes((p) => [...p, { id, x, y, type: "curve", ctrlX: (prev.x + x) / 2, ctrlY: (prev.y + y) / 2 - 60 }]);
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!dragRef.current) return;
+    const { x, y } = getPos(e);
+    const { id, kind } = dragRef.current;
+    setNodes((prev) => prev.map((n) => {
+      if (n.id !== id) return n;
+      if (kind === "ctrl") return { ...n, ctrlX: x, ctrlY: y };
+      const dx = x - n.x, dy = y - n.y;
+      const upd: PtNode = { ...n, x, y };
+      if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) { upd.ctrlX = n.ctrlX + dx; upd.ctrlY = n.ctrlY + dy; }
+      return upd;
+    }));
+  };
+
+  const onPointerUp = () => { dragRef.current = null; };
+
   return (
-    <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
-      Conteúdo em branco. Pronto para nova construção.
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
+        <button onClick={() => setMode("select")} className={`rounded border px-3 py-1.5 text-xs ${mode === "select" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Modo Seleção</button>
+        <button onClick={() => setMode("straight")} className={`rounded border px-3 py-1.5 text-xs ${mode === "straight" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Reto</button>
+        <button onClick={() => setMode("curve")} className={`rounded border px-3 py-1.5 text-xs ${mode === "curve" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Curvo</button>
+        {mode === "select" && nodes.length >= 2 && (
+          <button onClick={() => setIsClosedPath((v) => !v)} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">
+            {isClosedPath ? "Abrir Molde" : "Fechar Molde"}
+          </button>
+        )}
+        <div className="ml-2 flex items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Espessura:</span>
+          <input type="range" min={5} max={35} value={lineWidthTricotin} onChange={(e) => setLineWidthTricotin(Number(e.target.value))} />
+          <span className="w-10 tabular-nums">{lineWidthTricotin}px</span>
+        </div>
+        <button onClick={() => { setNodes([]); setIsClosedPath(false); }} className="ml-auto rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
+      </div>
+      <div className="overflow-auto rounded-lg border bg-white">
+        <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          className="block touch-none"
+          style={{ width: "100%", height: "auto", cursor: mode === "select" ? "grab" : "crosshair" }}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Dica: usa "Adicionar Ponto Reto" ou "Curvo" para construir o molde. No "Modo Seleção" arrasta os nós azuis para reposicionar e os laranja para ajustar a curvatura. Fecha o molde para unir o último ao primeiro ponto.
+      </p>
     </div>
   );
 }
