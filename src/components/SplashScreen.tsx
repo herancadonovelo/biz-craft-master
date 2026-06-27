@@ -63,6 +63,27 @@ const loadingPhrases = [
   "Preparando a encomenda com projetos finalizados...",
 ];
 
+// Validação em tempo de carga: garantir exatamente 50 frases válidas (sem
+// quebras inesperadas / vírgulas em falta que resultariam em strings vazias
+// ou concatenadas). Lança em dev para apanhar regressões cedo.
+if (loadingPhrases.length !== 50) {
+  const msg = `loadingPhrases deve conter exatamente 50 frases (atual: ${loadingPhrases.length}).`;
+  if (import.meta.env.DEV) throw new Error(msg);
+  // eslint-disable-next-line no-console
+  else console.warn(msg);
+}
+{
+  const bad = loadingPhrases.findIndex(
+    (p) => typeof p !== "string" || p.trim().length === 0 || !p.includes("..."),
+  );
+  if (bad !== -1) {
+    const msg = `loadingPhrases[${bad}] inválida — possível vírgula em falta ou quebra inesperada.`;
+    if (import.meta.env.DEV) throw new Error(msg);
+    // eslint-disable-next-line no-console
+    else console.warn(msg);
+  }
+}
+
 const pickPhrase = (prev?: string) => {
   let p = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
   if (prev && loadingPhrases.length > 1) {
@@ -79,7 +100,9 @@ export function SplashScreen() {
   const [fading, setFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [phrase, setPhrase] = useState<string>(() => pickPhrase());
+  // Inicial determinístico para evitar mismatch de hidratação SSR/cliente.
+  // A aleatorização arranca apenas depois do mount, no intervalo abaixo.
+  const [phrase, setPhrase] = useState<string>(loadingPhrases[0]);
   const [phraseVisible, setPhraseVisible] = useState(true);
   const [progress, setProgress] = useState(0); // 0..1
   const navigate = useNavigate();
@@ -87,6 +110,12 @@ export function SplashScreen() {
 
   // Rotating phrases with fade in/out
   useEffect(() => {
+    // Primeira troca aleatória imediata após mount (já no cliente).
+    setPhraseVisible(false);
+    const kick = window.setTimeout(() => {
+      setPhrase((prev) => pickPhrase(prev));
+      setPhraseVisible(true);
+    }, 400);
     const id = window.setInterval(() => {
       setPhraseVisible(false);
       window.setTimeout(() => {
@@ -94,7 +123,10 @@ export function SplashScreen() {
         setPhraseVisible(true);
       }, 400);
     }, PHRASE_INTERVAL);
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearTimeout(kick);
+      window.clearInterval(id);
+    };
   }, []);
 
   useEffect(() => {
