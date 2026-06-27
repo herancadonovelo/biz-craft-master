@@ -55,6 +55,7 @@ import {
   HardDriveDownload,
   Crown,
   Music,
+  Quote,
 } from "lucide-react";
 import {
   Sidebar,
@@ -104,6 +105,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: "Editor de Receita", url: "/editor-receita", icon: PenSquare },
       { title: "Criador de Moldes", url: "/criador-moldes", icon: Ruler },
       { title: "Atelier Sounds & Foco", url: "/atelier-sounds", icon: Music },
+      { title: "Mural de Inspiração", url: "/mural", icon: Quote },
     ],
   },
   {
