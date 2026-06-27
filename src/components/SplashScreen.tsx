@@ -6,9 +6,10 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
-const MIN_DURATION = 12000; // 12s
-const MAX_DURATION = 20000; // 20s
-const PHRASE_INTERVAL = 2500; // 2.5s
+const MIN_DURATION = 20000; // 20s
+const MAX_DURATION = 30000; // 30s
+const PHRASE_INTERVAL = 4000; // 4s
+const FADE_DURATION = 900; // ms — fade in/out das frases
 
 const loadingPhrases = [
   "Recortando o tecido para costurar...",
