@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/craft-business-master-logo.png.asset.json";
+import logo from "@/assets/craft-business-master-splash.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
@@ -82,11 +82,11 @@ export function SplashScreen() {
       }`}
       style={{ backgroundColor: "oklch(0.985 0.005 95)" }}
     >
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
         <img
           src={logo.url}
           alt="Craft Business Master"
-          className="w-56 max-w-[70vw] select-none animate-in fade-in zoom-in-95 duration-700"
+          className="w-96 max-w-[85vw] select-none animate-in fade-in zoom-in-95 duration-700"
           draggable={false}
         />
         {!error ? (
