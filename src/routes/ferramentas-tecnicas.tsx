@@ -411,7 +411,9 @@ function TricotinTab() {
     // can reliably hide everything else.
     const host = document.createElement("div");
     host.id = "tricotin-print-host";
-    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:21cm;height:29.7cm;display:block;page-break-inside:avoid;" />`;
+    const wCm = (21 * calScale).toFixed(4);
+    const hCm = (29.7 * calScale).toFixed(4);
+    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:${wCm}cm;height:${hCm}cm;display:block;page-break-inside:avoid;" />`;
     document.body.appendChild(host);
     document.body.classList.add("tricotin-printing");
     const cleanup = () => {
