@@ -140,6 +140,46 @@ function buildAmbient(ac: AudioContext, key: AmbientKey, dest: AudioNode): Ambie
     source.connect(lp).connect(gain);
     extra.push(lp, lfo, lfoGain);
   }
+  if (key === "waves") {
+    source = createNoise(ac, "pink");
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 700;
+    // slow swelling tide
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = ac.createGain();
+    lfoGain.gain.value = 0.6;
+    const tide = ac.createGain();
+    tide.gain.value = 0.4;
+    lfo.connect(lfoGain).connect(tide.gain);
+    lfo.start();
+    source.connect(lp).connect(tide).connect(gain);
+    extra.push(lp, tide, lfo, lfoGain);
+  } else if (key === "thunder") {
+    // base: muffled rain
+    source = createNoise(ac, "pink");
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 1800;
+    source.connect(lp).connect(gain);
+    extra.push(lp);
+    // periodic distant rumble
+    const rumble = () => {
+      const now = ac.currentTime;
+      const burst = createNoise(ac, "brown");
+      const bp = ac.createBiquadFilter();
+      bp.type = "lowpass"; bp.frequency.value = 220;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.9, now + 0.4);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+      burst.connect(bp).connect(g).connect(gain);
+      burst.start(now);
+      burst.stop(now + 3.6);
+      const next = 8000 + Math.random() * 12000;
+      (gain as any)._thunderTimer = window.setTimeout(rumble, next);
+    };
+    (gain as any)._thunderTimer = window.setTimeout(rumble, 4000);
+  }
   source.start();
   return { source, gain, extra };
 }
@@ -161,6 +201,8 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     fire: { enabled: false, volume: 0.5 },
     cafe: { enabled: false, volume: 0.5 },
     wind: { enabled: false, volume: 0.5 },
+    waves: { enabled: false, volume: 0.5 },
+    thunder: { enabled: false, volume: 0.5 },
   });
   const [sleepRemaining, setSleepRemaining] = useState(0);
 
