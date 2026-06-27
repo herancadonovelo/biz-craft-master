@@ -394,17 +394,40 @@ function TricotinTab() {
                   <rect width="100%" height="100%" fill="url(#grid-cm)" />
                 </>}
 
+                {/* Pauta de caligrafia */}
+                {pautaOn && (() => {
+                  const top = pautaY * PX_PER_CM;
+                  const mid = top + (pautaH * PX_PER_CM) * 0.4;
+                  const base = top + pautaH * PX_PER_CM;
+                  const desc = base + pautaH * PX_PER_CM * 0.5;
+                  return (
+                    <g>
+                      <line x1="0" y1={top}  x2={A4_W} y2={top}  stroke="#93c5fd" strokeDasharray="6 4" />
+                      <line x1="0" y1={mid}  x2={A4_W} y2={mid}  stroke="#cbd5e1" strokeDasharray="2 3" />
+                      <line x1="0" y1={base} x2={A4_W} y2={base} stroke="#1d4ed8" strokeWidth="1.2" />
+                      <line x1="0" y1={desc} x2={A4_W} y2={desc} stroke="#93c5fd" strokeDasharray="6 4" />
+                    </g>
+                  );
+                })()}
+
                 {/* Objetos */}
                 {objs.map((o) => {
                   const sel = selected.has(o.id);
                   const transform = `translate(${o.x} ${o.y}) rotate(${o.rot}) scale(${o.scale})`;
                   if (o.kind === "path") {
+                    const corLinha = caligrafia ? "#cbd5e1" : o.stroke;
                     return (
                       <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : "crosshair" }}>
-                        <path d={o.d} stroke={o.stroke} strokeWidth={o.strokeWidth} fill="none"
+                        <path d={o.d} stroke={corLinha} strokeWidth={o.strokeWidth} fill="none"
                               strokeLinecap="round" strokeLinejoin="round"
                               filter={realista ? "url(#yarn)" : undefined}
                               style={realista ? { strokeDasharray: `${o.strokeWidth * 0.6} ${o.strokeWidth * 0.3}` } : undefined} />
+                        {arrowedPaths.has(o.id) && arrowsForPath(o.d).map((a, i) => (
+                          <polygon key={i}
+                            points="-6,-4 0,0 -6,4"
+                            fill="#111"
+                            transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`} />
+                        ))}
                         {sel && <SelectionFrame w={120} h={120} />}
                       </g>
                     );
@@ -416,6 +439,26 @@ function TricotinTab() {
                     </g>
                   );
                 })}
+
+                {/* Números de sequência */}
+                {numeros.map((n) => (
+                  <g key={n.id} style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                     onClick={() => tool === "select" && setNumeros((s) => s.filter((x) => x.id !== n.id))}>
+                    <circle cx={n.x} cy={n.y} r="11" fill="#ef4444" stroke="#fff" strokeWidth="1.5" />
+                    <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="12" fill="#fff" fontWeight="700">{n.n}</text>
+                  </g>
+                ))}
+
+                {/* Etiquetas com leader line */}
+                {etiquetas.map((et) => (
+                  <g key={et.id} style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                     onClick={() => tool === "select" && setEtiquetas((s) => s.filter((x) => x.id !== et.id))}>
+                    <circle cx={et.x} cy={et.y} r="3" fill="#1d4ed8" />
+                    <line x1={et.x} y1={et.y} x2={et.lx} y2={et.ly} stroke="#1d4ed8" strokeWidth="0.8" />
+                    <rect x={et.lx - 2} y={et.ly - 10} width={et.texto.length * 5.4 + 6} height="14" fill="#fff" stroke="#1d4ed8" rx="2" />
+                    <text x={et.lx + 2} y={et.ly} fontSize="10" fill="#1d4ed8">{et.texto}</text>
+                  </g>
+                ))}
 
                 {/* Linha pendente */}
                 {tool === "line" && linePending && <circle cx={linePending.x} cy={linePending.y} r={3} fill="#1e88e5" />}
