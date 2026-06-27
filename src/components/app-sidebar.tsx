@@ -73,7 +73,6 @@ import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { useSubscription } from "@/lib/subscription";
 import { requiredPlanFor } from "@/lib/access-control";
-import { Lock } from "lucide-react";
 
 const getGroups = (t: (k: string) => string) => [
   {
