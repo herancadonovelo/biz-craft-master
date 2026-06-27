@@ -18,7 +18,8 @@ export function RouteAccessGuard() {
     const required = requiredPlanFor(pathname);
     if (required === "light") return;
     if (!hasAccess(required)) {
-      showPaywall(required, pathname);
+      // Guarda a rota original para regressar automaticamente após o upgrade
+      showPaywall(required, pathname, pathname);
       navigate({ to: "/", replace: true });
     }
   }, [pathname, loading, hasAccess, showPaywall, navigate]);
