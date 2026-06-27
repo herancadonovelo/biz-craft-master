@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
@@ -25,7 +26,11 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas: Editores" }] }),
-  component: FerramentasPage,
+  component: () => (
+    <PremiumRoute feature="Ferramentas Técnicas: Editores">
+      <FerramentasPage />
+    </PremiumRoute>
+  ),
 });
 
 function FerramentasPage() {
