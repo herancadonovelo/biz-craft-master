@@ -614,7 +614,9 @@ function TricotinTab() {
                   <div>Falta comprar <strong>{faltaM.toFixed(2)} {arameMat.unidade}</strong> de {arameMat.nome}.</div>
                   <Button size="sm" variant="outline" className="mt-1"
                     onClick={() => {
-                      addMaterial("materiais", { ...arameMat, id: arameMat.id, stockMinimo: Math.max(arameMat.stockMinimo ?? 0, Math.ceil(arameNecessarioM)) } as any);
+                      updateMaterial("materiais", arameMat.id, {
+                        stockMinimo: Math.max(arameMat.stockMinimo ?? 0, Math.ceil(arameNecessarioM)),
+                      });
                       toast.success("Stock mínimo atualizado — aparece em Lista de Compras.");
                     }}>
                     Adicionar à Lista de Compras
