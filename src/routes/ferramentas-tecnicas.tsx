@@ -17,7 +17,8 @@ import {
 } from "@/components/A4Export";
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
-  Combine, Sparkles, Grid3x3, Magnet, RotateCw,
+  Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
+  Pen,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -142,7 +143,7 @@ function TricotinTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
 
-  type Tool = "select" | "line" | "curve" | "text" | "measure";
+  type Tool = "select" | "line" | "curve" | "text" | "measure" | "number" | "label";
   const [tool, setTool] = useState<Tool>("curve");
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [stroke, setStroke] = useState("#222222");
@@ -158,6 +159,21 @@ function TricotinTab() {
   const drawPts = useRef<{ x: number; y: number }[]>([]);
   const drawing = useRef(false);
   const dragRef = useRef<{ id: string; sx: number; sy: number; ox: number; oy: number } | null>(null);
+
+  // Guias avançadas
+  const [pautaOn, setPautaOn] = useState(false);
+  const [pautaH, setPautaH] = useState(2);          // altura da letra em cm
+  const [pautaY, setPautaY] = useState(6);          // posição vertical do topo, cm
+  const [caligrafia, setCaligrafia] = useState(false);
+  const [arrowedPaths, setArrowedPaths] = useState<Set<string>>(new Set());
+  const [numeros, setNumeros] = useState<{ id: string; x: number; y: number; n: number }[]>([]);
+  const [etiquetas, setEtiquetas] = useState<{ id: string; x: number; y: number; lx: number; ly: number; texto: string }[]>([]);
+  const ETIQUETAS_PRE = ["Por trás", "Pela frente", "Cruzamento", "Início", "Fim", "Dobrar"];
+
+  // Integração com Stock de Material
+  const materiais = useStore((s) => s.materiais);
+  const [arameMaterialId, setArameMaterialId] = useState<string>("");
+  const updateMaterial = useStore((s) => s.update);
 
   // Carregar fontes do Google sob demanda
   useEffect(() => {
@@ -187,6 +203,21 @@ function TricotinTab() {
     if (tool === "select") { setSelected(new Set()); return; }
     if (tool === "measure") {
       setMeasurePts((m) => (m.length >= 2 ? [p] : [...m, p]));
+      return;
+    }
+    if (tool === "number") {
+      setNumeros((s) => [...s, { id: crypto.randomUUID(), x: p.x, y: p.y, n: s.length + 1 }]);
+      return;
+    }
+    if (tool === "label") {
+      const idx = window.prompt(
+        "Etiqueta (escreve número ou texto):\n" + ETIQUETAS_PRE.map((t, i) => `${i + 1}) ${t}`).join("\n"),
+        "1",
+      );
+      if (!idx) return;
+      const n = parseInt(idx, 10);
+      const texto = Number.isFinite(n) && ETIQUETAS_PRE[n - 1] ? ETIQUETAS_PRE[n - 1] : idx;
+      setEtiquetas((s) => [...s, { id: crypto.randomUUID(), x: p.x, y: p.y, lx: p.x + 40, ly: p.y - 30, texto }]);
       return;
     }
     if (tool === "line") {
@@ -296,6 +327,29 @@ function TricotinTab() {
     return { w: 100, h: 100 };
   };
 
+  /** Calcula 3 pontos+tangentes ao longo de um path para desenhar setas de sentido. */
+  const arrowsForPath = (d: string): { x: number; y: number; ang: number }[] => {
+    if (typeof document === "undefined") return [];
+    const ns = "http://www.w3.org/2000/svg";
+    const el = document.createElementNS(ns, "path");
+    el.setAttribute("d", d);
+    let len = 0;
+    try { len = el.getTotalLength(); } catch { return []; }
+    if (len < 10) return [];
+    return [0.25, 0.55, 0.85].map((t) => {
+      const p = el.getPointAtLength(len * t);
+      const p2 = el.getPointAtLength(Math.min(len, len * t + 1));
+      return { x: p.x, y: p.y, ang: (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI };
+    });
+  };
+
+  /* --- Stock & custo do arame --- */
+  const arameMat = materiais.find((m) => m.id === arameMaterialId);
+  const arameNecessarioM = comprimentoTotal / 100; // metros
+  const custoArame = arameMat ? arameMat.precoCompra * arameNecessarioM : 0;
+  const stockSuficiente = arameMat ? arameMat.stock >= arameNecessarioM : true;
+  const faltaM = arameMat ? Math.max(0, arameNecessarioM - arameMat.stock) : 0;
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
       <div className="space-y-2">
@@ -340,17 +394,40 @@ function TricotinTab() {
                   <rect width="100%" height="100%" fill="url(#grid-cm)" />
                 </>}
 
+                {/* Pauta de caligrafia */}
+                {pautaOn && (() => {
+                  const top = pautaY * PX_PER_CM;
+                  const mid = top + (pautaH * PX_PER_CM) * 0.4;
+                  const base = top + pautaH * PX_PER_CM;
+                  const desc = base + pautaH * PX_PER_CM * 0.5;
+                  return (
+                    <g>
+                      <line x1="0" y1={top}  x2={A4_W} y2={top}  stroke="#93c5fd" strokeDasharray="6 4" />
+                      <line x1="0" y1={mid}  x2={A4_W} y2={mid}  stroke="#cbd5e1" strokeDasharray="2 3" />
+                      <line x1="0" y1={base} x2={A4_W} y2={base} stroke="#1d4ed8" strokeWidth="1.2" />
+                      <line x1="0" y1={desc} x2={A4_W} y2={desc} stroke="#93c5fd" strokeDasharray="6 4" />
+                    </g>
+                  );
+                })()}
+
                 {/* Objetos */}
                 {objs.map((o) => {
                   const sel = selected.has(o.id);
                   const transform = `translate(${o.x} ${o.y}) rotate(${o.rot}) scale(${o.scale})`;
                   if (o.kind === "path") {
+                    const corLinha = caligrafia ? "#cbd5e1" : o.stroke;
                     return (
                       <g key={o.id} transform={transform} onPointerDown={(e) => startDrag(e, o.id)} style={{ cursor: tool === "select" ? "move" : "crosshair" }}>
-                        <path d={o.d} stroke={o.stroke} strokeWidth={o.strokeWidth} fill="none"
+                        <path d={o.d} stroke={corLinha} strokeWidth={o.strokeWidth} fill="none"
                               strokeLinecap="round" strokeLinejoin="round"
                               filter={realista ? "url(#yarn)" : undefined}
                               style={realista ? { strokeDasharray: `${o.strokeWidth * 0.6} ${o.strokeWidth * 0.3}` } : undefined} />
+                        {arrowedPaths.has(o.id) && arrowsForPath(o.d).map((a, i) => (
+                          <polygon key={i}
+                            points="-6,-4 0,0 -6,4"
+                            fill="#111"
+                            transform={`translate(${a.x} ${a.y}) rotate(${a.ang})`} />
+                        ))}
                         {sel && <SelectionFrame w={120} h={120} />}
                       </g>
                     );
@@ -362,6 +439,26 @@ function TricotinTab() {
                     </g>
                   );
                 })}
+
+                {/* Números de sequência */}
+                {numeros.map((n) => (
+                  <g key={n.id} style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                     onClick={() => tool === "select" && setNumeros((s) => s.filter((x) => x.id !== n.id))}>
+                    <circle cx={n.x} cy={n.y} r="11" fill="#ef4444" stroke="#fff" strokeWidth="1.5" />
+                    <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="12" fill="#fff" fontWeight="700">{n.n}</text>
+                  </g>
+                ))}
+
+                {/* Etiquetas com leader line */}
+                {etiquetas.map((et) => (
+                  <g key={et.id} style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                     onClick={() => tool === "select" && setEtiquetas((s) => s.filter((x) => x.id !== et.id))}>
+                    <circle cx={et.x} cy={et.y} r="3" fill="#1d4ed8" />
+                    <line x1={et.x} y1={et.y} x2={et.lx} y2={et.ly} stroke="#1d4ed8" strokeWidth="0.8" />
+                    <rect x={et.lx - 2} y={et.ly - 10} width={et.texto.length * 5.4 + 6} height="14" fill="#fff" stroke="#1d4ed8" rx="2" />
+                    <text x={et.lx + 2} y={et.ly} fontSize="10" fill="#1d4ed8">{et.texto}</text>
+                  </g>
+                ))}
 
                 {/* Linha pendente */}
                 {tool === "line" && linePending && <circle cx={linePending.x} cy={linePending.y} r={3} fill="#1e88e5" />}
@@ -383,12 +480,14 @@ function TricotinTab() {
         {/* Ferramentas */}
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Ferramenta</Label>
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
             <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => setTool("curve")} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
+            <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
+            <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
           </div>
           <div>
             <Label className="text-xs">Espessura ({strokeWidth}px)</Label>
@@ -435,6 +534,14 @@ function TricotinTab() {
             {selected.size >= 2 && (
               <Button size="sm" variant="secondary" onClick={unirPaths}><Combine className="mr-1 h-3 w-3" />Unir linhas</Button>
             )}
+            {selObj.kind === "path" && (
+              <Button size="sm" variant={arrowedPaths.has(selObj.id) ? "default" : "outline"} onClick={() => setArrowedPaths((s) => {
+                const n = new Set(s); n.has(selObj.id) ? n.delete(selObj.id) : n.add(selObj.id); return n;
+              })}>
+                <ArrowRightCircle className="mr-1 h-3 w-3" />
+                {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
+              </Button>
+            )}
           </CardContent></Card>
         )}
 
@@ -444,10 +551,85 @@ function TricotinTab() {
             <Button size="sm" variant={grid ? "default" : "outline"} onClick={() => setGrid((v) => !v)}><Grid3x3 className="mr-1 h-3 w-3" />Grelha</Button>
             <Button size="sm" variant={snapOn ? "default" : "outline"} onClick={() => setSnapOn((v) => !v)}><Magnet className="mr-1 h-3 w-3" />Snap</Button>
             <Button size="sm" variant={realista ? "default" : "outline"} onClick={() => setRealista((v) => !v)}><Sparkles className="mr-1 h-3 w-3" />Vista realista</Button>
+            <Button size="sm" variant={caligrafia ? "default" : "outline"} onClick={() => setCaligrafia((v) => !v)}><Pen className="mr-1 h-3 w-3" />Modo Caligrafia</Button>
           </div>
-          <Button size="sm" variant="ghost" onClick={() => { setObjs([]); setSelected(new Set()); setMeasurePts([]); }}>
+          <Button size="sm" variant="ghost" onClick={() => { setObjs([]); setSelected(new Set()); setMeasurePts([]); setNumeros([]); setEtiquetas([]); setArrowedPaths(new Set()); }}>
             <Eraser className="mr-1 h-3 w-3" />Limpar tudo
           </Button>
+        </CardContent></Card>
+
+        {/* Pauta de caligrafia */}
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold">Pauta escolar (linhas-guia)</div>
+            <Button size="sm" variant={pautaOn ? "default" : "outline"} onClick={() => setPautaOn((v) => !v)}>
+              {pautaOn ? "Ativa" : "Ativar"}
+            </Button>
+          </div>
+          {pautaOn && <>
+            <div>
+              <Label className="text-xs">Altura da letra ({pautaH} cm)</Label>
+              <Slider value={[pautaH * 10]} min={5} max={80} step={1} onValueChange={(v) => setPautaH(v[0] / 10)} />
+            </div>
+            <div>
+              <Label className="text-xs">Posição vertical ({pautaY} cm do topo)</Label>
+              <Slider value={[pautaY * 10]} min={10} max={250} step={5} onValueChange={(v) => setPautaY(v[0] / 10)} />
+            </div>
+          </>}
+        </CardContent></Card>
+
+        {/* Marcadores & Etiquetas */}
+        {(numeros.length > 0 || etiquetas.length > 0) && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-semibold">Marcadores no molde</div>
+            {numeros.length > 0 && <div className="text-[11px] text-muted-foreground">{numeros.length} marcador(es) numérico(s) — usa a ferramenta Selecionar e clica num círculo para remover.</div>}
+            {etiquetas.length > 0 && <div className="text-[11px] text-muted-foreground">{etiquetas.length} etiqueta(s) de sobreposição — clica para remover.</div>}
+            <div className="flex gap-1">
+              <Button size="sm" variant="ghost" onClick={() => setNumeros([])}>Limpar números</Button>
+              <Button size="sm" variant="ghost" onClick={() => setEtiquetas([])}>Limpar etiquetas</Button>
+            </div>
+          </CardContent></Card>
+        )}
+
+        {/* Stock & Custo do arame */}
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-semibold">Stock & Custo do arame</div>
+          <Label className="text-xs">Material (Stock de Material)</Label>
+          <Select value={arameMaterialId} onValueChange={setArameMaterialId}>
+            <SelectTrigger className="h-8"><SelectValue placeholder="Selecionar material…" /></SelectTrigger>
+            <SelectContent>
+              {materiais.length === 0 && <div className="px-2 py-1 text-xs text-muted-foreground">Sem materiais no stock.</div>}
+              {materiais.map((m) => <SelectItem key={m.id} value={m.id}>{m.nome} — {formatEUR(m.precoCompra)}/{m.unidade}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {arameMat ? (
+            <div className="space-y-1 text-xs">
+              <div>Necessário: <strong>{arameNecessarioM.toFixed(2)} m</strong> ({comprimentoTotal.toFixed(1)} cm)</div>
+              <div>Preço unitário: {formatEUR(arameMat.precoCompra)}/{arameMat.unidade}</div>
+              <div className="font-display text-sm">Custo estimado: <strong>{formatEUR(custoArame)}</strong></div>
+              <div>Stock atual: {arameMat.stock} {arameMat.unidade}</div>
+              {!stockSuficiente && (
+                <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2">
+                  <div className="font-semibold text-destructive">Lista de compras</div>
+                  <div>Falta comprar <strong>{faltaM.toFixed(2)} {arameMat.unidade}</strong> de {arameMat.nome}.</div>
+                  <Button size="sm" variant="outline" className="mt-1"
+                    onClick={() => {
+                      updateMaterial("materiais", arameMat.id, {
+                        stockMinimo: Math.max(arameMat.stockMinimo ?? 0, Math.ceil(arameNecessarioM)),
+                      });
+                      toast.success("Stock mínimo atualizado — aparece em Lista de Compras.");
+                    }}>
+                    Adicionar à Lista de Compras
+                  </Button>
+                </div>
+              )}
+              {stockSuficiente && comprimentoTotal > 0 && (
+                <div className="text-emerald-600">Stock suficiente para o molde.</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-[11px] text-muted-foreground">Seleciona um material de arame/tricotin para ver custo automático e gerar lista de compras quando faltar.</div>
+          )}
         </CardContent></Card>
 
         {/* Biblioteca de silhuetas */}
@@ -751,6 +933,9 @@ function BordadoTab() {
   const [imagemFundo, setImagemFundo] = useState<string>("");
   const [contornos, setContornos] = useState<string[]>([]);
   const [limiar, setLimiar] = useState(128);
+  const [suavizar, setSuavizar] = useState(1);          // iterações de Chaikin
+  const [minSeg, setMinSeg] = useState(4);              // px mínimos
+  const [separados, setSeparados] = useState(true);     // gerar caminhos separados ou unidos
   const [aTrabalhar, setATrabalhar] = useState(false);
   const drawing = useRef(false);
 
@@ -791,22 +976,63 @@ function BordadoTab() {
         const c = lum[y * W + x];
         if (c !== lum[y * W + x + 1] || c !== lum[(y + 1) * W + x]) edge[y * W + x] = 1;
       }
-      // Agrupar pixels em traços lineares por linha (fast & legível)
-      const novos: string[] = [];
+      // Extrair segmentos contínuos de aresta linha-a-linha
       const sx = A4_W / W, sy = A4_H / H;
+      type Seg = { x1: number; y1: number; x2: number; y2: number };
+      const segs: Seg[] = [];
       for (let y = 0; y < H; y++) {
         let start = -1;
         for (let x = 0; x < W; x++) {
           if (edge[y * W + x]) {
             if (start < 0) start = x;
           } else if (start >= 0) {
-            if (x - start >= 2) novos.push(`M ${(start * sx).toFixed(1)} ${(y * sy).toFixed(1)} L ${((x - 1) * sx).toFixed(1)} ${(y * sy).toFixed(1)}`);
+            const len = x - start;
+            if (len >= minSeg) segs.push({ x1: start * sx, y1: y * sy, x2: (x - 1) * sx, y2: y * sy });
             start = -1;
           }
         }
       }
+      // Suavização Chaikin (cada iteração corta cantos)
+      const chaikin = (pts: { x: number; y: number }[], it: number) => {
+        let p = pts;
+        for (let k = 0; k < it; k++) {
+          const out: { x: number; y: number }[] = [];
+          for (let i = 0; i < p.length - 1; i++) {
+            const a = p[i], b = p[i + 1];
+            out.push({ x: a.x + (b.x - a.x) * 0.25, y: a.y + (b.y - a.y) * 0.25 });
+            out.push({ x: a.x + (b.x - a.x) * 0.75, y: a.y + (b.y - a.y) * 0.75 });
+          }
+          p = out;
+        }
+        return p;
+      };
+      const segToPath = (s: Seg) => {
+        const sm = chaikin([{ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 }], suavizar);
+        return "M " + sm.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ");
+      };
+      let novos: string[];
+      if (separados) {
+        novos = segs.map(segToPath);
+      } else {
+        // Encadear segmentos contíguos da mesma linha num único caminho
+        const grouped = new Map<number, Seg[]>();
+        segs.forEach((s) => {
+          const row = Math.round(s.y1);
+          (grouped.get(row) ?? grouped.set(row, []).get(row)!).push(s);
+        });
+        novos = [];
+        for (const list of grouped.values()) {
+          list.sort((a, b) => a.x1 - b.x1);
+          let d = "";
+          list.forEach((s, i) => {
+            const sm = chaikin([{ x: s.x1, y: s.y1 }, { x: s.x2, y: s.y2 }], suavizar);
+            d += (i === 0 ? "M " : " M ") + sm.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ");
+          });
+          if (d) novos.push(d);
+        }
+      }
       setContornos(novos);
-      toast.success(`${novos.length} contornos gerados.`);
+      toast.success(`${novos.length} contorno(s) gerado(s).`);
     } catch (e) {
       toast.error("Falha na vetorização: " + (e as Error).message);
     } finally {
@@ -834,6 +1060,20 @@ function BordadoTab() {
           <div>
             <Label className="text-xs">Limiar de contraste ({limiar})</Label>
             <Slider value={[limiar]} min={40} max={220} step={5} onValueChange={(v) => setLimiar(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Suavização ({suavizar}×)</Label>
+            <Slider value={[suavizar]} min={0} max={4} step={1} onValueChange={(v) => setSuavizar(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Remover áreas pequenas (&lt; {minSeg}px)</Label>
+            <Slider value={[minSeg]} min={1} max={30} step={1} onValueChange={(v) => setMinSeg(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Caminhos separados</Label>
+            <Button size="sm" variant={separados ? "default" : "outline"} onClick={() => setSeparados((v) => !v)}>
+              {separados ? "Sim" : "Unidos por linha"}
+            </Button>
           </div>
           <Button size="sm" onClick={vetorizar} disabled={aTrabalhar || !imagemFundo}>
             <Sparkles className="mr-1 h-3 w-3" />{aTrabalhar ? "A vetorizar..." : "Vetorizar imagem"}
