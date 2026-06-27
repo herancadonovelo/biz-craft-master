@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,11 @@ import { AudioVisualizer } from "@/components/AudioVisualizer";
 
 export const Route = createFileRoute("/atelier-sounds")({
   head: () => ({ meta: [{ title: "Atelier Sounds & Foco" }] }),
-  component: Page,
+  component: () => (
+    <PremiumRoute feature="Atelier Sounds & Foco">
+      <Page />
+    </PremiumRoute>
+  ),
 });
 
 function Marquee({ text }: { text: string }) {

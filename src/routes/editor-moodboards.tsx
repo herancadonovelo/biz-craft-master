@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { z } from "zod";
@@ -32,7 +33,11 @@ const searchSchema = z.object({ id: z.string().optional() });
 export const Route = createFileRoute("/editor-moodboards")({
   head: () => ({ meta: [{ title: "Editor de Moodboards" }] }),
   validateSearch: (s) => searchSchema.parse(s),
-  component: EditorPage,
+  component: () => (
+    <PremiumRoute feature="Editor de Moodboards">
+      <EditorPage />
+    </PremiumRoute>
+  ),
 });
 
 const novoDesign = (): MoodboardDesign => ({
