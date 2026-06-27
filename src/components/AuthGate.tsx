@@ -2,8 +2,11 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-state";
 import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { logSessionEvent } from "@/lib/session-telemetry";
 
 const PUBLIC_ROUTES = ["/auth", "/sessao-expirada"];
+const REVALIDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 const REDIRECT_KEY = "cbm:postLoginRedirect";
 
 export function saveIntendedPath(path: string) {
@@ -36,12 +39,54 @@ export function AuthGate() {
     if (hadUser.current) {
       hadUser.current = false;
       saveIntendedPath(pathname + (typeof search === "string" ? search : ""));
+      void logSessionEvent("session_expired", {
+        reason: "user_disappeared_mid_session",
+        path: pathname,
+      });
       nav({ to: "/sessao-expirada" });
       return;
     }
     saveIntendedPath(pathname + (typeof search === "string" ? search : ""));
+    void logSessionEvent("session_invalid", {
+      reason: "no_session_on_protected_route",
+      path: pathname,
+    });
     nav({ to: "/auth" });
   }, [user, loading, pathname, search, nav]);
+
+  // Periodic revalidation on protected routes — catches server-side revoked
+  // sessions (logout in another device) before the user hits a 401.
+  useEffect(() => {
+    if (!user) return;
+    if (PUBLIC_ROUTES.includes(pathname)) return;
+
+    let cancelled = false;
+    const revalidate = async () => {
+      if (document.hidden) return;
+      const { data, error } = await supabase.auth.getUser();
+      if (cancelled) return;
+      if (error || !data.user) {
+        void logSessionEvent("session_revoked_remote", {
+          reason: error?.message ?? "getUser_returned_no_user",
+          path: pathname,
+        });
+        saveIntendedPath(pathname + (typeof search === "string" ? search : ""));
+        await supabase.auth.signOut().catch(() => {});
+        nav({ to: "/sessao-expirada" });
+      } else {
+        void logSessionEvent("session_revalidate_ok", { path: pathname });
+      }
+    };
+
+    const id = window.setInterval(revalidate, REVALIDATE_INTERVAL_MS);
+    const onFocus = () => revalidate();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [user, pathname, search, nav]);
 
   // Blocking overlay during initial session verification on protected routes
   if (loading && !PUBLIC_ROUTES.includes(pathname)) {

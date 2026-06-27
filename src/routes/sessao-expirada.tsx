@@ -4,7 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, LogIn, Loader2, AlertTriangle, RotateCcw } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Clock, LogIn, Loader2, AlertTriangle, RotateCcw, ArrowRight } from "lucide-react";
+import { logSessionEvent } from "@/lib/session-telemetry";
 
 export const Route = createFileRoute("/sessao-expirada")({
   head: () => ({ meta: [{ title: "Sessão expirada — Atelier Tricotin" }] }),
@@ -15,6 +26,7 @@ function SessionExpired() {
   const nav = useNavigate();
   const [cleaning, setCleaning] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const cleanup = async () => {
     try { await supabase.auth.signOut(); } catch {}
@@ -26,6 +38,10 @@ function SessionExpired() {
   };
 
   useEffect(() => {
+    void logSessionEvent("session_expired", {
+      reason: "user_landed_on_sessao_expirada",
+      path: "/sessao-expirada",
+    });
     (async () => { await cleanup(); setCleaning(false); })();
   }, []);
 
@@ -36,6 +52,11 @@ function SessionExpired() {
     setRetrying(false);
     if (data.session) nav({ to: "/" });
     else nav({ to: "/auth" });
+  };
+
+  const goToAuth = async () => {
+    await cleanup();
+    nav({ to: "/auth" });
   };
 
   return (
@@ -89,8 +110,33 @@ function SessionExpired() {
               )}
             </Button>
           </div>
+
+          <Button
+            variant="ghost"
+            className="w-full text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => setConfirmOpen(true)}
+            disabled={retrying}
+          >
+            <ArrowRight className="mr-2 h-3.5 w-3.5" /> Ir diretamente para o ecrã de início de sessão
+          </Button>
         </CardContent>
       </Card>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar saída da sessão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vamos limpar a sessão atual deste dispositivo e reencaminhar-te para o
+              ecrã de início de sessão. Queres continuar?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={goToAuth}>Sim, ir para /auth</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
