@@ -183,6 +183,34 @@ function TricotinTab() {
   };
   const measuredNum = parseFloat(measuredMm.replace(",", "."));
   const errorMm = Number.isFinite(measuredNum) ? measuredNum - 100 : null;
+
+  // ---------- Comprimento total de arame (tempo real) ----------
+  // Soma comprimentos por segmento (reta ou Bézier quadrática) + fecho opcional,
+  // converte px → cm com a escala real do A4 (PX_PER_CM) e aplica margem +5%.
+  const totalLengthCm = React.useMemo(() => {
+    if (nodes.length < 2) return 0;
+    const segLen = (a: PtNode, b: PtNode) => {
+      if (b.type === "curve" && b.ctrlX != null && b.ctrlY != null) {
+        let sum = 0;
+        let px = a.x, py = a.y;
+        for (let i = 1; i <= 20; i++) {
+          const t = i * 0.05;
+          const it = 1 - t;
+          const bx = it * it * a.x + 2 * it * t * b.ctrlX + t * t * b.x;
+          const by = it * it * a.y + 2 * it * t * b.ctrlY + t * t * b.y;
+          sum += Math.hypot(bx - px, by - py);
+          px = bx; py = by;
+        }
+        return sum;
+      }
+      return Math.hypot(b.x - a.x, b.y - a.y);
+    };
+    let total = 0;
+    for (let i = 1; i < nodes.length; i++) total += segLen(nodes[i - 1], nodes[i]);
+    if (isClosedPath && nodes.length > 1) total += segLen(nodes[nodes.length - 1], nodes[0]);
+    const cm = total / PX_PER_CM;
+    return cm * 1.05; // margem de segurança +5%
+  }, [nodes, isClosedPath]);
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
@@ -779,7 +807,12 @@ function TricotinTab() {
         )}
       </div>
       <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
-        <canvas
+        <div className="relative">
+          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
+            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
+          </div>
+          <canvas
           ref={canvasRef}
           width={W}
           height={H}
@@ -789,7 +822,8 @@ function TricotinTab() {
           onPointerCancel={onPointerUp}
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
-        />
+          />
+        </div>
       </div>
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
