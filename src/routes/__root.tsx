@@ -28,6 +28,7 @@ import { PreviewExitFab } from "@/components/PreviewExitFab";
 import { SplashScreen } from "@/components/SplashScreen";
 import { AtelierSoundsProvider } from "@/lib/atelier-sounds";
 import { DailyInspirationNotifier } from "@/components/DailyInspirationNotifier";
+import { RouteAccessGuard } from "@/components/RouteAccessGuard";
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -218,6 +219,7 @@ function RootComponent() {
         <WellnessTimer />
         <SupabaseSync />
         <PaywallDialog />
+        <RouteAccessGuard />
         <PreviewExitFab />
         <SplashScreen />
         <DailyInspirationNotifier />

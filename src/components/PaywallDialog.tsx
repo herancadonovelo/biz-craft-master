@@ -18,10 +18,11 @@ export function PaywallDialog() {
             <Lock className="h-6 w-6" />
           </div>
           <DialogTitle className="text-center font-display text-xl">
-            {paywall?.feature ? `"${paywall.feature}" requer ${def.nome}` : `Funcionalidade do plano ${def.nome}`}
+            Funcionalidade Premium! 🌟
           </DialogTitle>
           <DialogDescription className="text-center">
-            {def.resumo}
+            {paywall?.feature ? <><span className="font-medium text-foreground">{paywall.feature}</span><br /></> : null}
+            Faz o upgrade para o Plano <span className="font-semibold">{def.nome}</span> para desbloquear esta ferramenta e elevar o teu atelier a outro nível!
           </DialogDescription>
         </DialogHeader>
         <ul className="space-y-2 rounded-lg border border-border bg-muted/30 p-3 text-sm">
@@ -31,7 +32,7 @@ export function PaywallDialog() {
         </ul>
         <DialogFooter className="flex-col gap-2 sm:flex-col">
           <Link to="/planos" onClick={closePaywall} className="w-full">
-            <Button className="w-full"><Sparkles className="mr-2 h-4 w-4" />Ver planos e começar teste grátis</Button>
+            <Button className="w-full"><Sparkles className="mr-2 h-4 w-4" />Ver Planos de Subscrição</Button>
           </Link>
           <Button variant="ghost" onClick={closePaywall}>Agora não</Button>
         </DialogFooter>
