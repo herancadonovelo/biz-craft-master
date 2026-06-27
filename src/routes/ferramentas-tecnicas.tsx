@@ -205,6 +205,21 @@ function TricotinTab() {
       setMeasurePts((m) => (m.length >= 2 ? [p] : [...m, p]));
       return;
     }
+    if (tool === "number") {
+      setNumeros((s) => [...s, { id: crypto.randomUUID(), x: p.x, y: p.y, n: s.length + 1 }]);
+      return;
+    }
+    if (tool === "label") {
+      const idx = window.prompt(
+        "Etiqueta (escreve número ou texto):\n" + ETIQUETAS_PRE.map((t, i) => `${i + 1}) ${t}`).join("\n"),
+        "1",
+      );
+      if (!idx) return;
+      const n = parseInt(idx, 10);
+      const texto = Number.isFinite(n) && ETIQUETAS_PRE[n - 1] ? ETIQUETAS_PRE[n - 1] : idx;
+      setEtiquetas((s) => [...s, { id: crypto.randomUUID(), x: p.x, y: p.y, lx: p.x + 40, ly: p.y - 30, texto }]);
+      return;
+    }
     if (tool === "line") {
       if (!linePending) { setLinePending(p); return; }
       addPath(`M ${linePending.x} ${linePending.y} L ${p.x} ${p.y}`);
