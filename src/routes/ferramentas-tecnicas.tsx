@@ -698,6 +698,20 @@ function TricotinTab() {
                   <ArrowRightCircle className="mr-1 h-3 w-3" />
                   {arrowedPaths.has(selObj.id) ? "Remover setas" : "Adicionar setas de sentido"}
                 </Button>
+                {arrowedPaths.has(selObj.id) && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Formato da seta</Label>
+                    <Select value={arrowStyles[selObj.id] ?? "triangle"}
+                      onValueChange={(v) => setArrowStyles((s) => ({ ...s, [selObj.id]: v as "triangle" | "open" | "line" }))}>
+                      <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="triangle">Triângulo cheio</SelectItem>
+                        <SelectItem value="open">Cabeça aberta (V)</SelectItem>
+                        <SelectItem value="line">Traço simples</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </>
             )}
           </CardContent></Card>
