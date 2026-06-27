@@ -141,6 +141,7 @@ function snap(v: number, on: boolean, step = PX_PER_CM / 2) {
 }
 
 function TricotinTab() {
+  const addToStore = useStore((s) => s.add);
   type NodeType = "start" | "straight" | "curve";
   type PtNode = { id: string; x: number; y: number; type: NodeType; ctrlX?: number; ctrlY?: number };
   type Mode = "select" | "straight" | "curve";
@@ -273,7 +274,23 @@ function TricotinTab() {
     const item: SavedMold = { id: Math.random().toString(36).slice(2, 9), name, nodes, isClosedPath, lineWidthTricotin, savedAt: Date.now() };
     const next = [item, ...savedMolds];
     setSavedMolds(next); writeSaved(next);
-    alert(`Guardado como "${name}".`);
+    // Também guarda na Biblioteca como snapshot PNG (categoria Tricotin)
+    try {
+      const off = document.createElement("canvas");
+      renderClean(off);
+      const dataUrl = off.toDataURL("image/png");
+      addToStore("biblioteca", {
+        titulo: name,
+        categoria: "Tricotin",
+        tipo: "molde",
+        descricao: `Molde de tricotin · ${nodes.length} nós · ${totalLengthCm.toFixed(1)} cm de arame`,
+        ficheiroBase64: dataUrl,
+        criadoEm: new Date().toISOString(),
+      } as any);
+      toast.success(`Molde "${name}" guardado na Biblioteca › Tricotin.`);
+    } catch {
+      alert(`Guardado como "${name}".`);
+    }
   };
   const loadSaved = (id: string) => {
     const item = savedMolds.find((m) => m.id === id); if (!item) return;
