@@ -155,6 +155,18 @@ function TricotinTab() {
   const [objs, setObjs] = useState<AnyObj[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [linePending, setLinePending] = useState<{ x: number; y: number } | null>(null);
+  // Polilinha contínua: lista de vértices acumulados enquanto a ferramenta "Reta" está ativa
+  const [polyPts, setPolyPts] = useState<{ x: number; y: number }[]>([]);
+  const [hoverPt, setHoverPt] = useState<{ x: number; y: number } | null>(null);
+
+  const terminarPoli = (fechar = false) => {
+    if (polyPts.length < 2) { setPolyPts([]); return; }
+    let d = `M ${polyPts[0].x} ${polyPts[0].y}` + polyPts.slice(1).map((q) => ` L ${q.x} ${q.y}`).join("");
+    if (fechar) d += " Z";
+    addPath(d);
+    setPolyPts([]);
+    setHoverPt(null);
+  };
   const [measurePts, setMeasurePts] = useState<{ x: number; y: number }[]>([]);
   const drawPts = useRef<{ x: number; y: number }[]>([]);
   const drawing = useRef(false);
@@ -221,9 +233,12 @@ function TricotinTab() {
       return;
     }
     if (tool === "line") {
-      if (!linePending) { setLinePending(p); return; }
-      addPath(`M ${linePending.x} ${linePending.y} L ${p.x} ${p.y}`);
-      setLinePending(null);
+      // Polilinha contínua: cada clique acrescenta um vértice. Duplo clique termina.
+      if (e.detail === 2 && polyPts.length >= 2) {
+        terminarPoli(false);
+        return;
+      }
+      setPolyPts((s) => [...s, p]);
       return;
     }
     if (tool === "curve") {
@@ -239,6 +254,10 @@ function TricotinTab() {
     }
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (tool === "line" && polyPts.length > 0) {
+      setHoverPt(ponto(e, svgRef.current!));
+      return;
+    }
     if (tool !== "curve" || !drawing.current) return;
     const p = ponto(e, svgRef.current!);
     drawPts.current.push(p);
@@ -489,8 +508,20 @@ function TricotinTab() {
                   </g>
                 ))}
 
-                {/* Linha pendente */}
-                {tool === "line" && linePending && <circle cx={linePending.x} cy={linePending.y} r={3} fill="#1e88e5" />}
+                {/* Polilinha em construção */}
+                {tool === "line" && polyPts.length > 0 && (
+                  <g>
+                    <path
+                      d={`M ${polyPts[0].x} ${polyPts[0].y}` +
+                        polyPts.slice(1).map((q) => ` L ${q.x} ${q.y}`).join("") +
+                        (hoverPt ? ` L ${hoverPt.x} ${hoverPt.y}` : "")}
+                      stroke="#1e88e5" strokeWidth="1.5" fill="none" strokeDasharray="5 4"
+                    />
+                    {polyPts.map((q, i) => (
+                      <circle key={i} cx={q.x} cy={q.y} r={3} fill="#1e88e5" />
+                    ))}
+                  </g>
+                )}
 
                 {/* Medição */}
                 {medicao && (
@@ -511,13 +542,26 @@ function TricotinTab() {
           <Label className="text-xs">Ferramenta</Label>
           <div className="grid grid-cols-4 gap-1">
             <ToolBtn active={tool === "select"} onClick={() => setTool("select")} icon={<MousePointer2 className="h-4 w-4" />} label="Selecionar" />
-            <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
+            <ToolBtn active={tool === "line"} onClick={() => { setTool("line"); setLinePending(null); setPolyPts([]); setHoverPt(null); }} icon={<Minus className="h-4 w-4" />} label="Reta" />
             <ToolBtn active={tool === "curve"} onClick={() => setTool("curve")} icon={<Spline className="h-4 w-4" />} label="Curva" />
             <ToolBtn active={tool === "text"} onClick={() => setTool("text")} icon={<Type className="h-4 w-4" />} label="Texto" />
             <ToolBtn active={tool === "measure"} onClick={() => { setTool("measure"); setMeasurePts([]); }} icon={<Ruler className="h-4 w-4" />} label="Fita" />
             <ToolBtn active={tool === "number"} onClick={() => setTool("number")} icon={<Hash className="h-4 w-4" />} label="Nº passo" />
             <ToolBtn active={tool === "label"} onClick={() => setTool("label")} icon={<Tag className="h-4 w-4" />} label="Etiqueta" />
           </div>
+          {tool === "line" && polyPts.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              <Button size="sm" variant="secondary" onClick={() => terminarPoli(false)}>
+                Terminar linha ({polyPts.length} pts)
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => terminarPoli(true)}>
+                <Link2 className="mr-1 h-3 w-3" />Terminar e fechar
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setPolyPts((s) => s.slice(0, -1)); }}>
+                Anular último
+              </Button>
+            </div>
+          )}
           <div>
             <Label className="text-xs">Espessura ({strokeWidth}px)</Label>
             <Slider value={[strokeWidth]} min={1} max={20} step={1} onValueChange={(v) => {
