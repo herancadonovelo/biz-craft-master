@@ -14,6 +14,7 @@ import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
+import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -97,6 +98,11 @@ const StockRoute = StockRouteImport.update({
 const SincronizacaoRoute = SincronizacaoRouteImport.update({
   id: '/sincronizacao',
   path: '/sincronizacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
+  id: '/sessao-expirada',
+  path: '/sessao-expirada',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjetosRoute = ProjetosRouteImport.update({
@@ -453,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sessao-expirada'
     | '/sincronizacao'
     | '/stock'
     | '/todo'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sessao-expirada'
     | '/sincronizacao'
     | '/stock'
     | '/todo'
@@ -786,6 +797,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/sessao-expirada'
     | '/sincronizacao'
     | '/stock'
     | '/todo'
@@ -853,6 +865,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
+  SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
   StockRoute: typeof StockRoute
   TodoRoute: typeof TodoRoute
@@ -898,6 +911,13 @@ declare module '@tanstack/react-router' {
       path: '/sincronizacao'
       fullPath: '/sincronizacao'
       preLoaderRoute: typeof SincronizacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sessao-expirada': {
+      id: '/sessao-expirada'
+      path: '/sessao-expirada'
+      fullPath: '/sessao-expirada'
+      preLoaderRoute: typeof SessaoExpiradaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projetos': {
@@ -1384,6 +1404,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
+  SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
   StockRoute: StockRoute,
   TodoRoute: TodoRoute,
