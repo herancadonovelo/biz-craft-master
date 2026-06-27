@@ -37,7 +37,7 @@ const pt: Dict = {
   "nav.calendar": "Calendário",
   "nav.language": "Idioma",
   "nav.settings": "Configurações",
-  "nav.profile": "Perfil do negócio",
+  "nav.profile": "Perfil Pessoal & Negócio",
   "nav.sync": "Sincronização",
   "nav.audit": "Histórico & auditoria",
   "nav.shopping": "Lista de compras",
