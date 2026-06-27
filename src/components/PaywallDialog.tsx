@@ -65,12 +65,7 @@ export function PaywallDialog() {
           ))}
         </ul>
         <DialogFooter className="flex-col gap-2 sm:flex-col">
-          <Link
-            to="/planos"
-            search={{ destacar: required } as never}
-            onClick={closePaywall}
-            className="w-full"
-          >
+          <Link to="/planos" hash={required} onClick={closePaywall} className="w-full">
             <Button className="w-full">
               <Sparkles className="mr-2 h-4 w-4" />
               {accent.cta}
