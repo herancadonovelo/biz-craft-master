@@ -77,7 +77,7 @@ export function WatermarkControls({ w, set }: { w: MarcaDAgua; set: (p: Partial<
         <Label className="text-xs">Opacidade ({w.opacidade}%)</Label>
         <Slider value={[w.opacidade]} min={0} max={100} step={1} onValueChange={(v) => set({ opacidade: v[0] })} />
       </div>
-    </Card></Card>
+    </CardContent></Card>
   );
 }
 
