@@ -626,26 +626,17 @@ function TricotinTab() {
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós vermelhos para reposicionar, os pontos de controlo (vermelho escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
-      {/* Hidden print host: only visible during window.print() */}
-      <div id="tricotin-print-host" className="tricotin-print-host" aria-hidden="true" />
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
-          body.tricotin-printing > *:not(#tricotin-print-host-portal) { /* fallback */ }
+          body.tricotin-printing > *:not(#tricotin-print-host) { display: none !important; }
           body.tricotin-printing #tricotin-print-host {
             position: fixed; inset: 0; background: #fff; z-index: 999999;
-            display: block; page-break-inside: avoid;
+            display: block !important; page-break-inside: avoid;
           }
-          body.tricotin-printing .tricotin-no-print,
-          body.tricotin-printing header,
-          body.tricotin-printing nav,
-          body.tricotin-printing aside,
-          body.tricotin-printing footer { display: none !important; }
-          body.tricotin-printing { background: #fff !important; }
+          body.tricotin-printing { background: #fff !important; margin: 0 !important; padding: 0 !important; }
           body.tricotin-printing #tricotin-print-host img { page-break-inside: avoid; }
         }
-        #tricotin-print-host { display: none; }
-        body.tricotin-printing #tricotin-print-host { display: block; }
       `}</style>
     </div>
   );
