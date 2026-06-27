@@ -41,7 +41,17 @@ export const PLANS: PlanDef[] = [
       "To-do list e notas",
       "Calculadora de preços",
     ],
-    limitacoes: ["Sem Criador de Moldes", "Sem exportação A4 / PDF", "Sem Assistente IA", "Sem sincronização na nuvem ilimitada"],
+    limitacoes: [
+      "Sem Criador de Moldes",
+      "Sem exportação A4 / PDF",
+      "Sem Assistente IA",
+      "Sem sincronização na nuvem ilimitada",
+      "Sem Contador de Carreiras & Pontos",
+      "Sem Editor de Moodboards",
+      "Sem Atelier Sounds & Foco",
+      "Sem Conversor de Cores: DMC/ANCHOR",
+      "Sem Ferramentas Técnicas: Editores",
+    ],
   },
   {
     id: "base", nome: "Base", ...mkPrices(10.99), trial: true,
