@@ -485,7 +485,9 @@ function TricotinTab() {
           <div className="pl-6 pt-5">
             <A4Stage innerRef={ref} watermark={w}>
               <svg ref={svgRef} viewBox={`0 0 ${A4_W} ${A4_H}`} className="absolute inset-0 h-full w-full touch-none"
-                   onPointerDown={onDown} onPointerMove={onSvgPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
+                   onPointerDown={onDown} onPointerMove={onSvgPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}
+                   onWheel={onWheelSvg}
+                   style={{ cursor: tool === "move" ? "grab" : undefined }}>
                 <defs>
                   <pattern id="grid-mm" width={PX_PER_CM / 2} height={PX_PER_CM / 2} patternUnits="userSpaceOnUse">
                     <path d={`M ${PX_PER_CM / 2} 0 L 0 0 0 ${PX_PER_CM / 2}`} fill="none" stroke="#eee" strokeWidth="0.5" />
@@ -502,6 +504,7 @@ function TricotinTab() {
                   <rect width="100%" height="100%" fill="url(#grid-mm)" />
                   <rect width="100%" height="100%" fill="url(#grid-cm)" />
                 </>}
+                <g transform={`translate(${viewDx} ${viewDy}) scale(${zoom})`}>
 
                 {/* Pauta de caligrafia */}
                 {pautaOn && (() => {
@@ -589,6 +592,7 @@ function TricotinTab() {
                     <text x={(medicao.a.x + medicao.b.x) / 2} y={(medicao.a.y + medicao.b.y) / 2 - 6} textAnchor="middle" fontSize="12" fill="#1e88e5">{medicao.cm.toFixed(1)} cm</text>
                   </g>
                 )}
+                </g>
               </svg>
             </A4Stage>
           </div>
