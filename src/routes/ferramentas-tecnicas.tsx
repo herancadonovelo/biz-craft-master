@@ -158,6 +158,31 @@ function TricotinTab() {
   // Calibração: régua mm/cm sobreposta (1:1 com A4 quando impresso)
   const [showRuler, setShowRuler] = React.useState(false);
   const [printRuler, setPrintRuler] = React.useState(false);
+  // Calibração automática: fator multiplicativo aplicado à impressão A4.
+  // Se a barra de 100 mm sair com L mm na régua física, scale = 100 / L.
+  const CAL_KEY = "tricotin-cal-scale-v1";
+  const [calScale, setCalScale] = React.useState<number>(() => {
+    if (typeof window === "undefined") return 1;
+    const v = parseFloat(localStorage.getItem(CAL_KEY) || "1");
+    return Number.isFinite(v) && v > 0.5 && v < 2 ? v : 1;
+  });
+  const [measuredMm, setMeasuredMm] = React.useState<string>("");
+  const applyCalibration = () => {
+    const m = parseFloat(measuredMm.replace(",", "."));
+    if (!Number.isFinite(m) || m < 50 || m > 150) {
+      alert("Insere um valor entre 50 e 150 mm (a barra esperada é 100 mm).");
+      return;
+    }
+    const newScale = (100 / m) * calScale; // compõe com a calibração anterior
+    setCalScale(newScale);
+    try { localStorage.setItem(CAL_KEY, String(newScale)); } catch { /* noop */ }
+  };
+  const resetCalibration = () => {
+    setCalScale(1); setMeasuredMm("");
+    try { localStorage.removeItem(CAL_KEY); } catch { /* noop */ }
+  };
+  const measuredNum = parseFloat(measuredMm.replace(",", "."));
+  const errorMm = Number.isFinite(measuredNum) ? measuredNum - 100 : null;
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
@@ -386,7 +411,9 @@ function TricotinTab() {
     // can reliably hide everything else.
     const host = document.createElement("div");
     host.id = "tricotin-print-host";
-    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:21cm;height:29.7cm;display:block;page-break-inside:avoid;" />`;
+    const wCm = (21 * calScale).toFixed(4);
+    const hCm = (29.7 * calScale).toFixed(4);
+    host.innerHTML = `<img src="${dataUrl}" alt="Molde Tricotin" style="width:${wCm}cm;height:${hCm}cm;display:block;page-break-inside:avoid;" />`;
     document.body.appendChild(host);
     document.body.classList.add("tricotin-printing");
     const cleanup = () => {
@@ -674,6 +701,42 @@ function TricotinTab() {
           A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
           Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
         </span>
+      </div>
+      {/* Calibração automática (sem fazer contas) */}
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
+        <div>
+          <div className="font-medium text-muted-foreground">Calibração automática</div>
+          <div className="text-muted-foreground">
+            Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
+          </div>
+        </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">Medição obtida (mm)</span>
+          <input
+            type="number" inputMode="decimal" step="0.1" min={50} max={150}
+            value={measuredMm}
+            onChange={(e) => setMeasuredMm(e.target.value)}
+            placeholder="ex.: 99,4"
+            className="w-28 rounded border bg-background px-2 py-1"
+          />
+        </label>
+        <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
+          Calcular &amp; aplicar
+        </button>
+        <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
+        <div className="ml-auto flex flex-col items-end gap-0.5">
+          <span>
+            Erro atual:{" "}
+            <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
+              {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
+            </strong>
+            {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
+          </span>
+          <span className="text-muted-foreground">
+            Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
+            {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
+          </span>
+        </div>
       </div>
       {/* Gestão do Molde */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
