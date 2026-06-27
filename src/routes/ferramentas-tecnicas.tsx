@@ -327,6 +327,29 @@ function TricotinTab() {
     return { w: 100, h: 100 };
   };
 
+  /** Calcula 3 pontos+tangentes ao longo de um path para desenhar setas de sentido. */
+  const arrowsForPath = (d: string): { x: number; y: number; ang: number }[] => {
+    if (typeof document === "undefined") return [];
+    const ns = "http://www.w3.org/2000/svg";
+    const el = document.createElementNS(ns, "path");
+    el.setAttribute("d", d);
+    let len = 0;
+    try { len = el.getTotalLength(); } catch { return []; }
+    if (len < 10) return [];
+    return [0.25, 0.55, 0.85].map((t) => {
+      const p = el.getPointAtLength(len * t);
+      const p2 = el.getPointAtLength(Math.min(len, len * t + 1));
+      return { x: p.x, y: p.y, ang: (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI };
+    });
+  };
+
+  /* --- Stock & custo do arame --- */
+  const arameMat = materiais.find((m) => m.id === arameMaterialId);
+  const arameNecessarioM = comprimentoTotal / 100; // metros
+  const custoArame = arameMat ? arameMat.precoCompra * arameNecessarioM : 0;
+  const stockSuficiente = arameMat ? arameMat.stock >= arameNecessarioM : true;
+  const faltaM = arameMat ? Math.max(0, arameNecessarioM - arameMat.stock) : 0;
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
       <div className="space-y-2">
