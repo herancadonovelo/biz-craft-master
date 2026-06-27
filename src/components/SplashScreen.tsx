@@ -3,6 +3,8 @@ import logo from "@/assets/craft-business-master-splash.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { splashPhrases } from "@/lib/splash-phrases";
+import { useStore } from "@/lib/store";
 
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
@@ -67,11 +69,21 @@ const loadingPhrases = [
 // Validação em tempo de carga: garantir exatamente 50 frases válidas (sem
 // quebras inesperadas / vírgulas em falta que resultariam em strings vazias
 // ou concatenadas). Lança em dev para apanhar regressões cedo.
-if (loadingPhrases.length !== 50) {
-  const msg = `loadingPhrases deve conter exatamente 50 frases (atual: ${loadingPhrases.length}).`;
+// Sanidade: cada banco de frases (PT base + traduções) deve ter exatamente 50.
+const expectedCount = loadingPhrases.length;
+if (expectedCount !== 50) {
+  const msg = `loadingPhrases deve conter exatamente 50 frases (atual: ${expectedCount}).`;
   if (import.meta.env.DEV) throw new Error(msg);
   // eslint-disable-next-line no-console
   else console.warn(msg);
+}
+for (const [lang, arr] of Object.entries(splashPhrases)) {
+  if (arr.length !== 50) {
+    const msg = `splashPhrases[${lang}] deve ter 50 frases (atual: ${arr.length}).`;
+    if (import.meta.env.DEV) throw new Error(msg);
+    // eslint-disable-next-line no-console
+    else console.warn(msg);
+  }
 }
 {
   const bad = loadingPhrases.findIndex(
@@ -85,12 +97,12 @@ if (loadingPhrases.length !== 50) {
   }
 }
 
-const pickPhrase = (prev?: string) => {
-  let p = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
-  if (prev && loadingPhrases.length > 1) {
+const pickPhrase = (list: string[], prev?: string) => {
+  let p = list[Math.floor(Math.random() * list.length)];
+  if (prev && list.length > 1) {
     let guard = 0;
     while (p === prev && guard++ < 5) {
-      p = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
+      p = list[Math.floor(Math.random() * list.length)];
     }
   }
   return p;
@@ -101,9 +113,11 @@ export function SplashScreen() {
   const [fading, setFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const idioma = useStore((s) => s.design.idioma);
+  const phrases = splashPhrases[idioma] ?? loadingPhrases;
   // Inicial determinístico para evitar mismatch de hidratação SSR/cliente.
   // A aleatorização arranca apenas depois do mount, no intervalo abaixo.
-  const [phrase, setPhrase] = useState<string>(loadingPhrases[0]);
+  const [phrase, setPhrase] = useState<string>(phrases[0]);
   const [phraseVisible, setPhraseVisible] = useState(true);
   const [progress, setProgress] = useState(0); // 0..1
   const navigate = useNavigate();
@@ -114,13 +128,13 @@ export function SplashScreen() {
     // Primeira troca aleatória imediata após mount (já no cliente).
     setPhraseVisible(false);
     const kick = window.setTimeout(() => {
-      setPhrase((prev) => pickPhrase(prev));
+      setPhrase((prev) => pickPhrase(phrases, prev));
       setPhraseVisible(true);
     }, FADE_DURATION);
     const id = window.setInterval(() => {
       setPhraseVisible(false);
       window.setTimeout(() => {
-        setPhrase((prev) => pickPhrase(prev));
+        setPhrase((prev) => pickPhrase(phrases, prev));
         setPhraseVisible(true);
       }, FADE_DURATION);
     }, PHRASE_INTERVAL);
@@ -128,7 +142,8 @@ export function SplashScreen() {
       window.clearTimeout(kick);
       window.clearInterval(id);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phrases]);
 
   useEffect(() => {
     let cancelled = false;
