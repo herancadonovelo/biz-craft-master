@@ -52,7 +52,6 @@ import { Route as CriadorMoldesRouteImport } from './routes/criador-moldes'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ConversorCoresRouteImport } from './routes/conversor-cores'
 import { Route as ContasRouteImport } from './routes/contas'
-import { Route as ContadorRouteImport } from './routes/contador'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ClientesRouteImport } from './routes/clientes'
@@ -287,11 +286,6 @@ const ContasRoute = ContasRouteImport.update({
   path: '/contas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContadorRoute = ContadorRouteImport.update({
-  id: '/contador',
-  path: '/contador',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactoRoute = ContactoRouteImport.update({
   id: '/contacto',
   path: '/contacto',
@@ -400,7 +394,6 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
-  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
@@ -464,7 +457,6 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
-  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
@@ -529,7 +521,6 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/contacto': typeof ContactoRoute
-  '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
@@ -595,7 +586,6 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
-    | '/contador'
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
@@ -659,7 +649,6 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
-    | '/contador'
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
@@ -723,7 +712,6 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracoes'
     | '/contacto'
-    | '/contador'
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
@@ -788,7 +776,6 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ContactoRoute: typeof ContactoRoute
-  ContadorRoute: typeof ContadorRoute
   ContasRoute: typeof ContasRoute
   ConversorCoresRoute: typeof ConversorCoresRoute
   CrescimentoRoute: typeof CrescimentoRoute
@@ -1140,13 +1127,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contador': {
-      id: '/contador'
-      path: '/contador'
-      fullPath: '/contador'
-      preLoaderRoute: typeof ContadorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contacto': {
       id: '/contacto'
       path: '/contacto'
@@ -1303,7 +1283,6 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ContactoRoute: ContactoRoute,
-  ContadorRoute: ContadorRoute,
   ContasRoute: ContasRoute,
   ConversorCoresRoute: ConversorCoresRoute,
   CrescimentoRoute: CrescimentoRoute,
