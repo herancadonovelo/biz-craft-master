@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/ImagePicker";
-import { Badge as B2 } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/stock")({
   head: () => ({ meta: [{ title: "Stock de material" }] }),
