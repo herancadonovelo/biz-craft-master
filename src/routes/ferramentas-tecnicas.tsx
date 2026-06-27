@@ -149,6 +149,11 @@ function TricotinTab() {
   const [isClosedPath, setIsClosedPath] = React.useState(false);
   const [lineWidthTricotin, setLineWidthTricotin] = React.useState(12);
   const [mode, setMode] = React.useState<Mode>("straight");
+  // Snapping options (opt-in)
+  const [snapGridOn, setSnapGridOn] = React.useState(false);
+  const [gridStepCm, setGridStepCm] = React.useState<0.5 | 1>(0.5);
+  const [snapAngleOn, setSnapAngleOn] = React.useState(false);
+  const [angleStep, setAngleStep] = React.useState<15 | 45 | 90>(15);
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
@@ -234,6 +239,22 @@ function TricotinTab() {
   };
   const dist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(ax - bx, ay - by);
 
+  // Snap helpers (pure: never block first/last vector, only adjust coordinates)
+  const snapToGrid = (x: number, y: number) => {
+    if (!snapGridOn) return { x, y };
+    const step = PX_PER_CM * gridStepCm;
+    return { x: Math.round(x / step) * step, y: Math.round(y / step) * step };
+  };
+  const snapToAngle = (originX: number, originY: number, x: number, y: number) => {
+    if (!snapAngleOn) return { x, y };
+    const dx = x - originX, dy = y - originY;
+    const r = Math.hypot(dx, dy);
+    if (r === 0) return { x, y };
+    const stepRad = (angleStep * Math.PI) / 180;
+    const a = Math.round(Math.atan2(dy, dx) / stepRad) * stepRad;
+    return { x: originX + Math.cos(a) * r, y: originY + Math.sin(a) * r };
+  };
+
   // Distance from point (px,py) to segment (ax,ay)-(bx,by)
   const distToSegment = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
     const dx = bx - ax, dy = by - ay;
@@ -300,7 +321,7 @@ function TricotinTab() {
   React.useEffect(() => { draw(); }, [draw]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = getPos(e);
+    let { x, y } = getPos(e);
     didDragRef.current = false;
     if (mode === "select") {
       // 1) Control handle hit
@@ -336,11 +357,17 @@ function TricotinTab() {
     pushHistory();
     const id = Math.random().toString(36).slice(2, 9);
     if (nodes.length === 0) {
+      ({ x, y } = snapToGrid(x, y));
       setNodes([{ id, x, y, type: "start" }]);
     } else if (mode === "straight") {
+      const prev = nodes[nodes.length - 1];
+      ({ x, y } = snapToAngle(prev.x, prev.y, x, y));
+      ({ x, y } = snapToGrid(x, y));
       setNodes((p) => [...p, { id, x, y, type: "straight" }]);
     } else {
       const prev = nodes[nodes.length - 1];
+      ({ x, y } = snapToAngle(prev.x, prev.y, x, y));
+      ({ x, y } = snapToGrid(x, y));
       setNodes((p) => [...p, { id, x, y, type: "curve", ctrlX: (prev.x + x) / 2, ctrlY: (prev.y + y) / 2 - 60 }]);
     }
   };
@@ -348,9 +375,10 @@ function TricotinTab() {
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
-    const { x, y } = getPos(e);
+    let { x, y } = getPos(e);
     didDragRef.current = true;
     if (drag.kind === "segment") {
+      ({ x, y } = snapToGrid(x, y));
       // Adjust ONLY the curvature of this segment.
       // Endpoints A and B stay fixed; node B carries the quadratic control point.
       setNodes((prev) => {
@@ -371,9 +399,18 @@ function TricotinTab() {
     const { id, kind } = drag;
     setNodes((prev) => prev.map((n) => {
       if (n.id !== id) return n;
-      if (kind === "ctrl") return { ...n, ctrlX: x, ctrlY: y };
-      const dx = x - n.x, dy = y - n.y;
-      const upd: PtNode = { ...n, x, y };
+      if (kind === "ctrl") {
+        const s = snapToGrid(x, y);
+        return { ...n, ctrlX: s.x, ctrlY: s.y };
+      }
+      // Main node drag: optional angle snap relative to previous node, then grid snap.
+      let nx = x, ny = y;
+      const idx = prev.findIndex((p) => p.id === id);
+      const ref = idx > 0 ? prev[idx - 1] : (isClosedPath && prev.length > 1 ? prev[prev.length - 1] : null);
+      if (ref && ref.id !== id) ({ x: nx, y: ny } = snapToAngle(ref.x, ref.y, nx, ny));
+      ({ x: nx, y: ny } = snapToGrid(nx, ny));
+      const dx = nx - n.x, dy = ny - n.y;
+      const upd: PtNode = { ...n, x: nx, y: ny };
       if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) { upd.ctrlX = n.ctrlX + dx; upd.ctrlY = n.ctrlY + dy; }
       return upd;
     }));
@@ -404,6 +441,35 @@ function TricotinTab() {
           <span className="text-muted-foreground">Espessura:</span>
           <input type="range" min={5} max={35} value={lineWidthTricotin} onChange={(e) => setLineWidthTricotin(Number(e.target.value))} />
           <span className="w-10 tabular-nums">{lineWidthTricotin}px</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <label className="flex items-center gap-1">
+            <input type="checkbox" checked={snapGridOn} onChange={(e) => setSnapGridOn(e.target.checked)} />
+            Snap grelha
+          </label>
+          <select
+            value={gridStepCm}
+            onChange={(e) => setGridStepCm(Number(e.target.value) as 0.5 | 1)}
+            disabled={!snapGridOn}
+            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+          >
+            <option value={0.5}>0,5 cm</option>
+            <option value={1}>1 cm</option>
+          </select>
+          <label className="ml-2 flex items-center gap-1">
+            <input type="checkbox" checked={snapAngleOn} onChange={(e) => setSnapAngleOn(e.target.checked)} />
+            Snap ângulo
+          </label>
+          <select
+            value={angleStep}
+            onChange={(e) => setAngleStep(Number(e.target.value) as 15 | 45 | 90)}
+            disabled={!snapAngleOn}
+            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+          >
+            <option value={15}>15°</option>
+            <option value={45}>45°</option>
+            <option value={90}>90°</option>
+          </select>
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
