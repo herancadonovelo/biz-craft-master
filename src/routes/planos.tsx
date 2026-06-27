@@ -69,17 +69,18 @@ function PlanosPage() {
 
   const applyDiscount = (price: number) => promoDiscount ? +(price * (1 - promoDiscount.pct / 100)).toFixed(2) : price;
 
-  const onSubscribe = async (id: Plan) => {
+  const onSubscribe = async (id: Plan, overrideCycle?: BillingCycle) => {
     if (!user) { toast.error("Inicia sessão para subscrever"); return; }
     setBusy(id);
+    const chosen = overrideCycle ?? cycle;
     try {
       // Placeholder: futura ligação ao Google Play
-      const res = await handleGooglePlayPurchase(id, cycle);
+      const res = await handleGooglePlayPurchase(id, chosen);
       if (!res.ok) {
         // sem billing ligado ainda — fluxo de demonstração: inicia o trial
-        await startTrial(id, cycle);
+        await startTrial(id, chosen);
       } else {
-        await setPlan(id, cycle);
+        await setPlan(id, chosen);
       }
     } finally { setBusy(null); }
   };
@@ -198,15 +199,27 @@ function PlanosPage() {
                       {isCurrent ? "Plano atual" : "Usar plano gratuito"}
                     </Button>
                   ) : (
-                    <Button
-                      className="w-full"
-                      variant={highlighted ? "default" : "secondary"}
-                      disabled={busy === p.id || isCurrent}
-                      onClick={() => onSubscribe(p.id)}
-                    >
-                      {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                      {isCurrent ? "Plano atual" : `Subscrever ${p.nome} (${cycle === "anual" ? "Anual" : "Mensal"})`}
-                    </Button>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button
+                        className="w-full"
+                        variant={highlighted && cycle === "mensal" ? "default" : "secondary"}
+                        disabled={busy === p.id || isCurrent}
+                        onClick={() => onSubscribe(p.id, "mensal")}
+                      >
+                        {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Mensal · {applyDiscount(p.precoMensal).toFixed(2).replace(".", ",")} €
+                      </Button>
+                      <Button
+                        className="w-full"
+                        variant={highlighted ? "default" : "secondary"}
+                        disabled={busy === p.id || isCurrent}
+                        onClick={() => onSubscribe(p.id, "anual")}
+                      >
+                        {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Star className="mr-2 h-4 w-4" />}
+                        Anual · {applyDiscount(p.precoAnualTotal).toFixed(2).replace(".", ",")} €
+                        <Badge variant="outline" className="ml-1 border-current/30">-{ANNUAL_DISCOUNT_PCT}%</Badge>
+                      </Button>
+                    </div>
                   )}
                   {p.trial && (
                     <Button
