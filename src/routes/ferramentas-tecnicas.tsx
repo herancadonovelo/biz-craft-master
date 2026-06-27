@@ -258,6 +258,86 @@ function TricotinTab() {
     ctx.stroke();
   };
 
+  // ---------- Régua mm/cm (calibração) ----------
+  // Desenha duas réguas (topo + esquerda) ao longo de toda a área A4.
+  // Tick 1mm (curto), 5mm (médio), 10mm = 1cm (longo, com número).
+  // Inclui ainda uma barra de verificação de 100 mm (10 cm) com etiqueta:
+  // se medires com régua física e der 10,0 cm => px↔mm está 1:1.
+  const drawRuler = (ctx: CanvasRenderingContext2D) => {
+    const BAND = 22; // espessura da régua em px (~7,8mm) — fora da área útil
+    ctx.save();
+    // Fundo das réguas
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.fillRect(0, 0, W, BAND);
+    ctx.fillRect(0, 0, BAND, H);
+    ctx.strokeStyle = "#111";
+    ctx.fillStyle = "#111";
+    ctx.lineWidth = 1;
+    ctx.font = "9px ui-sans-serif, system-ui, sans-serif";
+    ctx.textBaseline = "top";
+    // Linha base das réguas
+    ctx.beginPath();
+    ctx.moveTo(0, BAND + 0.5); ctx.lineTo(W, BAND + 0.5);
+    ctx.moveTo(BAND + 0.5, 0); ctx.lineTo(BAND + 0.5, H);
+    ctx.stroke();
+    // Topo: 0..210 mm
+    for (let mm = 0; mm <= 210; mm++) {
+      const x = BAND + mm * PX_PER_MM;
+      if (x > W) break;
+      const h = mm % 10 === 0 ? 12 : mm % 5 === 0 ? 8 : 4;
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, BAND);
+      ctx.lineTo(x + 0.5, BAND - h);
+      ctx.stroke();
+      if (mm % 10 === 0 && mm > 0) {
+        ctx.fillText(String(mm / 10), x + 1, 2);
+      }
+    }
+    // Esquerda: 0..297 mm
+    ctx.textBaseline = "alphabetic";
+    for (let mm = 0; mm <= 297; mm++) {
+      const y = BAND + mm * PX_PER_MM;
+      if (y > H) break;
+      const h = mm % 10 === 0 ? 12 : mm % 5 === 0 ? 8 : 4;
+      ctx.beginPath();
+      ctx.moveTo(BAND, y + 0.5);
+      ctx.lineTo(BAND - h, y + 0.5);
+      ctx.stroke();
+      if (mm % 10 === 0 && mm > 0) {
+        ctx.save();
+        ctx.translate(8, y + 3);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(String(mm / 10), 0, 0);
+        ctx.restore();
+      }
+    }
+    // Barra de verificação 10 cm (100 mm) — canto inferior esquerdo da área útil
+    const barLen = 100 * PX_PER_MM;
+    const barX = BAND + 20;
+    const barY = H - 28;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#111";
+    ctx.beginPath();
+    ctx.moveTo(barX, barY); ctx.lineTo(barX + barLen, barY);
+    ctx.moveTo(barX, barY - 6); ctx.lineTo(barX, barY + 6);
+    ctx.moveTo(barX + barLen, barY - 6); ctx.lineTo(barX + barLen, barY + 6);
+    ctx.stroke();
+    // ticks mm na barra
+    ctx.lineWidth = 1;
+    for (let mm = 0; mm <= 100; mm++) {
+      const x = barX + mm * PX_PER_MM;
+      const h = mm % 10 === 0 ? 6 : mm % 5 === 0 ? 4 : 2;
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, barY); ctx.lineTo(x + 0.5, barY - h);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#111";
+    ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillText("Verificação: 100 mm (10 cm) — mede com régua física", barX, barY + 6);
+    ctx.restore();
+  };
+
   // ---------- Export: JSON ----------
   const exportJSON = () => {
     const payload = { version: 1, nodes, isClosedPath, lineWidthTricotin, pxPerCm: PX_PER_CM, canvas: { w: W, h: H } };
