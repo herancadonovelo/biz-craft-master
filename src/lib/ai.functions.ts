@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireBasePlan } from "@/lib/plan-guard";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
@@ -7,6 +8,7 @@ const MessageSchema = z.object({
 });
 
 export const askAssistant = createServerFn({ method: "POST" })
+  .middleware([requireBasePlan])
   .inputValidator(
     z.object({
       messages: z.array(MessageSchema).min(1).max(40),
