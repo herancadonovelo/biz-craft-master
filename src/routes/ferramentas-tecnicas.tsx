@@ -155,6 +155,9 @@ function TricotinTab() {
   const [gridStepCm, setGridStepCm] = React.useState<0.5 | 1>(0.5);
   const [snapAngleOn, setSnapAngleOn] = React.useState(false);
   const [angleStep, setAngleStep] = React.useState<15 | 45 | 90>(15);
+  // Calibração: régua mm/cm sobreposta (1:1 com A4 quando impresso)
+  const [showRuler, setShowRuler] = React.useState(false);
+  const [printRuler, setPrintRuler] = React.useState(false);
   const dragRef = React.useRef<
     | { kind: "main" | "ctrl"; id: string }
     | { kind: "segment"; aId: string; bId: string }
