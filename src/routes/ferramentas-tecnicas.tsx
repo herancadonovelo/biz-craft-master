@@ -28,20 +28,20 @@ function FerramentasPage() {
       <PageHeader title="Ferramentas Técnicas: Editores"
         description="Os 5 editores partilham tela A4, marca d'água configurável e exportação para Biblioteca, PDF e Imprimir." />
       <Tabs defaultValue="instrucoes">
-        <TabsList className="flex w-full flex-wrap">
+        <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="instrucoes">Instruções de uso</TabsTrigger>
-          <TabsTrigger value="tricotin">Tricotin</TabsTrigger>
-          <TabsTrigger value="amigurumi">Amigurumi & Crochê</TabsTrigger>
-          <TabsTrigger value="costura">Costura</TabsTrigger>
-          <TabsTrigger value="ponto-cruz">Ponto Cruz</TabsTrigger>
-          <TabsTrigger value="bordado">Bordado</TabsTrigger>
+          <TabsTrigger value="tricotin">Editor de moldes: Tricotin</TabsTrigger>
+          <TabsTrigger value="amigurumi">Editor de Receitas: Amigurumis & Crochê</TabsTrigger>
+          <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
+          <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
+          <TabsTrigger value="bordado">Editor de Padrões: Bordado</TabsTrigger>
         </TabsList>
-        <TabsContent value="instrucoes" className="mt-4"><InstrucoesTab /></TabsContent>
-        <TabsContent value="tricotin" className="mt-4"><TricotinTab /></TabsContent>
-        <TabsContent value="amigurumi" className="mt-4"><AmigurumiTab /></TabsContent>
-        <TabsContent value="costura" className="mt-4"><CosturaTab /></TabsContent>
-        <TabsContent value="ponto-cruz" className="mt-4"><PontoCruzTab /></TabsContent>
-        <TabsContent value="bordado" className="mt-4"><BordadoTab /></TabsContent>
+        <TabsContent value="instrucoes" className="mt-24"><InstrucoesTab /></TabsContent>
+        <TabsContent value="tricotin" className="mt-24"><TricotinTab /></TabsContent>
+        <TabsContent value="amigurumi" className="mt-24"><AmigurumiTab /></TabsContent>
+        <TabsContent value="costura" className="mt-24"><CosturaTab /></TabsContent>
+        <TabsContent value="ponto-cruz" className="mt-24"><PontoCruzTab /></TabsContent>
+        <TabsContent value="bordado" className="mt-24"><BordadoTab /></TabsContent>
       </Tabs>
     </div>
   );
