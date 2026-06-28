@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { ImagePicker } from "@/components/ImagePicker";
 
 const ACCENTS = [
   { name: "Steel blue", v: "0.72 0.06 230" },
@@ -27,6 +28,37 @@ const SIDEBAR_COLORS = [
   { name: "Pérola", v: "0.9 0.01 250" },
   { name: "Rosa claro", v: "0.88 0.04 15" },
 ];
+
+const FONTS = [
+  { name: "Sora", v: "Sora, system-ui, sans-serif" },
+  { name: "Manrope", v: "Manrope, system-ui, sans-serif" },
+  { name: "Quicksand", v: "Quicksand, system-ui, sans-serif" },
+  { name: "Caveat", v: "Caveat, cursive" },
+  { name: "Sistema", v: "system-ui, sans-serif" },
+  { name: "Serifa", v: "Georgia, 'Times New Roman', serif" },
+  { name: "Mono", v: "ui-monospace, SFMono-Regular, Menlo, monospace" },
+];
+
+function FontPicker({ label, value, onChange }: { label: string; value?: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <select className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm" value={value || ""} onChange={(e) => onChange(e.target.value)}>
+        {FONTS.map((f) => <option key={f.v} value={f.v} style={{ fontFamily: f.v }}>{f.name}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function ColorRow({ label, value, onChange }: { label: string; value?: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Label className="flex-1">{label}</Label>
+      <input type="color" value={value || "#000000"} onChange={(e) => onChange(e.target.value)} className="h-8 w-12 cursor-pointer rounded border" />
+      {value && <Button size="sm" variant="ghost" onClick={() => onChange("")}>Limpar</Button>}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/design")({
   head: () => ({ meta: [{ title: "Personalização do design" }] }),
@@ -97,6 +129,49 @@ export const Route = createFileRoute("/design")({
               <Button variant="outline">Botão outline</Button>
               <Button variant="secondary">Secundário</Button>
               <div className="rounded-md border border-border bg-card p-4 text-sm">Card de exemplo com o teu design aplicado.</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Imagem de fundo</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Aparece como fundo no interior de todas as categorias.</p>
+              <div className="flex items-center gap-3">
+                <ImagePicker value={design.imagemFundo} onChange={(v) => setDesign({ imagemFundo: v })} size="h-24 w-32" />
+                {design.imagemFundo && (
+                  <Button variant="outline" size="sm" onClick={() => setDesign({ imagemFundo: "" })}>Remover</Button>
+                )}
+              </div>
+              <div>
+                <Label>Intensidade do véu (opacidade do conteúdo sobre a imagem): {Math.round((design.fundoOpacidade ?? 0.85) * 100)}%</Label>
+                <Slider value={[design.fundoOpacidade ?? 0.85]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ fundoOpacidade: v })} />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Tipografia & cores de texto</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <FontPicker label="Tipo de letra dos títulos" value={design.fonteTitulos} onChange={(v) => setDesign({ fonteTitulos: v })} />
+              <ColorRow label="Cor dos títulos" value={design.corTitulos} onChange={(v) => setDesign({ corTitulos: v })} />
+              <FontPicker label="Tipo de letra do texto" value={design.fonteTexto} onChange={(v) => setDesign({ fonteTexto: v })} />
+              <ColorRow label="Cor do texto" value={design.corTexto} onChange={(v) => setDesign({ corTexto: v })} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Menu lateral</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <FontPicker label="Tipo de letra do menu" value={design.fonteMenu} onChange={(v) => setDesign({ fonteMenu: v })} />
+              <ColorRow label="Cor dos itens do menu" value={design.corMenu} onChange={(v) => setDesign({ corMenu: v })} />
+              <ColorRow label="Cor de fundo da categoria ativa" value={design.corMenuAtivo} onChange={(v) => setDesign({ corMenuAtivo: v })} />
+              <ColorRow label="Cor do texto da categoria ativa" value={design.corMenuAtivoTexto} onChange={(v) => setDesign({ corMenuAtivoTexto: v })} />
+              <p className="text-xs text-muted-foreground">A categoria selecionada mantém-se destacada enquanto navegas dentro dela.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Abas (Tabs)</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <FontPicker label="Tipo de letra das abas" value={design.fonteAbas} onChange={(v) => setDesign({ fonteAbas: v })} />
+              <ColorRow label="Cor das abas" value={design.corAbas} onChange={(v) => setDesign({ corAbas: v })} />
+              <ColorRow label="Cor da aba ativa" value={design.corAbaAtiva} onChange={(v) => setDesign({ corAbaAtiva: v })} />
             </CardContent>
           </Card>
         </div>

@@ -218,6 +218,27 @@ function RootComponent() {
     root.style.setProperty("--sidebar-accent", sbAccent);
     root.style.setProperty("--sidebar-accent-foreground", sbFg);
     root.style.setProperty("--sidebar-border", sbBorder);
+    // Tipografia e cores personalizáveis
+    if (design.fonteTitulos) root.style.setProperty("--font-display", design.fonteTitulos);
+    if (design.fonteTexto) root.style.setProperty("--font-sans", design.fonteTexto);
+    if (design.fonteMenu) root.style.setProperty("--font-sidebar", design.fonteMenu); else root.style.removeProperty("--font-sidebar");
+    if (design.fonteAbas) root.style.setProperty("--font-tabs", design.fonteAbas); else root.style.removeProperty("--font-tabs");
+    const setOrClear = (k: string, v?: string) => v ? root.style.setProperty(k, v) : root.style.removeProperty(k);
+    setOrClear("--heading-color", design.corTitulos);
+    setOrClear("--text-color", design.corTexto);
+    setOrClear("--menu-color", design.corMenu);
+    setOrClear("--menu-active-bg", design.corMenuAtivo);
+    setOrClear("--menu-active-fg", design.corMenuAtivoTexto);
+    setOrClear("--tabs-color", design.corAbas);
+    setOrClear("--tabs-active-color", design.corAbaAtiva);
+    // Imagem de fundo
+    if (design.imagemFundo) {
+      root.style.setProperty("--app-bg-image", `url("${design.imagemFundo}")`);
+      root.style.setProperty("--app-bg-overlay", String(design.fundoOpacidade ?? 0.85));
+    } else {
+      root.style.removeProperty("--app-bg-image");
+      root.style.removeProperty("--app-bg-overlay");
+    }
   }, [design]);
 
   return (
@@ -235,7 +256,7 @@ function RootComponent() {
               <SidebarTrigger />
               <RootSubtitle />
             </header>
-            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
               <Outlet />
             </main>
           </div>
