@@ -203,6 +203,21 @@ function RootComponent() {
     root.style.setProperty("--sidebar-primary-foreground", fg);
     root.style.setProperty("--sidebar-ring", accent);
     root.style.setProperty("--radius", `${design.raio}rem`);
+    // Sidebar background + contrasting tokens
+    const sb = design.sidebarBg || "0.25 0.025 258";
+    const sbLum = Number(sb.split(/\s+/)[0]) || 0.25;
+    const sbFg = sbLum > 0.6 ? "oklch(0.18 0.03 258)" : "oklch(0.98 0.005 252)";
+    const sbAccent = sbLum > 0.6
+      ? `oklch(${Math.max(0.05, sbLum - 0.1).toFixed(3)} 0.03 258)`
+      : `oklch(${Math.min(0.95, sbLum + 0.08).toFixed(3)} 0.03 258)`;
+    const sbBorder = sbLum > 0.6
+      ? `oklch(${Math.max(0.05, sbLum - 0.15).toFixed(3)} 0.03 258)`
+      : `oklch(${Math.min(0.95, sbLum + 0.12).toFixed(3)} 0.03 258)`;
+    root.style.setProperty("--sidebar", `oklch(${sb})`);
+    root.style.setProperty("--sidebar-foreground", sbFg);
+    root.style.setProperty("--sidebar-accent", sbAccent);
+    root.style.setProperty("--sidebar-accent-foreground", sbFg);
+    root.style.setProperty("--sidebar-border", sbBorder);
   }, [design]);
 
   return (

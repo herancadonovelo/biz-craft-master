@@ -15,6 +15,19 @@ const ACCENTS = [
   { name: "Violet", v: "0.65 0.15 290" },
 ];
 
+const SIDEBAR_COLORS = [
+  { name: "Grafite", v: "0.25 0.025 258" },
+  { name: "Noite", v: "0.18 0.02 258" },
+  { name: "Carvão", v: "0.22 0.005 0" },
+  { name: "Azul escuro", v: "0.3 0.06 250" },
+  { name: "Verde musgo", v: "0.32 0.05 160" },
+  { name: "Vinho", v: "0.3 0.08 20" },
+  { name: "Roxo", v: "0.3 0.08 290" },
+  { name: "Creme", v: "0.94 0.02 90" },
+  { name: "Pérola", v: "0.9 0.01 250" },
+  { name: "Rosa claro", v: "0.88 0.04 15" },
+];
+
 export const Route = createFileRoute("/design")({
   head: () => ({ meta: [{ title: "Personalização do design" }] }),
   component: () => {
@@ -49,6 +62,18 @@ export const Route = createFileRoute("/design")({
                 <button key={a.name} onClick={() => setDesign({ accent: a.v })}
                   className={`flex flex-col items-center gap-1 rounded-md border p-2 ${design.accent === a.v ? "border-foreground" : "border-border"}`}>
                   <div className="h-10 w-10 rounded-full" style={{ background: `oklch(${a.v})` }} />
+                  <span className="text-xs">{a.name}</span>
+                </button>
+              ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Cor do menu lateral</CardTitle></CardHeader>
+            <CardContent className="grid grid-cols-5 gap-3">
+              {SIDEBAR_COLORS.map((a) => (
+                <button key={a.name} onClick={() => setDesign({ sidebarBg: a.v })}
+                  className={`flex flex-col items-center gap-1 rounded-md border p-2 ${design.sidebarBg === a.v ? "border-foreground" : "border-border"}`}>
+                  <div className="h-10 w-10 rounded-full border" style={{ background: `oklch(${a.v})` }} />
                   <span className="text-xs">{a.name}</span>
                 </button>
               ))}
