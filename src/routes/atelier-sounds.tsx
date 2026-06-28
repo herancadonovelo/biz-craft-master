@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Play, Pause, SkipForward, SkipBack, Volume2, Moon, X, CloudRain, Flame, Coffee, Wind, Waves, CloudLightning } from "lucide-react";
-import { AMBIENT_LIST, MUSIC_TRACKS, useAtelierSounds, type AmbientKey } from "@/lib/atelier-sounds";
+import { Play, Pause, SkipForward, SkipBack, Volume2, Moon, X, CloudRain, Flame, Coffee, Wind, Waves, CloudLightning, Upload, Music2, Trash2 } from "lucide-react";
+import { AMBIENT_LIST, useAtelierSounds, type AmbientKey } from "@/lib/atelier-sounds";
 import { AudioVisualizer } from "@/components/AudioVisualizer";
+import { useRef } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/atelier-sounds")({
   head: () => ({ meta: [{ title: "Atelier Sounds & Foco" }] }),
@@ -94,25 +96,7 @@ function Page() {
           <TabsTrigger value="ambient">Sons da Natureza e Atelier</TabsTrigger>
         </TabsList>
         <TabsContent value="lofi">
-          <Card><CardContent className="divide-y p-0">
-            {MUSIC_TRACKS.map((t, i) => {
-              const active = i === s.currentIndex;
-              return (
-                <button key={t.id} onClick={() => s.play(i)} className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-muted/50 ${active ? "bg-muted/40" : ""}`}>
-                  <div className="flex items-center gap-3">
-                    <span className={`grid h-8 w-8 place-items-center rounded-full ${active && s.playing ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                      {active && s.playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                    </span>
-                    <div>
-                      <div className="font-medium">{t.title}</div>
-                      <div className="text-xs text-muted-foreground">{t.artist}</div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{active ? "selecionada" : ""}</span>
-                </button>
-              );
-            })}
-          </CardContent></Card>
+          <MusicTab />
         </TabsContent>
         <TabsContent value="ambient">
           <Card><CardContent className="grid gap-4 p-4 sm:grid-cols-2">
@@ -156,6 +140,70 @@ function Page() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function MusicTab() {
+  const s = useAtelierSounds();
+  const fileRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="space-y-3">
+      <Card><CardContent className="flex flex-wrap items-center gap-2 p-4">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="audio/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            if (!e.target.files) return;
+            const n = s.addTracks(e.target.files);
+            if (n > 0) toast.success(`${n} música(s) adicionada(s)`);
+            else toast.error("Nenhum ficheiro de áudio válido");
+            e.target.value = "";
+          }}
+        />
+        <Button onClick={() => fileRef.current?.click()}>
+          <Upload className="mr-1 h-4 w-4" />Adicionar músicas do dispositivo
+        </Button>
+        <Button variant="outline" onClick={() => toast.info("Integração com Spotify em preparação — em breve poderás ligar a tua conta e sincronizar as tuas playlists.")}>
+          <Music2 className="mr-1 h-4 w-4" />Sincronizar com Spotify
+        </Button>
+        <p className="w-full text-xs text-muted-foreground">
+          As músicas adicionadas ficam só neste dispositivo, na sessão atual. O Spotify ficará disponível assim que a integração for ativada.
+        </p>
+      </CardContent></Card>
+
+      <Card><CardContent className="p-0">
+        {s.tracks.length === 0 ? (
+          <div className="p-6 text-center text-sm text-muted-foreground">
+            O leitor está vazio. Adiciona músicas do dispositivo ou sincroniza com o Spotify para começar.
+          </div>
+        ) : (
+          <div className="divide-y">
+            {s.tracks.map((t, i) => {
+              const active = i === s.currentIndex;
+              return (
+                <div key={t.id} className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-sm ${active ? "bg-muted/40" : ""}`}>
+                  <button onClick={() => s.play(i)} className="flex flex-1 items-center gap-3 text-left hover:opacity-80">
+                    <span className={`grid h-8 w-8 place-items-center rounded-full ${active && s.playing ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                      {active && s.playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                    </span>
+                    <div>
+                      <div className="font-medium">{t.title}</div>
+                      <div className="text-xs text-muted-foreground">{t.artist}</div>
+                    </div>
+                  </button>
+                  <Button size="icon" variant="ghost" onClick={() => s.removeTrack(t.id)} aria-label="Remover">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent></Card>
     </div>
   );
 }
