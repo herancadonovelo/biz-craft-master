@@ -531,6 +531,7 @@ export interface EventoAgenda {
 export interface DesignSettings {
   modo: "light" | "dark";
   accent: string; // oklch string
+  sidebarBg: string; // oklch string for sidebar background
   raio: number; // rem
   densidade: "compacta" | "confortavel";
   nomeNegocio: string;
