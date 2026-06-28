@@ -21,6 +21,9 @@ export const AMBIENT_LIST: { key: AmbientKey; label: string; emoji: string }[] =
 
 type Ctx = {
   // music
+  tracks: MusicTrack[];
+  addTracks: (files: FileList | File[]) => number;
+  removeTrack: (id: string) => void;
   playing: boolean;
   currentIndex: number;
   track: MusicTrack | null;
@@ -190,6 +193,7 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
 
   const [playing, setPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [tracks, setTracks] = useState<MusicTrack[]>(MUSIC_TRACKS);
   const [volume, setVolumeState] = useState(0.7);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [ambient, setAmbientState] = useState<Record<AmbientKey, { enabled: boolean; volume: number }>>({
@@ -220,8 +224,10 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     audioRef.current = a;
     const onEnded = () => {
       setCurrentIndex((i) => {
-        const n = (i + 1) % MUSIC_TRACKS.length;
-        const track = MUSIC_TRACKS[n];
+        const list = tracksRef.current;
+        if (list.length === 0) { setPlaying(false); return i; }
+        const n = (i + 1) % list.length;
+        const track = list[n];
         a.src = track.url;
         a.play().catch(() => setPlaying(false));
         return n;
@@ -229,23 +235,24 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     };
     const onError = () => {
       const idx = currentIndexRef.current;
-      console.error("[AtelierSounds] failed to load track", idx, MUSIC_TRACKS[idx]?.url);
+      const list = tracksRef.current;
+      console.error("[AtelierSounds] failed to load track", idx, list[idx]?.url);
       failedRef.current.add(idx);
       flashError("Erro ao carregar esta faixa, a tentar a próxima…");
-      if (failedRef.current.size >= MUSIC_TRACKS.length) {
+      if (list.length === 0 || failedRef.current.size >= list.length) {
         flashError("Nenhuma faixa disponível de momento.");
         setPlaying(false);
         return;
       }
       // find next non-failed track
-      let n = (idx + 1) % MUSIC_TRACKS.length;
+      let n = (idx + 1) % list.length;
       let guard = 0;
-      while (failedRef.current.has(n) && guard < MUSIC_TRACKS.length) {
-        n = (n + 1) % MUSIC_TRACKS.length;
+      while (failedRef.current.has(n) && guard < list.length) {
+        n = (n + 1) % list.length;
         guard++;
       }
       setCurrentIndex(n);
-      a.src = MUSIC_TRACKS[n].url;
+      a.src = list[n].url;
       a.play().catch(() => setPlaying(false));
     };
     a.addEventListener("ended", onEnded);
@@ -261,6 +268,8 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
   // keep a ref to current index so the error handler always sees the latest value
   const currentIndexRef = useRef(currentIndex);
   useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
+  const tracksRef = useRef(tracks);
+  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
 
   const ensureAudioContext = () => {
     if (acRef.current) return acRef.current;
@@ -286,21 +295,45 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
   const play = (i?: number) => {
     const a = audioRef.current;
     if (!a) return;
+    if (tracks.length === 0) { flashError("Sem músicas no leitor. Adiciona ficheiros do dispositivo ou sincroniza com o Spotify."); return; }
     ensureAudioContext();
     acRef.current?.resume();
     const idx = typeof i === "number" ? i : currentIndex;
     // a manual choice should clear that index from the failed set
     if (typeof i === "number") failedRef.current.delete(idx);
     if (typeof i === "number" || !a.src) {
-      a.src = MUSIC_TRACKS[idx].url;
+      a.src = tracks[idx].url;
       setCurrentIndex(idx);
     }
     a.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
   };
   const pause = () => { audioRef.current?.pause(); setPlaying(false); };
   const toggle = () => (playing ? pause() : play());
-  const next = () => play((currentIndex + 1) % MUSIC_TRACKS.length);
-  const prev = () => play((currentIndex - 1 + MUSIC_TRACKS.length) % MUSIC_TRACKS.length);
+  const next = () => { if (tracks.length) play((currentIndex + 1) % tracks.length); };
+  const prev = () => { if (tracks.length) play((currentIndex - 1 + tracks.length) % tracks.length); };
+
+  const addTracks: Ctx["addTracks"] = (files) => {
+    const arr = Array.from(files).filter((f) => f.type.startsWith("audio/"));
+    const newTracks: MusicTrack[] = arr.map((f) => ({
+      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      title: f.name.replace(/\.[^.]+$/, ""),
+      artist: "Do dispositivo",
+      url: URL.createObjectURL(f),
+    }));
+    if (newTracks.length) setTracks((prev) => [...prev, ...newTracks]);
+    return newTracks.length;
+  };
+  const removeTrack: Ctx["removeTrack"] = (id) => {
+    setTracks((prev) => {
+      const idx = prev.findIndex((t) => t.id === id);
+      if (idx < 0) return prev;
+      const t = prev[idx];
+      if (t.url.startsWith("blob:")) { try { URL.revokeObjectURL(t.url); } catch {} }
+      const next = prev.filter((x) => x.id !== id);
+      if (idx === currentIndex) { audioRef.current?.pause(); setPlaying(false); }
+      return next;
+    });
+  };
 
   const setVolume = (v: number) => {
     setVolumeState(v);
@@ -345,8 +378,9 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
   const cancelSleep = () => setSleepRemaining(0);
 
   const value = useMemo<Ctx>(() => ({
+    tracks, addTracks, removeTrack,
     playing, currentIndex,
-    track: MUSIC_TRACKS[currentIndex] ?? null,
+    track: tracks[currentIndex] ?? null,
     volume, setVolume,
     play, pause, toggle, next, prev,
     analyser,
@@ -354,7 +388,7 @@ export function AtelierSoundsProvider({ children }: { children: ReactNode }) {
     loadError,
     sleepRemaining, startSleep, cancelSleep,
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [playing, currentIndex, volume, analyser, ambient, sleepRemaining, loadError]);
+  }), [tracks, playing, currentIndex, volume, analyser, ambient, sleepRemaining, loadError]);
 
   return <AtelierCtx.Provider value={value}>{children}</AtelierCtx.Provider>;
 }
