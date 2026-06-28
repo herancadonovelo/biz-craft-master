@@ -539,6 +539,20 @@ export interface DesignSettings {
   idioma: Idioma;
   pinContas: string; // 4 dígitos
   toqueAlarme: string;
+  // Personalização visual avançada
+  imagemFundo?: string; // dataURL/URL aplicada ao fundo do conteúdo
+  fundoOpacidade?: number; // 0..1 (overlay sobre a imagem)
+  fonteTitulos?: string; // família CSS
+  corTitulos?: string;   // hex/oklch CSS color
+  fonteTexto?: string;
+  corTexto?: string;
+  fonteMenu?: string;
+  corMenu?: string;       // cor dos itens normais do menu lateral
+  corMenuAtivo?: string;  // cor do item ativo (fundo) no menu
+  corMenuAtivoTexto?: string;
+  fonteAbas?: string;
+  corAbas?: string;          // cor do texto das abas
+  corAbaAtiva?: string;      // cor da aba ativa
 }
 
 interface State {
@@ -772,6 +786,19 @@ const seed = (): Pick<
       idioma: "pt",
       pinContas: "0000",
       toqueAlarme: "ping",
+      imagemFundo: "",
+      fundoOpacidade: 0.85,
+      fonteTitulos: "Sora, system-ui, sans-serif",
+      corTitulos: "",
+      fonteTexto: "Manrope, system-ui, sans-serif",
+      corTexto: "",
+      fonteMenu: "Manrope, system-ui, sans-serif",
+      corMenu: "",
+      corMenuAtivo: "",
+      corMenuAtivoTexto: "",
+      fonteAbas: "Manrope, system-ui, sans-serif",
+      corAbas: "",
+      corAbaAtiva: "",
     },
   };
 };
