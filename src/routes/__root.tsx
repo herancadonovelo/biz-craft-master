@@ -256,7 +256,7 @@ function RootComponent() {
               <SidebarTrigger />
               <RootSubtitle />
             </header>
-            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
               <Outlet />
             </main>
           </div>
