@@ -186,6 +186,3 @@ body { color: var(--text-color, var(--color-foreground)); }
 [data-slot="tabs-list"], [data-slot="tabs-trigger"] { font-family: var(--font-tabs, inherit); }
 [data-slot="tabs-trigger"] { color: var(--tabs-color, inherit); }
 [data-slot="tabs-trigger"][data-state="active"] { color: var(--tabs-active-color, inherit); }
-}
-  }
-}
