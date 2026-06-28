@@ -6,16 +6,9 @@ export type AmbientKey = "rain" | "fire" | "cafe" | "wind" | "waves" | "thunder"
 // Stable, copyright-free MP3s. SoundHelix tracks are public test files that
 // always respond with playable audio; Pixabay CDN links are kept as bonus
 // tracks. If any URL ever breaks, the player auto-skips to the next track.
-export const MUSIC_TRACKS: MusicTrack[] = [
-  { id: "sh1", title: "Lo-Fi Study", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: "sh2", title: "Chill Lo-Fi", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "sh3", title: "Slow Focus", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-  { id: "sh4", title: "Late Night Tape", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-  { id: "sh5", title: "Crochet & Coffee", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-  { id: "sh6", title: "Atelier Beats", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-  { id: "sh7", title: "Soft Loom", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-  { id: "sh8", title: "Quiet Hands", artist: "SoundHelix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
-];
+// O leitor começa vazio. O utilizador adiciona as próprias músicas a partir
+// do dispositivo ou sincroniza com o Spotify (em preparação).
+export const MUSIC_TRACKS: MusicTrack[] = [];
 
 export const AMBIENT_LIST: { key: AmbientKey; label: string; emoji: string }[] = [
   { key: "rain", label: "Chuva Suave", emoji: "🌧️" },
