@@ -228,7 +228,9 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {g.items.map((it) => {
-                  const active = pathname === it.url;
+                  const active = it.url === "/"
+                    ? pathname === "/"
+                    : pathname === it.url || pathname.startsWith(it.url + "/");
                   const required = requiredPlanFor(it.url);
                   const locked = !hasAccess(required);
                   return (
