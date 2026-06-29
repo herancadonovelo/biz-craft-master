@@ -173,10 +173,12 @@ main[data-app-bg="on"]::before {
 main[data-app-bg="on"] > * { position: relative; z-index: 1; }
 
 body { color: var(--text-color, var(--color-foreground)); }
+body, p, span, div, li, td, th, label, input, textarea, select, button { font-size: var(--font-size-text, inherit); }
+h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
 
 /* Sidebar custom font & item colors */
 [data-slot="sidebar-container"] { font-family: var(--font-sidebar, var(--font-sans)); }
-[data-slot="sidebar-menu-button"] { color: var(--menu-color, inherit); }
+[data-slot="sidebar-menu-button"] { color: var(--menu-color, inherit); font-size: var(--font-size-menu, inherit); }
 [data-slot="sidebar-menu-button"][data-active="true"] {
   background-color: var(--menu-active-bg, var(--sidebar-accent)) !important;
   color: var(--menu-active-fg, var(--sidebar-accent-foreground)) !important;
@@ -184,5 +186,5 @@ body { color: var(--text-color, var(--color-foreground)); }
 
 /* Tabs custom font & colors */
 [data-slot="tabs-list"], [data-slot="tabs-trigger"] { font-family: var(--font-tabs, inherit); }
-[data-slot="tabs-trigger"] { color: var(--tabs-color, inherit); }
+[data-slot="tabs-trigger"] { color: var(--tabs-color, inherit); font-size: var(--font-size-tabs, inherit); }
 [data-slot="tabs-trigger"][data-state="active"] { color: var(--tabs-active-color, inherit); }
