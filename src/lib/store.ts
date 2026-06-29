@@ -553,6 +553,8 @@ export interface DesignSettings {
   fonteAbas?: string;
   corAbas?: string;          // cor do texto das abas
   corAbaAtiva?: string;      // cor da aba ativa
+  // Spotify
+  spotifyClientId?: string;
 }
 
 interface State {
