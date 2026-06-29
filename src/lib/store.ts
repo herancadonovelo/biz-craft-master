@@ -553,8 +553,23 @@ export interface DesignSettings {
   fonteAbas?: string;
   corAbas?: string;          // cor do texto das abas
   corAbaAtiva?: string;      // cor da aba ativa
+  // Cores adicionais (qualquer elemento)
+  corFundo?: string;         // fundo principal das páginas
+  corCard?: string;          // fundo de cards/janelas
+  corBorda?: string;         // cor das bordas
+  corBotao?: string;         // fundo dos botões primários
+  corBotaoTexto?: string;    // texto dos botões primários
+  corMuted?: string;         // fundo de áreas suaves (muted)
+  // Tamanhos de letra (em px)
+  fontSizeBase?: number;     // 12..22 (default 16)
+  fontSizeTitulos?: number;  // em px para h1-h6 base
+  fontSizeTexto?: number;    // px para corpo
+  fontSizeMenu?: number;     // px itens do menu
+  fontSizeAbas?: number;     // px das abas
   // Spotify
   spotifyClientId?: string;
+  // Amazon Music (deep-link, sem SDK público)
+  amazonMusicUrl?: string;   // URL personalizada de playlist/estação
 }
 
 interface State {
@@ -801,6 +816,18 @@ const seed = (): Pick<
       fonteAbas: "Manrope, system-ui, sans-serif",
       corAbas: "",
       corAbaAtiva: "",
+      corFundo: "",
+      corCard: "",
+      corBorda: "",
+      corBotao: "",
+      corBotaoTexto: "",
+      corMuted: "",
+      fontSizeBase: 16,
+      fontSizeTitulos: 20,
+      fontSizeTexto: 14,
+      fontSizeMenu: 14,
+      fontSizeAbas: 14,
+      amazonMusicUrl: "",
     },
   };
 };
