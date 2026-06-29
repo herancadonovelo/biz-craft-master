@@ -209,6 +209,7 @@ function MusicTab() {
       </CardContent></Card>
 
       <SpotifyPanel />
+      <AmazonMusicPanel />
     </div>
   );
 }
@@ -340,6 +341,45 @@ function SpotifyPanel() {
             <p className="text-xs text-muted-foreground">A reprodução acontece no teu leitor Spotify ativo (telemóvel, desktop ou web). Abre o Spotify primeiro se nada acontecer.</p>
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function AmazonMusicPanel() {
+  const amazonUrl = useStore((s) => s.design.amazonMusicUrl || "");
+  const setDesign = useStore((s) => s.setDesign);
+  const [url, setUrl] = useState(amazonUrl);
+  useEffect(() => { setUrl(amazonUrl); }, [amazonUrl]);
+
+  const open = (target: string) => {
+    try { window.open(target, "_blank", "noopener,noreferrer"); }
+    catch { toast.error("Não foi possível abrir o Amazon Music"); }
+  };
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-center gap-2 font-display text-base">
+          <Music2 className="h-4 w-4 text-primary" />Amazon Music
+        </div>
+        <p className="text-xs text-muted-foreground">
+          A Amazon não disponibiliza um SDK público de reprodução web para integradores. A sincronização aqui é por <strong>ligação direta</strong>: guarda a tua playlist/estação favorita e abre-a no Amazon Music (web ou app) num clique. A sessão usa a tua conta Amazon já iniciada no navegador.
+        </p>
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="flex-1 min-w-[220px]">
+            <Label className="text-xs">URL Amazon Music (playlist, estação ou álbum)</Label>
+            <Input value={url} onChange={(e) => setUrl(e.target.value.trim())} placeholder="https://music.amazon.com/playlists/..." />
+          </div>
+          <Button variant="outline" onClick={() => { setDesign({ amazonMusicUrl: url }); toast.success("URL guardado"); }}>Guardar</Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => open(url || "https://music.amazon.com/")}>
+            <Play className="mr-1 h-4 w-4" />{url ? "Abrir a minha playlist" : "Abrir Amazon Music"}
+          </Button>
+          <Button variant="outline" onClick={() => open("https://music.amazon.com/my/library/home")}>A minha biblioteca</Button>
+          <Button variant="outline" onClick={() => open("https://music.amazon.com/stations")}>Estações</Button>
+        </div>
       </CardContent>
     </Card>
   );
