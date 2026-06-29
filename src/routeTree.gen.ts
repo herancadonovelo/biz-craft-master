@@ -13,6 +13,7 @@ import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as StockRouteImport } from './routes/stock'
+import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as ProjetosRouteImport } from './routes/projetos'
@@ -93,6 +94,11 @@ const TodoRoute = TodoRouteImport.update({
 const StockRoute = StockRouteImport.update({
   id: '/stock',
   path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
+  id: '/spotify-callback',
+  path: '/spotify-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SincronizacaoRoute = SincronizacaoRouteImport.update({
@@ -461,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/projetos': typeof ProjetosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -528,6 +535,7 @@ export interface FileRoutesByTo {
   '/projetos': typeof ProjetosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -596,6 +604,7 @@ export interface FileRoutesById {
   '/projetos': typeof ProjetosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
@@ -665,6 +674,7 @@ export interface FileRouteTypes {
     | '/projetos'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/spotify-callback'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -732,6 +742,7 @@ export interface FileRouteTypes {
     | '/projetos'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/spotify-callback'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -799,6 +810,7 @@ export interface FileRouteTypes {
     | '/projetos'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/spotify-callback'
     | '/stock'
     | '/todo'
     | '/vendas'
@@ -867,6 +879,7 @@ export interface RootRouteChildren {
   ProjetosRoute: typeof ProjetosRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
+  SpotifyCallbackRoute: typeof SpotifyCallbackRoute
   StockRoute: typeof StockRoute
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
@@ -904,6 +917,13 @@ declare module '@tanstack/react-router' {
       path: '/stock'
       fullPath: '/stock'
       preLoaderRoute: typeof StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spotify-callback': {
+      id: '/spotify-callback'
+      path: '/spotify-callback'
+      fullPath: '/spotify-callback'
+      preLoaderRoute: typeof SpotifyCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sincronizacao': {
@@ -1406,6 +1426,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetosRoute: ProjetosRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
+  SpotifyCallbackRoute: SpotifyCallbackRoute,
   StockRoute: StockRoute,
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,

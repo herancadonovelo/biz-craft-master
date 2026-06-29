@@ -11,6 +11,12 @@ import { AMBIENT_LIST, useAtelierSounds, type AmbientKey } from "@/lib/atelier-s
 import { AudioVisualizer } from "@/components/AudioVisualizer";
 import { useRef } from "react";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useStore } from "@/lib/store";
+import { api as spotifyApi, beginLogin, getStoredToken, getRedirectUri, logout as spotifyLogout, refreshToken } from "@/lib/spotify";
+import { ExternalLink, LogOut, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/atelier-sounds")({
   head: () => ({ meta: [{ title: "Atelier Sounds & Foco" }] }),
@@ -167,11 +173,8 @@ function MusicTab() {
         <Button onClick={() => fileRef.current?.click()}>
           <Upload className="mr-1 h-4 w-4" />Adicionar músicas do dispositivo
         </Button>
-        <Button variant="outline" onClick={() => toast.info("Integração com Spotify em preparação — em breve poderás ligar a tua conta e sincronizar as tuas playlists.")}>
-          <Music2 className="mr-1 h-4 w-4" />Sincronizar com Spotify
-        </Button>
         <p className="w-full text-xs text-muted-foreground">
-          As músicas adicionadas ficam só neste dispositivo, na sessão atual. O Spotify ficará disponível assim que a integração for ativada.
+          As músicas adicionadas ficam só neste dispositivo, na sessão atual.
         </p>
       </CardContent></Card>
 
@@ -204,6 +207,140 @@ function MusicTab() {
           </div>
         )}
       </CardContent></Card>
+
+      <SpotifyPanel />
     </div>
+  );
+}
+
+function SpotifyPanel() {
+  const clientId = useStore((s) => s.design.spotifyClientId || "");
+  const setDesign = useStore((s) => s.setDesign);
+  const [cidInput, setCidInput] = useState(clientId);
+  const [connected, setConnected] = useState(!!getStoredToken());
+  const [me, setMe] = useState<any>(null);
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [tracksByPl, setTracksByPl] = useState<Record<string, any[]>>({});
+  const [openPl, setOpenPl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setCidInput(clientId); }, [clientId]);
+
+  const refresh = async () => {
+    if (!clientId || !getStoredToken()) return;
+    setLoading(true);
+    try {
+      const m = await spotifyApi(clientId, "/me");
+      setMe(m);
+      const p = await spotifyApi(clientId, "/me/playlists?limit=50");
+      setPlaylists(p.items || []);
+    } catch (e: any) {
+      if (String(e.message).includes("401")) {
+        await refreshToken(clientId);
+        try {
+          const m = await spotifyApi(clientId, "/me");
+          setMe(m);
+        } catch { setConnected(false); spotifyLogout(); }
+      } else toast.error("Spotify: " + e.message);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { if (connected) refresh(); /* eslint-disable-next-line */ }, [connected, clientId]);
+
+  const openPlaylist = async (id: string) => {
+    if (openPl === id) { setOpenPl(null); return; }
+    setOpenPl(id);
+    if (!tracksByPl[id]) {
+      try {
+        const r = await spotifyApi(clientId, `/playlists/${id}/tracks?limit=100`);
+        setTracksByPl((t) => ({ ...t, [id]: r.items || [] }));
+      } catch (e: any) { toast.error(e.message); }
+    }
+  };
+
+  const play = async (uri: string) => {
+    try {
+      await spotifyApi(clientId, "/me/player/play", { method: "PUT", body: JSON.stringify({ uris: [uri] }) });
+      toast.success("A tocar no Spotify");
+    } catch (e: any) {
+      if (String(e.message).includes("404")) toast.error("Abre o Spotify num dispositivo (telemóvel/desktop/web) para ativar o leitor.");
+      else toast.error(e.message);
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 font-display text-base">
+            <Music2 className="h-4 w-4 text-primary" />Spotify
+          </div>
+          {connected && me && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>👤 {me.display_name || me.id}</span>
+              <Button size="icon" variant="ghost" onClick={refresh} aria-label="Atualizar"><RefreshCw className="h-4 w-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => { spotifyLogout(); setConnected(false); setMe(null); setPlaylists([]); }} aria-label="Sair"><LogOut className="h-4 w-4" /></Button>
+            </div>
+          )}
+        </div>
+
+        {!connected ? (
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Cria uma app em <a className="underline" href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">developer.spotify.com/dashboard <ExternalLink className="inline h-3 w-3" /></a>,
+              adiciona como Redirect URI: <code className="rounded bg-muted px-1">{getRedirectUri()}</code>, copia o <strong>Client ID</strong> e cola abaixo.
+              Necessita de conta Spotify Premium para controlo de reprodução.
+            </p>
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="flex-1 min-w-[220px]">
+                <Label className="text-xs">Spotify Client ID</Label>
+                <Input value={cidInput} onChange={(e) => setCidInput(e.target.value.trim())} placeholder="ex: 1a2b3c4d5e6f..." />
+              </div>
+              <Button variant="outline" onClick={() => { setDesign({ spotifyClientId: cidInput }); toast.success("Client ID guardado"); }}>Guardar</Button>
+              <Button
+                disabled={!cidInput}
+                onClick={async () => {
+                  setDesign({ spotifyClientId: cidInput });
+                  try { await beginLogin(cidInput); } catch (e: any) { toast.error(e.message); }
+                }}
+              ><Music2 className="mr-1 h-4 w-4" />Ligar conta Spotify</Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {loading && <div className="text-xs text-muted-foreground">A carregar…</div>}
+            {playlists.length === 0 && !loading && (
+              <div className="text-xs text-muted-foreground">Sem playlists encontradas.</div>
+            )}
+            <div className="divide-y rounded-md border">
+              {playlists.map((p) => (
+                <div key={p.id}>
+                  <button onClick={() => openPlaylist(p.id)} className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-muted/40">
+                    {p.images?.[0]?.url ? <img src={p.images[0].url} alt="" className="h-8 w-8 rounded object-cover" /> : <div className="h-8 w-8 rounded bg-muted" />}
+                    <div className="flex-1">
+                      <div className="font-medium">{p.name}</div>
+                      <div className="text-xs text-muted-foreground">{p.tracks?.total ?? 0} faixas · {p.owner?.display_name}</div>
+                    </div>
+                    <a href={p.external_urls?.spotify} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-muted-foreground hover:text-foreground"><ExternalLink className="h-4 w-4" /></a>
+                  </button>
+                  {openPl === p.id && (
+                    <div className="bg-muted/30 px-3 py-2">
+                      {(tracksByPl[p.id] || []).slice(0, 50).map((it: any) => it.track && (
+                        <div key={it.track.id} className="flex items-center justify-between gap-2 py-1 text-xs">
+                          <div className="min-w-0 flex-1 truncate">{it.track.name} <span className="text-muted-foreground">— {it.track.artists?.map((a: any) => a.name).join(", ")}</span></div>
+                          <Button size="sm" variant="ghost" onClick={() => play(it.track.uri)}><Play className="h-3 w-3" /></Button>
+                        </div>
+                      ))}
+                      {(tracksByPl[p.id] || []).length === 0 && <div className="text-xs text-muted-foreground">Sem faixas.</div>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">A reprodução acontece no teu leitor Spotify ativo (telemóvel, desktop ou web). Abre o Spotify primeiro se nada acontecer.</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
