@@ -231,6 +231,25 @@ function RootComponent() {
     setOrClear("--menu-active-fg", design.corMenuAtivoTexto);
     setOrClear("--tabs-color", design.corAbas);
     setOrClear("--tabs-active-color", design.corAbaAtiva);
+    // Cores adicionais (qualquer elemento)
+    setOrClear("--background", design.corFundo);
+    setOrClear("--card", design.corCard);
+    setOrClear("--popover", design.corCard);
+    setOrClear("--border", design.corBorda);
+    setOrClear("--input", design.corBorda);
+    setOrClear("--muted", design.corMuted);
+    if (design.corBotao) {
+      root.style.setProperty("--primary", design.corBotao);
+      root.style.setProperty("--ring", design.corBotao);
+    }
+    if (design.corBotaoTexto) root.style.setProperty("--primary-foreground", design.corBotaoTexto);
+    // Tamanhos de letra
+    const fsBase = design.fontSizeBase ?? 16;
+    root.style.setProperty("font-size", `${fsBase}px`);
+    setOrClear("--font-size-title", design.fontSizeTitulos ? `${design.fontSizeTitulos}px` : undefined);
+    setOrClear("--font-size-text", design.fontSizeTexto ? `${design.fontSizeTexto}px` : undefined);
+    setOrClear("--font-size-menu", design.fontSizeMenu ? `${design.fontSizeMenu}px` : undefined);
+    setOrClear("--font-size-tabs", design.fontSizeAbas ? `${design.fontSizeAbas}px` : undefined);
     // Imagem de fundo
     if (design.imagemFundo) {
       root.style.setProperty("--app-bg-image", `url("${design.imagemFundo}")`);
