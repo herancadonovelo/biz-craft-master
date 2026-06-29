@@ -174,6 +174,44 @@ export const Route = createFileRoute("/design")({
               <ColorRow label="Cor da aba ativa" value={design.corAbaAtiva} onChange={(v) => setDesign({ corAbaAtiva: v })} />
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Cores gerais (janelas, botões, fundos)</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <ColorRow label="Cor de fundo das páginas" value={design.corFundo} onChange={(v) => setDesign({ corFundo: v })} />
+              <ColorRow label="Cor das janelas/cards" value={design.corCard} onChange={(v) => setDesign({ corCard: v })} />
+              <ColorRow label="Cor das bordas" value={design.corBorda} onChange={(v) => setDesign({ corBorda: v })} />
+              <ColorRow label="Cor de áreas suaves (muted)" value={design.corMuted} onChange={(v) => setDesign({ corMuted: v })} />
+              <ColorRow label="Cor dos botões primários" value={design.corBotao} onChange={(v) => setDesign({ corBotao: v })} />
+              <ColorRow label="Cor do texto dos botões" value={design.corBotaoTexto} onChange={(v) => setDesign({ corBotaoTexto: v })} />
+              <p className="text-xs text-muted-foreground">Aplica-se a toda a app. Deixa vazio para usar o padrão.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Tamanhos de letra</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Base global: {design.fontSizeBase ?? 16}px</Label>
+                <Slider value={[design.fontSizeBase ?? 16]} min={12} max={22} step={1} onValueChange={([v]) => setDesign({ fontSizeBase: v })} />
+              </div>
+              <div>
+                <Label>Títulos: {design.fontSizeTitulos ?? 20}px</Label>
+                <Slider value={[design.fontSizeTitulos ?? 20]} min={14} max={40} step={1} onValueChange={([v]) => setDesign({ fontSizeTitulos: v })} />
+              </div>
+              <div>
+                <Label>Texto: {design.fontSizeTexto ?? 14}px</Label>
+                <Slider value={[design.fontSizeTexto ?? 14]} min={10} max={22} step={1} onValueChange={([v]) => setDesign({ fontSizeTexto: v })} />
+              </div>
+              <div>
+                <Label>Menu lateral: {design.fontSizeMenu ?? 14}px</Label>
+                <Slider value={[design.fontSizeMenu ?? 14]} min={10} max={20} step={1} onValueChange={([v]) => setDesign({ fontSizeMenu: v })} />
+              </div>
+              <div>
+                <Label>Abas: {design.fontSizeAbas ?? 14}px</Label>
+                <Slider value={[design.fontSizeAbas ?? 14]} min={10} max={20} step={1} onValueChange={([v]) => setDesign({ fontSizeAbas: v })} />
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setDesign({ fontSizeBase: 16, fontSizeTitulos: 20, fontSizeTexto: 14, fontSizeMenu: 14, fontSizeAbas: 14 })}>Repor padrão</Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
