@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import logoAsset from "@/assets/craft-business-master-logo.png.asset.json";
+import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
 
 const CATALOGO: { grupo: string; itens: { url: string; titulo: string }[] }[] = [
   { grupo: "Visão geral", itens: [
