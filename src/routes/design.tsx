@@ -168,6 +168,33 @@ export const Route = createFileRoute("/design")({
               <ColorRow label="Cor dos itens do menu" value={design.corMenu} onChange={(v) => setDesign({ corMenu: v })} />
               <ColorRow label="Cor de fundo da categoria ativa" value={design.corMenuAtivo} onChange={(v) => setDesign({ corMenuAtivo: v })} />
               <ColorRow label="Cor do texto da categoria ativa" value={design.corMenuAtivoTexto} onChange={(v) => setDesign({ corMenuAtivoTexto: v })} />
+              <div>
+                <Label className="text-xs text-muted-foreground">Presets rápidos para a categoria ativa</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {[
+                    { n: "Azul-acinzentado", bg: "#475569", fg: "#FFFFFF" },
+                    { n: "Âmbar", bg: "#F59E0B", fg: "#1F2937" },
+                    { n: "Rosa", bg: "#EC4899", fg: "#FFFFFF" },
+                    { n: "Verde menta", bg: "#10B981", fg: "#052E2B" },
+                    { n: "Violeta", bg: "#8B5CF6", fg: "#FFFFFF" },
+                    { n: "Coral", bg: "#FB7185", fg: "#3B0A1A" },
+                    { n: "Dourado", bg: "#EAB308", fg: "#1F2937" },
+                    { n: "Grafite", bg: "#1F2937", fg: "#F9FAFB" },
+                    { n: "Marfim", bg: "#FAF7F0", fg: "#1F2937" },
+                  ].map((p) => (
+                    <button
+                      key={p.n}
+                      onClick={() => setDesign({ corMenuAtivo: p.bg, corMenuAtivoTexto: p.fg })}
+                      className="flex items-center gap-2 rounded-md border px-2 py-1 text-xs"
+                      style={{ background: p.bg, color: p.fg, borderColor: p.fg + "33" }}
+                    >
+                      <span className="h-3 w-3 rounded-full border" style={{ background: p.bg, borderColor: p.fg + "55" }} />
+                      {p.n}
+                    </button>
+                  ))}
+                  <Button size="sm" variant="ghost" onClick={() => setDesign({ corMenuAtivo: "", corMenuAtivoTexto: "" })}>Repor</Button>
+                </div>
+              </div>
               <p className="text-xs text-muted-foreground">A categoria selecionada mantém-se destacada enquanto navegas dentro dela.</p>
             </CardContent>
           </Card>
