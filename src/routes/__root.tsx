@@ -238,6 +238,8 @@ function RootComponent() {
     setOrClear("--border", design.corBorda);
     setOrClear("--input", design.corBorda);
     setOrClear("--muted", design.corMuted);
+    setOrClear("--alert-bg", design.corAlertaFundo);
+    setOrClear("--alert-fg", design.corAlertaTexto);
     if (design.corBotao) {
       root.style.setProperty("--primary", design.corBotao);
       root.style.setProperty("--ring", design.corBotao);

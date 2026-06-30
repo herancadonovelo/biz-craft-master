@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShoppingBag, Wallet, Clock, Package } from "lucide-react";
 import { InspirationCard } from "@/components/InspirationCard";
-import logoAsset from "@/assets/craft-business-master-logo.png.asset.json";
+import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -62,7 +62,7 @@ function Dashboard() {
         <img
           src={logoAsset.url}
           alt="Craft Business Master"
-          className="h-20 w-auto sm:h-24"
+          className="h-28 w-auto sm:h-36"
         />
       </div>
       <PageHeader

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, LogIn } from "lucide-react";
-import logoAsset from "@/assets/craft-business-master-logo.png.asset.json";
+import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Atelier Tricotin" }] }),
@@ -65,7 +65,7 @@ function AuthPage() {
         <img
           src={logoAsset.url}
           alt="Craft Business Master"
-          className="h-24 w-auto sm:h-28"
+          className="h-28 w-auto bg-transparent sm:h-32"
         />
       </div>
       <Card>

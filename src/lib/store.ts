@@ -568,6 +568,9 @@ export interface DesignSettings {
   fontSizeAbas?: number;     // px das abas
   // Spotify
   spotifyClientId?: string;
+  // Cor de fundo/texto das caixas de aviso (alertas)
+  corAlertaFundo?: string;
+  corAlertaTexto?: string;
   // Amazon Music (deep-link, sem SDK público)
   amazonMusicUrl?: string;   // URL personalizada de playlist/estação
 }

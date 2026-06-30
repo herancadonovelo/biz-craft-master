@@ -68,8 +68,16 @@ function SessionExpired() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="destructive" className="border-amber-300 bg-amber-50 text-amber-900 [&>svg]:text-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
-            <AlertTriangle className="h-4 w-4" />
+          <Alert
+            variant="destructive"
+            className="border-amber-300 bg-amber-50 text-amber-900 [&>svg]:text-amber-700 dark:bg-amber-950/30 dark:text-amber-100"
+            style={{
+              background: "var(--alert-bg, undefined)",
+              color: "var(--alert-fg, undefined)",
+              borderColor: "var(--alert-fg, undefined)",
+            }}
+          >
+            <AlertTriangle className="h-4 w-4" style={{ color: "var(--alert-fg, undefined)" }} />
             <AlertTitle>Sessão inválida ou expirada</AlertTitle>
             <AlertDescription className="text-xs">
               O teu acesso terminou — provavelmente porque o token de autenticação

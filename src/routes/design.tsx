@@ -212,6 +212,25 @@ export const Route = createFileRoute("/design")({
               <Button variant="outline" size="sm" onClick={() => setDesign({ fontSizeBase: 16, fontSizeTitulos: 20, fontSizeTexto: 14, fontSizeMenu: 14, fontSizeAbas: 14 })}>Repor padrão</Button>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Caixas de aviso / alertas</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Personaliza a cor de fundo e do texto das caixas de aviso (ex.: ecrã de "Sessão expirada"). Funciona com tons claros ou escuros.</p>
+              <ColorRow label="Cor de fundo do alerta" value={design.corAlertaFundo} onChange={(v) => setDesign({ corAlertaFundo: v })} />
+              <ColorRow label="Cor do texto do alerta" value={design.corAlertaTexto} onChange={(v) => setDesign({ corAlertaTexto: v })} />
+              <div className="rounded-md border p-3 text-sm" style={{ background: design.corAlertaFundo || undefined, color: design.corAlertaTexto || undefined, borderColor: design.corAlertaTexto ? `${design.corAlertaTexto}33` : undefined }}>
+                ⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corAlertaFundo: "#FEF3C7", corAlertaTexto: "#78350F" })}>Âmbar (claro)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corAlertaFundo: "#FEE2E2", corAlertaTexto: "#7F1D1D" })}>Rosa (claro)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corAlertaFundo: "#DBEAFE", corAlertaTexto: "#1E3A8A" })}>Azul (claro)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corAlertaFundo: "#1F2937", corAlertaTexto: "#FDE68A" })}>Grafite (escuro)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corAlertaFundo: "#0B1220", corAlertaTexto: "#E5E7EB" })}>Noite (escuro)</Button>
+                <Button size="sm" variant="ghost" onClick={() => setDesign({ corAlertaFundo: "", corAlertaTexto: "" })}>Repor</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
