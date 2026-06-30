@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
-import { api as spotifyApi, beginLogin, getStoredToken, getRedirectUri, logout as spotifyLogout, refreshToken } from "@/lib/spotify";
+import { api as spotifyApi, beginLogin, getStoredToken, logout as spotifyLogout, refreshToken } from "@/lib/spotify";
 import { ExternalLink, LogOut, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/atelier-sounds")({
@@ -216,16 +216,12 @@ function MusicTab() {
 
 function SpotifyPanel() {
   const clientId = useStore((s) => s.design.spotifyClientId || "");
-  const setDesign = useStore((s) => s.setDesign);
-  const [cidInput, setCidInput] = useState(clientId);
   const [connected, setConnected] = useState(!!getStoredToken());
   const [me, setMe] = useState<any>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [tracksByPl, setTracksByPl] = useState<Record<string, any[]>>({});
   const [openPl, setOpenPl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => { setCidInput(clientId); }, [clientId]);
 
   const refresh = async () => {
     if (!clientId || !getStoredToken()) return;
@@ -288,24 +284,18 @@ function SpotifyPanel() {
         {!connected ? (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              Cria uma app em <a className="underline" href="https://developer.spotify.com/dashboard" target="_blank" rel="noreferrer">developer.spotify.com/dashboard <ExternalLink className="inline h-3 w-3" /></a>,
-              adiciona como Redirect URI: <code className="rounded bg-muted px-1">{getRedirectUri()}</code>, copia o <strong>Client ID</strong> e cola abaixo.
-              Necessita de conta Spotify Premium para controlo de reprodução.
+              Liga a tua conta Spotify para navegar e tocar as tuas playlists diretamente daqui. A reprodução acontece no leitor Spotify que tiveres ativo (telemóvel, desktop ou web) e requer conta Spotify Premium.
             </p>
-            <div className="flex flex-wrap items-end gap-2">
-              <div className="flex-1 min-w-[220px]">
-                <Label className="text-xs">Spotify Client ID</Label>
-                <Input value={cidInput} onChange={(e) => setCidInput(e.target.value.trim())} placeholder="ex: 1a2b3c4d5e6f..." />
-              </div>
-              <Button variant="outline" onClick={() => { setDesign({ spotifyClientId: cidInput }); toast.success("Client ID guardado"); }}>Guardar</Button>
-              <Button
-                disabled={!cidInput}
-                onClick={async () => {
-                  setDesign({ spotifyClientId: cidInput });
-                  try { await beginLogin(cidInput); } catch (e: any) { toast.error(e.message); }
-                }}
-              ><Music2 className="mr-1 h-4 w-4" />Ligar conta Spotify</Button>
-            </div>
+            <Button
+              disabled={!clientId}
+              onClick={async () => {
+                try { await beginLogin(clientId); }
+                catch (e: any) { toast.error(e.message); }
+              }}
+            ><Music2 className="mr-1 h-4 w-4" />Ligar conta Spotify</Button>
+            {!clientId && (
+              <p className="text-[11px] text-muted-foreground">A integração com Spotify está temporariamente indisponível.</p>
+            )}
           </div>
         ) : (
           <div className="space-y-2">
