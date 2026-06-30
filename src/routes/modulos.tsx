@@ -81,7 +81,7 @@ export const Route = createFileRoute("/modulos")({
           <img
             src={logoAsset.url}
             alt="Craft Business Master"
-            className="h-20 w-auto sm:h-24"
+            className="h-28 w-auto sm:h-32"
           />
         </div>
         <PageHeader title="Módulos ativos" description="Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo." />
