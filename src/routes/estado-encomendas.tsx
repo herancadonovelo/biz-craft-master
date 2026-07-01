@@ -8,13 +8,16 @@ import { useTT } from "@/lib/i18n";
 const ESTADOS = ["pendente", "em_producao", "pronta", "entregue", "cancelada"] as const;
 
 export const Route = createFileRoute("/estado-encomendas")({
-  head: () => ({ meta: [{ title: "Estado das encomendas" }] }),
-  component: () => {
-    const { encomendas, clientes } = useStore();
-    const tt = useTT();
-    return (
+  head: () => ({ meta: [{ title: "Estado Atual" }] }),
+  component: EstadoEncomendasContent,
+});
+
+export function EstadoEncomendasContent() {
+  const { encomendas, clientes } = useStore();
+  const tt = useTT();
+  return (
       <div className="space-y-6">
-        <PageHeader title="Estado das encomendas" description="Kanban com o estado atual de cada encomenda." />
+        <PageHeader title="Estado Atual" description="Kanban com o estado atual de cada encomenda." />
         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
           {ESTADOS.map((s) => {
             const list = encomendas.filter((e) => e.estado === s);
@@ -46,6 +49,5 @@ export const Route = createFileRoute("/estado-encomendas")({
           })}
         </div>
       </div>
-    );
-  },
-});
+  );
+}
