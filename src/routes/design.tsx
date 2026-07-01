@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { ImagePicker } from "@/components/ImagePicker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConfiguracoesContent } from "./configuracoes";
 
 const ACCENTS = [
   { name: "Steel blue", v: "0.72 0.06 230" },
@@ -66,13 +68,30 @@ function ColorRow({ label, value, onChange }: { label: string; value?: string; o
 }
 
 export const Route = createFileRoute("/design")({
-  head: () => ({ meta: [{ title: "Personalização do design" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Personalização & Configurações" }] }),
+  component: PersonalizacaoConfigHub,
+});
+
+function PersonalizacaoConfigHub() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Personalização & Configurações" description="Aparência da aplicação e definições gerais num só sítio." />
+      <Tabs defaultValue="personalizacao">
+        <TabsList className="flex h-auto w-full flex-wrap">
+          <TabsTrigger value="personalizacao">Personalização</TabsTrigger>
+          <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
+        </TabsList>
+        <TabsContent value="personalizacao" className="mt-6"><DesignContent /></TabsContent>
+        <TabsContent value="configuracoes" className="mt-6"><ConfiguracoesContent /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export function DesignContent() {
     const { design, setDesign } = useStore();
     return (
-      <div className="space-y-6">
-        <PageHeader title="Personalização do design" description="Adapta a aparência da aplicação ao teu gosto." />
-        <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader><CardTitle className="font-display">Marca</CardTitle></CardHeader>
             <CardContent className="space-y-3">
@@ -215,7 +234,23 @@ export const Route = createFileRoute("/design")({
               <ColorRow label="Cor de áreas suaves (muted)" value={design.corMuted} onChange={(v) => setDesign({ corMuted: v })} />
               <ColorRow label="Cor dos botões primários" value={design.corBotao} onChange={(v) => setDesign({ corBotao: v })} />
               <ColorRow label="Cor do texto dos botões" value={design.corBotaoTexto} onChange={(v) => setDesign({ corBotaoTexto: v })} />
+              <ColorRow label="Cor dos botões secundários" value={design.corBotaoSecundario} onChange={(v) => setDesign({ corBotaoSecundario: v })} />
+              <ColorRow label="Cor do texto dos botões secundários" value={design.corBotaoSecundarioTexto} onChange={(v) => setDesign({ corBotaoSecundarioTexto: v })} />
               <p className="text-xs text-muted-foreground">Aplica-se a toda a app. Deixa vazio para usar o padrão.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Cabeçalho da aplicação</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Barra superior onde está o ícone que abre o menu lateral.</p>
+              <ColorRow label="Cor de fundo do cabeçalho" value={design.corCabecalhoFundo} onChange={(v) => setDesign({ corCabecalhoFundo: v })} />
+              <ColorRow label="Cor do ícone/texto do cabeçalho" value={design.corCabecalhoIcone} onChange={(v) => setDesign({ corCabecalhoIcone: v })} />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corCabecalhoFundo: "#FFFFFF", corCabecalhoIcone: "#1F2937" })}>Claro</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corCabecalhoFundo: "#1F2937", corCabecalhoIcone: "#F9FAFB" })}>Escuro</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ corCabecalhoFundo: "#F5EFE6", corCabecalhoIcone: "#5A4A63" })}>Creme</Button>
+                <Button size="sm" variant="ghost" onClick={() => setDesign({ corCabecalhoFundo: "", corCabecalhoIcone: "" })}>Repor</Button>
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -263,8 +298,6 @@ export const Route = createFileRoute("/design")({
               </div>
             </CardContent>
           </Card>
-        </div>
       </div>
     );
-  },
-});
+}

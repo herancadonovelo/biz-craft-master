@@ -14,10 +14,11 @@ import { toast } from "sonner";
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 export const Route = createFileRoute("/editor-receita")({
-  head: () => ({ meta: [{ title: "Editor de Receita" }] }),
+  head: () => ({ meta: [{ title: "Editor De Receitas" }] }),
   component: Page,
 });
 
+export function EditorReceitaPage() { return <Page />; }
 function Page() {
   const { receitasEditor, add, update, remove } = useStore();
   const [editId, setEditId] = useState<string | null>(receitasEditor[0]?.id || null);

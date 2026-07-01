@@ -14,6 +14,9 @@ import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTT } from "@/lib/i18n";
 import { ImagePicker } from "@/components/ImagePicker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EstadoEncomendasContent } from "./estado-encomendas";
+import { EtiquetasContent } from "./etiquetas";
 
 const ESTADO_COR: Record<string, string> = {
   pendente: "bg-amber-500/15 text-amber-700",
@@ -25,7 +28,28 @@ const ESTADO_COR: Record<string, string> = {
 
 export const Route = createFileRoute("/encomendas")({
   head: () => ({ meta: [{ title: "Encomendas" }] }),
-  component: () => {
+  component: EncomendasHub,
+});
+
+function EncomendasHub() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Encomendas" description="Gestão completa de encomendas, estado atual e etiquetas de envio." />
+      <Tabs defaultValue="encomendas">
+        <TabsList className="flex h-auto w-full flex-wrap">
+          <TabsTrigger value="encomendas">Encomendas</TabsTrigger>
+          <TabsTrigger value="estado">Estado Atual</TabsTrigger>
+          <TabsTrigger value="etiquetas">Etiquetas de Envio</TabsTrigger>
+        </TabsList>
+        <TabsContent value="encomendas" className="mt-6"><EncomendasListContent /></TabsContent>
+        <TabsContent value="estado" className="mt-6"><EstadoEncomendasContent /></TabsContent>
+        <TabsContent value="etiquetas" className="mt-6"><EtiquetasContent /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export function EncomendasListContent() {
     const { encomendas, clientes, projetos, materiais, add, remove, update, audit, dispararGatilho, gatilhos } = useStore();
     const tt = useTT();
     const [open, setOpen] = useState(false);
@@ -33,36 +57,35 @@ export const Route = createFileRoute("/encomendas")({
     const [form, setForm] = useState({ clienteId: "", projetoId: "", descricao: "", estado: "pendente" as const, prazo: "", preco: 0 });
     return (
       <div className="space-y-6">
-        <PageHeader title="Encomendas" description="Detalhes de encomendas, incluindo material usado."
-          actions={
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" />Nova encomenda</Button></DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>Nova encomenda</DialogTitle></DialogHeader>
-                <div className="grid gap-3">
-                  <div><Label>Cliente</Label>
-                    <Select value={form.clienteId} onValueChange={(v) => setForm({ ...form, clienteId: v })}>
-                      <SelectTrigger><SelectValue placeholder="Escolher" /></SelectTrigger>
-                      <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div><Label>Projeto associado</Label>
-                    <Select value={form.projetoId} onValueChange={(v) => setForm({ ...form, projetoId: v })}>
-                      <SelectTrigger><SelectValue placeholder="(opcional)" /></SelectTrigger>
-                      <SelectContent>{projetos.map((p) => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div><Label>Descrição</Label><Input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><Label>Prazo</Label><Input type="date" value={form.prazo} onChange={(e) => setForm({ ...form, prazo: e.target.value })} /></div>
-                    <div><Label>Preço</Label><Input type="number" value={form.preco} onChange={(e) => setForm({ ...form, preco: +e.target.value })} /></div>
-                  </div>
-                  <Button onClick={() => { if (!form.descricao) return toast.error("Descrição obrigatória"); add("encomendas", { ...form, criadoEm: new Date().toISOString() }); setForm({ clienteId: "", projetoId: "", descricao: "", estado: "pendente", prazo: "", preco: 0 }); setOpen(false); toast.success("Encomenda criada"); }}>Guardar</Button>
+        <div className="flex items-center justify-between">
+          <div />
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" />Nova encomenda</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Nova encomenda</DialogTitle></DialogHeader>
+              <div className="grid gap-3">
+                <div><Label>Cliente</Label>
+                  <Select value={form.clienteId} onValueChange={(v) => setForm({ ...form, clienteId: v })}>
+                    <SelectTrigger><SelectValue placeholder="Escolher" /></SelectTrigger>
+                    <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                  </Select>
                 </div>
-              </DialogContent>
-            </Dialog>
-          }
-        />
+                <div><Label>Projeto associado</Label>
+                  <Select value={form.projetoId} onValueChange={(v) => setForm({ ...form, projetoId: v })}>
+                    <SelectTrigger><SelectValue placeholder="(opcional)" /></SelectTrigger>
+                    <SelectContent>{projetos.map((p) => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Descrição</Label><Input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Prazo</Label><Input type="date" value={form.prazo} onChange={(e) => setForm({ ...form, prazo: e.target.value })} /></div>
+                  <div><Label>Preço</Label><Input type="number" value={form.preco} onChange={(e) => setForm({ ...form, preco: +e.target.value })} /></div>
+                </div>
+                <Button onClick={() => { if (!form.descricao) return toast.error("Descrição obrigatória"); add("encomendas", { ...form, criadoEm: new Date().toISOString() }); setForm({ clienteId: "", projetoId: "", descricao: "", estado: "pendente", prazo: "", preco: 0 }); setOpen(false); toast.success("Encomenda criada"); }}>Guardar</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
         <div className="relative max-w-md">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Pesquisar encomenda ou cliente…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -119,6 +142,5 @@ export const Route = createFileRoute("/encomendas")({
         </CardContent></Card>
       </div>
     );
-  },
-});
+}
 export { ESTADO_COR };

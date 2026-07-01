@@ -11,8 +11,11 @@ import { Plus, Trash2, Download, FileDigit } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/ficheiros-digitais")({
-  head: () => ({ meta: [{ title: "Ficheiros digitais" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Biblioteca Digital" }] }),
+  component: FicheirosDigitaisContent,
+});
+
+export function FicheirosDigitaisContent() {
     const { ficheirosDigitais, add, remove } = useStore();
     const [novo, setNovo] = useState({ nome: "", tipo: "receita" as "receita" | "molde" | "ebook" | "outro", origem: "manual" as "manual" | "etsy", etsyListingId: "", url: "", ficheiroBase64: "", notas: "" });
     const upload = (f?: File) => {
@@ -29,7 +32,7 @@ export const Route = createFileRoute("/ficheiros-digitais")({
     };
     return (
       <div className="space-y-6">
-        <PageHeader title="Biblioteca de ficheiros digitais" description="Receitas, moldes e PDFs comprados ou vendidos (inclui ligação à Etsy)." />
+        <PageHeader title="Biblioteca Digital" description="Receitas, moldes e PDFs comprados ou vendidos (inclui ligação à Etsy)." />
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-3">
           <Input placeholder="Nome" value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} />
           <Select value={novo.tipo} onValueChange={(v: any) => setNovo({ ...novo, tipo: v })}>
@@ -77,5 +80,4 @@ export const Route = createFileRoute("/ficheiros-digitais")({
         </div>
       </div>
     );
-  },
-});
+}

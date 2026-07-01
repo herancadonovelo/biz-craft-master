@@ -559,6 +559,10 @@ export interface DesignSettings {
   corBorda?: string;         // cor das bordas
   corBotao?: string;         // fundo dos botões primários
   corBotaoTexto?: string;    // texto dos botões primários
+  corBotaoSecundario?: string;      // fundo dos botões secundários
+  corBotaoSecundarioTexto?: string; // texto dos botões secundários
+  corCabecalhoFundo?: string;       // fundo do header (topo com trigger do menu)
+  corCabecalhoIcone?: string;       // cor do ícone/texto no header
   corMuted?: string;         // fundo de áreas suaves (muted)
   // Tamanhos de letra (em px)
   fontSizeBase?: number;     // 12..22 (default 16)
@@ -824,6 +828,10 @@ const seed = (): Pick<
       corBorda: "",
       corBotao: "",
       corBotaoTexto: "",
+      corBotaoSecundario: "",
+      corBotaoSecundarioTexto: "",
+      corCabecalhoFundo: "",
+      corCabecalhoIcone: "",
       corMuted: "",
       fontSizeBase: 16,
       fontSizeTitulos: 20,

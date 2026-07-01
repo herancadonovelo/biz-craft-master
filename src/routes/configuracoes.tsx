@@ -10,13 +10,15 @@ import { enterPreviewMode, exitPreviewMode, usePreviewMode } from "@/lib/preview
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações" }] }),
-  component: () => {
+  component: ConfiguracoesContent,
+});
+
+export function ConfiguracoesContent() {
     const previewActive = usePreviewMode();
     const items = [
       { to: "/idioma", icon: Languages, title: "Idioma", desc: "Mudar a língua da app" },
       { to: "/modulos", icon: ToggleLeft, title: "Módulos ativos", desc: "Liga/desliga categorias do menu" },
       { to: "/onboarding", icon: Sparkles, title: "Configuração inicial", desc: "Voltar ao assistente de setup" },
-      { to: "/design", icon: Palette, title: "Aparência", desc: "Cores, tema, preço-hora base" },
       { to: "/contas", icon: Lock, title: "Contas & PIN", desc: "Passwords e PIN de acesso" },
       { to: "/calendario", icon: Bell, title: "Alarmes & toques", desc: "Toque padrão e alertas" },
       { to: "/backup", icon: HardDriveDownload, title: "Backup & Restauro", desc: "Exportar JSON/CSV e restaurar" },
@@ -72,5 +74,4 @@ export const Route = createFileRoute("/configuracoes")({
         </CardContent></Card>
       </div>
     );
-  },
-});
+}

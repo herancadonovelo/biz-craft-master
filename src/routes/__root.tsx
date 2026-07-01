@@ -11,8 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import sewingIcon from "@/assets/sewing-machine-icon.jpg.asset.json";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -245,6 +246,10 @@ function RootComponent() {
       root.style.setProperty("--ring", design.corBotao);
     }
     if (design.corBotaoTexto) root.style.setProperty("--primary-foreground", design.corBotaoTexto);
+    setOrClear("--secondary", design.corBotaoSecundario);
+    setOrClear("--secondary-foreground", design.corBotaoSecundarioTexto);
+    setOrClear("--app-header-bg", design.corCabecalhoFundo);
+    setOrClear("--app-header-fg", design.corCabecalhoIcone);
     // Tamanhos de letra
     const fsBase = design.fontSizeBase ?? 16;
     root.style.setProperty("font-size", `${fsBase}px`);
@@ -273,8 +278,14 @@ function RootComponent() {
           <div className="flex flex-1 flex-col">
             <AuthBanner />
             <PreviewModeBanner />
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-              <SidebarTrigger />
+            <header
+              className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border px-4 backdrop-blur"
+              style={{
+                background: "var(--app-header-bg, rgba(255,255,255,0.6))",
+                color: "var(--app-header-fg, inherit)",
+              }}
+            >
+              <SewingMenuTrigger />
               <RootSubtitle />
             </header>
             <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
@@ -309,5 +320,25 @@ function RootSubtitle() {
     <span className="font-display text-sm font-medium text-muted-foreground">
       {nome} · {t("app.subtitle")}
     </span>
+  );
+}
+
+function SewingMenuTrigger() {
+  const { toggleSidebar } = useSidebar();
+  return (
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      aria-label="Abrir menu lateral"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/40 bg-background/60 hover:bg-accent transition"
+    >
+      <img
+        src={sewingIcon.url}
+        alt=""
+        className="h-6 w-6 object-contain"
+        style={{ mixBlendMode: "multiply" }}
+        draggable={false}
+      />
+    </button>
   );
 }

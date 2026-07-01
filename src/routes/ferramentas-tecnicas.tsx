@@ -23,11 +23,15 @@ import {
   Pen, Link2, Move, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
+import { EditorReceitaPage } from "./editor-receita";
+import { EditorMoodboardsPage } from "./editor-moodboards";
+import { ConversorPage } from "./conversor-cores";
+import { ContadorPage } from "./contador";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
-  head: () => ({ meta: [{ title: "Ferramentas Técnicas: Editores" }] }),
+  head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
   component: () => (
-    <PremiumRoute feature="Ferramentas Técnicas: Editores">
+    <PremiumRoute feature="Ferramentas Técnicas">
       <FerramentasPage />
     </PremiumRoute>
   ),
@@ -36,7 +40,7 @@ export const Route = createFileRoute("/ferramentas-tecnicas")({
 function FerramentasPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Ferramentas Técnicas: Editores"
+      <PageHeader title="Ferramentas Técnicas"
         description="Os 5 editores partilham tela A4, marca d'água configurável e exportação para Biblioteca, PDF e Imprimir." />
       <Tabs defaultValue="instrucoes">
         <TabsList className="flex h-auto w-full flex-wrap">
@@ -46,6 +50,10 @@ function FerramentasPage() {
           <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
           <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
           <TabsTrigger value="bordado">Editor de Padrões: Bordado</TabsTrigger>
+          <TabsTrigger value="editor-receita">Editor De Receitas</TabsTrigger>
+          <TabsTrigger value="editor-moodboards">Editor De Moodboards</TabsTrigger>
+          <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
+          <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
         </TabsList>
         <TabsContent value="instrucoes" className="mt-24"><InstrucoesTab /></TabsContent>
         <TabsContent value="tricotin" className="mt-24"><TricotinTab /></TabsContent>
@@ -53,6 +61,10 @@ function FerramentasPage() {
         <TabsContent value="costura" className="mt-24"><CosturaTab /></TabsContent>
         <TabsContent value="ponto-cruz" className="mt-24"><PontoCruzTab /></TabsContent>
         <TabsContent value="bordado" className="mt-24"><BordadoTab /></TabsContent>
+        <TabsContent value="editor-receita" className="mt-24"><EditorReceitaPage /></TabsContent>
+        <TabsContent value="editor-moodboards" className="mt-24"><EditorMoodboardsPage /></TabsContent>
+        <TabsContent value="conversor" className="mt-24"><ConversorPage /></TabsContent>
+        <TabsContent value="contador" className="mt-24"><ContadorPage /></TabsContent>
       </Tabs>
     </div>
   );

@@ -31,7 +31,7 @@ const A4_H = 842;
 const searchSchema = z.object({ id: z.string().optional() });
 
 export const Route = createFileRoute("/editor-moodboards")({
-  head: () => ({ meta: [{ title: "Editor de Moodboards" }] }),
+  head: () => ({ meta: [{ title: "Editor De Moodboards" }] }),
   validateSearch: (s) => searchSchema.parse(s),
   component: () => (
     <PremiumRoute feature="Editor de Moodboards">
@@ -39,6 +39,8 @@ export const Route = createFileRoute("/editor-moodboards")({
     </PremiumRoute>
   ),
 });
+
+export function EditorMoodboardsPage() { return <EditorPage />; }
 
 const novoDesign = (): MoodboardDesign => ({
   largura: A4_W, altura: A4_H, corFundo: "#ffffff", elementos: [],
