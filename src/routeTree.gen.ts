@@ -41,7 +41,6 @@ import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
 import { Route as FerramentasTecnicasRouteImport } from './routes/ferramentas-tecnicas'
 import { Route as FaturacaoRouteImport } from './routes/faturacao'
-import { Route as EtsyAuditoriaRouteImport } from './routes/etsy-auditoria'
 import { Route as EtsyRouteImport } from './routes/etsy'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
@@ -51,7 +50,6 @@ import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as CursosRouteImport } from './routes/cursos'
-import { Route as CriadorMoldesRouteImport } from './routes/criador-moldes'
 import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as ConversorCoresRouteImport } from './routes/conversor-cores'
 import { Route as ContasRouteImport } from './routes/contas'
@@ -236,11 +234,6 @@ const FaturacaoRoute = FaturacaoRouteImport.update({
   path: '/faturacao',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EtsyAuditoriaRoute = EtsyAuditoriaRouteImport.update({
-  id: '/etsy-auditoria',
-  path: '/etsy-auditoria',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EtsyRoute = EtsyRouteImport.update({
   id: '/etsy',
   path: '/etsy',
@@ -284,11 +277,6 @@ const DesignRoute = DesignRouteImport.update({
 const CursosRoute = CursosRouteImport.update({
   id: '/cursos',
   path: '/cursos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CriadorMoldesRoute = CriadorMoldesRouteImport.update({
-  id: '/criador-moldes',
-  path: '/criador-moldes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrescimentoRoute = CrescimentoRouteImport.update({
@@ -429,7 +417,6 @@ export interface FileRoutesByFullPath {
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
-  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -439,7 +426,6 @@ export interface FileRoutesByFullPath {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
-  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ferramentas-tecnicas': typeof FerramentasTecnicasRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
@@ -497,7 +483,6 @@ export interface FileRoutesByTo {
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
-  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -507,7 +492,6 @@ export interface FileRoutesByTo {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
-  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ferramentas-tecnicas': typeof FerramentasTecnicasRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
@@ -566,7 +550,6 @@ export interface FileRoutesById {
   '/contas': typeof ContasRoute
   '/conversor-cores': typeof ConversorCoresRoute
   '/crescimento': typeof CrescimentoRoute
-  '/criador-moldes': typeof CriadorMoldesRoute
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
@@ -576,7 +559,6 @@ export interface FileRoutesById {
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
   '/etsy': typeof EtsyRoute
-  '/etsy-auditoria': typeof EtsyAuditoriaRoute
   '/faturacao': typeof FaturacaoRoute
   '/ferramentas-tecnicas': typeof FerramentasTecnicasRoute
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
@@ -636,7 +618,6 @@ export interface FileRouteTypes {
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
-    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -646,7 +627,6 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
-    | '/etsy-auditoria'
     | '/faturacao'
     | '/ferramentas-tecnicas'
     | '/ficheiros-digitais'
@@ -704,7 +684,6 @@ export interface FileRouteTypes {
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
-    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -714,7 +693,6 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
-    | '/etsy-auditoria'
     | '/faturacao'
     | '/ferramentas-tecnicas'
     | '/ficheiros-digitais'
@@ -772,7 +750,6 @@ export interface FileRouteTypes {
     | '/contas'
     | '/conversor-cores'
     | '/crescimento'
-    | '/criador-moldes'
     | '/cursos'
     | '/design'
     | '/despesas'
@@ -782,7 +759,6 @@ export interface FileRouteTypes {
     | '/estado-encomendas'
     | '/etiquetas'
     | '/etsy'
-    | '/etsy-auditoria'
     | '/faturacao'
     | '/ferramentas-tecnicas'
     | '/ficheiros-digitais'
@@ -841,7 +817,6 @@ export interface RootRouteChildren {
   ContasRoute: typeof ContasRoute
   ConversorCoresRoute: typeof ConversorCoresRoute
   CrescimentoRoute: typeof CrescimentoRoute
-  CriadorMoldesRoute: typeof CriadorMoldesRoute
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
@@ -851,7 +826,6 @@ export interface RootRouteChildren {
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
   EtsyRoute: typeof EtsyRoute
-  EtsyAuditoriaRoute: typeof EtsyAuditoriaRoute
   FaturacaoRoute: typeof FaturacaoRoute
   FerramentasTecnicasRoute: typeof FerramentasTecnicasRoute
   FicheirosDigitaisRoute: typeof FicheirosDigitaisRoute
@@ -1115,13 +1089,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaturacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/etsy-auditoria': {
-      id: '/etsy-auditoria'
-      path: '/etsy-auditoria'
-      fullPath: '/etsy-auditoria'
-      preLoaderRoute: typeof EtsyAuditoriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/etsy': {
       id: '/etsy'
       path: '/etsy'
@@ -1183,13 +1150,6 @@ declare module '@tanstack/react-router' {
       path: '/cursos'
       fullPath: '/cursos'
       preLoaderRoute: typeof CursosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/criador-moldes': {
-      id: '/criador-moldes'
-      path: '/criador-moldes'
-      fullPath: '/criador-moldes'
-      preLoaderRoute: typeof CriadorMoldesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crescimento': {
@@ -1388,7 +1348,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContasRoute: ContasRoute,
   ConversorCoresRoute: ConversorCoresRoute,
   CrescimentoRoute: CrescimentoRoute,
-  CriadorMoldesRoute: CriadorMoldesRoute,
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
@@ -1398,7 +1357,6 @@ const rootRouteChildren: RootRouteChildren = {
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
   EtsyRoute: EtsyRoute,
-  EtsyAuditoriaRoute: EtsyAuditoriaRoute,
   FaturacaoRoute: FaturacaoRoute,
   FerramentasTecnicasRoute: FerramentasTecnicasRoute,
   FicheirosDigitaisRoute: FicheirosDigitaisRoute,

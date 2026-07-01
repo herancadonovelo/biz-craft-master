@@ -19,9 +19,9 @@ import { api as spotifyApi, beginLogin, getStoredToken, logout as spotifyLogout,
 import { ExternalLink, LogOut, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/atelier-sounds")({
-  head: () => ({ meta: [{ title: "Atelier Sounds & Foco" }] }),
+  head: () => ({ meta: [{ title: "Craft & Relax Music" }] }),
   component: () => (
-    <PremiumRoute feature="Atelier Sounds & Foco">
+    <PremiumRoute feature="Craft & Relax Music">
       <Page />
     </PremiumRoute>
   ),
@@ -57,7 +57,7 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Atelier Sounds & Foco" description="Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app." />
+      <PageHeader title="Craft & Relax Music" description="Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app." />
 
       {/* Player */}
       <Card>
