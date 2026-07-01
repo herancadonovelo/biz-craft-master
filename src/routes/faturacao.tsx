@@ -14,17 +14,36 @@ import { Printer } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { imprimirFatura } from "@/lib/print-fatura";
+import { HistoricoFaturasContent } from "./historico-faturas";
 
 export const Route = createFileRoute("/faturacao")({
-  head: () => ({ meta: [{ title: "Faturação" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Faturação: Criar & Histórico" }] }),
+  component: FaturacaoHub,
+});
+
+function FaturacaoHub() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Faturação: Criar & Histórico" description="Emite novas faturas e consulta o histórico completo." />
+      <Tabs defaultValue="criar">
+        <TabsList className="flex h-auto w-full flex-wrap">
+          <TabsTrigger value="criar">Criar Fatura</TabsTrigger>
+          <TabsTrigger value="historico">Histórico De Faturas</TabsTrigger>
+        </TabsList>
+        <TabsContent value="criar" className="mt-6"><FaturacaoCriarContent /></TabsContent>
+        <TabsContent value="historico" className="mt-6"><HistoricoFaturasContent /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export function FaturacaoCriarContent() {
     const { faturas, clientes, encomendas, projetos, cursos, perfilNegocio, add, remove, update, audit } = useStore();
     const [tipo, setTipo] = useState<"projeto" | "curso" | "outro">("projeto");
     const [form, setForm] = useState({ numero: "", clienteId: "", encomendaId: "", projetoId: "", cursoId: "", valor: 0, iva: 23, estado: "rascunho" as const, data: new Date().toISOString().slice(0, 10) });
     const faturasFiltradas = faturas.filter((f) => (f.tipo ?? "projeto") === tipo);
     return (
       <div className="space-y-6">
-        <PageHeader title="Faturação" description="Emissão e acompanhamento de faturas de projetos e cursos." />
         <Tabs value={tipo} onValueChange={(v: any) => setTipo(v)}>
           <TabsList>
             <TabsTrigger value="projeto">Projetos</TabsTrigger>
@@ -110,5 +129,4 @@ export const Route = createFileRoute("/faturacao")({
         </CardContent></Card>
       </div>
     );
-  },
-});
+}

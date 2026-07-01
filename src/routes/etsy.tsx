@@ -11,10 +11,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, RefreshCw } from "lucide-react";
 import { Beaker } from "lucide-react";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FicheirosDigitaisContent } from "./ficheiros-digitais";
 
 export const Route = createFileRoute("/etsy")({
-  head: () => ({ meta: [{ title: "Etsy" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Etsy & Biblioteca Digital" }] }),
+  component: EtsyHub,
+});
+
+function EtsyHub() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Etsy & Biblioteca Digital" description="Integração Etsy e biblioteca de ficheiros digitais." />
+      <Tabs defaultValue="etsy">
+        <TabsList className="flex h-auto w-full flex-wrap">
+          <TabsTrigger value="etsy">Etsy</TabsTrigger>
+          <TabsTrigger value="biblioteca">Biblioteca Digital</TabsTrigger>
+        </TabsList>
+        <TabsContent value="etsy" className="mt-6"><EtsyIntegrationContent /></TabsContent>
+        <TabsContent value="biblioteca" className="mt-6"><FicheirosDigitaisContent /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export function EtsyIntegrationContent() {
     const { etsyConfig, setEtsy, etsyProdutos, materiais, add, remove, consumirStockPorEtsy, processarWebhookEtsy } = useStore();
     const [novo, setNovo] = useState({ etsyListingId: "", nome: "", materialId: "", qtd: 1 });
     const [teste, setTeste] = useState({ eventId: "teste-001", listingId: "", quantidade: 1, variacao: "" });
@@ -43,8 +64,6 @@ export const Route = createFileRoute("/etsy")({
     };
     return (
       <div className="space-y-6">
-        <PageHeader title="Integração Etsy" description="Sincroniza encomendas físicas (stock) e gere ficheiros digitais comprados/vendidos." />
-
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-4">
           <div><Label>Shop ID</Label><Input value={etsyConfig.shopId} onChange={(e) => setEtsy({ shopId: e.target.value })} /></div>
           <div className="md:col-span-2"><Label>API Key</Label><Input type="password" value={etsyConfig.apiKey} onChange={(e) => setEtsy({ apiKey: e.target.value })} /></div>
@@ -108,5 +127,4 @@ export const Route = createFileRoute("/etsy")({
         </CardContent></Card>
       </div>
     );
-  },
-});
+}

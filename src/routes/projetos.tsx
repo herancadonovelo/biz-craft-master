@@ -11,10 +11,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProjetoPersonalizadoContent } from "./projeto-personalizado";
 
 export const Route = createFileRoute("/projetos")({
-  head: () => ({ meta: [{ title: "Criar projeto" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Projetos & Criação De Projeto" }] }),
+  component: ProjetosHub,
+});
+
+function ProjetosHub() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Projetos & Criação De Projeto" description="Todos os teus projetos e o assistente para iniciar um projeto personalizado." />
+      <Tabs defaultValue="projetos">
+        <TabsList className="flex h-auto w-full flex-wrap">
+          <TabsTrigger value="projetos">Projetos</TabsTrigger>
+          <TabsTrigger value="personalizado">Iniciar Projeto Personalizado</TabsTrigger>
+        </TabsList>
+        <TabsContent value="projetos" className="mt-6"><ProjetosListContent /></TabsContent>
+        <TabsContent value="personalizado" className="mt-6"><ProjetoPersonalizadoContent /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export function ProjetosListContent() {
     const { projetos, clientes, materiais, add, remove, update } = useStore();
     const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
@@ -32,9 +53,9 @@ export const Route = createFileRoute("/projetos")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Projetos" description="Custo de materiais + horas × preço/hora + margem (default 70%)."
-          actions={
-            <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">Custo de materiais + horas × preço/hora + margem (default 70%).</div>
+          <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" />Novo projeto</Button></DialogTrigger>
               <DialogContent className="max-w-xl">
                 <DialogHeader><DialogTitle>Novo projeto</DialogTitle></DialogHeader>
@@ -88,9 +109,8 @@ export const Route = createFileRoute("/projetos")({
                   <Button onClick={submit}>Guardar projeto</Button>
                 </div>
               </DialogContent>
-            </Dialog>
-          }
-        />
+          </Dialog>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {projetos.map((p) => {
             const cMat = custoMateriais(p, materiais);
@@ -132,8 +152,7 @@ export const Route = createFileRoute("/projetos")({
         </div>
       </div>
     );
-  },
-});
+}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
