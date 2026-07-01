@@ -11,8 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/projeto-personalizado")({
-  head: () => ({ meta: [{ title: "Projeto personalizado" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Iniciar Projeto Personalizado" }] }),
+  component: ProjetoPersonalizadoContent,
+});
+
+export function ProjetoPersonalizadoContent() {
     const { materiais, add } = useStore();
     const [nome, setNome] = useState("Peça personalizada");
     const [selected, setSelected] = useState<Record<string, number>>({});
@@ -40,7 +43,7 @@ export const Route = createFileRoute("/projeto-personalizado")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Projeto personalizado" description="Seleciona materiais, horas e margem para obter o preço final." />
+        <PageHeader title="Iniciar Projeto Personalizado" description="Seleciona materiais, horas e margem para obter o preço final." />
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <CardHeader><CardTitle className="font-display">Materiais</CardTitle></CardHeader>
@@ -89,5 +92,4 @@ export const Route = createFileRoute("/projeto-personalizado")({
         </div>
       </div>
     );
-  },
-});
+}

@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { imprimirFatura } from "@/lib/print-fatura";
 
 export const Route = createFileRoute("/historico-faturas")({
-  head: () => ({ meta: [{ title: "Histórico de faturas" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Histórico De Faturas" }] }),
+  component: HistoricoFaturasContent,
+});
+
+export function HistoricoFaturasContent() {
     const { faturas, clientes, perfilNegocio } = useStore();
     const [q, setQ] = useState("");
     const list = [...faturas]
@@ -23,7 +26,7 @@ export const Route = createFileRoute("/historico-faturas")({
       });
     return (
       <div className="space-y-6">
-        <PageHeader title="Histórico de faturas" description="Todas as faturas emitidas, com pesquisa e impressão." />
+        <PageHeader title="Histórico De Faturas" description="Todas as faturas emitidas, com pesquisa e impressão." />
         <div className="relative max-w-md">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Pesquisar nº, cliente ou estado…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -51,5 +54,4 @@ export const Route = createFileRoute("/historico-faturas")({
         </CardContent></Card>
       </div>
     );
-  },
-});
+}

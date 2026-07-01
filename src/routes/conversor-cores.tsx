@@ -16,13 +16,15 @@ import { converter, carregarTabelaCompleta, getDMC, type Marca } from "@/lib/cor
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/conversor-cores")({
-  head: () => ({ meta: [{ title: "Conversor de cores DMC/Anchor" }] }),
+  head: () => ({ meta: [{ title: "Conversor De Cores: DMC/ANCHOR" }] }),
   component: () => (
     <PremiumRoute feature="Conversor de Cores: DMC/ANCHOR">
       <ConversorPage />
     </PremiumRoute>
   ),
 });
+
+export { ConversorPage };
 
 function ConversorPage() {
   const [marca, setMarca] = useState<Marca>("DMC");
@@ -49,7 +51,7 @@ function ConversorPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Conversor de cores: DMC/ANCHOR..."
+      <PageHeader title="Conversor De Cores: DMC/ANCHOR"
         description="Digita o código de uma linha e vê a correspondência aproximada em todas as marcas." />
 
       <Card><CardContent className="grid gap-3 p-4 md:grid-cols-[160px_1fr_auto]">

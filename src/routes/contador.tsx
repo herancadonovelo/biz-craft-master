@@ -9,13 +9,15 @@ import { toast } from "sonner";
 import { useStore, type Idioma } from "@/lib/store";
 
 export const Route = createFileRoute("/contador")({
-  head: () => ({ meta: [{ title: "Contador de Carreiras & Pontos" }] }),
+  head: () => ({ meta: [{ title: "Contador De Carreiras & Pontos" }] }),
   component: () => (
     <PremiumRoute feature="Contador de Carreiras & Pontos">
       <Page />
     </PremiumRoute>
   ),
 });
+
+export { Page as ContadorPage };
 
 type SR = any;
 
@@ -191,7 +193,7 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Contador de Carreiras & Pontos" description="Gere carreiras e pontos em simultâneo — toque ou voz." />
+      <PageHeader title="Contador De Carreiras & Pontos" description="Gere carreiras e pontos em simultâneo — toque ou voz." />
 
       <style>{`@keyframes cnt-pulse{0%{transform:scale(1);filter:brightness(1)}40%{transform:scale(1.12);filter:brightness(1.4)}100%{transform:scale(1);filter:brightness(1)}}.cnt-anim{animation:cnt-pulse .45s ease-out}`}</style>
 

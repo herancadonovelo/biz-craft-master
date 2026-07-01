@@ -13,8 +13,11 @@ import { Plus, Printer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/etiquetas")({
-  head: () => ({ meta: [{ title: "Etiquetas de envio" }] }),
-  component: () => {
+  head: () => ({ meta: [{ title: "Etiquetas de Envio" }] }),
+  component: EtiquetasContent,
+});
+
+export function EtiquetasContent() {
     const { etiquetas, clientes, encomendas, perfilNegocio, add, remove, audit } = useStore();
     const [form, setForm] = useState({ clienteId: "", encomendaId: "", remetente: perfilNegocio.nome ?? "", destinatario: "", morada: "", codigoPostal: "", pais: "Portugal", telefone: "", peso: "", observacoes: "" });
 
@@ -47,7 +50,7 @@ ${e.observacoes ? `<div class="from">Obs: ${e.observacoes}</div>` : ""}
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Etiquetas de envio" description="Cria e imprime etiquetas com os dados do cliente." />
+        <PageHeader title="Etiquetas de Envio" description="Cria e imprime etiquetas com os dados do cliente." />
         <Card><CardContent className="grid gap-3 p-6 md:grid-cols-3">
           <div><Label>Cliente</Label>
             <Select value={form.clienteId} onValueChange={preencherCliente}>
@@ -93,5 +96,4 @@ ${e.observacoes ? `<div class="from">Obs: ${e.observacoes}</div>` : ""}
         </CardContent></Card>
       </div>
     );
-  },
-});
+}
