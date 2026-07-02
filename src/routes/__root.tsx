@@ -258,7 +258,15 @@ function RootComponent() {
     setOrClear("--outline-bg", design.corBotaoOutline);
     setOrClear("--outline-fg", design.corBotaoOutlineTexto);
     // Opacidade das janelas com contorno (inputs/cards/textareas)
-    root.style.setProperty("--window-alpha", String(design.janelasOpacidade ?? 1));
+    const alpha = design.janelasOpacidade ?? 1;
+    if (alpha !== 1) {
+      root.style.setProperty("--window-alpha", String(alpha));
+      root.classList.add("has-window-alpha");
+    } else {
+      root.style.removeProperty("--window-alpha");
+      root.classList.remove("has-window-alpha");
+    }
+    root.classList.toggle("has-outline-color", !!design.corBotaoOutline);
     setOrClear("--app-header-bg", design.corCabecalhoFundo);
     setOrClear("--app-header-fg", design.corCabecalhoIcone);
     // Tamanhos de letra
