@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { X } from "lucide-react";
 import { useAuth } from "@/lib/auth-state";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn, LogOut } from "lucide-react";
@@ -98,9 +99,9 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
       { title: "Moodboards & Inspiração", url: "/moodboards", icon: PaletteIcon },
       { title: "Ferramentas Técnicas", url: "/ferramentas-tecnicas", icon: Ruler },
-      { title: "Bloco de Notas", url: "/notas", icon: StickyNote },
+      { title: "Bloco De Notas", url: "/notas", icon: StickyNote },
       { title: "Craft & Relax Music", url: "/atelier-sounds", icon: Music },
-      { title: "Mural de Inspiração", url: "/mural", icon: Quote },
+      { title: "Mural De Inspiração", url: "/mural", icon: Quote },
     ],
   },
   {
@@ -118,7 +119,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.courses"), url: "/cursos", icon: GraduationCap },
       { title: t("nav.sales"), url: "/vendas", icon: CheckCircle2 },
       { title: "Faturação: Criar & Histórico", url: "/faturacao", icon: Receipt },
-      { title: "Marketing e Conteúdo", url: "/marketing-conteudo", icon: Megaphone },
+      { title: "Marketing & Conteúdo", url: "/marketing-conteudo", icon: Megaphone },
       { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
       { title: t("nav.whatsapp"), url: "/whatsapp", icon: MessageCircle },
       { title: t("nav.notifications"), url: "/notificacoes", icon: BellRing },
@@ -143,7 +144,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
       { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: "Backup & Restauro", url: "/backup", icon: HardDriveDownload },
-      { title: "Planos e Subscrições", url: "/planos", icon: Crown },
+      { title: "Planos & Subscrições", url: "/planos", icon: Crown },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
     ],
   },
@@ -158,7 +159,7 @@ const getGroups = (t: (k: string) => string) => [
 ];
 
 export function AppSidebar() {
-  const { state, isMobile, setOpenMobile } = useSidebar();
+  const { state, isMobile, setOpenMobile, setOpen, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const nome = useStore((s) => s.design.nomeNegocio);
@@ -198,7 +199,7 @@ export function AppSidebar() {
             className={collapsed ? "h-10 w-10 object-contain" : "h-14 w-auto object-contain"}
           />
           {!collapsed && (
-            <div className="flex flex-col">
+            <div className="flex flex-1 flex-col">
               <span className="font-display text-sm font-semibold text-sidebar-foreground">
                 {nome}
               </span>
@@ -206,6 +207,20 @@ export function AppSidebar() {
                 Admin
               </span>
             </div>
+          )}
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+                else setOpen(false);
+              }}
+              aria-label="Fechar menu e voltar"
+              title="Fechar menu"
+              className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
         </div>
       </SidebarHeader>
