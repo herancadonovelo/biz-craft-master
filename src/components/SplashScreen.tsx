@@ -8,8 +8,8 @@ import { useStore } from "@/lib/store";
 
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
-const MIN_DURATION = 10000; // 10s
-const MAX_DURATION = 20000; // 20s
+const MIN_DURATION = 7000; // 7s
+const MAX_DURATION = 10000; // 10s
 const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
 
