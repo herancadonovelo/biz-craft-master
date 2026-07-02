@@ -156,6 +156,38 @@ export function DesignContent() {
             </CardContent>
           </Card>
           <Card>
+            <CardHeader><CardTitle className="font-display">Ajuste fino do menu lateral (OKLCH)</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Controla luminosidade, saturação, matiz e contraste dos itens.</p>
+              <div>
+                <Label>Luminosidade: {(design.sidebarL ?? 0.25).toFixed(2)}</Label>
+                <Slider value={[design.sidebarL ?? 0.25]} min={0} max={1} step={0.01} onValueChange={([v]) => setDesign({ sidebarL: v })} />
+              </div>
+              <div>
+                <Label>Saturação (croma): {(design.sidebarC ?? 0.025).toFixed(3)}</Label>
+                <Slider value={[design.sidebarC ?? 0.025]} min={0} max={0.4} step={0.005} onValueChange={([v]) => setDesign({ sidebarC: v })} />
+              </div>
+              <div>
+                <Label>Matiz (Hue): {Math.round(design.sidebarH ?? 258)}°</Label>
+                <Slider value={[design.sidebarH ?? 258]} min={0} max={360} step={1} onValueChange={([v]) => setDesign({ sidebarH: v })} />
+              </div>
+              <div>
+                <Label>Contraste: {(design.sidebarContraste ?? 1).toFixed(2)}</Label>
+                <Slider value={[design.sidebarContraste ?? 1]} min={0.2} max={2} step={0.05} onValueChange={([v]) => setDesign({ sidebarContraste: v })} />
+              </div>
+              <div className="h-10 rounded-md border" style={{ background: `oklch(${(design.sidebarL ?? 0.25).toFixed(3)} ${(design.sidebarC ?? 0.025).toFixed(3)} ${design.sidebarH ?? 258})` }} />
+              <Button size="sm" variant="ghost" onClick={() => setDesign({ sidebarL: undefined, sidebarC: undefined, sidebarH: undefined, sidebarContraste: undefined })}>Repor sliders</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Transparência das janelas com contorno</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente.</p>
+              <Label>Opacidade: {Math.round((design.janelasOpacidade ?? 1) * 100)}%</Label>
+              <Slider value={[design.janelasOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ janelasOpacidade: v })} />
+            </CardContent>
+          </Card>
+          <Card>
             <CardHeader><CardTitle className="font-display">Cantos arredondados</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <Label>Raio: {design.raio.toFixed(2)}rem</Label>
