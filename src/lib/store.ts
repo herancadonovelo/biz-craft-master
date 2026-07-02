@@ -561,9 +561,18 @@ export interface DesignSettings {
   corBotaoTexto?: string;    // texto dos botões primários
   corBotaoSecundario?: string;      // fundo dos botões secundários
   corBotaoSecundarioTexto?: string; // texto dos botões secundários
+  corBotaoOutline?: string;         // fundo/borda dos botões outline
+  corBotaoOutlineTexto?: string;    // texto dos botões outline
   corCabecalhoFundo?: string;       // fundo do header (topo com trigger do menu)
   corCabecalhoIcone?: string;       // cor do ícone/texto no header
   corMuted?: string;         // fundo de áreas suaves (muted)
+  // Sidebar OKLCH fino (sobrepõe sidebarBg quando definido)
+  sidebarL?: number; // 0..1 luminosidade
+  sidebarC?: number; // 0..0.4 saturação/croma
+  sidebarH?: number; // 0..360 matiz
+  sidebarContraste?: number; // 0..2 factor de contraste dos texto/hover
+  // Opacidade do fundo das janelas com contorno (inputs, cards, textarea)
+  janelasOpacidade?: number; // 0..1
   // Tamanhos de letra (em px)
   fontSizeBase?: number;     // 12..22 (default 16)
   fontSizeTitulos?: number;  // em px para h1-h6 base
