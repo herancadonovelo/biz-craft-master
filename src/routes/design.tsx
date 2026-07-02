@@ -288,6 +288,8 @@ export function DesignContent() {
               <ColorRow label="Cor do texto dos botões" value={design.corBotaoTexto} onChange={(v) => setDesign({ corBotaoTexto: v })} />
               <ColorRow label="Cor dos botões secundários" value={design.corBotaoSecundario} onChange={(v) => setDesign({ corBotaoSecundario: v })} />
               <ColorRow label="Cor do texto dos botões secundários" value={design.corBotaoSecundarioTexto} onChange={(v) => setDesign({ corBotaoSecundarioTexto: v })} />
+              <ColorRow label="Cor dos botões outline" value={design.corBotaoOutline} onChange={(v) => setDesign({ corBotaoOutline: v })} />
+              <ColorRow label="Cor do texto dos botões outline" value={design.corBotaoOutlineTexto} onChange={(v) => setDesign({ corBotaoOutlineTexto: v })} />
               <p className="text-xs text-muted-foreground">Aplica-se a toda a app. Deixa vazio para usar o padrão.</p>
             </CardContent>
           </Card>
