@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import sewingIcon from "@/assets/sewing-machine-icon.jpg.asset.json";
+import sewingIcon from "@/assets/sewing-machine-transparent.png.asset.json";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -160,7 +160,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&family=Caveat:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&family=Caveat:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Oswald:wght@300;400;500;600;700&family=Bebas+Neue&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&family=Great+Vibes&family=Josefin+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -205,15 +205,22 @@ function RootComponent() {
     root.style.setProperty("--sidebar-ring", accent);
     root.style.setProperty("--radius", `${design.raio}rem`);
     // Sidebar background + contrasting tokens
-    const sb = design.sidebarBg || "0.25 0.025 258";
+    // Se o utilizador definiu L/C/H personalizado, gera oklch a partir daí
+    const sb = (design.sidebarL != null || design.sidebarC != null || design.sidebarH != null)
+      ? `${(design.sidebarL ?? 0.25).toFixed(3)} ${(design.sidebarC ?? 0.025).toFixed(3)} ${(design.sidebarH ?? 258).toFixed(1)}`
+      : (design.sidebarBg || "0.25 0.025 258");
     const sbLum = Number(sb.split(/\s+/)[0]) || 0.25;
     const sbFg = sbLum > 0.6 ? "oklch(0.18 0.03 258)" : "oklch(0.98 0.005 252)";
+    const contrast = design.sidebarContraste ?? 1;
+    const parts = sb.split(/\s+/);
+    const sbH = Number(parts[2]) || 258;
+    const sbC = Number(parts[1]) || 0.03;
     const sbAccent = sbLum > 0.6
-      ? `oklch(${Math.max(0.05, sbLum - 0.1).toFixed(3)} 0.03 258)`
-      : `oklch(${Math.min(0.95, sbLum + 0.08).toFixed(3)} 0.03 258)`;
+      ? `oklch(${Math.max(0.05, sbLum - 0.1 * contrast).toFixed(3)} ${sbC} ${sbH})`
+      : `oklch(${Math.min(0.95, sbLum + 0.08 * contrast).toFixed(3)} ${sbC} ${sbH})`;
     const sbBorder = sbLum > 0.6
-      ? `oklch(${Math.max(0.05, sbLum - 0.15).toFixed(3)} 0.03 258)`
-      : `oklch(${Math.min(0.95, sbLum + 0.12).toFixed(3)} 0.03 258)`;
+      ? `oklch(${Math.max(0.05, sbLum - 0.15 * contrast).toFixed(3)} ${sbC} ${sbH})`
+      : `oklch(${Math.min(0.95, sbLum + 0.12 * contrast).toFixed(3)} ${sbC} ${sbH})`;
     root.style.setProperty("--sidebar", `oklch(${sb})`);
     root.style.setProperty("--sidebar-foreground", sbFg);
     root.style.setProperty("--sidebar-accent", sbAccent);
@@ -248,6 +255,18 @@ function RootComponent() {
     if (design.corBotaoTexto) root.style.setProperty("--primary-foreground", design.corBotaoTexto);
     setOrClear("--secondary", design.corBotaoSecundario);
     setOrClear("--secondary-foreground", design.corBotaoSecundarioTexto);
+    setOrClear("--outline-bg", design.corBotaoOutline);
+    setOrClear("--outline-fg", design.corBotaoOutlineTexto);
+    // Opacidade das janelas com contorno (inputs/cards/textareas)
+    const alpha = design.janelasOpacidade ?? 1;
+    if (alpha !== 1) {
+      root.style.setProperty("--window-alpha", String(alpha));
+      root.classList.add("has-window-alpha");
+    } else {
+      root.style.removeProperty("--window-alpha");
+      root.classList.remove("has-window-alpha");
+    }
+    root.classList.toggle("has-outline-color", !!design.corBotaoOutline);
     setOrClear("--app-header-bg", design.corCabecalhoFundo);
     setOrClear("--app-header-fg", design.corCabecalhoIcone);
     // Tamanhos de letra
@@ -330,13 +349,12 @@ function SewingMenuTrigger() {
       type="button"
       onClick={toggleSidebar}
       aria-label="Abrir menu lateral"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/40 bg-background/60 hover:bg-accent transition"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/40 transition"
     >
       <img
         src={sewingIcon.url}
         alt=""
-        className="h-6 w-6 object-contain"
-        style={{ mixBlendMode: "multiply" }}
+        className="h-8 w-8 object-contain"
         draggable={false}
       />
     </button>

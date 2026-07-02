@@ -44,6 +44,26 @@ const FONTS = [
   { name: "Sistema", v: "system-ui, sans-serif" },
   { name: "Serifa", v: "Georgia, 'Times New Roman', serif" },
   { name: "Mono", v: "ui-monospace, SFMono-Regular, Menlo, monospace" },
+  { name: "Playfair Display", v: "'Playfair Display', serif" },
+  { name: "Merriweather", v: "Merriweather, serif" },
+  { name: "Lora", v: "Lora, serif" },
+  { name: "Nunito", v: "Nunito, sans-serif" },
+  { name: "Poppins", v: "Poppins, sans-serif" },
+  { name: "Roboto", v: "Roboto, sans-serif" },
+  { name: "Open Sans", v: "'Open Sans', sans-serif" },
+  { name: "Montserrat", v: "Montserrat, sans-serif" },
+  { name: "Raleway", v: "Raleway, sans-serif" },
+  { name: "Oswald", v: "Oswald, sans-serif" },
+  { name: "Bebas Neue", v: "'Bebas Neue', sans-serif" },
+  { name: "Dancing Script", v: "'Dancing Script', cursive" },
+  { name: "Pacifico", v: "Pacifico, cursive" },
+  { name: "Great Vibes", v: "'Great Vibes', cursive" },
+  { name: "Josefin Sans", v: "'Josefin Sans', sans-serif" },
+  { name: "Rubik", v: "Rubik, sans-serif" },
+  { name: "Work Sans", v: "'Work Sans', sans-serif" },
+  { name: "DM Sans", v: "'DM Sans', sans-serif" },
+  { name: "Fira Sans", v: "'Fira Sans', sans-serif" },
+  { name: "Space Grotesk", v: "'Space Grotesk', sans-serif" },
 ];
 
 function FontPicker({ label, value, onChange }: { label: string; value?: string; onChange: (v: string) => void }) {
@@ -133,6 +153,38 @@ export function DesignContent() {
                   <span className="text-xs">{a.name}</span>
                 </button>
               ))}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Ajuste fino do menu lateral (OKLCH)</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Controla luminosidade, saturação, matiz e contraste dos itens.</p>
+              <div>
+                <Label>Luminosidade: {(design.sidebarL ?? 0.25).toFixed(2)}</Label>
+                <Slider value={[design.sidebarL ?? 0.25]} min={0} max={1} step={0.01} onValueChange={([v]) => setDesign({ sidebarL: v })} />
+              </div>
+              <div>
+                <Label>Saturação (croma): {(design.sidebarC ?? 0.025).toFixed(3)}</Label>
+                <Slider value={[design.sidebarC ?? 0.025]} min={0} max={0.4} step={0.005} onValueChange={([v]) => setDesign({ sidebarC: v })} />
+              </div>
+              <div>
+                <Label>Matiz (Hue): {Math.round(design.sidebarH ?? 258)}°</Label>
+                <Slider value={[design.sidebarH ?? 258]} min={0} max={360} step={1} onValueChange={([v]) => setDesign({ sidebarH: v })} />
+              </div>
+              <div>
+                <Label>Contraste: {(design.sidebarContraste ?? 1).toFixed(2)}</Label>
+                <Slider value={[design.sidebarContraste ?? 1]} min={0.2} max={2} step={0.05} onValueChange={([v]) => setDesign({ sidebarContraste: v })} />
+              </div>
+              <div className="h-10 rounded-md border" style={{ background: `oklch(${(design.sidebarL ?? 0.25).toFixed(3)} ${(design.sidebarC ?? 0.025).toFixed(3)} ${design.sidebarH ?? 258})` }} />
+              <Button size="sm" variant="ghost" onClick={() => setDesign({ sidebarL: undefined, sidebarC: undefined, sidebarH: undefined, sidebarContraste: undefined })}>Repor sliders</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Transparência das janelas com contorno</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente.</p>
+              <Label>Opacidade: {Math.round((design.janelasOpacidade ?? 1) * 100)}%</Label>
+              <Slider value={[design.janelasOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ janelasOpacidade: v })} />
             </CardContent>
           </Card>
           <Card>
@@ -236,6 +288,8 @@ export function DesignContent() {
               <ColorRow label="Cor do texto dos botões" value={design.corBotaoTexto} onChange={(v) => setDesign({ corBotaoTexto: v })} />
               <ColorRow label="Cor dos botões secundários" value={design.corBotaoSecundario} onChange={(v) => setDesign({ corBotaoSecundario: v })} />
               <ColorRow label="Cor do texto dos botões secundários" value={design.corBotaoSecundarioTexto} onChange={(v) => setDesign({ corBotaoSecundarioTexto: v })} />
+              <ColorRow label="Cor dos botões outline" value={design.corBotaoOutline} onChange={(v) => setDesign({ corBotaoOutline: v })} />
+              <ColorRow label="Cor do texto dos botões outline" value={design.corBotaoOutlineTexto} onChange={(v) => setDesign({ corBotaoOutlineTexto: v })} />
               <p className="text-xs text-muted-foreground">Aplica-se a toda a app. Deixa vazio para usar o padrão.</p>
             </CardContent>
           </Card>
