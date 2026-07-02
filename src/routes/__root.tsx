@@ -205,15 +205,22 @@ function RootComponent() {
     root.style.setProperty("--sidebar-ring", accent);
     root.style.setProperty("--radius", `${design.raio}rem`);
     // Sidebar background + contrasting tokens
-    const sb = design.sidebarBg || "0.25 0.025 258";
+    // Se o utilizador definiu L/C/H personalizado, gera oklch a partir daí
+    const sb = (design.sidebarL != null || design.sidebarC != null || design.sidebarH != null)
+      ? `${(design.sidebarL ?? 0.25).toFixed(3)} ${(design.sidebarC ?? 0.025).toFixed(3)} ${(design.sidebarH ?? 258).toFixed(1)}`
+      : (design.sidebarBg || "0.25 0.025 258");
     const sbLum = Number(sb.split(/\s+/)[0]) || 0.25;
     const sbFg = sbLum > 0.6 ? "oklch(0.18 0.03 258)" : "oklch(0.98 0.005 252)";
+    const contrast = design.sidebarContraste ?? 1;
+    const parts = sb.split(/\s+/);
+    const sbH = Number(parts[2]) || 258;
+    const sbC = Number(parts[1]) || 0.03;
     const sbAccent = sbLum > 0.6
-      ? `oklch(${Math.max(0.05, sbLum - 0.1).toFixed(3)} 0.03 258)`
-      : `oklch(${Math.min(0.95, sbLum + 0.08).toFixed(3)} 0.03 258)`;
+      ? `oklch(${Math.max(0.05, sbLum - 0.1 * contrast).toFixed(3)} ${sbC} ${sbH})`
+      : `oklch(${Math.min(0.95, sbLum + 0.08 * contrast).toFixed(3)} ${sbC} ${sbH})`;
     const sbBorder = sbLum > 0.6
-      ? `oklch(${Math.max(0.05, sbLum - 0.15).toFixed(3)} 0.03 258)`
-      : `oklch(${Math.min(0.95, sbLum + 0.12).toFixed(3)} 0.03 258)`;
+      ? `oklch(${Math.max(0.05, sbLum - 0.15 * contrast).toFixed(3)} ${sbC} ${sbH})`
+      : `oklch(${Math.min(0.95, sbLum + 0.12 * contrast).toFixed(3)} ${sbC} ${sbH})`;
     root.style.setProperty("--sidebar", `oklch(${sb})`);
     root.style.setProperty("--sidebar-foreground", sbFg);
     root.style.setProperty("--sidebar-accent", sbAccent);
@@ -248,6 +255,10 @@ function RootComponent() {
     if (design.corBotaoTexto) root.style.setProperty("--primary-foreground", design.corBotaoTexto);
     setOrClear("--secondary", design.corBotaoSecundario);
     setOrClear("--secondary-foreground", design.corBotaoSecundarioTexto);
+    setOrClear("--outline-bg", design.corBotaoOutline);
+    setOrClear("--outline-fg", design.corBotaoOutlineTexto);
+    // Opacidade das janelas com contorno (inputs/cards/textareas)
+    root.style.setProperty("--window-alpha", String(design.janelasOpacidade ?? 1));
     setOrClear("--app-header-bg", design.corCabecalhoFundo);
     setOrClear("--app-header-fg", design.corCabecalhoIcone);
     // Tamanhos de letra
