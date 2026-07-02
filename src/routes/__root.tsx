@@ -341,13 +341,12 @@ function SewingMenuTrigger() {
       type="button"
       onClick={toggleSidebar}
       aria-label="Abrir menu lateral"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/40 bg-background/60 hover:bg-accent transition"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/40 transition"
     >
       <img
         src={sewingIcon.url}
         alt=""
-        className="h-6 w-6 object-contain"
-        style={{ mixBlendMode: "multiply" }}
+        className="h-8 w-8 object-contain"
         draggable={false}
       />
     </button>
