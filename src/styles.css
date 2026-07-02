@@ -188,3 +188,26 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
 [data-slot="tabs-list"], [data-slot="tabs-trigger"] { font-family: var(--font-tabs, inherit); }
 [data-slot="tabs-trigger"] { color: var(--tabs-color, inherit); font-size: var(--font-size-tabs, inherit); }
 [data-slot="tabs-trigger"][data-state="active"] { color: var(--tabs-active-color, inherit); }
+
+/* Outline button — cor personalizável */
+.bg-background.border-input,
+button[data-variant="outline"],
+[data-slot="button"][data-variant="outline"] {
+  /* no-op selectors kept for spec */
+}
+
+/* Opacidade do fundo das janelas com contorno */
+input, textarea, select,
+[data-slot="card"],
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select-trigger"] {
+  background-color: color-mix(in oklab, var(--card, #fff) calc(var(--window-alpha, 1) * 100%), transparent);
+}
+
+/* Cor do botão outline através de --outline-bg / --outline-fg */
+button.border.border-input,
+button.border.bg-background {
+  background-color: var(--outline-bg, var(--background));
+  color: var(--outline-fg, var(--foreground));
+}
