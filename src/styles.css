@@ -196,18 +196,18 @@ button[data-variant="outline"],
   /* no-op selectors kept for spec */
 }
 
-/* Opacidade do fundo das janelas com contorno */
-input, textarea, select,
-[data-slot="card"],
-[data-slot="input"],
-[data-slot="textarea"],
-[data-slot="select-trigger"] {
-  background-color: color-mix(in oklab, var(--card, #fff) calc(var(--window-alpha, 1) * 100%), transparent);
+/* Opacidade das janelas com contorno (só quando o utilizador ativa) */
+.has-window-alpha input,
+.has-window-alpha textarea,
+.has-window-alpha select,
+.has-window-alpha [data-slot="card"],
+.has-window-alpha [data-slot="select-trigger"] {
+  background-color: color-mix(in oklab, var(--card) calc(var(--window-alpha, 1) * 100%), transparent) !important;
 }
 
-/* Cor do botão outline através de --outline-bg / --outline-fg */
-button.border.border-input,
-button.border.bg-background {
-  background-color: var(--outline-bg, var(--background));
-  color: var(--outline-fg, var(--foreground));
+/* Cor personalizada dos botões outline */
+.has-outline-color button.border.border-input,
+.has-outline-color [data-slot="button"].border.border-input {
+  background-color: var(--outline-bg) !important;
+  color: var(--outline-fg, inherit) !important;
 }
