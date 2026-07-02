@@ -839,6 +839,8 @@ const seed = (): Pick<
       corBotaoTexto: "",
       corBotaoSecundario: "",
       corBotaoSecundarioTexto: "",
+      corBotaoOutline: "",
+      corBotaoOutlineTexto: "",
       corCabecalhoFundo: "",
       corCabecalhoIcone: "",
       corMuted: "",
