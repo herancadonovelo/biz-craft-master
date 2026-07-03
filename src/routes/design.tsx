@@ -185,6 +185,32 @@ export function DesignContent() {
               <p className="text-xs text-muted-foreground">Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente.</p>
               <Label>Opacidade: {Math.round((design.janelasOpacidade ?? 1) * 100)}%</Label>
               <Slider value={[design.janelasOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ janelasOpacidade: v })} />
+              <div className="flex flex-wrap gap-2 pt-1">
+                <Button size="sm" variant="outline" onClick={() => setDesign({ janelasOpacidade: 1 })}>100% (opaco)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ janelasOpacidade: 0.75 })}>75%</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ janelasOpacidade: 0.5 })}>50%</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ janelasOpacidade: 0.25 })}>25%</Button>
+                <Button size="sm" variant="ghost" onClick={() => setDesign({ janelasOpacidade: 1 })}>Repor</Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-display">Calibrar opacidade dos botões</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">Controla independentemente a opacidade dos botões primários, secundários e outline.</p>
+              <div>
+                <Label>Botão primário: {Math.round((design.botaoPrimarioOpacidade ?? 1) * 100)}%</Label>
+                <Slider value={[design.botaoPrimarioOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ botaoPrimarioOpacidade: v })} />
+              </div>
+              <div>
+                <Label>Botão secundário: {Math.round((design.botaoSecundarioOpacidade ?? 1) * 100)}%</Label>
+                <Slider value={[design.botaoSecundarioOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ botaoSecundarioOpacidade: v })} />
+              </div>
+              <div>
+                <Label>Botão outline: {Math.round((design.botaoOutlineOpacidade ?? 1) * 100)}%</Label>
+                <Slider value={[design.botaoOutlineOpacidade ?? 1]} min={0} max={1} step={0.05} onValueChange={([v]) => setDesign({ botaoOutlineOpacidade: v })} />
+              </div>
+              <Button size="sm" variant="outline" onClick={() => setDesign({ botaoPrimarioOpacidade: 1, botaoSecundarioOpacidade: 1, botaoOutlineOpacidade: 1 })}>Repor tudo a 100%</Button>
             </CardContent>
           </Card>
           <Card>
