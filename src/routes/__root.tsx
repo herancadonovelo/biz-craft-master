@@ -267,6 +267,14 @@ function RootComponent() {
       root.classList.remove("has-window-alpha");
     }
     root.classList.toggle("has-outline-color", !!design.corBotaoOutline);
+    // Opacidade dos botões (primário, secundário, outline)
+    const btnP = design.botaoPrimarioOpacidade ?? 1;
+    const btnS = design.botaoSecundarioOpacidade ?? 1;
+    const btnO = design.botaoOutlineOpacidade ?? 1;
+    root.style.setProperty("--btn-primary-alpha", String(btnP));
+    root.style.setProperty("--btn-secondary-alpha", String(btnS));
+    root.style.setProperty("--btn-outline-alpha", String(btnO));
+    root.classList.toggle("has-btn-alpha", btnP !== 1 || btnS !== 1 || btnO !== 1);
     setOrClear("--app-header-bg", design.corCabecalhoFundo);
     setOrClear("--app-header-fg", design.corCabecalhoIcone);
     // Tamanhos de letra
