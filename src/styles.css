@@ -211,3 +211,17 @@ button[data-variant="outline"],
   background-color: var(--outline-bg) !important;
   color: var(--outline-fg, inherit) !important;
 }
+
+/* Opacidade calibrável dos botões */
+.has-btn-alpha [data-slot="button"].bg-primary,
+.has-btn-alpha button.bg-primary {
+  background-color: color-mix(in oklab, var(--primary) calc(var(--btn-primary-alpha, 1) * 100%), transparent) !important;
+}
+.has-btn-alpha [data-slot="button"].bg-secondary,
+.has-btn-alpha button.bg-secondary {
+  background-color: color-mix(in oklab, var(--secondary) calc(var(--btn-secondary-alpha, 1) * 100%), transparent) !important;
+}
+.has-btn-alpha [data-slot="button"].border.border-input,
+.has-btn-alpha button.border.border-input {
+  background-color: color-mix(in oklab, var(--outline-bg, var(--background)) calc(var(--btn-outline-alpha, 1) * 100%), transparent) !important;
+}

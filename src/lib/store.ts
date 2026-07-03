@@ -573,6 +573,10 @@ export interface DesignSettings {
   sidebarContraste?: number; // 0..2 factor de contraste dos texto/hover
   // Opacidade do fundo das janelas com contorno (inputs, cards, textarea)
   janelasOpacidade?: number; // 0..1
+  // Opacidade dos botões (0..1)
+  botaoPrimarioOpacidade?: number;
+  botaoSecundarioOpacidade?: number;
+  botaoOutlineOpacidade?: number;
   // Tamanhos de letra (em px)
   fontSizeBase?: number;     // 12..22 (default 16)
   fontSizeTitulos?: number;  // em px para h1-h6 base
