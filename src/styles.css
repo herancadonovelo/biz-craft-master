@@ -201,7 +201,23 @@ button[data-variant="outline"],
 .has-window-alpha textarea,
 .has-window-alpha select,
 .has-window-alpha [data-slot="card"],
-.has-window-alpha [data-slot="select-trigger"] {
+.has-window-alpha [data-slot="select-trigger"],
+.has-window-alpha [data-slot="popover-content"],
+.has-window-alpha [data-slot="dialog-content"],
+.has-window-alpha [data-slot="alert-dialog-content"],
+.has-window-alpha [data-slot="sheet-content"],
+.has-window-alpha [data-slot="drawer-content"],
+.has-window-alpha [data-slot="dropdown-menu-content"],
+.has-window-alpha [data-slot="context-menu-content"],
+.has-window-alpha [data-slot="menubar-content"],
+.has-window-alpha [data-slot="hover-card-content"],
+.has-window-alpha [data-slot="tooltip-content"],
+.has-window-alpha [data-slot="command"],
+.has-window-alpha [data-slot="accordion-content"],
+.has-window-alpha [data-slot="alert"],
+.has-window-alpha [data-slot="tabs-list"],
+.has-window-alpha [data-slot="select-content"],
+.has-window-alpha .border {
   background-color: color-mix(in oklab, var(--card) calc(var(--window-alpha, 1) * 100%), transparent) !important;
 }
 
