@@ -590,6 +590,8 @@ export interface DesignSettings {
   corAlertaTexto?: string;
   // Amazon Music (deep-link, sem SDK público)
   amazonMusicUrl?: string;   // URL personalizada de playlist/estação
+  // Fontes por página (chave = pathname da rota; valor = família CSS)
+  fontesPorPagina?: Record<string, string>;
 }
 
 interface State {
