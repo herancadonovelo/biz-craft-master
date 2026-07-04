@@ -16,6 +16,7 @@ import { Slider } from "@/components/ui/slider";
 import { useStore, formatEUR } from "@/lib/store";
 import {
   A4Stage, ExportPanel, Watermark, WatermarkControls, useMarcaDAgua,
+  SheetControls, useSheet,
 } from "@/components/A4Export";
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
