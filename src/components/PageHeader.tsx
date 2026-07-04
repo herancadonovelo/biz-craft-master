@@ -19,7 +19,7 @@ export function PageHeader({
   const design = useStore((s) => s.design);
   const setDesign = useStore((s) => s.setDesign);
   const overrideFont = design.fontesPorPagina?.[pathname];
-  const fontFamily = overrideFont || "'Playfair Display', Georgia, serif";
+  const fontFamily = overrideFont || design.fonteCabecalho || "'Playfair Display', Georgia, serif";
   const setFont = (v: string) => {
     const next = { ...(design.fontesPorPagina || {}) };
     if (v) next[pathname] = v; else delete next[pathname];
