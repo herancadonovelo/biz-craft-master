@@ -106,6 +106,17 @@ export function DesignContent() {
     return (
       <div className="grid gap-6 lg:grid-cols-2">
           <Card>
+            <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo. Podes ainda alterar por página no botão "Letra" no próprio cabeçalho.</p>
+              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ fontesPorPagina: {} })}>Limpar overrides por página</Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
             <CardHeader><CardTitle className="font-display">Marca</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <div><Label>Nome do negócio</Label><Input value={design.nomeNegocio} onChange={(e) => setDesign({ nomeNegocio: e.target.value })} /></div>
