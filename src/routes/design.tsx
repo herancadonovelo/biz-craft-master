@@ -19,13 +19,6 @@ const ACCENTS = [
 ];
 
 const SIDEBAR_COLORS = [
-  { name: "Grafite", v: "0.25 0.025 258" },
-  { name: "Noite", v: "0.18 0.02 258" },
-  { name: "Carvão", v: "0.22 0.005 0" },
-  { name: "Azul escuro", v: "0.3 0.06 250" },
-  { name: "Verde musgo", v: "0.32 0.05 160" },
-  { name: "Vinho", v: "0.3 0.08 20" },
-  { name: "Roxo", v: "0.3 0.08 290" },
   { name: "Creme", v: "0.94 0.02 90" },
   { name: "Pérola", v: "0.9 0.01 250" },
   { name: "Rosa claro", v: "0.88 0.04 15" },
