@@ -912,6 +912,7 @@ function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement) {
 function AmigurumiTab() {
   const ref = useRef<HTMLDivElement>(null);
   const [w, setW] = useMarcaDAgua();
+  const sheet = useSheet();
   const [titulo, setTitulo] = useState("");
   const [intro, setIntro] = useState("");
   const [carreiras, setCarreiras] = useState<{ texto: string; pontos: number }[]>([
@@ -919,7 +920,7 @@ function AmigurumiTab() {
   ]);
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w}>
+      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
         <div className="absolute inset-0 overflow-auto p-8 text-sm leading-relaxed">
           <h2 className="font-display text-2xl font-bold">{titulo || "Sem título"}</h2>
           <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{intro}</p>
@@ -934,6 +935,7 @@ function AmigurumiTab() {
         </div>
       </A4Stage>
       <div className="space-y-3">
+        <SheetControls {...sheet} />
         <Card><CardContent className="space-y-2 p-3">
           <Input placeholder="Título da receita" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
           <Textarea placeholder="Materiais, agulha, nível..." value={intro} onChange={(e) => setIntro(e.target.value)} />
@@ -949,7 +951,7 @@ function AmigurumiTab() {
           </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Amigurumi" defaultTitulo={titulo || "Receita"} />
+        <ExportPanel targetRef={ref} defaultArea="Amigurumi" defaultTitulo={titulo || "Receita"} size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
   );
@@ -960,6 +962,7 @@ function CosturaTab() {
   const ref = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
+  const sheet = useSheet();
   const [escala, setEscala] = useState(2); // px por mm (200mm → 400px no SVG)
   const [linhas, setLinhas] = useState<{ x1: number; y1: number; x2: number; y2: number; cm: number }[]>([]);
   const [tamanho, setTamanho] = useState<"S" | "M" | "L" | "XL">("M");
@@ -995,7 +998,7 @@ function CosturaTab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w}>
+      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full" onPointerDown={onDown} onPointerUp={onUp}>
           <defs><pattern id="gridc" width="10" height="10" patternUnits="userSpaceOnUse">
             <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#eee" strokeWidth="0.5" />
@@ -1010,6 +1013,7 @@ function CosturaTab() {
         </svg>
       </A4Stage>
       <div className="space-y-3">
+        <SheetControls {...sheet} />
         <Card><CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 gap-2">
             <div><Label className="text-xs">Tamanho</Label>
@@ -1049,7 +1053,7 @@ function CosturaTab() {
         </CardContent></Card>
 
         <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Costura" defaultTitulo={`Molde ${tamanho}`} />
+        <ExportPanel targetRef={ref} defaultArea="Costura" defaultTitulo={`Molde ${tamanho}`} size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
   );
@@ -1059,6 +1063,7 @@ function CosturaTab() {
 function PontoCruzTab() {
   const ref = useRef<HTMLDivElement>(null);
   const [w, setW] = useMarcaDAgua();
+  const sheet = useSheet();
   const [cols, setCols] = useState(40);
   const [rows, setRows] = useState(40);
   const [cor, setCor] = useState("#222222");
@@ -1097,7 +1102,7 @@ function PontoCruzTab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w}>
+      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
         <div className="absolute inset-0 grid place-items-center p-4">
           <div className="grid select-none" style={{ gridTemplateColumns: `repeat(${cols}, ${cellSize}px)` }}
                onPointerDown={() => { drawing.current = true; }}
@@ -1121,6 +1126,7 @@ function PontoCruzTab() {
         </div>
       </A4Stage>
       <div className="space-y-3">
+        <SheetControls {...sheet} />
         <Card><CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 gap-2">
             <div><Label className="text-xs">Largura ({cols})</Label><Slider value={[cols]} min={10} max={100} onValueChange={(v) => setCols(v[0])} /></div>
@@ -1150,7 +1156,7 @@ function PontoCruzTab() {
         </CardContent></Card>
 
         <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Ponto cruz" defaultTitulo="Gráfico Ponto Cruz" />
+        <ExportPanel targetRef={ref} defaultArea="Ponto cruz" defaultTitulo="Gráfico Ponto Cruz" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
   );
@@ -1161,6 +1167,7 @@ function BordadoTab() {
   const ref = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
+  const sheet = useSheet();
   const [paths, setPaths] = useState<string[]>([]);
   const [imagemFundo, setImagemFundo] = useState<string>("");
   const [contornos, setContornos] = useState<string[]>([]);
