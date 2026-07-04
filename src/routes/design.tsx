@@ -19,13 +19,6 @@ const ACCENTS = [
 ];
 
 const SIDEBAR_COLORS = [
-  { name: "Grafite", v: "0.25 0.025 258" },
-  { name: "Noite", v: "0.18 0.02 258" },
-  { name: "Carvão", v: "0.22 0.005 0" },
-  { name: "Azul escuro", v: "0.3 0.06 250" },
-  { name: "Verde musgo", v: "0.32 0.05 160" },
-  { name: "Vinho", v: "0.3 0.08 20" },
-  { name: "Roxo", v: "0.3 0.08 290" },
   { name: "Creme", v: "0.94 0.02 90" },
   { name: "Pérola", v: "0.9 0.01 250" },
   { name: "Rosa claro", v: "0.88 0.04 15" },
@@ -112,6 +105,17 @@ export function DesignContent() {
     const { design, setDesign } = useStore();
     return (
       <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo. Podes ainda alterar por página no botão "Letra" no próprio cabeçalho.</p>
+              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
+                <Button size="sm" variant="outline" onClick={() => setDesign({ fontesPorPagina: {} })}>Limpar overrides por página</Button>
+              </div>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader><CardTitle className="font-display">Marca</CardTitle></CardHeader>
             <CardContent className="space-y-3">
