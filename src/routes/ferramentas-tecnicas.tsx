@@ -1281,7 +1281,7 @@ function BordadoTab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w}>
+      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
         {imagemFundo && <img src={imagemFundo} className="absolute inset-0 h-full w-full object-contain opacity-50" />}
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full"
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
@@ -1290,6 +1290,7 @@ function BordadoTab() {
         </svg>
       </A4Stage>
       <div className="space-y-3">
+        <SheetControls {...sheet} />
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Imagem de referência</Label>
           <Input type="file" accept="image/*" onChange={(e) => {
@@ -1321,7 +1322,7 @@ function BordadoTab() {
           <Button size="sm" variant="ghost" onClick={() => setPaths([])}><Eraser className="mr-1 h-3 w-3" />Limpar traços</Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" />
+        <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
   );
