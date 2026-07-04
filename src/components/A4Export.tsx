@@ -17,6 +17,47 @@ import { jsPDF } from "jspdf";
 export type AreaTecnica = "Tricotin" | "Amigurumi" | "Crochê" | "Costura" | "Ponto cruz" | "Bordado";
 export const AREAS: AreaTecnica[] = ["Tricotin", "Amigurumi", "Crochê", "Costura", "Ponto cruz", "Bordado"];
 
+/* -------- Formatos de papel (portrait, em mm) -------- */
+export type PaperSize = "A3" | "A4" | "A5" | "Letter" | "Legal";
+export const PAPER_SIZES: { id: PaperSize; label: string; w: number; h: number }[] = [
+  { id: "A3", label: "A3 (297 × 420 mm)", w: 297, h: 420 },
+  { id: "A4", label: "A4 (210 × 297 mm)", w: 210, h: 297 },
+  { id: "A5", label: "A5 (148 × 210 mm)", w: 148, h: 210 },
+  { id: "Letter", label: "Letter (216 × 279 mm)", w: 216, h: 279 },
+  { id: "Legal", label: "Legal (216 × 356 mm)", w: 216, h: 356 },
+];
+export type Orientacao = "portrait" | "landscape";
+export function useSheet(defaultSize: PaperSize = "A4", defaultOr: Orientacao = "portrait") {
+  const [size, setSize] = useState<PaperSize>(defaultSize);
+  const [orientacao, setOrientacao] = useState<Orientacao>(defaultOr);
+  return { size, setSize, orientacao, setOrientacao };
+}
+export function SheetControls({
+  size, setSize, orientacao, setOrientacao,
+}: {
+  size: PaperSize; setSize: (s: PaperSize) => void;
+  orientacao: Orientacao; setOrientacao: (o: Orientacao) => void;
+}) {
+  return (
+    <Card><CardContent className="space-y-3 p-3">
+      <div>
+        <Label className="text-xs">Tamanho da folha</Label>
+        <Select value={size} onValueChange={(v) => setSize(v as PaperSize)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>{PAPER_SIZES.map((p) => <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>)}</SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-xs">Orientação</Label>
+        <div className="mt-1 flex gap-2">
+          <Button size="sm" variant={orientacao === "portrait" ? "default" : "outline"} onClick={() => setOrientacao("portrait")}>Vertical</Button>
+          <Button size="sm" variant={orientacao === "landscape" ? "default" : "outline"} onClick={() => setOrientacao("landscape")}>Horizontal</Button>
+        </div>
+      </div>
+    </CardContent></Card>
+  );
+}
+
 export interface MarcaDAgua {
   ativa: boolean;
   texto: string;
@@ -86,12 +127,13 @@ export function WatermarkControls({ w, set }: { w: MarcaDAgua; set: (p: Partial<
  * `targetRef` aponta para o nó DOM A4 a capturar (já com a marca d'água sobreposta).
  */
 export function ExportPanel({
-  targetRef, defaultArea, defaultTitulo, orientacao = "portrait", extra,
+  targetRef, defaultArea, defaultTitulo, orientacao = "portrait", size = "A4", extra,
 }: {
   targetRef: RefObject<HTMLDivElement | null>;
   defaultArea: AreaTecnica;
   defaultTitulo: string;
-  orientacao?: "portrait" | "landscape";
+  orientacao?: Orientacao;
+  size?: PaperSize;
   extra?: ReactNode;
 }) {
   const add = useStore((s) => s.add);
@@ -118,9 +160,11 @@ export function ExportPanel({
   const exportarPDF = async () => {
     try {
       const data = await capturar();
-      const pdf = new jsPDF({ orientation: orientacao, unit: "mm", format: "a4" });
-      const w = orientacao === "portrait" ? 210 : 297;
-      const h = orientacao === "portrait" ? 297 : 210;
+      const spec = PAPER_SIZES.find((p) => p.id === size) ?? PAPER_SIZES[1];
+      const format: [number, number] = orientacao === "portrait" ? [spec.w, spec.h] : [spec.h, spec.w];
+      const pdf = new jsPDF({ orientation: orientacao, unit: "mm", format });
+      const w = format[0];
+      const h = format[1];
       pdf.addImage(data, "PNG", 0, 0, w, h);
       pdf.save(`${(titulo || "trabalho").replace(/\s+/g, "-")}.pdf`);
     } catch (e) { toast.error("Falha ao gerar PDF: " + (e as Error).message); }
@@ -131,9 +175,11 @@ export function ExportPanel({
       const data = await capturar();
       const win = window.open("", "_blank");
       if (!win) return;
-      const size = orientacao === "portrait" ? "A4 portrait" : "A4 landscape";
+      const cssSize = size === "Letter" || size === "Legal"
+        ? `${size.toLowerCase()} ${orientacao}`
+        : `${size} ${orientacao}`;
       win.document.write(`<html><head><title>${titulo}</title>
-        <style>@page{size:${size};margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style>
+        <style>@page{size:${cssSize};margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style>
         </head><body><img src="${data}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
       win.document.close();
     } catch (e) { toast.error("Falha ao imprimir: " + (e as Error).message); }
@@ -164,16 +210,18 @@ export function ExportPanel({
 
 /** Wrapper de tela com proporção A4 e marca d'água sobreposta. */
 export function A4Stage({
-  innerRef, orientacao = "portrait", children, className = "",
+  innerRef, orientacao = "portrait", size = "A4", children, className = "",
   watermark,
 }: {
   innerRef: RefObject<HTMLDivElement | null>;
-  orientacao?: "portrait" | "landscape";
+  orientacao?: Orientacao;
+  size?: PaperSize;
   children: ReactNode;
   className?: string;
   watermark: MarcaDAgua;
 }) {
-  const ratio = orientacao === "portrait" ? "210/297" : "297/210";
+  const spec = PAPER_SIZES.find((p) => p.id === size) ?? PAPER_SIZES[1];
+  const ratio = orientacao === "portrait" ? `${spec.w}/${spec.h}` : `${spec.h}/${spec.w}`;
   return (
     <div ref={innerRef} className={`relative mx-auto w-full max-w-3xl overflow-hidden border border-border bg-white shadow ${className}`}
          style={{ aspectRatio: ratio }}>
