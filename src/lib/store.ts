@@ -232,6 +232,21 @@ export interface SincronizacaoConfig {
   emailUtilizador: string;
   emailAtivo: boolean;
   ultimaSync?: string;
+  // E-commerce
+  shopifyAtivo?: boolean;
+  shopifyUrl?: string;
+  shopifyToken?: string;
+  wooAtivo?: boolean;
+  wooUrl?: string;
+  wooKey?: string;
+  wooSecret?: string;
+  squarespaceAtivo?: boolean;
+  squarespaceUrl?: string;
+  squarespaceToken?: string;
+  jumpsellerAtivo?: boolean;
+  jumpsellerUrl?: string;
+  jumpsellerLogin?: string;
+  jumpsellerToken?: string;
 }
 
 export type Idioma = "pt" | "en" | "es" | "fr" | "de" | "it";
@@ -592,6 +607,9 @@ export interface DesignSettings {
   amazonMusicUrl?: string;   // URL personalizada de playlist/estação
   // Fontes por página (chave = pathname da rota; valor = família CSS)
   fontesPorPagina?: Record<string, string>;
+  // Tipo de letra global dos cabeçalhos (aplicado a todos os PageHeader,
+  // exceto quando existe override específico em `fontesPorPagina`).
+  fonteCabecalho?: string;
 }
 
 interface State {
