@@ -18,17 +18,6 @@ const ACCENTS = [
   { name: "Violet", v: "0.65 0.15 290" },
 ];
 
-const SIDEBAR_COLORS = [
-  { name: "Creme", v: "0.94 0.02 90" },
-  { name: "Pérola", v: "0.9 0.01 250" },
-  { name: "Rosa claro", v: "0.88 0.04 15" },
-  { name: "Marfim", v: "0.96 0.015 85" },
-  { name: "Azul céu", v: "0.92 0.03 230" },
-  { name: "Verde menta", v: "0.92 0.04 160" },
-  { name: "Lavanda", v: "0.9 0.04 290" },
-  { name: "Pêssego", v: "0.91 0.05 55" },
-];
-
 const FONTS = [
   { name: "Sora", v: "Sora, system-ui, sans-serif" },
   { name: "Manrope", v: "Manrope, system-ui, sans-serif" },
