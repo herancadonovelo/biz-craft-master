@@ -18,17 +18,6 @@ const ACCENTS = [
   { name: "Violet", v: "0.65 0.15 290" },
 ];
 
-const SIDEBAR_COLORS = [
-  { name: "Creme", v: "0.94 0.02 90" },
-  { name: "Pérola", v: "0.9 0.01 250" },
-  { name: "Rosa claro", v: "0.88 0.04 15" },
-  { name: "Marfim", v: "0.96 0.015 85" },
-  { name: "Azul céu", v: "0.92 0.03 230" },
-  { name: "Verde menta", v: "0.92 0.04 160" },
-  { name: "Lavanda", v: "0.9 0.04 290" },
-  { name: "Pêssego", v: "0.91 0.05 55" },
-];
-
 const FONTS = [
   { name: "Sora", v: "Sora, system-ui, sans-serif" },
   { name: "Manrope", v: "Manrope, system-ui, sans-serif" },
@@ -108,7 +97,7 @@ export function DesignContent() {
           <Card>
             <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo. Podes ainda alterar por página no botão "Letra" no próprio cabeçalho.</p>
+              <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo.</p>
               <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
@@ -142,18 +131,6 @@ export function DesignContent() {
                 <button key={a.name} onClick={() => setDesign({ accent: a.v })}
                   className={`flex flex-col items-center gap-1 rounded-md border p-2 ${design.accent === a.v ? "border-foreground" : "border-border"}`}>
                   <div className="h-10 w-10 rounded-full" style={{ background: `oklch(${a.v})` }} />
-                  <span className="text-xs">{a.name}</span>
-                </button>
-              ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle className="font-display">Cor do menu lateral</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-5 gap-3">
-              {SIDEBAR_COLORS.map((a) => (
-                <button key={a.name} onClick={() => setDesign({ sidebarBg: a.v })}
-                  className={`flex flex-col items-center gap-1 rounded-md border p-2 ${design.sidebarBg === a.v ? "border-foreground" : "border-border"}`}>
-                  <div className="h-10 w-10 rounded-full border" style={{ background: `oklch(${a.v})` }} />
                   <span className="text-xs">{a.name}</span>
                 </button>
               ))}
@@ -269,33 +246,6 @@ export function DesignContent() {
               <ColorRow label="Cor dos itens do menu" value={design.corMenu} onChange={(v) => setDesign({ corMenu: v })} />
               <ColorRow label="Cor de fundo da categoria ativa" value={design.corMenuAtivo} onChange={(v) => setDesign({ corMenuAtivo: v })} />
               <ColorRow label="Cor do texto da categoria ativa" value={design.corMenuAtivoTexto} onChange={(v) => setDesign({ corMenuAtivoTexto: v })} />
-              <div>
-                <Label className="text-xs text-muted-foreground">Presets rápidos para a categoria ativa</Label>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {[
-                    { n: "Azul-acinzentado", bg: "#475569", fg: "#FFFFFF" },
-                    { n: "Âmbar", bg: "#F59E0B", fg: "#1F2937" },
-                    { n: "Rosa", bg: "#EC4899", fg: "#FFFFFF" },
-                    { n: "Verde menta", bg: "#10B981", fg: "#052E2B" },
-                    { n: "Violeta", bg: "#8B5CF6", fg: "#FFFFFF" },
-                    { n: "Coral", bg: "#FB7185", fg: "#3B0A1A" },
-                    { n: "Dourado", bg: "#EAB308", fg: "#1F2937" },
-                    { n: "Grafite", bg: "#1F2937", fg: "#F9FAFB" },
-                    { n: "Marfim", bg: "#FAF7F0", fg: "#1F2937" },
-                  ].map((p) => (
-                    <button
-                      key={p.n}
-                      onClick={() => setDesign({ corMenuAtivo: p.bg, corMenuAtivoTexto: p.fg })}
-                      className="flex items-center gap-2 rounded-md border px-2 py-1 text-xs"
-                      style={{ background: p.bg, color: p.fg, borderColor: p.fg + "33" }}
-                    >
-                      <span className="h-3 w-3 rounded-full border" style={{ background: p.bg, borderColor: p.fg + "55" }} />
-                      {p.n}
-                    </button>
-                  ))}
-                  <Button size="sm" variant="ghost" onClick={() => setDesign({ corMenuAtivo: "", corMenuAtivoTexto: "" })}>Repor</Button>
-                </div>
-              </div>
               <p className="text-xs text-muted-foreground">A categoria selecionada mantém-se destacada enquanto navegas dentro dela.</p>
             </CardContent>
           </Card>

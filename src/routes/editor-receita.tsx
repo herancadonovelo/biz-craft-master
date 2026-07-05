@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useStore, type ReceitaEditor } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
+import { PremiumRoute } from "@/components/PremiumRoute";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,11 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 export const Route = createFileRoute("/editor-receita")({
   head: () => ({ meta: [{ title: "Editor De Receitas" }] }),
-  component: Page,
+  component: () => (
+    <PremiumRoute feature="Editor de Receitas">
+      <Page />
+    </PremiumRoute>
+  ),
 });
 
 export function EditorReceitaPage() { return <Page />; }
