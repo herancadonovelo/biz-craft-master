@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { PremiumRoute } from "@/components/PremiumRoute";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toPng } from "html-to-image";
@@ -50,7 +50,13 @@ function uid() { return Math.random().toString(36).slice(2, 9); }
 
 function EditorPage() {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/editor-moodboards" }) as { id?: string };
+  // Read search non-strictly so this component works both as the route
+  // component AND when embedded inside /ferramentas-tecnicas (where the
+  // active route is different and useSearch({ from }) would throw
+  // "Could not find an active match from /editor-moodboards").
+  const search = useRouterState({
+    select: (s) => (s.location.search ?? {}) as { id?: string },
+  });
   const { moodboards, add, update } = useStore();
   const existente = useMemo(() => moodboards.find((m) => m.id === search.id), [moodboards, search.id]);
 
