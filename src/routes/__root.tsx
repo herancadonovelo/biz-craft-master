@@ -32,6 +32,12 @@ import { DailyInspirationNotifier } from "@/components/DailyInspirationNotifier"
 import { RouteAccessGuard } from "@/components/RouteAccessGuard";
 import { UpgradeRedirectWatcher } from "@/components/UpgradeRedirectWatcher";
 import { AuthGate } from "@/components/AuthGate";
+import { ScrollUnlockWatcher } from "@/lib/scroll-unlock";
+import { assertAccessControlOnce } from "@/lib/access-control-check";
+
+if (typeof window !== "undefined") {
+  assertAccessControlOnce();
+}
 
 function WebhookPoller() {
   const processarEtsy = useStore((s) => s.processarWebhookEtsy);
@@ -332,6 +338,7 @@ function RootComponent() {
         <SplashScreen />
         <DailyInspirationNotifier />
         <AuthGate />
+        <ScrollUnlockWatcher />
       </SidebarProvider>
       </AtelierSoundsProvider>
       </SubscriptionProvider>
