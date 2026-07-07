@@ -89,6 +89,6 @@ test.describe("Editor de Moodboards — gating Premium", () => {
 
     await page.getByRole("tab", { name: /texto/i }).click();
     await page.getByRole("button", { name: /inserir texto/i }).click();
-    await expect(page.getByDisplayValue(/escreve aqui/i)).toBeVisible();
+    await expect(page.getByText(/escreve aqui/i)).toBeVisible();
   });
 });

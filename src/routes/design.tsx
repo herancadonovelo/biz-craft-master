@@ -52,7 +52,13 @@ function FontPicker({ label, value, onChange, testId }: { label: string; value?:
   return (
     <div>
       <Label>{label}</Label>
-      <select className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm" value={value || ""} onChange={(e) => onChange(e.target.value)} data-testid={testId}>
+      <select
+        className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm"
+        value={value || ""}
+        onInput={(e) => onChange(e.currentTarget.value)}
+        onChange={(e) => onChange(e.currentTarget.value)}
+        data-testid={testId}
+      >
         {FONTS.map((f) => <option key={f.v} value={f.v} style={{ fontFamily: f.v }}>{f.name}</option>)}
       </select>
     </div>
