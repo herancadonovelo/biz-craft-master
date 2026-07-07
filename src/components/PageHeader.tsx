@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 
@@ -14,7 +14,19 @@ export function PageHeader({
   const pathname = useLocation({ select: (l) => l.pathname });
   const design = useStore((s) => s.design);
   const overrideFont = design.fontesPorPagina?.[pathname];
-  const fontFamily = overrideFont || "var(--page-header-font, 'Playfair Display', Georgia, serif)";
+  const [liveHeaderFont, setLiveHeaderFont] = useState("var(--page-header-font, 'Playfair Display', Georgia, serif)");
+
+  useEffect(() => {
+    const sync = () => {
+      const cssFont = getComputedStyle(document.documentElement).getPropertyValue("--page-header-font").trim();
+      setLiveHeaderFont(cssFont || "var(--page-header-font, 'Playfair Display', Georgia, serif)");
+    };
+    sync();
+    window.addEventListener("atelier:header-font-change", sync);
+    return () => window.removeEventListener("atelier:header-font-change", sync);
+  }, []);
+
+  const fontFamily = overrideFont || design.fonteCabecalho || liveHeaderFont;
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between" data-testid="page-header">
       <div style={{ fontFamily }}>
