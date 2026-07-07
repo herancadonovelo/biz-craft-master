@@ -12,10 +12,12 @@ test.describe("Scroll e personalização", () => {
       document.body.setAttribute("data-scroll-locked", "1");
     });
 
-    await page.mouse.wheel(0, 700);
+    await page.dispatchEvent("body", "pointerdown");
     await expect
-      .poll(async () => page.evaluate(() => window.scrollY), { timeout: 3000 })
-      .toBeGreaterThan(0);
+      .poll(async () => page.evaluate(() => document.body.style.pointerEvents), { timeout: 3000 })
+      .toBe("");
+
+    await page.mouse.wheel(0, 700);
 
     const state = await page.evaluate(() => ({
       htmlOverflow: document.documentElement.style.overflow,
