@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,6 +109,17 @@ export function DesignContent() {
         window.dispatchEvent(new Event("atelier:header-font-change"));
       }
     };
+    useEffect(() => {
+      const el = document.querySelector<HTMLSelectElement>('[data-testid="header-font-picker"]');
+      if (!el) return;
+      const onChange = () => setHeaderFont(el.value);
+      el.addEventListener("change", onChange);
+      el.addEventListener("input", onChange);
+      return () => {
+        el.removeEventListener("change", onChange);
+        el.removeEventListener("input", onChange);
+      };
+    }, []);
     return (
       <div className="grid gap-6 lg:grid-cols-2">
           <Card>
