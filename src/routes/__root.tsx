@@ -144,18 +144,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
+      { title: "Craft Business Master" },
       { name: "description", content: "Craft Business Master is a comprehensive business management application for craft businesses." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
+      { property: "og:title", content: "Craft Business Master" },
       { property: "og:description", content: "Craft Business Master is a comprehensive business management application for craft businesses." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
+      { name: "twitter:title", content: "Craft Business Master" },
       { name: "twitter:description", content: "Craft Business Master is a comprehensive business management application for craft businesses." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d380e9c2-1501-4e32-961c-d3f6930ff6db/id-preview-015b7e4a--4b0fb865-7bd5-4342-bb12-dd95f303fcc3.lovable.app-1781199051503.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d380e9c2-1501-4e32-961c-d3f6930ff6db/id-preview-015b7e4a--4b0fb865-7bd5-4342-bb12-dd95f303fcc3.lovable.app-1781199051503.png" },
     ],
     links: [
       {
@@ -234,6 +232,8 @@ function RootComponent() {
     root.style.setProperty("--sidebar-border", sbBorder);
     // Tipografia e cores personalizáveis
     if (design.fonteTitulos) root.style.setProperty("--font-display", design.fonteTitulos);
+    if (design.fonteCabecalho) root.style.setProperty("--page-header-font", design.fonteCabecalho);
+    else root.style.removeProperty("--page-header-font");
     if (design.fonteTexto) root.style.setProperty("--font-sans", design.fonteTexto);
     if (design.fonteMenu) root.style.setProperty("--font-sidebar", design.fonteMenu); else root.style.removeProperty("--font-sidebar");
     if (design.fonteAbas) root.style.setProperty("--font-tabs", design.fonteAbas); else root.style.removeProperty("--font-tabs");

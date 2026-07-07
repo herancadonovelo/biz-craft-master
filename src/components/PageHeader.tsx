@@ -16,13 +16,13 @@ export function PageHeader({
   const overrideFont = design.fontesPorPagina?.[pathname];
   const fontFamily = overrideFont || design.fonteCabecalho || "'Playfair Display', Georgia, serif";
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between" data-testid="page-header">
       <div style={{ fontFamily }}>
-        <h1 className="italic font-bold tracking-tight text-foreground text-3xl sm:text-4xl leading-tight">
+        <h1 className="italic font-bold tracking-tight text-foreground text-3xl sm:text-4xl leading-tight" style={{ fontFamily }} data-testid="page-header-title">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 italic text-base sm:text-lg text-foreground/80" style={{ fontFamily }}>
+          <p className="mt-2 italic text-base sm:text-lg text-foreground/80" style={{ fontFamily }} data-testid="page-header-description">
             {description}
           </p>
         )}

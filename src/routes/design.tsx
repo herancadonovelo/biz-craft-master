@@ -48,11 +48,11 @@ const FONTS = [
   { name: "Space Grotesk", v: "'Space Grotesk', sans-serif" },
 ];
 
-function FontPicker({ label, value, onChange }: { label: string; value?: string; onChange: (v: string) => void }) {
+function FontPicker({ label, value, onChange, testId }: { label: string; value?: string; onChange: (v: string) => void; testId?: string }) {
   return (
     <div>
       <Label>{label}</Label>
-      <select className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm" value={value || ""} onChange={(e) => onChange(e.target.value)}>
+      <select className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm" value={value || ""} onChange={(e) => onChange(e.target.value)} data-testid={testId}>
         {FONTS.map((f) => <option key={f.v} value={f.v} style={{ fontFamily: f.v }}>{f.name}</option>)}
       </select>
     </div>
@@ -98,7 +98,7 @@ export function DesignContent() {
             <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo.</p>
-              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} />
+              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} testId="header-font-picker" />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
                 <Button size="sm" variant="outline" onClick={() => setDesign({ fontesPorPagina: {} })}>Limpar overrides por página</Button>

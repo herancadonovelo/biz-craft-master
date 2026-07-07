@@ -5,6 +5,13 @@ import { toast } from "sonner";
 
 export type Plan = "light" | "base" | "premium" | "premium_vitalicio";
 const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2, premium_vitalicio: 3 };
+const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
+
+function readDevPlanOverride(): Plan | null {
+  if (!import.meta.env.DEV || typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY) as Plan | null;
+  return raw && raw in RANK ? raw : null;
+}
 
 export interface PlanDef {
   id: Plan;
@@ -126,6 +133,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const effectivePlan: Plan = isLifetime ? "premium_vitalicio" : (trialActive ? "premium" : plan);
 
   const refresh = async () => {
+    const devOverride = readDevPlanOverride();
+    if (devOverride) {
+      setPlanState(devOverride);
+      setTrialEnds(null);
+      setLoading(false);
+      return;
+    }
     if (!user) { setPlanState("light"); setTrialEnds(null); setLoading(false); return; }
     setLoading(true);
     const { data, error } = await supabase
