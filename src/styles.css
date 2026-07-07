@@ -189,6 +189,12 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
 [data-slot="tabs-trigger"] { color: var(--tabs-color, inherit); font-size: var(--font-size-tabs, inherit); }
 [data-slot="tabs-trigger"][data-state="active"] { color: var(--tabs-active-color, inherit); }
 
+/* Cabeçalhos globais controlados por Personalização & Configurações */
+[data-testid="page-header-title"],
+[data-testid="page-header-description"] {
+  font-family: var(--page-header-font, "Playfair Display", Georgia, serif) !important;
+}
+
 /* Outline button — cor personalizável */
 .bg-background.border-input,
 button[data-variant="outline"],
