@@ -98,7 +98,7 @@ export function DesignContent() {
             <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo.</p>
-              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} testId="header-font-picker" />
+              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v, fontesPorPagina: {} })} testId="header-font-picker" />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
                 <Button size="sm" variant="outline" onClick={() => setDesign({ fontesPorPagina: {} })}>Limpar overrides por página</Button>

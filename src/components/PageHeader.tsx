@@ -14,7 +14,7 @@ export function PageHeader({
   const pathname = useLocation({ select: (l) => l.pathname });
   const design = useStore((s) => s.design);
   const overrideFont = design.fontesPorPagina?.[pathname];
-  const fontFamily = overrideFont || design.fonteCabecalho || "'Playfair Display', Georgia, serif";
+  const fontFamily = overrideFont || design.fonteCabecalho || "var(--page-header-font, 'Playfair Display', Georgia, serif)";
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between" data-testid="page-header">
       <div style={{ fontFamily }}>
