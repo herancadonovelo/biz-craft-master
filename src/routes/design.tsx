@@ -103,6 +103,8 @@ export function DesignContent() {
       if (typeof document !== "undefined") {
         if (v) document.documentElement.style.setProperty("--page-header-font", v);
         else document.documentElement.style.removeProperty("--page-header-font");
+        document.querySelectorAll<HTMLElement>("[data-testid='page-header-title'], [data-testid='page-header-description']")
+          .forEach((el) => { el.style.fontFamily = v || "var(--page-header-font, 'Playfair Display', Georgia, serif)"; });
       }
     };
     return (
