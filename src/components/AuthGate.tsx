@@ -4,14 +4,32 @@ import { useAuth } from "@/lib/auth-state";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logSessionEvent } from "@/lib/session-telemetry";
+import { requiredPlanFor } from "@/lib/access-control";
 
 const PUBLIC_ROUTES = ["/auth", "/sessao-expirada"];
+const INLINE_PREMIUM_LOCK_ROUTES = new Set([
+  "/ferramentas-tecnicas",
+  "/editor-moodboards",
+  "/editor-receita",
+  "/conversor-cores",
+  "/contador",
+  "/atelier-sounds",
+]);
+const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
 const REVALIDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 const REDIRECT_KEY = "cbm:postLoginRedirect";
 
+function canRenderWithoutSession(pathname: string) {
+  if (PUBLIC_ROUTES.includes(pathname)) return true;
+  if (requiredPlanFor(pathname) === "light") return true;
+  if (INLINE_PREMIUM_LOCK_ROUTES.has(pathname)) return true;
+  if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY)) return true;
+  return false;
+}
+
 export function saveIntendedPath(path: string) {
   if (typeof window === "undefined") return;
-  if (PUBLIC_ROUTES.includes(path) || path === "/") return;
+  if (canRenderWithoutSession(path) || path === "/") return;
   try { sessionStorage.setItem(REDIRECT_KEY, path); } catch {}
 }
 
@@ -34,7 +52,7 @@ export function AuthGate() {
   useEffect(() => {
     if (loading) return;
     if (user) { hadUser.current = true; return; }
-    if (PUBLIC_ROUTES.includes(pathname)) return;
+    if (canRenderWithoutSession(pathname)) return;
     // Session was lost mid-app → treat as expired
     if (hadUser.current) {
       hadUser.current = false;
@@ -58,7 +76,7 @@ export function AuthGate() {
   // sessions (logout in another device) before the user hits a 401.
   useEffect(() => {
     if (!user) return;
-    if (PUBLIC_ROUTES.includes(pathname)) return;
+    if (canRenderWithoutSession(pathname)) return;
 
     let cancelled = false;
     const revalidate = async () => {
@@ -89,7 +107,7 @@ export function AuthGate() {
   }, [user, pathname, search, nav]);
 
   // Blocking overlay during initial session verification on protected routes
-  if (loading && !PUBLIC_ROUTES.includes(pathname)) {
+  if (loading && !canRenderWithoutSession(pathname)) {
     return (
       <div
         role="status"
