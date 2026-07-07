@@ -26,7 +26,7 @@ export function PageHeader({
     return () => window.removeEventListener("atelier:header-font-change", sync);
   }, []);
 
-  const fontFamily = overrideFont || design.fonteCabecalho || liveHeaderFont;
+  const fontFamily = overrideFont || liveHeaderFont;
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between" data-testid="page-header">
       <div style={{ fontFamily }}>
