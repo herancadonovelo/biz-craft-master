@@ -37,6 +37,7 @@ test.describe("Scroll e personalização", () => {
 
   test("mudar a letra dos cabeçalhos em Personalização aplica nos cabeçalhos", async ({ page }) => {
     await page.goto("/design", { waitUntil: "domcontentloaded" });
+    await expect(page.locator('[aria-hidden="true"].fixed.inset-0')).toHaveCount(0, { timeout: 12_000 });
 
     const picker = page.getByTestId("header-font-picker");
     await expect(picker).toBeVisible();
