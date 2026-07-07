@@ -19,8 +19,11 @@ async function loginOrUsePremiumOverride(page: Page) {
     !["localhost", "127.0.0.1"].includes(url.hostname),
     "sem credenciais Premium; override E2E só funciona em dev local",
   );
+  await page.addInitScript(
+    ({ key }) => window.localStorage.setItem(key, "premium"),
+    { key: DEV_PLAN_OVERRIDE_KEY },
+  );
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.evaluate((key) => window.localStorage.setItem(key, "premium"), DEV_PLAN_OVERRIDE_KEY);
 }
 
 /**
@@ -78,6 +81,7 @@ test.describe("Editor de Moodboards — gating Premium", () => {
     await page.goto("/editor-moodboards");
     await expect(page.getByTestId("premium-locked")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: /editor de moodboards/i })).toBeVisible();
+    await expect(page.locator('[aria-hidden="true"].fixed.inset-0')).toHaveCount(0, { timeout: 12_000 });
     await expect(page.getByRole("button", { name: /guardar na aplicação/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /guardar no dispositivo/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /imprimir a4/i })).toBeVisible();

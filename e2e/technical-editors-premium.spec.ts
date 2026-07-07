@@ -19,8 +19,11 @@ async function enablePremium(page: Page) {
     !["localhost", "127.0.0.1"].includes(url.hostname),
     "sem credenciais Premium; override E2E só funciona em dev local",
   );
+  await page.addInitScript(
+    ({ key }) => window.localStorage.setItem(key, "premium"),
+    { key: DEV_PLAN_OVERRIDE_KEY },
+  );
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.evaluate((key) => window.localStorage.setItem(key, "premium"), DEV_PLAN_OVERRIDE_KEY);
 }
 
 test.describe("Ferramentas Técnicas — proteção Premium", () => {
@@ -57,6 +60,7 @@ test.describe("Ferramentas Técnicas — proteção Premium", () => {
     await enablePremium(page);
     await page.goto("/ferramentas-tecnicas", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("premium-locked")).toHaveCount(0);
+    await expect(page.locator('[aria-hidden="true"].fixed.inset-0')).toHaveCount(0, { timeout: 12_000 });
 
     const tabs = [
       { name: /tricotin/i, control: /adicionar ponto reto/i },
