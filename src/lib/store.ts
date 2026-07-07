@@ -854,6 +854,7 @@ const seed = (): Pick<
       corMenuAtivo: "",
       corMenuAtivoTexto: "",
       fonteAbas: "Manrope, system-ui, sans-serif",
+      fonteCabecalho: "'Playfair Display', serif",
       corAbas: "",
       corAbaAtiva: "",
       corFundo: "",

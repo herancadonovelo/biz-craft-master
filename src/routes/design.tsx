@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,11 +49,17 @@ const FONTS = [
   { name: "Space Grotesk", v: "'Space Grotesk', sans-serif" },
 ];
 
-function FontPicker({ label, value, onChange }: { label: string; value?: string; onChange: (v: string) => void }) {
+function FontPicker({ label, value, onChange, testId }: { label: string; value?: string; onChange: (v: string) => void; testId?: string }) {
   return (
     <div>
       <Label>{label}</Label>
-      <select className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm" value={value || ""} onChange={(e) => onChange(e.target.value)}>
+      <select
+        className="mt-1 w-full rounded-md border border-input bg-background p-2 text-sm"
+        value={value || ""}
+        onInput={(e) => onChange(e.currentTarget.value)}
+        onChange={(e) => onChange(e.currentTarget.value)}
+        data-testid={testId}
+      >
         {FONTS.map((f) => <option key={f.v} value={f.v} style={{ fontFamily: f.v }}>{f.name}</option>)}
       </select>
     </div>
@@ -92,13 +99,34 @@ function PersonalizacaoConfigHub() {
 
 export function DesignContent() {
     const { design, setDesign } = useStore();
+    const setHeaderFont = (v: string) => {
+      setDesign({ fonteCabecalho: v, fontesPorPagina: {} });
+      if (typeof document !== "undefined") {
+        if (v) document.documentElement.style.setProperty("--page-header-font", v);
+        else document.documentElement.style.removeProperty("--page-header-font");
+        document.querySelectorAll<HTMLElement>("[data-testid='page-header-title'], [data-testid='page-header-description']")
+          .forEach((el) => { el.style.fontFamily = v || "var(--page-header-font, 'Playfair Display', Georgia, serif)"; });
+        window.dispatchEvent(new Event("atelier:header-font-change"));
+      }
+    };
+    useEffect(() => {
+      const el = document.querySelector<HTMLSelectElement>('[data-testid="header-font-picker"]');
+      if (!el) return;
+      const onChange = () => setHeaderFont(el.value);
+      el.addEventListener("change", onChange);
+      el.addEventListener("input", onChange);
+      return () => {
+        el.removeEventListener("change", onChange);
+        el.removeEventListener("input", onChange);
+      };
+    }, []);
     return (
       <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <p className="text-xs text-muted-foreground">Aplica-se ao título de todas as páginas ao mesmo tempo.</p>
-              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={(v) => setDesign({ fonteCabecalho: v })} />
+              <FontPicker label="Letra global dos cabeçalhos" value={design.fonteCabecalho} onChange={setHeaderFont} testId="header-font-picker" />
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="ghost" onClick={() => setDesign({ fonteCabecalho: "" })}>Repor (Playfair Display)</Button>
                 <Button size="sm" variant="outline" onClick={() => setDesign({ fontesPorPagina: {} })}>Limpar overrides por página</Button>

@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { splashPhrases } from "@/lib/splash-phrases";
 import { useStore } from "@/lib/store";
+import { requiredPlanFor } from "@/lib/access-control";
 
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
@@ -12,6 +13,23 @@ const MIN_DURATION = 7000; // 7s
 const MAX_DURATION = 10000; // 10s
 const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
+const INLINE_PREMIUM_LOCK_ROUTES = new Set([
+  "/ferramentas-tecnicas",
+  "/editor-moodboards",
+  "/editor-receita",
+  "/conversor-cores",
+  "/contador",
+  "/atelier-sounds",
+]);
+const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
+
+function canOpenWithoutSession(pathname: string) {
+  if (pathname.startsWith("/auth") || pathname.startsWith("/sessao-expirada")) return true;
+  if (requiredPlanFor(pathname) === "light") return true;
+  if (INLINE_PREMIUM_LOCK_ROUTES.has(pathname)) return true;
+  if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY)) return true;
+  return false;
+}
 
 const loadingPhrases = [
   "Recortando o tecido para costurar...",
@@ -162,8 +180,8 @@ export function SplashScreen() {
       window.setTimeout(() => {
         if (cancelled) return;
         setProgress(1);
-        // Redirect to /auth when no session and we're on a protected/home route
-        if (!user && !currentPath.startsWith("/auth")) {
+        // Redirect to /auth only on routes that truly require a signed-in user.
+        if (!user && !canOpenWithoutSession(currentPath)) {
           navigate({ to: "/auth", replace: true });
         }
         setFading(true);

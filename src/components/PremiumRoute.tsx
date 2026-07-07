@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Lock, Sparkles, Crown, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,8 @@ interface Props {
  * explains the current plan, what Premium unlocks, and offers upgrade.
  */
 export function PremiumRoute({ feature, children }: Props) {
-  const { hasAccess, showPaywall, loading, effectivePlan } = useSubscription();
+  const { hasAccess, loading, effectivePlan } = useSubscription();
   const ok = hasAccess("premium");
-
-  useEffect(() => {
-    if (!loading && !ok) showPaywall("premium", feature);
-  }, [loading, ok, feature, showPaywall]);
 
   if (loading) return null;
   if (ok) return <>{children}</>;
