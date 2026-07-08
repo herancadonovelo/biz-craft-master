@@ -16,6 +16,7 @@ import { Route as StockRouteImport } from './routes/stock'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -107,6 +108,11 @@ const SincronizacaoRoute = SincronizacaoRouteImport.update({
 const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
   id: '/sessao-expirada',
   path: '/sessao-expirada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjetosRoute = ProjetosRouteImport.update({
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -584,6 +592,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -652,6 +661,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/quem-somos'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/quem-somos'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -784,6 +795,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/projeto-personalizado'
     | '/projetos'
+    | '/quem-somos'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -851,6 +863,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
+  QuemSomosRoute: typeof QuemSomosRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
@@ -912,6 +925,13 @@ declare module '@tanstack/react-router' {
       path: '/sessao-expirada'
       fullPath: '/sessao-expirada'
       preLoaderRoute: typeof SessaoExpiradaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projetos': {
@@ -1382,6 +1402,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
+  QuemSomosRoute: QuemSomosRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
