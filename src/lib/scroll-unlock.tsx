@@ -43,6 +43,27 @@ export function ScrollUnlockWatcher() {
       if (body.hasAttribute("data-scroll-locked")) body.removeAttribute("data-scroll-locked");
       if (body.style.position === "fixed") body.style.position = "";
       if (body.style.paddingRight) body.style.paddingRight = "";
+      // Remove leftover invisible high-z-index backdrops that may capture events
+      document.querySelectorAll<HTMLElement>(
+        '[data-radix-dismissable-layer],[data-radix-focus-guard]'
+      ).forEach((n) => {
+        // if it has no visible open overlay parent, drop it
+        if (!n.closest('[data-state="open"]') && !n.querySelector('[data-state="open"]')) {
+          n.remove();
+        }
+      });
+    };
+
+    // Force full reset (ignores overlay check) — used on route change
+    const forceUnlock = () => {
+      for (const el of [body, html]) {
+        el.style.pointerEvents = "";
+        el.style.overflow = "";
+        el.style.touchAction = "";
+      }
+      body.removeAttribute("data-scroll-locked");
+      body.style.position = "";
+      body.style.paddingRight = "";
     };
 
     const mo = new MutationObserver(() => {
@@ -56,7 +77,13 @@ export function ScrollUnlockWatcher() {
       subtree: true,
     });
 
-    const onNav = () => setTimeout(unlock, 50);
+    const onNav = () => {
+      // On navigation, close any lingering dialog state and clear locks
+      setTimeout(() => {
+        if (!anyOverlayOpen()) forceUnlock();
+        else unlock();
+      }, 50);
+    };
     const originalPushState = window.history.pushState;
     const originalReplaceState = window.history.replaceState;
     window.history.pushState = function pushState(...args: Parameters<History["pushState"]>) {
