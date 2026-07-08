@@ -23,6 +23,9 @@ export interface Fornecedor {
   website?: string;
   notas?: string;
   imagem?: string;
+  codigoDesconto?: string;
+  valorDesconto?: number;
+  tipoDesconto?: "percentagem" | "fixo";
 }
 
 export interface FornecedorPreco {
