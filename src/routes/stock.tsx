@@ -15,6 +15,14 @@ import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/ImagePicker";
 
+function aplicarDesconto(subtotal: number, fornecedor: { valorDesconto?: number; tipoDesconto?: "percentagem" | "fixo" } | undefined) {
+  if (!fornecedor?.valorDesconto || fornecedor.valorDesconto <= 0) return { desconto: 0, final: subtotal };
+  const desconto = fornecedor.tipoDesconto === "fixo"
+    ? Math.min(fornecedor.valorDesconto, subtotal)
+    : subtotal * (fornecedor.valorDesconto / 100);
+  return { desconto, final: Math.max(0, subtotal - desconto) };
+}
+
 export const Route = createFileRoute("/stock")({
   head: () => ({ meta: [{ title: "Stock de material" }] }),
   component: () => {
@@ -91,6 +99,33 @@ export const Route = createFileRoute("/stock")({
                       <SelectContent>{fornecedores.map((f) => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
+                  {(() => {
+                    const f = fornecedores.find((x) => x.id === form.fornecedorId);
+                    const subtotal = (form.precoCompra || 0) * (form.stock || 0);
+                    if (!f?.valorDesconto || subtotal <= 0) return null;
+                    const { desconto, final } = aplicarDesconto(subtotal, f);
+                    return (
+                      <div className="rounded-md border border-[hsl(var(--muted))] bg-[hsl(var(--muted))/0.3] p-3 space-y-1 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span>{formatEUR(subtotal)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-muted-foreground">
+                            Desconto
+                            <Badge variant="secondary" className="bg-[hsl(150_40%_88%)] text-[hsl(150_40%_25%)] text-[10px]">
+                              {f.codigoDesconto ?? "auto"} · -{f.valorDesconto}{f.tipoDesconto === "fixo" ? "€" : "%"}
+                            </Badge>
+                          </span>
+                          <span className="text-[hsl(150_40%_35%)]">−{formatEUR(desconto)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-t pt-1 font-medium">
+                          <span>Custo real</span>
+                          <span className="font-display">{formatEUR(final)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div><Label>Imagem</Label>
                     <div className="mt-1"><ImagePicker value={form.imagem} onChange={(v) => setForm({ ...form, imagem: v })} size="h-20 w-20" /></div>
                   </div>
