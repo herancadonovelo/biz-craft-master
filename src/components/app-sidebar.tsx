@@ -58,6 +58,7 @@ import {
   Music,
   Quote,
 } from "lucide-react";
+import { Heart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -154,6 +155,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.help2"), url: "/ajuda", icon: HelpCircle },
       { title: t("nav.contact"), url: "/contacto", icon: Mail },
       { title: t("nav.privacy"), url: "/privacidade", icon: Shield },
+      { title: "Quem Somos", url: "/quem-somos", icon: Heart },
     ],
   },
 ];
