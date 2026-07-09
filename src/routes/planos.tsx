@@ -184,12 +184,12 @@ function PlanosPage() {
                   <p className="mt-2 text-sm text-muted-foreground">{p.resumo}</p>
                 </div>
 
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-3 text-sm leading-relaxed">
                   {p.beneficios.map((b) => (
-                    <li key={b} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /><span>{b}</span></li>
-                  ))}
-                  {p.limitacoes?.map((l) => (
-                    <li key={l} className="flex items-start gap-2 text-muted-foreground"><X className="mt-0.5 h-4 w-4" /><span>{l}</span></li>
+                    <li key={b} className="flex items-start gap-2.5">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                      <span>{b}</span>
+                    </li>
                   ))}
                 </ul>
 
