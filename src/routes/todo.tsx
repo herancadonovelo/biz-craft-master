@@ -11,14 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/todo")({
-  head: () => ({ meta: [{ title: "To-do" }] }),
+  head: () => ({ meta: [{ title: "Tarefas" }] }),
   component: () => {
     const { todos, add, update, remove } = useStore();
     const [titulo, setTitulo] = useState("");
     const [prioridade, setPrioridade] = useState<"baixa" | "media" | "alta">("media");
     return (
       <div className="space-y-6">
-        <PageHeader title="To-do list" description="Tarefas do atelier." />
+        <PageHeader title="Tarefas" description="Tarefas do atelier." />
         <Card><CardContent className="flex flex-wrap gap-2 p-4">
           <Input className="flex-1 min-w-[200px]" placeholder="Nova tarefa…" value={titulo} onChange={(e) => setTitulo(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && titulo) { add("todos", { titulo, prioridade, feito: false }); setTitulo(""); } }} />
           <Select value={prioridade} onValueChange={(v: any) => setPrioridade(v)}>
