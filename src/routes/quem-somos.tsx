@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import fotoSaraAvo from "@/assets/quem-somos-sara-avo.jpg.asset.json";
+import fotoSaraAvo from "@/assets/quem-somos-sara-avo.png.asset.json";
 
 export const Route = createFileRoute("/quem-somos")({
   head: () => ({
