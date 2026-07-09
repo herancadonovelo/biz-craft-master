@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import placeholder from "@/assets/quem-somos-placeholder.jpg.asset.json";
+import fotoSaraAvo from "@/assets/quem-somos-sara-avo.jpg.asset.json";
 
 export const Route = createFileRoute("/quem-somos")({
   head: () => ({
@@ -109,25 +109,15 @@ function QuemSomos() {
 
         <figure className="mx-auto flex flex-col items-center gap-3 pt-6">
           <img
-            src={placeholder.url}
-            alt="Ilustração de um atelier de artesanato — placeholder até adicionares a tua fotografia."
-            width={1024}
-            height={1024}
+            src={fotoSaraAvo.url}
+            alt="Sara Afonso em criança ao lado da avó."
             loading="lazy"
             className="w-full max-w-sm rounded-2xl shadow-md ring-1 ring-black/5"
           />
-          <figcaption className="text-xs italic text-muted-foreground text-center">
-            Onde tudo começou: uma herança de amor e arte.
+          <figcaption className="text-sm italic text-muted-foreground text-center max-w-sm">
+            Eu e a minha avó na altura que comecei a seguir as pizadas dela e da minha bisa avó.
           </figcaption>
         </figure>
-
-        <div className="mt-4 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
-          <strong>Como substituir a fotografia:</strong> guarda o teu
-          ficheiro em <code className="rounded bg-[hsl(var(--muted))] px-1">src/assets/quem-somos.jpg</code>
-          {" "}(ou .png) e diz-me para trocar o placeholder por essa
-          imagem — eu faço a ligação. O nome do ficheiro deve ser
-          exatamente <code className="rounded bg-[hsl(var(--muted))] px-1">quem-somos.jpg</code>.
-        </div>
       </article>
     </div>
   );

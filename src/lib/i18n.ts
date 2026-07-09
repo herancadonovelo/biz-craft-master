@@ -95,7 +95,7 @@ const en: Dict = {
   "nav.customProject": "Custom project",
   "nav.calculator": "Price calculator",
   "nav.hours": "Time tracking",
-  "nav.todo": "To-do list",
+  "nav.todo": "Tasks",
   "nav.stock": "Material stock",
   "nav.suppliers": "Suppliers",
   "nav.clients": "Clients",

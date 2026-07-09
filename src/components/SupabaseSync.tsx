@@ -43,7 +43,14 @@ export function SupabaseSync() {
         .eq("user_id", user.id)
         .maybeSingle();
       if (cancelled) return;
-      if (error) { setStatus("error"); toast.error("Falha a carregar dados da conta"); return; }
+      if (error) {
+        setStatus("error");
+        toast.error("Falha a carregar dados da conta", {
+          description: `${error.message}${(error as any).hint ? ` — ${(error as any).hint}` : ""}${(error as any).code ? ` (código ${(error as any).code})` : ""}`,
+          duration: 10000,
+        });
+        return;
+      }
       if (data?.state && typeof data.state === "object") {
         useStore.setState(data.state as any);
         toast.success("Dados sincronizados da tua conta");
@@ -74,8 +81,17 @@ export function SupabaseSync() {
         const { error } = await supabase
           .from("app_state")
           .upsert({ user_id: user.id, state: snapshot });
-        if (error) { setStatus("error"); toast.error("Falha a guardar na nuvem"); }
-        else setStatus("synced");
+        if (error) {
+          setStatus("error");
+          const isAuthError = error.message?.toLowerCase().includes("jwt") || (error as any).code === "PGRST301";
+          toast.error(
+            isAuthError ? "Sessão expirada — inicia sessão novamente para gravar" : "Falha a guardar na nuvem",
+            {
+              description: `${error.message}${(error as any).hint ? ` — ${(error as any).hint}` : ""}${(error as any).code ? ` (código ${(error as any).code})` : ""}`,
+              duration: 10000,
+            },
+          );
+        } else setStatus("synced");
       }, 800);
     });
     return () => { unsub(); window.clearTimeout(timer.current); };

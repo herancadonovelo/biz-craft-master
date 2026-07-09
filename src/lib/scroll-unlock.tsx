@@ -101,6 +101,19 @@ export function ScrollUnlockWatcher() {
     window.addEventListener("wheel", unlock, { passive: true, capture: true });
     window.addEventListener("touchmove", unlock, { passive: true, capture: true });
     window.addEventListener("pointerdown", unlock, { passive: true, capture: true });
+    // Quando a janela recupera foco ou fica visível novamente, garante que
+    // nenhum bloqueio (overflow/pointer-events/backdrop) ficou pendurado
+    // — típico ao voltar do chat, de um separador, ou da tab de background.
+    const onRefocus = () => {
+      // Dá um frame para que o Radix termine transições pendentes
+      requestAnimationFrame(() => {
+        if (!anyOverlayOpen()) forceUnlock();
+        else unlock();
+      });
+    };
+    window.addEventListener("focus", onRefocus);
+    window.addEventListener("pageshow", onRefocus);
+    document.addEventListener("visibilitychange", onRefocus);
     // Safety net: verifica periodicamente
     const id = window.setInterval(unlock, 500);
 
@@ -113,6 +126,9 @@ export function ScrollUnlockWatcher() {
       window.removeEventListener("wheel", unlock, { capture: true });
       window.removeEventListener("touchmove", unlock, { capture: true });
       window.removeEventListener("pointerdown", unlock, { capture: true });
+      window.removeEventListener("focus", onRefocus);
+      window.removeEventListener("pageshow", onRefocus);
+      document.removeEventListener("visibilitychange", onRefocus);
       window.clearInterval(id);
     };
   }, []);
