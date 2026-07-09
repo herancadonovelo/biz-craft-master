@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
+import { Check, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
 import { PLANS, useSubscription, handleGooglePlayPurchase, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { useAuth } from "@/lib/auth-state";
 import { useRef, useState } from "react";
