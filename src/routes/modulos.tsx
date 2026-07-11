@@ -86,9 +86,9 @@ export const Route = createFileRoute("/modulos")({
         </div>
         <PageHeader title="Módulos ativos" description="Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo." />
         <Card><CardContent className="flex flex-wrap gap-2 p-4">
-          <Button variant="outline" onClick={() => aplicar("essencial", "Preset essencial")}>Essencial</Button>
-          <Button variant="outline" onClick={() => aplicar("padrao", "Preset padrão")}>Padrão</Button>
-          <Button variant="outline" onClick={() => aplicar("completo", "Todos os módulos")}>Completo</Button>
+          <Button variant="outline" onClick={() => aplicar("essencial", "Preset Iniciante")}>Iniciante</Button>
+          <Button variant="outline" onClick={() => aplicar("padrao", "Preset Intermédio")}>Intermédio</Button>
+          <Button variant="outline" onClick={() => aplicar("completo", "Preset Avançado")}>Avançado</Button>
           <Button className="ml-auto" onClick={() => nav({ to: "/" })}>Aplicar e abrir painel</Button>
         </CardContent></Card>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
