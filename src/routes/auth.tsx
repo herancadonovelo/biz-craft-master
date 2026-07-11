@@ -75,7 +75,7 @@ function AuthPage() {
     setBusy(true);
     try {
       const r = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: `${window.location.origin}/auth-callback`,
         extraParams: { prompt: "select_account" },
       });
 

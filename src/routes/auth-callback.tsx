@@ -35,7 +35,7 @@ function AuthCallbackPage() {
       if (user) {
         void logSessionEvent("session_signed_in", {
           reason: "google_oauth_callback_user_ready",
-          path: "/auth/callback",
+          path: "/auth-callback",
         });
         const target = consumeIntendedPath();
         nav({ to: (target as any) || "/" });
@@ -49,7 +49,7 @@ function AuthCallbackPage() {
         if (data.session) {
           void logSessionEvent("session_signed_in", {
             reason: "google_oauth_callback_session_ready",
-            path: "/auth/callback",
+            path: "/auth-callback",
           });
           const target = consumeIntendedPath();
           nav({ to: (target as any) || "/" });
