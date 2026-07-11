@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { requiredPlanFor } from "@/lib/access-control";
 
-const PUBLIC_ROUTES = ["/auth", "/sessao-expirada"];
+const PUBLIC_ROUTES = ["/auth", "/auth/callback", "/sessao-expirada"];
 const INLINE_PREMIUM_LOCK_ROUTES = new Set([
   "/ferramentas-tecnicas",
   "/editor-moodboards",
