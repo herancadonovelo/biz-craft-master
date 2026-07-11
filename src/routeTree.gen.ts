@@ -71,6 +71,7 @@ import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
@@ -385,6 +386,11 @@ const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MoodboardsRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
@@ -409,7 +415,7 @@ export interface FileRoutesByFullPath {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -476,7 +483,7 @@ export interface FileRoutesByTo {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -532,6 +539,7 @@ export interface FileRoutesByTo {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -544,7 +552,7 @@ export interface FileRoutesById {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -600,6 +608,7 @@ export interface FileRoutesById {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -669,6 +678,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -736,6 +746,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -803,6 +814,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -815,7 +827,7 @@ export interface RootRouteChildren {
   AssistenteRoute: typeof AssistenteRoute
   AtelierSoundsRoute: typeof AtelierSoundsRoute
   AuditoriaRoute: typeof AuditoriaRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   BackupRoute: typeof BackupRoute
   BibliotecaRoute: typeof BibliotecaRoute
   CalculadoraRoute: typeof CalculadoraRoute
@@ -1312,6 +1324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoodboardsIdRouteImport
       parentRoute: typeof MoodboardsRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/api/public/webhooks/whatsapp': {
       id: '/api/public/webhooks/whatsapp'
       path: '/api/public/webhooks/whatsapp'
@@ -1336,6 +1355,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface MoodboardsRouteChildren {
   MoodboardsIdRoute: typeof MoodboardsIdRoute
 }
@@ -1354,7 +1383,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistenteRoute: AssistenteRoute,
   AtelierSoundsRoute: AtelierSoundsRoute,
   AuditoriaRoute: AuditoriaRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   BackupRoute: BackupRoute,
   BibliotecaRoute: BibliotecaRoute,
   CalculadoraRoute: CalculadoraRoute,
@@ -1417,3 +1446,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
