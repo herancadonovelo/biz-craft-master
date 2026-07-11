@@ -19,9 +19,24 @@ export const Route = createFileRoute("/onboarding")({
       nav({ to: "/" });
     };
     const opts = [
-      { id: "essencial", icon: Sparkles, titulo: "Essencial", desc: "Apenas o básico: encomendas, clientes, stock, calculadora e faturação." },
-      { id: "padrao", icon: Layers, titulo: "Padrão", desc: "Operação completa sem integrações avançadas (WhatsApp, Etsy)." },
-      { id: "completo", icon: Boxes, titulo: "Completo", desc: "Todas as categorias e integrações ativas." },
+      {
+        id: "essencial",
+        icon: Sparkles,
+        titulo: "Iniciante",
+        desc: "O ideal para começar sem complicações. Um ambiente de trabalho limpo e simplificado, focado apenas nas ferramentas essenciais para arrancar. Inclui o básico para o dia a dia: registo de encomendas, clientes, stock, calculadora e faturação. Perfeito para gerir o seu artesanato sem distrações ou menus complexos.",
+      },
+      {
+        id: "padrao",
+        icon: Layers,
+        titulo: "Intermédio",
+        desc: "Para negócios em crescimento que precisam de mais controlo. Acesso à operação completa para gerir o seu trabalho de forma mais robusta. Inclui todas as ferramentas da fase inicial, adicionando funcionalidades de organização diária, mas mantendo a simplicidade de não exigir a configuração de integrações externas.",
+      },
+      {
+        id: "completo",
+        icon: Boxes,
+        titulo: "Avançado",
+        desc: "A experiência completa para automatizar e escalar. Todas as ferramentas de gestão ao seu dispor. Desbloqueie o potencial máximo da plataforma com funcionalidades complexas e integrações avançadas (como WhatsApp e Etsy). Recomendado para quem já domina a gestão básica e quer ligar o seu negócio ao mundo.",
+      },
     ] as const;
     return (
       <div className="space-y-6">
