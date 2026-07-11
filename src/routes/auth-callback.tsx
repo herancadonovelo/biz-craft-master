@@ -8,7 +8,7 @@ import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/auth/callback")({
+export const Route = createFileRoute("/auth-callback")({
   head: () => ({ meta: [{ title: "A concluir login — Atelier Tricotin" }] }),
   component: AuthCallbackPage,
 });

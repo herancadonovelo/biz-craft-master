@@ -64,6 +64,7 @@ import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as BackupRouteImport } from './routes/backup'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
@@ -71,7 +72,6 @@ import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
@@ -351,6 +351,11 @@ const BackupRoute = BackupRouteImport.update({
   path: '/backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -386,11 +391,6 @@ const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MoodboardsRoute,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
-  getParentRoute: () => AuthRoute,
-} as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
@@ -415,7 +415,8 @@ export interface FileRoutesByFullPath {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -471,7 +472,6 @@ export interface FileRoutesByFullPath {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -483,7 +483,8 @@ export interface FileRoutesByTo {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -539,7 +540,6 @@ export interface FileRoutesByTo {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -552,7 +552,8 @@ export interface FileRoutesById {
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -608,7 +609,6 @@ export interface FileRoutesById {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
@@ -623,6 +623,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -678,7 +679,6 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
-    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -691,6 +691,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -746,7 +747,6 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
-    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -759,6 +759,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -814,7 +815,6 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
-    | '/auth/callback'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/pending'
@@ -827,7 +827,8 @@ export interface RootRouteChildren {
   AssistenteRoute: typeof AssistenteRoute
   AtelierSoundsRoute: typeof AtelierSoundsRoute
   AuditoriaRoute: typeof AuditoriaRoute
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   BackupRoute: typeof BackupRoute
   BibliotecaRoute: typeof BibliotecaRoute
   CalculadoraRoute: typeof CalculadoraRoute
@@ -1275,6 +1276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -1324,13 +1332,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoodboardsIdRouteImport
       parentRoute: typeof MoodboardsRoute
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/api/public/webhooks/whatsapp': {
       id: '/api/public/webhooks/whatsapp'
       path: '/api/public/webhooks/whatsapp'
@@ -1355,16 +1356,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthRouteChildren {
-  AuthCallbackRoute: typeof AuthCallbackRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthCallbackRoute: AuthCallbackRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 interface MoodboardsRouteChildren {
   MoodboardsIdRoute: typeof MoodboardsIdRoute
 }
@@ -1383,7 +1374,8 @@ const rootRouteChildren: RootRouteChildren = {
   AssistenteRoute: AssistenteRoute,
   AtelierSoundsRoute: AtelierSoundsRoute,
   AuditoriaRoute: AuditoriaRoute,
-  AuthRoute: AuthRouteWithChildren,
+  AuthRoute: AuthRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   BackupRoute: BackupRoute,
   BibliotecaRoute: BibliotecaRoute,
   CalculadoraRoute: CalculadoraRoute,
