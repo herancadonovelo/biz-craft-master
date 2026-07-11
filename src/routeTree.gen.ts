@@ -64,6 +64,7 @@ import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as BackupRouteImport } from './routes/backup'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
@@ -350,6 +351,11 @@ const BackupRoute = BackupRouteImport.update({
   path: '/backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -410,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -477,6 +484,7 @@ export interface FileRoutesByTo {
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -545,6 +553,7 @@ export interface FileRoutesById {
   '/atelier-sounds': typeof AtelierSoundsRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
   '/calculadora': typeof CalculadoraRoute
@@ -614,6 +623,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -681,6 +691,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -748,6 +759,7 @@ export interface FileRouteTypes {
     | '/atelier-sounds'
     | '/auditoria'
     | '/auth'
+    | '/auth-callback'
     | '/backup'
     | '/biblioteca'
     | '/calculadora'
@@ -816,6 +828,7 @@ export interface RootRouteChildren {
   AtelierSoundsRoute: typeof AtelierSoundsRoute
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   BackupRoute: typeof BackupRoute
   BibliotecaRoute: typeof BibliotecaRoute
   CalculadoraRoute: typeof CalculadoraRoute
@@ -1263,6 +1276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -1355,6 +1375,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtelierSoundsRoute: AtelierSoundsRoute,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   BackupRoute: BackupRoute,
   BibliotecaRoute: BibliotecaRoute,
   CalculadoraRoute: CalculadoraRoute,

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth-state";
 import { consumeIntendedPath } from "@/components/AuthGate";
+import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,24 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const finishAuthenticatedRedirect = async () => {
+    void logSessionEvent("session_signed_in", {
+      reason: "google_oauth",
+      path: window.location.pathname,
+    });
+    const target = consumeIntendedPath();
+    nav({ to: (target as any) || "/" });
+  };
+
+  const waitForSession = async () => {
+    for (let i = 0; i < 12; i += 1) {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) return data.session;
+      await new Promise((resolve) => window.setTimeout(resolve, 250));
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (!loading && user) {
@@ -54,9 +73,34 @@ function AuthPage() {
   };
   const signInGoogle = async () => {
     setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    setBusy(false);
-    if (r.error) toast.error("Falha no login com Google");
+    try {
+      const r = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth-callback`,
+        extraParams: { prompt: "select_account" },
+      });
+
+      if (r.redirected) return;
+
+      if (r.error) {
+        const message = r.error.message || "Não foi possível concluir o login com Google.";
+        toast.error(`Falha no login com Google: ${message}`);
+        return;
+      }
+
+      const session = await waitForSession();
+      if (!session) {
+        toast.error("Login Google concluído, mas a sessão ainda não ficou ativa. Tenta novamente.");
+        return;
+      }
+
+      toast.success("Sessão iniciada com Google");
+      await finishAuthenticatedRedirect();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro inesperado";
+      toast.error(`Falha no login com Google: ${message}`);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
