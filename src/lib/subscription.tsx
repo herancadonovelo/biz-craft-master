@@ -162,20 +162,23 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
-    const { error } = await supabase.from("profiles").update({ subscription_status: next, billing_cycle: cycle } as never).eq("user_id", user.id);
-    if (error) { toast.error("Falha a atualizar plano"); return; }
-    setPlanState(next); setBillingCycle(cycle);
-    toast.success(`Plano ${next.toUpperCase()} (${cycle}) ativo`);
+    if (next === "light") {
+      const { error } = await supabase.rpc("cancel_subscription" as never);
+      if (error) { toast.error("Falha a cancelar plano"); return; }
+      setPlanState("light"); setTrialEnds(null); setBillingCycle(cycle);
+      toast.success("Subscrição cancelada — voltaste ao plano Light.");
+      return;
+    }
+    toast.error("Upgrade para planos pagos requer pagamento verificado. Usa o teste gratuito ou um código promocional.");
   };
 
   const startTrial = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para iniciar o teste"); return; }
-    const ends = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ subscription_status: next, subscription_trial_ends: ends.toISOString(), billing_cycle: cycle } as never)
-      .eq("user_id", user.id);
+    const { data, error } = await supabase.rpc("start_subscription_trial" as never, { _plan: next, _cycle: cycle } as never);
     if (error) { toast.error("Falha a iniciar teste"); return; }
+    const res = data as { ok: boolean; message?: string; trial_ends?: string } | null;
+    if (!res?.ok) { toast.error(res?.message ?? "Não foi possível iniciar o teste."); return; }
+    const ends = res.trial_ends ? new Date(res.trial_ends) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     setPlanState(next); setTrialEnds(ends); setBillingCycle(cycle);
     toast.success("Teste gratuito de 14 dias ativado");
   };
@@ -197,75 +200,18 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const code = rawCode.trim();
     if (!code) return { ok: false, message: "Introduz um código." };
     if (!user) return { ok: false, message: "Inicia sessão para aplicar um código." };
-    const { data, error } = await supabase
-      .from("promo_codes")
-      .select("id,code,discount_percent,is_lifetime,active,expires_at")
-      .ilike("code", code)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("redeem_promo_code" as never, { _code: code } as never);
     if (error) return { ok: false, message: "Erro a validar o código." };
-    if (!data || !data.active) return { ok: false, message: "Código inválido ou inativo." };
-    if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
-      return { ok: false, message: "Código expirado." };
-    }
-
-    // Bloquear resgate duplicado por utilizador
-    const { data: prev } = await supabase
-      .from("promo_redemptions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("promo_code_id", data.id)
-      .maybeSingle();
-    if (prev) {
-      return { ok: false, message: "Já resgataste este código anteriormente." };
-    }
-
-    const { data: redemption, error: redErr } = await supabase
-      .from("promo_redemptions")
-      .insert({
-        user_id: user.id,
-        promo_code_id: data.id,
-        code: data.code,
-        discount_percent: data.discount_percent,
-        is_lifetime: data.is_lifetime,
-      } as never)
-      .select("id,code,discount_percent,is_lifetime,redeemed_at")
-      .single();
-    if (redErr || !redemption) {
-      // unique violation (corrida) → mesma mensagem
-      if (redErr && (redErr as { code?: string }).code === "23505") {
-        return { ok: false, message: "Já resgataste este código anteriormente." };
-      }
-      return { ok: false, message: "Falha a registar o resgate." };
-    }
-
-    // Fonte da verdade: usar os valores efetivamente persistidos na BD (não os pedidos pelo cliente).
-    const persisted = redemption as { code: string; discount_percent: number; is_lifetime: boolean };
-    // Integridade: alinhar com o promo_code servido (defesa contra manipulação local).
-    if (
-      persisted.discount_percent !== data.discount_percent ||
-      persisted.is_lifetime !== data.is_lifetime ||
-      persisted.code !== data.code
-    ) {
-      console.warn("[promo] divergência entre promo_codes e promo_redemptions", { server: data, persisted });
-      return { ok: false, message: "Inconsistência detetada no resgate. Tenta novamente." };
-    }
-
-    if (persisted.is_lifetime) {
-      const { error: upErr } = await supabase
-        .from("profiles")
-        .update({ subscription_status: "premium_vitalicio", subscription_trial_ends: null } as never)
-        .eq("user_id", user.id);
-      if (upErr) return { ok: false, message: "Falha a ativar acesso vitalício." };
+    const res = data as { ok: boolean; message: string; lifetime?: boolean; discount_percent?: number; code?: string } | null;
+    if (!res) return { ok: false, message: "Resposta inválida do servidor." };
+    if (!res.ok) return { ok: false, message: res.message };
+    if (res.lifetime) {
       setPlanState("premium_vitalicio");
       setTrialEnds(null);
       toast.success("Acesso vitalício Premium ativado 🎉");
-      return { ok: true, lifetime: true, message: "Acesso vitalício ativado com sucesso." };
+      return { ok: true, lifetime: true, message: res.message };
     }
-    return {
-      ok: true,
-      discountPercent: persisted.discount_percent,
-      message: `Código ${persisted.code} aplicado e registado no servidor: ${persisted.discount_percent}% de desconto confirmado.`,
-    };
+    return { ok: true, discountPercent: res.discount_percent, message: res.message };
   };
 
   return (

@@ -168,7 +168,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cancel_subscription: { Args: never; Returns: Json }
+      redeem_promo_code: { Args: { _code: string }; Returns: Json }
+      start_subscription_trial: {
+        Args: { _cycle?: string; _plan: string }
+        Returns: Json
+      }
     }
     Enums: {
       billing_cycle: "mensal" | "anual"
