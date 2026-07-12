@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const LANG_NAMES: Record<string, string> = {
   en: "English",
@@ -11,6 +12,7 @@ const LANG_NAMES: Record<string, string> = {
 };
 
 export const translateBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
       target: z.string().min(2).max(5),
