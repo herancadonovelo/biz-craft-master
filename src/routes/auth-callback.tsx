@@ -24,7 +24,15 @@ function AuthCallbackPage() {
     const finish = async () => {
       const params = new URLSearchParams(window.location.search || window.location.hash.replace(/^#/, ""));
       const oauthError = params.get("error_description") || params.get("error");
+      void logSessionEvent("oauth_callback_received", {
+        reason: oauthError ? `provider_error:${oauthError}` : "callback_reached",
+        path: "/auth-callback",
+      });
       if (oauthError) {
+        void logSessionEvent("oauth_failed", {
+          reason: oauthError,
+          path: "/auth-callback",
+        });
         toast.error(`Falha no login com Google: ${oauthError}`);
         nav({ to: "/auth" });
         return;
@@ -33,6 +41,10 @@ function AuthCallbackPage() {
       if (loading) return;
 
       if (user) {
+        void logSessionEvent("oauth_session_ready", {
+          reason: "user_ready_on_callback",
+          path: "/auth-callback",
+        });
         void logSessionEvent("session_signed_in", {
           reason: "google_oauth_callback_user_ready",
           path: "/auth-callback",
@@ -47,6 +59,11 @@ function AuthCallbackPage() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
+          void logSessionEvent("oauth_session_ready", {
+            reason: "session_ready_after_polling",
+            path: "/auth-callback",
+            metadata: { attempts: i + 1 },
+          });
           void logSessionEvent("session_signed_in", {
             reason: "google_oauth_callback_session_ready",
             path: "/auth-callback",
@@ -58,6 +75,10 @@ function AuthCallbackPage() {
         await new Promise((resolve) => window.setTimeout(resolve, 250));
       }
 
+      void logSessionEvent("oauth_failed", {
+        reason: "session_never_activated_after_callback",
+        path: "/auth-callback",
+      });
       toast.error("Não foi possível ativar a sessão Google. Tenta entrar novamente.");
       nav({ to: "/auth" });
     };
