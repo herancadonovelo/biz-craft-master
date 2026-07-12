@@ -8,7 +8,13 @@ export type SessionEventType =
   | "session_revalidate_failed"
   | "session_revalidate_ok"
   | "session_signed_out"
-  | "session_signed_in";
+  | "session_signed_in"
+  | "oauth_start"
+  | "oauth_redirect_pending"
+  | "oauth_callback_received"
+  | "oauth_session_ready"
+  | "oauth_cancelled"
+  | "oauth_failed";
 
 interface LogOpts {
   reason?: string;

@@ -27,6 +27,10 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   const finishAuthenticatedRedirect = async () => {
+    void logSessionEvent("oauth_session_ready", {
+      reason: "google_oauth_finish_redirect",
+      path: window.location.pathname,
+    });
     void logSessionEvent("session_signed_in", {
       reason: "google_oauth",
       path: window.location.pathname,
@@ -51,11 +55,42 @@ function AuthPage() {
     }
   }, [user, loading, nav]);
 
+  const mapEmailError = (message: string): string => {
+    const m = message.toLowerCase();
+    if (m.includes("invalid login") || m.includes("invalid credentials")) return "Email ou palavra-passe incorretos.";
+    if (m.includes("email not confirmed")) return "Confirma o teu email antes de entrar. Verifica a caixa de entrada.";
+    if (m.includes("user already registered")) return "Já existe uma conta com este email. Tenta entrar.";
+    if (m.includes("password should be at least")) return "A palavra-passe tem de ter no mínimo 6 caracteres.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Demasiadas tentativas. Aguarda alguns minutos e tenta de novo.";
+    if (m.includes("network")) return "Falha de rede. Verifica a tua ligação à internet.";
+    return message;
+  };
+
+  const mapOAuthError = (message: string): { text: string; kind: "error" | "info" } => {
+    const m = (message || "").toLowerCase();
+    if (m.includes("cancel") || m.includes("closed") || m.includes("popup")) {
+      return { text: "Login com Google cancelado. Tenta novamente quando quiseres.", kind: "info" };
+    }
+    if (m.includes("network") || m.includes("failed to fetch")) {
+      return { text: "Falha de rede durante o login Google. Verifica a tua ligação e tenta de novo.", kind: "error" };
+    }
+    if (m.includes("redirect")) {
+      return { text: "URL de redirecionamento não autorizado. Contacta o suporte.", kind: "error" };
+    }
+    if (m.includes("provider is not enabled") || m.includes("unsupported provider")) {
+      return { text: "Login Google ainda não está ativado no servidor. Contacta o suporte.", kind: "error" };
+    }
+    if (m.includes("unauthorized") || m.includes("access_denied")) {
+      return { text: "Acesso negado pela conta Google. Verifica as permissões e tenta de novo.", kind: "error" };
+    }
+    return { text: `Falha no login com Google: ${message || "erro desconhecido"}. Tenta novamente ou usa email/palavra-passe.`, kind: "error" };
+  };
+
   const signIn = async () => {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(mapEmailError(error.message));
     else {
       toast.success("Sessão iniciada");
       const target = consumeIntendedPath();
@@ -69,27 +104,47 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin },
     });
     setBusy(false);
-    if (error) toast.error(error.message); else toast.success("Conta criada — verifica o teu email se necessário");
+    if (error) toast.error(mapEmailError(error.message));
+    else toast.success("Conta criada — verifica o teu email se necessário");
   };
   const signInGoogle = async () => {
     setBusy(true);
+    void logSessionEvent("oauth_start", {
+      reason: "google_button_clicked",
+      path: window.location.pathname,
+    });
     try {
       const r = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: `${window.location.origin}/auth-callback`,
         extraParams: { prompt: "select_account" },
       });
 
-      if (r.redirected) return;
+      if (r.redirected) {
+        void logSessionEvent("oauth_redirect_pending", {
+          reason: "browser_redirected_to_google",
+          path: window.location.pathname,
+        });
+        return;
+      }
 
       if (r.error) {
-        const message = r.error.message || "Não foi possível concluir o login com Google.";
-        toast.error(`Falha no login com Google: ${message}`);
+        const mapped = mapOAuthError(r.error.message || "");
+        void logSessionEvent(mapped.kind === "info" ? "oauth_cancelled" : "oauth_failed", {
+          reason: r.error.message || "unknown_provider_error",
+          path: window.location.pathname,
+        });
+        if (mapped.kind === "info") toast.info(mapped.text);
+        else toast.error(mapped.text);
         return;
       }
 
       const session = await waitForSession();
       if (!session) {
-        toast.error("Login Google concluído, mas a sessão ainda não ficou ativa. Tenta novamente.");
+        void logSessionEvent("oauth_failed", {
+          reason: "session_not_ready_after_oauth",
+          path: window.location.pathname,
+        });
+        toast.error("Login Google concluído, mas a sessão ainda não ficou ativa. Tenta recarregar a página.");
         return;
       }
 
@@ -97,7 +152,13 @@ function AuthPage() {
       await finishAuthenticatedRedirect();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erro inesperado";
-      toast.error(`Falha no login com Google: ${message}`);
+      const mapped = mapOAuthError(message);
+      void logSessionEvent(mapped.kind === "info" ? "oauth_cancelled" : "oauth_failed", {
+        reason: message,
+        path: window.location.pathname,
+      });
+      if (mapped.kind === "info") toast.info(mapped.text);
+      else toast.error(mapped.text);
     } finally {
       setBusy(false);
     }

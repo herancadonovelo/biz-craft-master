@@ -1,60 +1,58 @@
-# Reestruturação Global: localStorage → Supabase
+# Plano — Blocos 1, 3, 4 e 5
 
-## Contexto
+Vou entregar por ordem, num único ciclo de implementação. Cada bloco fica funcional de forma independente.
 
-Hoje praticamente todos os dados da app vivem num único store Zustand persistido em `localStorage` (`src/lib/store.ts`), incluindo: materiais, fornecedores, clientes, encomendas, projetos, horas, caixa, vendas, despesas, cotações, faturas, catálogo, biblioteca, moodboards, notas, marketing, contadores, cursos, alunos, posts Instagram, ficheiros digitais, etiquetas, traduções, módulos, perfil de negócio, contas (PIN), to-dos, auditoria, etc. São ~30 coleções distintas usadas em ~50 rotas.
+## 1. Auth & Login
 
-Migrar tudo de uma vez num único turno seria irrealista (centenas de chamadas, alto risco de regressão silenciosa em rotas que não cabem no contexto). Proponho fazê-lo em **fases verificáveis**, cada uma deixando a app funcional.
+- **AuthGate reforçado**: enquanto `loading` estiver ativo em qualquer rota que não seja pública, mostrar overlay de verificação (já existe) e **bloquear render da sidebar/menu lateral** até haver `user`. Adicionar guarda no layout que envolve o `AppSidebar` para não montar até `user && !loading`.
+- **Sidebar bloqueada sem login**: no root/layout, envolver o `SidebarProvider`/`AppSidebar` num check `user ? <Sidebar/> : null`, evitando qualquer flash.
+- **Google OAuth**:
+  - Confirmar `prompt: "select_account"` (já existe em `auth.tsx`).
+  - Detectar cancelamento vs erro real: o erro "sign in was cancelled" vem quando a popup é fechada; passar a mostrar toast informativo em vez de erro vermelho e não bloquear o botão.
+  - Mensagens específicas por código: `popup_closed`, `network`, `invalid_redirect`, `provider_disabled`, fallback genérico só como último recurso.
+  - Logs detalhados via `logSessionEvent`: `oauth_start`, `oauth_redirect`, `oauth_callback_received`, `oauth_session_ready`, `oauth_failed` (com motivo).
+- **Email/password**: melhorar tratamento de erro (mensagens PT claras: credenciais inválidas, email não confirmado, etc.).
+- **Rodapé/splash**: já corrigido.
 
-## Plano por fases
+## 3. Sync local (offline)
 
-### Fase 0 — Fundações (este turno, se aprovado)
-- Ativar Lovable Cloud (Supabase) se ainda não estiver.
-- Criar autenticação Email/Password + Google (página `/auth`, layout `_authenticated`).
-- Criar enum `app_role` + tabela `user_roles` + função `has_role` (padrão de segurança).
-- Criar helper genérico `useSupabaseCollection<T>(table)` que substitui `useStore().<colecao>` com a mesma API (`add/update/remove`) mas faz CRUD no Supabase + cache via TanStack Query + toasts de loading/erro.
-- Adicionar gate global: rotas com dados sensíveis movidas progressivamente para `_authenticated/`. Rotas públicas mostram um aviso "Inicia sessão para guardar os teus dados".
+- Introduzir camada de persistência local usando `zustand/middleware/persist` no `useStore` (localStorage), com as mesmas `PERSIST_KEYS` já definidas em `SupabaseSync`.
+- Ordem de hidratação: primeiro carrega do local (instantâneo), depois faz merge com o cloud quando a sessão fica pronta. Estratégia de merge: cloud vence se `updated_at` do cloud for mais recente; caso contrário, faz push do local.
+- Indicador na barra de sync passa a mostrar 3 estados: `Local`, `Sincronizando`, `Sincronizado (nuvem+local)`.
+- Botão manual "Forçar sincronização" nas Configurações.
 
-### Fase 1 — Núcleo operacional
-Tabelas + migração de UI:
-- `materiais`, `material_fornecedores` (N:N preço por fornecedor)
-- `fornecedores`
-- `clientes`
-- `encomendas`, `encomenda_itens`
-- `projetos`, `projeto_materiais`
-- `horas_trabalhadas`
+## 4. Reset design default
 
-### Fase 2 — Financeiro
-- `caixa_movimentos`, `vendas`, `despesas_fixas`, `cotacoes`, `faturas`, `perfil_negocio`
+- Capturar snapshot dos tokens atuais (cores, tipografia, radius, sombras) em `src/lib/design-defaults.ts` como constante imutável — estes são os defaults "de fábrica" da app tal como está hoje.
+- Na página de personalização/design, adicionar card **"Personalização padrão"** com botão **"Restaurar design default"** que:
+  - Aplica os valores de `design-defaults.ts` ao store `design`.
+  - Confirma via dialog antes de aplicar.
+  - Mostra toast de sucesso.
+- Garantir que o store `design` inicializa a partir destes defaults quando não há valor guardado.
 
-### Fase 3 — Criação / conteúdo
-- `catalogo`, `biblioteca`, `moldes`, `moodboards`, `moodboard_imagens`, `notas`, `editor_receitas`, `contadores`
+## 5. Editor de moldes de tricotin
 
-### Fase 4 — Marketing / integrações / sistema
-- `marketing_acoes`, `campanhas`, `instagram_posts`, `cursos`, `alunos`
-- `whatsapp_mensagens`, `etsy_mapeamentos`, `ficheiros_digitais`
-- `todos`, `auditoria`, `notificacoes`, `etiquetas`
-- `modulos`, `design_settings`, `contas_credenciais` (cifradas), `traducoes`
+Em `src/routes/editor-moldes.tsx` (ou equivalente atual):
 
-Todas as tabelas:
-```sql
-id uuid pk default gen_random_uuid()
-user_id uuid not null references auth.users(id) on delete cascade
-created_at, updated_at timestamps
--- + campos específicos
-```
-Mais `GRANT SELECT,INSERT,UPDATE,DELETE ON … TO authenticated;` + RLS `using (auth.uid() = user_id)`.
+- **Remover** a UI de visualização dos ângulos criados nos vértices.
+- **Toolbar de desenho** com 3 modos toggle:
+  - **Linha recta** — desenha segmento entre dois cliques.
+  - **Linha curva** — Bézier com pontos de controlo.
+  - **Contínua** (checkbox) — quando ativa, o próximo ponto liga automaticamente ao anterior sem exibir handles/vetores, produzindo um traço fluido tanto em recta como em curva.
+- **Setas guia direccionais**: ícones sobrepostos ao molde indicando ponto de início e direcção de progressão. Editáveis: podem ser arrastadas, rodadas, ou trocadas por outros estilos de seta (fina, grossa, tracejada).
 
-### Fase 5 — Limpeza
-- Remover `persist` do Zustand para coleções migradas.
-- Manter no Zustand apenas estado puramente local (UI ephemeral, ex: tema atual).
-- Importador "uma vez" que lê o `localStorage` legado e faz upload das coleções existentes do utilizador para o seu user_id.
+---
 
-## O que peço para confirmar antes de avançar
+## Detalhes técnicos
 
-1. **Avanço por fases?** Posso começar agora pela Fase 0 + Fase 1 (núcleo: materiais, fornecedores, clientes, encomendas, projetos, horas). Depois confirmamos cada fase seguinte. Isto evita um turno gigante onde algo se parte sem darmos por isso.
-2. **Autenticação:** Email/Password + Google por defeito. Confirmas?
-3. **Dados atuais em localStorage:** Queres que faça um importador automático (ao primeiro login, faz upload do que existe no browser para a tua conta) ou começa-se com base limpa?
-4. **Módulos desativados:** mantemos as tabelas mesmo para módulos desligados, ou só criamos quando o módulo for ativado?
+- **Store persist**: `persist(config, { name: "cbm-store", partialize: (s) => pick(s, PERSIST_KEYS) })`. Merge inteligente no `SupabaseSync` via `updated_at` do row cloud.
+- **AuthGate**: exportar helper `useAuthReady()` e usar no layout root para gate da sidebar.
+- **Design defaults**: `Object.freeze` no snapshot; store `design` faz `initial = { ...DESIGN_DEFAULTS }`.
+- **Editor moldes**: manter tudo em canvas SVG/Konva já existente; novos estados `drawMode: "straight" | "curve"` e `continuous: boolean`; setas como componentes SVG separados com handles arrastáveis.
+- **Logs OAuth**: reutilizar `logSessionEvent`, novos `event` strings (não altera schema DB).
 
-Assim que respondas, começo pela Fase 0 + Fase 1 já neste fluxo.
+## Fora de âmbito neste ciclo
+
+- Bloco 2 (recuperação/alteração de password) e bloco 6 (limpeza profunda de segurança) — para próximo turno se aprovares.
+
+Confirma que avanço com esta ordem: **1 → 3 → 4 → 5**.
