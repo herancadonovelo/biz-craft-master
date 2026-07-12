@@ -162,20 +162,23 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
-    const { error } = await supabase.from("profiles").update({ subscription_status: next, billing_cycle: cycle } as never).eq("user_id", user.id);
-    if (error) { toast.error("Falha a atualizar plano"); return; }
-    setPlanState(next); setBillingCycle(cycle);
-    toast.success(`Plano ${next.toUpperCase()} (${cycle}) ativo`);
+    if (next === "light") {
+      const { error } = await supabase.rpc("cancel_subscription" as never);
+      if (error) { toast.error("Falha a cancelar plano"); return; }
+      setPlanState("light"); setTrialEnds(null); setBillingCycle(cycle);
+      toast.success("Subscrição cancelada — voltaste ao plano Light.");
+      return;
+    }
+    toast.error("Upgrade para planos pagos requer pagamento verificado. Usa o teste gratuito ou um código promocional.");
   };
 
   const startTrial = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para iniciar o teste"); return; }
-    const ends = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ subscription_status: next, subscription_trial_ends: ends.toISOString(), billing_cycle: cycle } as never)
-      .eq("user_id", user.id);
+    const { data, error } = await supabase.rpc("start_subscription_trial" as never, { _plan: next, _cycle: cycle } as never);
     if (error) { toast.error("Falha a iniciar teste"); return; }
+    const res = data as { ok: boolean; message?: string; trial_ends?: string } | null;
+    if (!res?.ok) { toast.error(res?.message ?? "Não foi possível iniciar o teste."); return; }
+    const ends = res.trial_ends ? new Date(res.trial_ends) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     setPlanState(next); setTrialEnds(ends); setBillingCycle(cycle);
     toast.success("Teste gratuito de 14 dias ativado");
   };
