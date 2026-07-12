@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireBasePlan, requirePremiumPlan } from "@/lib/plan-guard";
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
@@ -24,6 +26,7 @@ async function chat(body: any) {
 
 /** Sugestão de tema: paleta, fundo, elementos decorativos. */
 export const sugerirTemaMoodboard = createServerFn({ method: "POST" })
+  .middleware([requireBasePlan])
   .inputValidator(z.object({ tema: z.string().min(1).max(300) }).parse)
   .handler(async ({ data }) => {
     const r = await chat({
@@ -49,6 +52,7 @@ export const sugerirTemaMoodboard = createServerFn({ method: "POST" })
 
 /** Gera 3 opções de texto criativo. */
 export const gerarTextosMoodboard = createServerFn({ method: "POST" })
+  .middleware([requireBasePlan])
   .inputValidator(z.object({ topico: z.string().min(1).max(200) }).parse)
   .handler(async ({ data }) => {
     const r = await chat({
@@ -75,6 +79,7 @@ export const gerarTextosMoodboard = createServerFn({ method: "POST" })
 
 /** Crítica de composição. */
 export const criticarComposicao = createServerFn({ method: "POST" })
+  .middleware([requireBasePlan])
   .inputValidator(z.object({ resumo: z.string().min(1).max(2000) }).parse)
   .handler(async ({ data }) => {
     const r = await chat({
@@ -94,6 +99,7 @@ export const criticarComposicao = createServerFn({ method: "POST" })
 
 /** Sugestão contextual a partir do que está na tela. */
 export const sugestaoContextual = createServerFn({ method: "POST" })
+  .middleware([requireBasePlan])
   .inputValidator(z.object({ resumo: z.string().min(1).max(2000) }).parse)
   .handler(async ({ data }) => {
     const r = await chat({
@@ -113,6 +119,7 @@ export const sugestaoContextual = createServerFn({ method: "POST" })
 
 /** Remove fundo de uma imagem usando Gemini image. Recebe dataURL, devolve dataURL PNG. */
 export const removerFundoImagem = createServerFn({ method: "POST" })
+  .middleware([requirePremiumPlan])
   .inputValidator(z.object({ imagem: z.string().min(20).max(8_000_000) }).parse)
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
