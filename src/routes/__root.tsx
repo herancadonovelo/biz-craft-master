@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -20,6 +21,7 @@ import { useT } from "@/lib/i18n";
 import { AutoTranslator } from "@/components/AutoTranslator";
 import { WellnessTimer } from "@/components/WellnessTimer";
 import { AuthProvider } from "@/lib/auth-state";
+import { useAuth } from "@/lib/auth-state";
 import { SupabaseSync } from "@/components/SupabaseSync";
 import { AuthBanner } from "@/components/AuthBanner";
 import { SubscriptionProvider } from "@/lib/subscription";
@@ -305,27 +307,7 @@ function RootComponent() {
       <AuthProvider>
       <SubscriptionProvider>
       <AtelierSoundsProvider>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background">
-          <AppSidebar />
-          <div className="flex flex-1 flex-col">
-            <AuthBanner />
-            <PreviewModeBanner />
-            <header
-              className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border px-4 backdrop-blur"
-              style={{
-                background: "var(--app-header-bg, rgba(255,255,255,0.6))",
-                color: "var(--app-header-fg, inherit)",
-              }}
-            >
-              <SewingMenuTrigger />
-              <RootSubtitle />
-            </header>
-            <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
-              <Outlet />
-            </main>
-          </div>
-        </div>
+        <AppShell design={design} />
         <Toaster richColors position="top-right" />
         <WebhookPoller />
         <AutoTranslator />
@@ -339,11 +321,60 @@ function RootComponent() {
         <DailyInspirationNotifier />
         <AuthGate />
         <ScrollUnlockWatcher />
-      </SidebarProvider>
       </AtelierSoundsProvider>
       </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+const PUBLIC_ROUTES_SET = new Set(["/auth", "/auth-callback", "/sessao-expirada"]);
+
+function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["design"] }) {
+  const { user, loading } = useAuth();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const isPublic = PUBLIC_ROUTES_SET.has(pathname);
+
+  // Sem sessão numa rota pública (auth, callback, sessão expirada) → apenas o Outlet centrado, sem menu lateral.
+  if (!user && (isPublic || !loading)) {
+    return (
+      <div className="flex min-h-screen w-full items-start justify-center bg-background px-4 py-8">
+        <div className="w-full max-w-2xl">
+          <Outlet />
+        </div>
+      </div>
+    );
+  }
+
+  // Enquanto a sessão carrega numa rota privada, o AuthGate já mostra overlay.
+  // Não renderizamos a sidebar nesse intervalo para evitar flash de conteúdos protegidos.
+  if (!user) {
+    return <div className="min-h-screen w-full bg-background" />;
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex flex-1 flex-col">
+          <AuthBanner />
+          <PreviewModeBanner />
+          <header
+            className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border px-4 backdrop-blur"
+            style={{
+              background: "var(--app-header-bg, rgba(255,255,255,0.6))",
+              color: "var(--app-header-fg, inherit)",
+            }}
+          >
+            <SewingMenuTrigger />
+            <RootSubtitle />
+          </header>
+          <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
 
