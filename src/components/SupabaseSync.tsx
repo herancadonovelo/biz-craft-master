@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
-import { Cloud, CloudOff, Loader2 } from "lucide-react";
+import { Cloud, CloudOff, HardDrive, Loader2 } from "lucide-react";
 import { isPreviewActive, usePreviewMode } from "@/lib/preview-mode";
 
 // Keys we sync (skip functions & ephemeral)
@@ -101,9 +101,26 @@ export function SupabaseSync() {
     <div className="pointer-events-none fixed bottom-3 right-3 z-50 flex items-center gap-1.5 rounded-full border border-border bg-background/90 px-2.5 py-1 text-xs shadow-sm backdrop-blur">
       {preview && <><Cloud className="h-3 w-3 text-amber-600" /> Preview (sync pausada)</>}
       {!preview && status === "syncing" && <><Loader2 className="h-3 w-3 animate-spin" /> A sincronizar…</>}
-      {!preview && status === "synced" && <><Cloud className="h-3 w-3 text-emerald-600" /> Sincronizado</>}
-      {!preview && status === "error" && <><CloudOff className="h-3 w-3 text-rose-600" /> Erro</>}
-      {!preview && status === "offline" && <><CloudOff className="h-3 w-3 text-muted-foreground" /> Local</>}
+      {!preview && status === "synced" && (
+        <>
+          <Cloud className="h-3 w-3 text-emerald-600" />
+          <HardDrive className="h-3 w-3 text-emerald-600" />
+          Nuvem + Local
+        </>
+      )}
+      {!preview && status === "error" && (
+        <>
+          <CloudOff className="h-3 w-3 text-rose-600" />
+          <HardDrive className="h-3 w-3 text-emerald-600" />
+          Só local (erro nuvem)
+        </>
+      )}
+      {!preview && status === "offline" && (
+        <>
+          <HardDrive className="h-3 w-3 text-emerald-600" />
+          Guardado no dispositivo
+        </>
+      )}
     </div>
   );
 }
