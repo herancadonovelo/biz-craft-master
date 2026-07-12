@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { ImagePicker } from "@/components/ImagePicker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfiguracoesContent } from "./configuracoes";
+import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
+import { toast } from "sonner";
+import { RotateCcw } from "lucide-react";
 
 const ACCENTS = [
   { name: "Steel blue", v: "0.72 0.06 230" },
@@ -99,6 +102,13 @@ function PersonalizacaoConfigHub() {
 
 export function DesignContent() {
     const { design, setDesign } = useStore();
+    const restoreDefaults = () => {
+      if (typeof window !== "undefined" && !window.confirm(
+        "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? Esta ação não pode ser desfeita."
+      )) return;
+      setDesign({ ...DESIGN_DEFAULTS });
+      toast.success("Personalização reposta para os valores default da app.");
+    };
     const setHeaderFont = (v: string) => {
       setDesign({ fonteCabecalho: v, fontesPorPagina: {} });
       if (typeof document !== "undefined") {
@@ -122,6 +132,21 @@ export function DesignContent() {
     }, []);
     return (
       <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="lg:col-span-2 border-primary/40 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="font-display flex items-center gap-2">
+                <RotateCcw className="h-4 w-4" /> Personalização padrão
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Repõe todo o design da app (cores, tipografia, tamanhos, sidebar, opacidades, imagem de fundo) para a aparência original de fábrica.
+              </p>
+              <Button onClick={restoreDefaults} variant="default" className="shrink-0">
+                <RotateCcw className="mr-2 h-4 w-4" /> Ativar personalização default
+              </Button>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader><CardTitle className="font-display">Tipo de letra dos cabeçalhos</CardTitle></CardHeader>
             <CardContent className="space-y-3">
