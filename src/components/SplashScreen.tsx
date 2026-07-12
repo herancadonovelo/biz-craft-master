@@ -336,7 +336,7 @@ export function SplashScreen() {
       </div>
       <footer className="pb-[max(1.25rem,env(safe-area-inset-bottom))] px-6 text-center">
         <p className="font-display text-[11px] tracking-wide text-[#6B5B73]/70">
-          © 2026 Crafts Business Master. All rights reserved to Craft Mistress.
+          © 2026 Craft Business Master. All rights reserved to Art Fusion.
         </p>
       </footer>
       <style>{`
