@@ -16,6 +16,7 @@ import { Route as StockRouteImport } from './routes/stock'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
@@ -109,6 +110,11 @@ const SincronizacaoRoute = SincronizacaoRouteImport.update({
 const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
   id: '/sessao-expirada',
   path: '/sessao-expirada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuemSomosRoute = QuemSomosRouteImport.update({
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -533,6 +540,7 @@ export interface FileRoutesByTo {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -602,6 +610,7 @@ export interface FileRoutesById {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
@@ -672,6 +681,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -740,6 +750,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -808,6 +819,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
@@ -877,6 +889,7 @@ export interface RootRouteChildren {
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   QuemSomosRoute: typeof QuemSomosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
@@ -938,6 +951,13 @@ declare module '@tanstack/react-router' {
       path: '/sessao-expirada'
       fullPath: '/sessao-expirada'
       preLoaderRoute: typeof SessaoExpiradaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quem-somos': {
@@ -1424,6 +1444,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   QuemSomosRoute: QuemSomosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
