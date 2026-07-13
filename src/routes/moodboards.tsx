@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ImageIcon, Plus, Printer, Download, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { escapeHtml as esc } from "@/lib/escape-html";
 
 export const Route = createFileRoute("/moodboards")({
   head: () => ({ meta: [{ title: "Moodboards & Inspiração" }] }),
@@ -183,7 +184,7 @@ function GaleriaTab() {
     if (!url) return toast.error("Sem pré-visualização disponível.");
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<html><head><title>${m.titulo}</title><style>@page{size:A4;margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style></head><body><img src="${url}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
+    w.document.write(`<html><head><title>${esc(m.titulo)}</title><style>@page{size:A4;margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style></head><body><img src="${esc(url)}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
     w.document.close();
   };
 
