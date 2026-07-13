@@ -309,7 +309,8 @@ function RootComponent() {
       <AtelierSoundsProvider>
         <AppShell design={design} />
         <Toaster richColors position="top-right" />
-        <WebhookPoller />
+        {/* WebhookPoller removed: the /api/public/webhooks/pending endpoint
+            served a global cross-tenant queue and has been disabled. */}
         <AutoTranslator />
         <WellnessTimer />
         <SupabaseSync />
