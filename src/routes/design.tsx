@@ -165,9 +165,17 @@ export function DesignContent() {
               <p className="text-sm text-muted-foreground">
                 Repõe todo o design da app (cores, tipografia, tamanhos, sidebar, opacidades, imagem de fundo) para a aparência original de fábrica.
               </p>
-              <Button onClick={restoreDefaults} variant="default" className="shrink-0">
-                <RotateCcw className="mr-2 h-4 w-4" /> Ativar personalização default
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={saveCurrentAsDefault} variant="secondary" className="shrink-0">
+                  Guardar atual como padrão
+                </Button>
+                <Button onClick={restorePersonalDefault} variant="outline" className="shrink-0" disabled={!hasPersonalDefault}>
+                  Restaurar padrão pessoal
+                </Button>
+                <Button onClick={restoreDefaults} variant="default" className="shrink-0">
+                  <RotateCcw className="mr-2 h-4 w-4" /> Restaurar de fábrica
+                </Button>
+              </div>
             </CardContent>
           </Card>
           <Card>
