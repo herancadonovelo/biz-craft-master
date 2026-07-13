@@ -241,7 +241,8 @@ function EditorPage() {
   const imprimir = async () => {
     const url = await exportarPNG(); if (!url) return;
     const w = window.open("", "_blank"); if (!w) return;
-    w.document.write(`<html><head><title>${titulo}</title><style>@page{size:A4;margin:0}html,body{margin:0}img{width:210mm;height:297mm;object-fit:contain;display:block}</style></head><body><img src="${url}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
+    const esc = (s: string) => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    w.document.write(`<html><head><title>${esc(titulo)}</title><style>@page{size:A4;margin:0}html,body{margin:0}img{width:210mm;height:297mm;object-fit:contain;display:block}</style></head><body><img src="${esc(url)}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
     w.document.close();
   };
 
