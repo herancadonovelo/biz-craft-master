@@ -13,6 +13,7 @@ import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
+import { escapeHtml as esc } from "@/lib/escape-html";
 
 export type AreaTecnica = "Tricotin" | "Amigurumi" | "Crochê" | "Costura" | "Ponto cruz" | "Bordado";
 export const AREAS: AreaTecnica[] = ["Tricotin", "Amigurumi", "Crochê", "Costura", "Ponto cruz", "Bordado"];
@@ -178,9 +179,9 @@ export function ExportPanel({
       const cssSize = size === "Letter" || size === "Legal"
         ? `${size.toLowerCase()} ${orientacao}`
         : `${size} ${orientacao}`;
-      win.document.write(`<html><head><title>${titulo}</title>
+      win.document.write(`<html><head><title>${esc(titulo)}</title>
         <style>@page{size:${cssSize};margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style>
-        </head><body><img src="${data}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
+        </head><body><img src="${esc(data)}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
       win.document.close();
     } catch (e) { toast.error("Falha ao imprimir: " + (e as Error).message); }
   };

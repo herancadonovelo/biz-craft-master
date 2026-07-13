@@ -41,45 +41,8 @@ if (typeof window !== "undefined") {
   assertAccessControlOnce();
 }
 
-function WebhookPoller() {
-  const processarEtsy = useStore((s) => s.processarWebhookEtsy);
-  const processarWa = useStore((s) => s.processarWebhookWhatsapp);
-  useEffect(() => {
-    let stop = false;
-    const tick = async () => {
-      try {
-        const r = await fetch("/api/public/webhooks/pending");
-        if (!r.ok) return;
-        const { events } = await r.json();
-        for (const ev of events || []) {
-          if (ev.provider === "etsy") {
-            processarEtsy({
-              id: ev.id,
-              listingId: String(ev.payload.listing_id || ev.payload.listingId || ev.payload.listing || ""),
-              quantidade: Number(ev.payload.quantity || 1),
-              variacao: ev.payload.variation || ev.payload.variacao,
-              clienteNome: ev.payload.buyer_name || ev.payload.buyerName,
-              clienteEmail: ev.payload.buyer_email || ev.payload.buyerEmail,
-              descricao: ev.payload.title || ev.payload.description,
-              valor: Number(ev.payload.price || ev.payload.total || 0),
-            });
-          } else if (ev.provider === "whatsapp") {
-            processarWa({
-              id: ev.id,
-              telefone: ev.payload.telefone,
-              texto: ev.payload.texto,
-              nome: ev.payload?.contacts?.[0]?.profile?.name,
-            });
-          }
-        }
-      } catch {}
-    };
-    const id = window.setInterval(() => { if (!stop) tick(); }, 15000);
-    tick();
-    return () => { stop = true; window.clearInterval(id); };
-  }, [processarEtsy, processarWa]);
-  return null;
-}
+// WebhookPoller removed — the pending endpoint it polled was an
+// unauthenticated global queue that leaked events across merchants.
 
 function NotFoundComponent() {
   return (
@@ -309,7 +272,8 @@ function RootComponent() {
       <AtelierSoundsProvider>
         <AppShell design={design} />
         <Toaster richColors position="top-right" />
-        <WebhookPoller />
+        {/* WebhookPoller removed: the /api/public/webhooks/pending endpoint
+            served a global cross-tenant queue and has been disabled. */}
         <AutoTranslator />
         <WellnessTimer />
         <SupabaseSync />

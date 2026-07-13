@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { drain } from "@/lib/webhook-queue";
 
-// O cliente faz polling deste endpoint para puxar eventos pendentes e aplicar
-// localmente. A idempotência é dupla: no servidor (seen set) e no cliente
-// (state.webhooksProcessados).
+// Endpoint disabled. Previously served a single unauthenticated in-memory
+// queue shared across all merchants, which leaked Etsy/WhatsApp events
+// between tenants. Per-tenant delivery must go through an authenticated
+// server function that reads from a user-scoped table (RLS on auth.uid()).
 export const Route = createFileRoute("/api/public/webhooks/pending")({
   server: {
     handlers: {
-      GET: async () => Response.json({ events: drain() }),
+      GET: async () =>
+        new Response(
+          JSON.stringify({ error: "gone", message: "Endpoint disabled. Use authenticated per-user retrieval." }),
+          { status: 410, headers: { "content-type": "application/json" } },
+        ),
     },
   },
 });

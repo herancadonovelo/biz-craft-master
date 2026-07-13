@@ -1,9 +1,10 @@
 import type { Fatura, Cliente, PerfilNegocio } from "@/lib/store";
+import { escapeHtml as e } from "@/lib/escape-html";
 
 export function imprimirFatura(f: Fatura, c: Cliente | undefined, p: PerfilNegocio) {
   const total = f.valor * (1 + f.iva / 100);
   const fmt = (n: number) => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${f.numero}</title>
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${e(f.numero)}</title>
 <style>
   body{font-family:-apple-system,Segoe UI,sans-serif;color:#111;margin:40px;}
   h1{font-size:22px;margin:0 0 4px}
@@ -16,23 +17,23 @@ export function imprimirFatura(f: Fatura, c: Cliente | undefined, p: PerfilNegoc
 </style></head><body>
   <div class="row">
     <div>
-      <h1>${p.nome ?? ""}</h1>
-      <div class="muted">${[p.morada, p.codigoPostal, p.cidade, p.pais].filter(Boolean).join(", ")}</div>
-      <div class="muted">${p.email ?? ""} ${p.telefone ? "· " + p.telefone : ""}</div>
-      ${p.nif ? `<div class="muted">NIF: ${p.nif}</div>` : ""}
+      <h1>${e(p.nome ?? "")}</h1>
+      <div class="muted">${e([p.morada, p.codigoPostal, p.cidade, p.pais].filter(Boolean).join(", "))}</div>
+      <div class="muted">${e(p.email ?? "")} ${p.telefone ? "· " + e(p.telefone) : ""}</div>
+      ${p.nif ? `<div class="muted">NIF: ${e(p.nif)}</div>` : ""}
     </div>
     <div class="right">
-      <h1>Fatura ${f.numero}</h1>
-      <div class="muted">Data: ${f.data}</div>
-      <div class="muted">Estado: ${f.estado}</div>
+      <h1>Fatura ${e(f.numero)}</h1>
+      <div class="muted">Data: ${e(f.data)}</div>
+      <div class="muted">Estado: ${e(f.estado)}</div>
     </div>
   </div>
   <div class="row">
     <div>
       <div class="muted">Cliente</div>
-      <div><strong>${c?.nome ?? "—"}</strong></div>
-      <div class="muted">${c?.email ?? ""}</div>
-      <div class="muted">${c?.morada ?? ""}</div>
+      <div><strong>${e(c?.nome ?? "—")}</strong></div>
+      <div class="muted">${e(c?.email ?? "")}</div>
+      <div class="muted">${e(c?.morada ?? "")}</div>
     </div>
   </div>
   <table>
@@ -46,7 +47,7 @@ export function imprimirFatura(f: Fatura, c: Cliente | undefined, p: PerfilNegoc
     <tr><td>IVA ${f.iva}%</td><td class="right">${fmt(total - f.valor)}</td></tr>
     <tr><td><strong>Total</strong></td><td class="right"><strong>${fmt(total)}</strong></td></tr>
   </table>
-  ${p.iban ? `<p class="muted">IBAN para pagamento: ${p.iban}</p>` : ""}
+  ${p.iban ? `<p class="muted">IBAN para pagamento: ${e(p.iban)}</p>` : ""}
   <script>window.onload=()=>window.print();</script>
 </body></html>`;
   const w = window.open("", "_blank", "width=900,height=1100");
