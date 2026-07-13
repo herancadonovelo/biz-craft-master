@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Printer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { escapeHtml as esc } from "@/lib/escape-html";
 
 export const Route = createFileRoute("/etiquetas")({
   head: () => ({ meta: [{ title: "Etiquetas de Envio" }] }),
@@ -39,10 +40,10 @@ export function EtiquetasContent() {
       const html = `<!doctype html><html><head><meta charset="utf-8"><title>Etiqueta</title>
 <style>body{font-family:sans-serif;margin:24px}.label{border:2px dashed #111;padding:18px;max-width:380px}.from{font-size:11px;color:#444;margin-bottom:12px}.to{font-size:14px;line-height:1.4}.to strong{font-size:18px}</style>
 </head><body><div class="label">
-<div class="from"><strong>REMETENTE:</strong> ${e.remetente}</div>
-<div class="to"><strong>${e.destinatario}</strong><br>${e.morada}<br>${e.codigoPostal} ${e.pais}<br>${e.telefone ?? ""}</div>
-${e.peso ? `<div class="from" style="margin-top:10px">Peso: ${e.peso}</div>` : ""}
-${e.observacoes ? `<div class="from">Obs: ${e.observacoes}</div>` : ""}
+<div class="from"><strong>REMETENTE:</strong> ${esc(e.remetente)}</div>
+<div class="to"><strong>${esc(e.destinatario)}</strong><br>${esc(e.morada)}<br>${esc(e.codigoPostal)} ${esc(e.pais)}<br>${esc(e.telefone ?? "")}</div>
+${e.peso ? `<div class="from" style="margin-top:10px">Peso: ${esc(e.peso)}</div>` : ""}
+${e.observacoes ? `<div class="from">Obs: ${esc(e.observacoes)}</div>` : ""}
 </div><script>window.onload=()=>window.print();</script></body></html>`;
       const w = window.open("", "_blank", "width=600,height=700");
       if (!w) return; w.document.write(html); w.document.close();
