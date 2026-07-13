@@ -328,7 +328,7 @@ function RootComponent() {
   );
 }
 
-const PUBLIC_ROUTES_SET = new Set(["/auth", "/auth-callback", "/sessao-expirada"]);
+const PUBLIC_ROUTES_SET = new Set(["/auth", "/auth-callback", "/sessao-expirada", "/reset-password"]);
 
 function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["design"] }) {
   const { user, loading } = useAuth();

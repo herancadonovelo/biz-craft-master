@@ -25,6 +25,32 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const isInIframe = typeof window !== "undefined" && window.self !== window.top;
+
+  const openInNewTab = () => {
+    if (typeof window === "undefined") return;
+    window.open(`${window.location.origin}/auth`, "_blank", "noopener");
+  };
+
+  const sendPasswordReset = async () => {
+    const target = (resetEmail || email).trim();
+    if (!target) {
+      toast.error("Introduz o teu email para receberes o link de recuperação.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(target, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) toast.error(mapEmailError(error.message));
+    else {
+      toast.success("Enviámos-te um email com o link para redefinires a palavra-passe.");
+      setShowReset(false);
+    }
+  };
 
   const finishAuthenticatedRedirect = async () => {
     void logSessionEvent("oauth_session_ready", {
@@ -179,17 +205,52 @@ function AuthPage() {
           <p className="text-sm text-muted-foreground">Os teus dados ficam isolados, privados e sincronizados em qualquer dispositivo.</p>
         </CardHeader>
         <CardContent>
+          {isInIframe && (
+            <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-100">
+              Estás a ver esta app dentro da pré-visualização do Lovable. Alguns navegadores bloqueiam cookies de login em janelas incorporadas.
+              Se o login falhar, <button type="button" onClick={openInNewTab} className="underline font-medium">abre numa nova janela</button>.
+            </div>
+          )}
           <Button variant="outline" className="w-full" onClick={signInGoogle} disabled={busy}>
             Continuar com Google
           </Button>
           <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px flex-1 bg-border" /> ou email <div className="h-px flex-1 bg-border" />
           </div>
+          {showReset ? (
+            <div className="space-y-3">
+              <div>
+                <Label>Email da conta</Label>
+                <Input
+                  type="email"
+                  value={resetEmail || email}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="o-teu-email@exemplo.pt"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Vais receber um email com um link seguro para criares uma nova palavra-passe. O link expira em pouco tempo por segurança.
+              </p>
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={sendPasswordReset} disabled={busy}>
+                  {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enviar link de recuperação
+                </Button>
+                <Button variant="ghost" onClick={() => setShowReset(false)} disabled={busy}>Cancelar</Button>
+              </div>
+            </div>
+          ) : (
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="login">Entrar</TabsTrigger><TabsTrigger value="signup">Registar</TabsTrigger></TabsList>
             <TabsContent value="login" className="space-y-3 pt-3">
               <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
               <div><Label>Palavra-passe</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+              <button
+                type="button"
+                onClick={() => { setResetEmail(email); setShowReset(true); }}
+                className="text-xs text-muted-foreground underline hover:text-foreground"
+              >
+                Esqueci-me da password de login
+              </button>
               <Button className="w-full" onClick={signIn} disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Entrar</Button>
             </TabsContent>
             <TabsContent value="signup" className="space-y-3 pt-3">
@@ -198,6 +259,7 @@ function AuthPage() {
               <Button className="w-full" onClick={signUp} disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Criar conta</Button>
             </TabsContent>
           </Tabs>
+          )}
         </CardContent>
       </Card>
     </div>

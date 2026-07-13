@@ -102,6 +102,29 @@ function PersonalizacaoConfigHub() {
 
 export function DesignContent() {
     const { design, setDesign } = useStore();
+    const PERSONAL_KEY = "cbm:personalDesignDefault";
+    const hasPersonalDefault = typeof window !== "undefined" && !!window.localStorage.getItem(PERSONAL_KEY);
+    const saveCurrentAsDefault = () => {
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(PERSONAL_KEY, JSON.stringify(design));
+        toast.success("Design atual guardado como o teu padrão pessoal.");
+      } catch {
+        toast.error("Não foi possível guardar o padrão pessoal.");
+      }
+    };
+    const restorePersonalDefault = () => {
+      if (typeof window === "undefined") return;
+      const raw = window.localStorage.getItem(PERSONAL_KEY);
+      if (!raw) return toast.error("Ainda não guardaste nenhum padrão pessoal.");
+      try {
+        const parsed = JSON.parse(raw);
+        setDesign(parsed);
+        toast.success("Padrão pessoal restaurado.");
+      } catch {
+        toast.error("Padrão pessoal corrompido.");
+      }
+    };
     const restoreDefaults = () => {
       if (typeof window !== "undefined" && !window.confirm(
         "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? Esta ação não pode ser desfeita."
@@ -142,9 +165,17 @@ export function DesignContent() {
               <p className="text-sm text-muted-foreground">
                 Repõe todo o design da app (cores, tipografia, tamanhos, sidebar, opacidades, imagem de fundo) para a aparência original de fábrica.
               </p>
-              <Button onClick={restoreDefaults} variant="default" className="shrink-0">
-                <RotateCcw className="mr-2 h-4 w-4" /> Ativar personalização default
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={saveCurrentAsDefault} variant="secondary" className="shrink-0">
+                  Guardar atual como padrão
+                </Button>
+                <Button onClick={restorePersonalDefault} variant="outline" className="shrink-0" disabled={!hasPersonalDefault}>
+                  Restaurar padrão pessoal
+                </Button>
+                <Button onClick={restoreDefaults} variant="default" className="shrink-0">
+                  <RotateCcw className="mr-2 h-4 w-4" /> Restaurar de fábrica
+                </Button>
+              </div>
             </CardContent>
           </Card>
           <Card>
