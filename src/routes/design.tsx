@@ -102,6 +102,29 @@ function PersonalizacaoConfigHub() {
 
 export function DesignContent() {
     const { design, setDesign } = useStore();
+    const PERSONAL_KEY = "cbm:personalDesignDefault";
+    const hasPersonalDefault = typeof window !== "undefined" && !!window.localStorage.getItem(PERSONAL_KEY);
+    const saveCurrentAsDefault = () => {
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(PERSONAL_KEY, JSON.stringify(design));
+        toast.success("Design atual guardado como o teu padrão pessoal.");
+      } catch {
+        toast.error("Não foi possível guardar o padrão pessoal.");
+      }
+    };
+    const restorePersonalDefault = () => {
+      if (typeof window === "undefined") return;
+      const raw = window.localStorage.getItem(PERSONAL_KEY);
+      if (!raw) return toast.error("Ainda não guardaste nenhum padrão pessoal.");
+      try {
+        const parsed = JSON.parse(raw);
+        setDesign(parsed);
+        toast.success("Padrão pessoal restaurado.");
+      } catch {
+        toast.error("Padrão pessoal corrompido.");
+      }
+    };
     const restoreDefaults = () => {
       if (typeof window !== "undefined" && !window.confirm(
         "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? Esta ação não pode ser desfeita."
