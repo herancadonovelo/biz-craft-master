@@ -163,6 +163,63 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          external_id: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          received_at: string
+          user_id: string
+        }
+        Insert: {
+          external_id: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          provider: string
+          received_at?: string
+          user_id: string
+        }
+        Update: {
+          external_id?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_tenant_map: {
+        Row: {
+          created_at: string
+          id: string
+          provider: string
+          tenant_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          provider: string
+          tenant_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          provider?: string
+          tenant_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
