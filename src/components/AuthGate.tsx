@@ -7,22 +7,12 @@ import { logSessionEvent } from "@/lib/session-telemetry";
 import { requiredPlanFor } from "@/lib/access-control";
 
 const PUBLIC_ROUTES = ["/auth", "/auth-callback", "/sessao-expirada", "/reset-password"];
-const INLINE_PREMIUM_LOCK_ROUTES = new Set([
-  "/ferramentas-tecnicas",
-  "/editor-moodboards",
-  "/editor-receita",
-  "/conversor-cores",
-  "/contador",
-  "/atelier-sounds",
-]);
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
 const REVALIDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 const REDIRECT_KEY = "cbm:postLoginRedirect";
 
 function canRenderWithoutSession(pathname: string) {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
-  if (requiredPlanFor(pathname) === "light") return true;
-  if (INLINE_PREMIUM_LOCK_ROUTES.has(pathname)) return true;
   if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY)) return true;
   return false;
 }
