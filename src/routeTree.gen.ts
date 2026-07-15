@@ -74,7 +74,6 @@ import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
-import { Route as ApiPublicWebhooksPendingRouteImport } from './routes/api/public/webhooks/pending'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 
 const WhatsappRoute = WhatsappRouteImport.update({
@@ -403,12 +402,6 @@ const ApiPublicWebhooksWhatsappRoute =
     path: '/api/public/webhooks/whatsapp',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicWebhooksPendingRoute =
-  ApiPublicWebhooksPendingRouteImport.update({
-    id: '/api/public/webhooks/pending',
-    path: '/api/public/webhooks/pending',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
   id: '/api/public/webhooks/etsy',
   path: '/api/public/webhooks/etsy',
@@ -481,7 +474,6 @@ export interface FileRoutesByFullPath {
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
-  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesByTo {
@@ -550,7 +542,6 @@ export interface FileRoutesByTo {
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
-  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesById {
@@ -620,7 +611,6 @@ export interface FileRoutesById {
   '/whatsapp': typeof WhatsappRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
-  '/api/public/webhooks/pending': typeof ApiPublicWebhooksPendingRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRouteTypes {
@@ -691,7 +681,6 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
-    | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -760,7 +749,6 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
-    | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
   id:
     | '__root__'
@@ -829,7 +817,6 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
-    | '/api/public/webhooks/pending'
     | '/api/public/webhooks/whatsapp'
   fileRoutesById: FileRoutesById
 }
@@ -898,7 +885,6 @@ export interface RootRouteChildren {
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
-  ApiPublicWebhooksPendingRoute: typeof ApiPublicWebhooksPendingRoute
   ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
 }
 
@@ -1359,13 +1345,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksWhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/webhooks/pending': {
-      id: '/api/public/webhooks/pending'
-      path: '/api/public/webhooks/pending'
-      fullPath: '/api/public/webhooks/pending'
-      preLoaderRoute: typeof ApiPublicWebhooksPendingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/webhooks/etsy': {
       id: '/api/public/webhooks/etsy'
       path: '/api/public/webhooks/etsy'
@@ -1453,7 +1432,6 @@ const rootRouteChildren: RootRouteChildren = {
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
-  ApiPublicWebhooksPendingRoute: ApiPublicWebhooksPendingRoute,
   ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
 }
 export const routeTree = rootRouteImport
