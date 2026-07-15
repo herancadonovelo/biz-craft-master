@@ -34,6 +34,7 @@ import { DailyInspirationNotifier } from "@/components/DailyInspirationNotifier"
 import { RouteAccessGuard } from "@/components/RouteAccessGuard";
 import { UpgradeRedirectWatcher } from "@/components/UpgradeRedirectWatcher";
 import { AuthGate } from "@/components/AuthGate";
+import { WebhookPoller } from "@/components/WebhookPoller";
 import { ScrollUnlockWatcher } from "@/lib/scroll-unlock";
 import { assertAccessControlOnce } from "@/lib/access-control-check";
 
@@ -284,6 +285,7 @@ function RootComponent() {
         <SplashScreen />
         <DailyInspirationNotifier />
         <AuthGate />
+        <WebhookPoller />
         <ScrollUnlockWatcher />
       </AtelierSoundsProvider>
       </SubscriptionProvider>
