@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth-state";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logSessionEvent } from "@/lib/session-telemetry";
-import { requiredPlanFor } from "@/lib/access-control";
 
 const PUBLIC_ROUTES = ["/auth", "/auth-callback", "/sessao-expirada", "/reset-password"];
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
