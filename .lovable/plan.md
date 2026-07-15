@@ -1,58 +1,54 @@
-# Plano — Blocos 1, 3, 4 e 5
+# Fix: Etsy & WhatsApp webhooks are silently dropped
 
-Vou entregar por ordem, num único ciclo de implementação. Cada bloco fica funcional de forma independente.
+## Problem (confirmed)
+`src/lib/webhook-queue.ts` `pushEvent` returns `true` without storing anything and `drain()` returns `[]`. The webhook receivers verify signatures, call `pushEvent`, and ACK — but no event ever reaches the app. `WebhookPoller` was removed and `/api/public/webhooks/pending` returns 410. Result: providers report success, the shop sees nothing.
 
-## 1. Auth & Login
+## Approach
+Replace the in-memory queue with per-tenant persistence in the database, then let each signed-in client fetch and process its own pending events via an authenticated server function.
 
-- **AuthGate reforçado**: enquanto `loading` estiver ativo em qualquer rota que não seja pública, mostrar overlay de verificação (já existe) e **bloquear render da sidebar/menu lateral** até haver `user`. Adicionar guarda no layout que envolve o `AppSidebar` para não montar até `user && !loading`.
-- **Sidebar bloqueada sem login**: no root/layout, envolver o `SidebarProvider`/`AppSidebar` num check `user ? <Sidebar/> : null`, evitando qualquer flash.
-- **Google OAuth**:
-  - Confirmar `prompt: "select_account"` (já existe em `auth.tsx`).
-  - Detectar cancelamento vs erro real: o erro "sign in was cancelled" vem quando a popup é fechada; passar a mostrar toast informativo em vez de erro vermelho e não bloquear o botão.
-  - Mensagens específicas por código: `popup_closed`, `network`, `invalid_redirect`, `provider_disabled`, fallback genérico só como último recurso.
-  - Logs detalhados via `logSessionEvent`: `oauth_start`, `oauth_redirect`, `oauth_callback_received`, `oauth_session_ready`, `oauth_failed` (com motivo).
-- **Email/password**: melhorar tratamento de erro (mensagens PT claras: credenciais inválidas, email não confirmado, etc.).
-- **Rodapé/splash**: já corrigido.
+## Steps
 
-## 3. Sync local (offline)
+### 1. Database (migration)
+Create `public.webhook_events`:
+- `id uuid pk`, `user_id uuid not null`, `provider text check in ('etsy','whatsapp')`, `external_id text not null`, `payload jsonb not null`, `received_at timestamptz default now()`, `processed_at timestamptz`, `unique(user_id, provider, external_id)`.
+- GRANT SELECT, UPDATE on `webhook_events` to `authenticated`; GRANT ALL to `service_role`. No `anon`.
+- Enable RLS. Policy: user can SELECT/UPDATE rows where `auth.uid() = user_id`. No INSERT/DELETE from clients (service role writes from webhook route).
 
-- Introduzir camada de persistência local usando `zustand/middleware/persist` no `useStore` (localStorage), com as mesmas `PERSIST_KEYS` já definidas em `SupabaseSync`.
-- Ordem de hidratação: primeiro carrega do local (instantâneo), depois faz merge com o cloud quando a sessão fica pronta. Estratégia de merge: cloud vence se `updated_at` do cloud for mais recente; caso contrário, faz push do local.
-- Indicador na barra de sync passa a mostrar 3 estados: `Local`, `Sincronizando`, `Sincronizado (nuvem+local)`.
-- Botão manual "Forçar sincronização" nas Configurações.
+Create `public.webhook_tenant_map` to route inbound events to a `user_id`:
+- Etsy: `(user_id, etsy_shop_id text unique)` — populated when the user connects Etsy.
+- WhatsApp: `(user_id, whatsapp_phone_number_id text unique)` — populated when the user connects WhatsApp Cloud API.
+- GRANT SELECT, INSERT, UPDATE, DELETE to `authenticated` scoped by `auth.uid()`; RLS with `auth.uid() = user_id` policies.
 
-## 4. Reset design default
+### 2. Webhook receivers (server routes)
+`src/routes/api/public/webhooks/etsy.ts` and `whatsapp.ts`:
+- Keep HMAC signature verification.
+- Extract the provider tenant key from the payload (Etsy `shop_id`; WhatsApp `entry[].changes[].value.metadata.phone_number_id`).
+- Inside the handler, `await import('@/integrations/supabase/client.server')` and look up `user_id` from `webhook_tenant_map`. If not mapped, return 200 (ACK) and log — do not error-loop the provider.
+- Insert into `webhook_events` with `ON CONFLICT (user_id, provider, external_id) DO NOTHING` for idempotency.
+- Remove `pushEvent` usage entirely; delete `src/lib/webhook-queue.ts`.
 
-- Capturar snapshot dos tokens atuais (cores, tipografia, radius, sombras) em `src/lib/design-defaults.ts` como constante imutável — estes são os defaults "de fábrica" da app tal como está hoje.
-- Na página de personalização/design, adicionar card **"Personalização padrão"** com botão **"Restaurar design default"** que:
-  - Aplica os valores de `design-defaults.ts` ao store `design`.
-  - Confirma via dialog antes de aplicar.
-  - Mostra toast de sucesso.
-- Garantir que o store `design` inicializa a partir destes defaults quando não há valor guardado.
+### 3. Authenticated retrieval
+New `src/lib/webhooks.functions.ts`:
+- `fetchPendingWebhookEvents` (`requireSupabaseAuth`): select unprocessed rows for `context.userId`.
+- `markWebhookEventProcessed({ id })`: set `processed_at = now()` where `id` and `user_id = auth.uid()`.
 
-## 5. Editor de moldes de tricotin
+### 4. Client poller
+Recreate `src/components/WebhookPoller.tsx`:
+- Runs only when `user` is present.
+- Every ~15s, calls `fetchPendingWebhookEvents`, feeds each into existing `processarWebhookEtsy` / `processarWebhookWhatsapp` in `src/lib/store.ts`, then calls `markWebhookEventProcessed`.
+- Mount in `src/routes/__root.tsx` inside the authenticated branch of `AppShell` (never on public routes).
 
-Em `src/routes/editor-moldes.tsx` (ou equivalente atual):
+### 5. Retire the disabled endpoint
+Delete `src/routes/api/public/webhooks/pending.ts` (no longer needed; retrieval is authenticated via server fn).
 
-- **Remover** a UI de visualização dos ângulos criados nos vértices.
-- **Toolbar de desenho** com 3 modos toggle:
-  - **Linha recta** — desenha segmento entre dois cliques.
-  - **Linha curva** — Bézier com pontos de controlo.
-  - **Contínua** (checkbox) — quando ativa, o próximo ponto liga automaticamente ao anterior sem exibir handles/vetores, produzindo um traço fluido tanto em recta como em curva.
-- **Setas guia direccionais**: ícones sobrepostos ao molde indicando ponto de início e direcção de progressão. Editáveis: podem ser arrastadas, rodadas, ou trocadas por outros estilos de seta (fina, grossa, tracejada).
+### 6. Connection UI
+Add fields on the Etsy and WhatsApp settings screens (or reuse existing connection screens) so the user can save their `etsy_shop_id` / `whatsapp_phone_number_id` into `webhook_tenant_map`. Without this mapping, real deliveries cannot be routed to a tenant.
 
----
+## Security notes
+- Webhook route uses service-role client only after HMAC verification.
+- No cross-tenant leakage: retrieval is per `auth.uid()` with RLS.
+- `external_id` unique constraint prevents duplicate processing on provider retries.
 
-## Detalhes técnicos
-
-- **Store persist**: `persist(config, { name: "cbm-store", partialize: (s) => pick(s, PERSIST_KEYS) })`. Merge inteligente no `SupabaseSync` via `updated_at` do row cloud.
-- **AuthGate**: exportar helper `useAuthReady()` e usar no layout root para gate da sidebar.
-- **Design defaults**: `Object.freeze` no snapshot; store `design` faz `initial = { ...DESIGN_DEFAULTS }`.
-- **Editor moldes**: manter tudo em canvas SVG/Konva já existente; novos estados `drawMode: "straight" | "curve"` e `continuous: boolean`; setas como componentes SVG separados com handles arrastáveis.
-- **Logs OAuth**: reutilizar `logSessionEvent`, novos `event` strings (não altera schema DB).
-
-## Fora de âmbito neste ciclo
-
-- Bloco 2 (recuperação/alteração de password) e bloco 6 (limpeza profunda de segurança) — para próximo turno se aprovares.
-
-Confirma que avanço com esta ordem: **1 → 3 → 4 → 5**.
+## Out of scope
+- Backfilling events that arrived while the queue was a no-op (they were never persisted).
+- Real-time push (Supabase Realtime) — can replace polling later.

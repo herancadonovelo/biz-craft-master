@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { pushEvent } from "@/lib/webhook-queue";
 import { createHmac, timingSafeEqual } from "crypto";
 
 function verifyMetaSignature(rawBody: string, signature: string | null, appSecret: string): boolean {
@@ -39,14 +38,39 @@ export const Route = createFileRoute("/api/public/webhooks/whatsapp")({
         }
         let body: any;
         try { body = JSON.parse(raw); } catch { return new Response("invalid json", { status: 400 }); }
-        // Extrai mensagens individuais (idempotência por message id)
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const entries: any[] = body?.entry || [];
         let accepted = 0;
         for (const e of entries) {
           for (const ch of e?.changes || []) {
+            const phoneNumberId = String(ch?.value?.metadata?.phone_number_id ?? "");
+            if (!phoneNumberId) continue;
+            const { data: tenant } = await supabaseAdmin
+              .from("webhook_tenant_map")
+              .select("user_id")
+              .eq("provider", "whatsapp")
+              .eq("tenant_key", phoneNumberId)
+              .maybeSingle();
+            if (!tenant?.user_id) continue;
+            const contacts = ch?.value?.contacts;
             for (const m of ch?.value?.messages || []) {
               const id = String(m.id || crypto.randomUUID());
-              if (pushEvent({ provider: "whatsapp", id, payload: { telefone: m.from, texto: m.text?.body || "[media]", contacts: ch?.value?.contacts }, receivedAt: new Date().toISOString() })) accepted++;
+              const nome = Array.isArray(contacts) ? contacts.find((c: any) => c?.wa_id === m.from)?.profile?.name : undefined;
+              const { error } = await supabaseAdmin.from("webhook_events").insert({
+                user_id: tenant.user_id,
+                provider: "whatsapp",
+                external_id: id,
+                payload: {
+                  id,
+                  telefone: m.from,
+                  texto: m.text?.body || m.button?.text || m.interactive?.button_reply?.title || "[media]",
+                  nome,
+                  direcao: "in",
+                  data: m.timestamp ? new Date(Number(m.timestamp) * 1000).toISOString() : new Date().toISOString(),
+                  raw: m,
+                },
+              });
+              if (!error) accepted++;
             }
           }
         }
