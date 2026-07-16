@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useAuth } from "@/lib/auth-state";
-import { supabase } from "@/integrations/supabase/client";
+import { signOutAndReset } from "@/lib/sign-out";
+import { useQueryClient } from "@tanstack/react-query";
 import { LogIn, LogOut } from "lucide-react";
 import {
   LayoutDashboard,
@@ -281,11 +282,13 @@ export function AppSidebar() {
 
 function AccountFooter() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   return (
     <div className="mt-auto border-t border-sidebar-border px-3 py-2 text-xs">
       {user ? (
         <button
-          onClick={() => supabase.auth.signOut()}
+          onClick={() => { void signOutAndReset({ queryClient, navigate }); }}
           className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sidebar-foreground/80 hover:bg-sidebar-accent"
           title={user.email ?? ""}
         >

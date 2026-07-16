@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { splashPhrases } from "@/lib/splash-phrases";
 import { useStore } from "@/lib/store";
+import { SIGN_OUT_REPLAY_EVENT } from "@/lib/sign-out";
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
 const MIN_DURATION = 7000; // 7s
@@ -117,6 +118,7 @@ const pickPhrase = (list: string[], prev?: string) => {
 
 export function SplashScreen() {
   const [visible, setVisible] = useState(true);
+  const [runToken, setRunToken] = useState(0);
   const [fading, setFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -129,6 +131,21 @@ export function SplashScreen() {
   const [progress, setProgress] = useState(0); // 0..1
   const navigate = useNavigate();
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
+
+  // Replay splash after logout so the transition mirrors the initial boot.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onReplay = () => {
+      setError(null);
+      setAttempt(0);
+      setProgress(0);
+      setFading(false);
+      setVisible(true);
+      setRunToken((v) => v + 1);
+    };
+    window.addEventListener(SIGN_OUT_REPLAY_EVENT, onReplay);
+    return () => window.removeEventListener(SIGN_OUT_REPLAY_EVENT, onReplay);
+  }, []);
 
   // Rotating phrases with fade in/out
   useEffect(() => {
@@ -225,7 +242,7 @@ export function SplashScreen() {
       window.clearTimeout(maxTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [runToken]);
 
   if (!visible) return null;
 
