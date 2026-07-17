@@ -129,7 +129,7 @@ function Dashboard() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="font-display">To-do</CardTitle>
+            <CardTitle className="font-display">Tarefas</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {todos.slice(0, 5).map((t) => (
