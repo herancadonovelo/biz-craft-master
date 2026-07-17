@@ -5,12 +5,12 @@ import type { DesignSettings } from "@/lib/store";
 // Usado para o botão "Restaurar personalização default".
 export const DESIGN_DEFAULTS: DesignSettings = Object.freeze({
   modo: "light",
-  accent: "0.72 0.06 230",
+  accent: "0.65 0.15 290",
   sidebarBg: "0.25 0.025 258",
-  raio: 0.625,
+  raio: 1.35,
   densidade: "confortavel",
-  nomeNegocio: "Atelier Tricotin",
-  precoHoraBase: 12,
+  nomeNegocio: "Craftme Business Master",
+  precoHoraBase: 7,
   idioma: "pt",
   pinContas: "0000",
   toqueAlarme: "ping",
