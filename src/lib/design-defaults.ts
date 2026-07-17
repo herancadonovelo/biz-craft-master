@@ -11,7 +11,7 @@ export const DESIGN_DEFAULTS: DesignSettings = Object.freeze({
   densidade: "confortavel",
   nomeNegocio: "Craftme Business Master",
   precoHoraBase: 7,
-  idioma: "pt",
+  idioma: "en",
   pinContas: "0000",
   toqueAlarme: "ping",
   imagemFundo: "",

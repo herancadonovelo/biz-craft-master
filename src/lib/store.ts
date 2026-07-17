@@ -843,7 +843,7 @@ const seed = (): Pick<
       densidade: "confortavel",
       nomeNegocio: "Craftme Business Master",
       precoHoraBase: 7,
-      idioma: "pt",
+      idioma: "en",
       pinContas: "0000",
       toqueAlarme: "ping",
       imagemFundo: "",
@@ -1081,7 +1081,7 @@ export const useStore = create<State>()(
     }),
     {
       name: "atelier-store-v2",
-      version: 1,
+      version: 2,
       migrate: (persisted: any, version: number) => {
         if (!persisted) return persisted;
         if (version < 1) {
@@ -1094,6 +1094,16 @@ export const useStore = create<State>()(
             if (d.nomeNegocio === "Atelier Tricotin") d.nomeNegocio = "Craftme Business Master";
             if (d.precoHoraBase === 12) d.precoHoraBase = 7;
           }
+        }
+        if (version < 2) {
+          // Utilizadores já existentes têm um idioma implicitamente escolhido
+          // (o antigo default era PT). Marcamos o flag para NÃO lhes mostrar
+          // o novo seletor de idioma inicial — só aparece a novos utilizadores.
+          try {
+            if (typeof window !== "undefined") {
+              window.localStorage.setItem("cbm-language-picked-v1", "1");
+            }
+          } catch {}
         }
         return persisted;
       },
