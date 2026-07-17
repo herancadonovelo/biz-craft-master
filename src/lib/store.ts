@@ -1079,7 +1079,25 @@ export const useStore = create<State>()(
         return { ok: true };
       },
     }),
-    { name: "atelier-store-v2" },
+    {
+      name: "atelier-store-v2",
+      version: 1,
+      migrate: (persisted: any, version: number) => {
+        if (!persisted) return persisted;
+        if (version < 1) {
+          const d = persisted.design;
+          if (d && typeof d === "object") {
+            // Antigos defaults → substituir pelos novos apenas quando o
+            // utilizador ainda não personalizou (valor === default anterior).
+            if (d.accent === "0.72 0.06 230") d.accent = "0.65 0.15 290";
+            if (d.raio === 0.625) d.raio = 1.35;
+            if (d.nomeNegocio === "Atelier Tricotin") d.nomeNegocio = "Craftme Business Master";
+            if (d.precoHoraBase === 12) d.precoHoraBase = 7;
+          }
+        }
+        return persisted;
+      },
+    },
   ),
 );
 
