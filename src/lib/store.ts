@@ -129,6 +129,7 @@ export interface Todo {
   feito: boolean;
   prioridade: "baixa" | "media" | "alta";
   prazo?: string;
+  projetoId?: ID;
 }
 
 export interface CampanhaMarketing {
