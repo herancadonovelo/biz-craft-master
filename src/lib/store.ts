@@ -130,6 +130,9 @@ export interface Todo {
   prioridade: "baixa" | "media" | "alta";
   prazo?: string;
   projetoId?: ID;
+  estado?: "por_fazer" | "em_progresso" | "concluida";
+  lembrete?: string;
+  ordem?: number;
 }
 
 export interface CampanhaMarketing {
