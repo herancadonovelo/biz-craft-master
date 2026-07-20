@@ -29,7 +29,6 @@ export const ROUTE_ACCESS: Record<string, Plan> = {
   "/ferramentas-tecnicas": "premium",
   "/mural": "premium",
   "/crescimento": "premium",
-  "/auditoria": "premium",
   "/etsy": "premium",
   "/etsy-auditoria": "premium",
   "/whatsapp": "premium",

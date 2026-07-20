@@ -19,7 +19,6 @@ const PREMIUM_REQUIRED = [
   "/atelier-sounds",
   "/mural",
   "/crescimento",
-  "/auditoria",
   "/etsy",
   "/whatsapp",
   "/instagram",
