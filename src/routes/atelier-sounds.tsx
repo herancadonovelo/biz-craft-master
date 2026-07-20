@@ -54,12 +54,19 @@ function Page() {
   const s = useAtelierSounds();
   const mm = Math.floor(s.sleepRemaining / 60).toString().padStart(2, "0");
   const ss = (s.sleepRemaining % 60).toString().padStart(2, "0");
+  const [query, setQuery] = useState("");
 
   return (
     <div className="space-y-6">
       <PageHeader title="Craft & Relax Music" description="Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app." />
 
-      {/* Player */}
+      <Tabs defaultValue="lofi">
+        <TabsList>
+          <TabsTrigger value="lofi">Creative Mood Music Player</TabsTrigger>
+          <TabsTrigger value="ambient">Nature ASMR Sounds</TabsTrigger>
+        </TabsList>
+
+        {/* Player */}
       <Card>
         <CardContent className="space-y-4 p-4">
           <div className="flex items-center gap-4">
@@ -89,20 +96,21 @@ function Page() {
         </CardContent>
       </Card>
 
+        <Input
+          placeholder="Pesquisar música ou artista…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="max-w-md"
+        />
+
       {s.loadError && (
         <div role="status" className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200">
           ⚠️ {s.loadError}
         </div>
       )}
 
-      {/* Tabs */}
-      <Tabs defaultValue="lofi">
-        <TabsList>
-          <TabsTrigger value="lofi">Música Lo-Fi & Relax</TabsTrigger>
-          <TabsTrigger value="ambient">Sons da Natureza e Atelier</TabsTrigger>
-        </TabsList>
         <TabsContent value="lofi">
-          <MusicTab />
+          <MusicTab query={query} />
         </TabsContent>
         <TabsContent value="ambient">
           <Card><CardContent className="grid gap-4 p-4 sm:grid-cols-2">
@@ -150,9 +158,13 @@ function Page() {
   );
 }
 
-function MusicTab() {
+function MusicTab({ query = "" }: { query?: string }) {
   const s = useAtelierSounds();
   const fileRef = useRef<HTMLInputElement>(null);
+  const q = query.trim().toLowerCase();
+  const visibleTracks = q
+    ? s.tracks.filter((t) => (t.title + " " + (t.artist || "")).toLowerCase().includes(q))
+    : s.tracks;
   return (
     <div className="space-y-3">
       <Card><CardContent className="flex flex-wrap items-center gap-2 p-4">
@@ -179,13 +191,16 @@ function MusicTab() {
       </CardContent></Card>
 
       <Card><CardContent className="p-0">
-        {s.tracks.length === 0 ? (
+        {visibleTracks.length === 0 ? (
           <div className="p-6 text-center text-sm text-muted-foreground">
-            O leitor está vazio. Adiciona músicas do dispositivo ou sincroniza com o Spotify para começar.
+            {s.tracks.length === 0
+              ? "O leitor está vazio. Adiciona músicas do dispositivo ou sincroniza com o Spotify para começar."
+              : "Sem resultados para essa pesquisa."}
           </div>
         ) : (
           <div className="divide-y">
-            {s.tracks.map((t, i) => {
+            {visibleTracks.map((t) => {
+              const i = s.tracks.findIndex((x) => x.id === t.id);
               const active = i === s.currentIndex;
               return (
                 <div key={t.id} className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-sm ${active ? "bg-muted/40" : ""}`}>
@@ -209,7 +224,6 @@ function MusicTab() {
       </CardContent></Card>
 
       <SpotifyPanel />
-      <AmazonMusicPanel />
     </div>
   );
 }
