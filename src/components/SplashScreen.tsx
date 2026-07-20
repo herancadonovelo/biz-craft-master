@@ -359,7 +359,7 @@ export function SplashScreen() {
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
               <AlertTriangle className="h-5 w-5" />
             </div>
-            <p className="text-sm font-medium text-foreground">Ups, algo correu mal</p>
+            <p className="text-sm font-medium text-foreground">{str.errorTitle}</p>
             <p className="mt-1 text-xs text-foreground/70">{error}</p>
             <button
               type="button"
