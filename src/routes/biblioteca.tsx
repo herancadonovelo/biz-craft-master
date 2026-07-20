@@ -78,13 +78,17 @@ export const Route = createFileRoute("/biblioteca")({
           <Button className="md:col-span-3" onClick={guardar}><Plus className="mr-1 h-4 w-4" />Guardar</Button>
         </CardContent></Card>
 
-        <Input placeholder="Pesquisar…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
-
         <Tabs defaultValue="todos">
           <TabsList className="flex flex-wrap">
             <TabsTrigger value="todos">Todos</TabsTrigger>
             {AREAS_BIB.map((a) => <TabsTrigger key={a} value={a}>{a}</TabsTrigger>)}
           </TabsList>
+          <Input
+            placeholder="Pesquisar…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="mt-4 max-w-sm"
+          />
           <TabsContent value="todos" className="mt-4">
             <Grelha items={filtrados} tt={tt} remove={remove} setAberto={setAberto} />
           </TabsContent>

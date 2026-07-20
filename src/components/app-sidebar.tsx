@@ -144,7 +144,6 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.language"), url: "/idioma", icon: Languages },
       { title: t("nav.profile"), url: "/perfil-negocio", icon: Building },
       { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
-      { title: t("nav.audit"), url: "/auditoria", icon: History },
       { title: "Backup & Restauro", url: "/backup", icon: HardDriveDownload },
       { title: "Planos & Subscrições", url: "/planos", icon: Crown },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },

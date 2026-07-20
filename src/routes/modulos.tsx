@@ -55,7 +55,6 @@ const CATALOGO: { grupo: string; itens: { url: string; titulo: string }[] }[] = 
     { url: "/idioma", titulo: "Idioma" },
     { url: "/perfil-negocio", titulo: "Perfil Pessoal & Negócio" },
     { url: "/sincronizacao", titulo: "Sincronização" },
-    { url: "/auditoria", titulo: "Auditoria" },
   ] },
 ];
 
