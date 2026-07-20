@@ -200,7 +200,13 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
 /* Cabeçalhos globais controlados por Personalização & Configurações */
 [data-testid="page-header-title"],
 [data-testid="page-header-description"] {
-  font-family: var(--page-header-font, "Playfair Display", Georgia, serif) !important;
+  font-family: var(--page-header-font, "Make Summer Fun", "Playfair Display", Georgia, serif) !important;
+}
+
+/* Card titles usam a fonte de display global (Make Summer Fun por defeito) */
+[data-slot="card-title"] {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
 /* Outline button — cor personalizável */
