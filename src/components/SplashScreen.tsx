@@ -14,6 +14,40 @@ const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
 
+const SPLASH_STRINGS: Record<string, {
+  loadingAria: string;
+  retrying: (i: number, n: number) => string;
+  errorTitle: string;
+  errorAttempts: (n: number, msg?: string) => string;
+  retryBtn: string;
+  copyright: string;
+}> = {
+  pt: {
+    loadingAria: "A carregar",
+    retrying: (i, n) => `A tentar novamente… (${i}/${n})`,
+    errorTitle: "Ups, algo correu mal",
+    errorAttempts: (n, msg) => msg
+      ? `Não foi possível iniciar a aplicação após ${n} tentativas: ${msg}`
+      : `Não foi possível iniciar a aplicação após ${n} tentativas. Verifica a tua ligação e tenta novamente.`,
+    retryBtn: "Tentar novamente",
+    copyright: "© 2026 Craft Business Master. Todos os direitos reservados a Art Fusion.",
+  },
+  en: {
+    loadingAria: "Loading",
+    retrying: (i, n) => `Retrying… (${i}/${n})`,
+    errorTitle: "Oops, something went wrong",
+    errorAttempts: (n, msg) => msg
+      ? `Could not start the app after ${n} attempts: ${msg}`
+      : `Could not start the app after ${n} attempts. Check your connection and try again.`,
+    retryBtn: "Try again",
+    copyright: "© 2026 Craft Business Master. All rights reserved to Art Fusion.",
+  },
+};
+
+function stringsFor(idioma: string) {
+  return SPLASH_STRINGS[idioma] ?? SPLASH_STRINGS.en;
+}
+
 function canOpenWithoutSession(pathname: string) {
   if (pathname.startsWith("/auth") || pathname.startsWith("/sessao-expirada")) return true;
   if (pathname === "/reset-password") return true;
@@ -124,6 +158,7 @@ export function SplashScreen() {
   const [attempt, setAttempt] = useState(0);
   const idioma = useStore((s) => s.design.idioma);
   const phrases = splashPhrases[idioma] ?? loadingPhrases;
+  const str = stringsFor(idioma);
   // Inicial determinístico para evitar mismatch de hidratação SSR/cliente.
   // A aleatorização arranca apenas depois do mount, no intervalo abaixo.
   const [phrase, setPhrase] = useState<string>(phrases[0]);
@@ -229,11 +264,7 @@ export function SplashScreen() {
       }
       if (cancelled) return;
       const msg = (lastErr as any)?.message;
-      setError(
-        msg
-          ? `Não foi possível iniciar a aplicação após ${MAX_ATTEMPTS} tentativas: ${msg}`
-          : `Não foi possível iniciar a aplicação após ${MAX_ATTEMPTS} tentativas. Verifica a tua ligação e tenta novamente.`,
-      );
+          setError(str.errorAttempts(MAX_ATTEMPTS, msg));
     })();
 
     return () => {
@@ -281,7 +312,7 @@ export function SplashScreen() {
                 className="relative h-2 w-full overflow-visible rounded-full"
                 style={{ backgroundColor: "rgba(212, 165, 165, 0.25)" }}
                 role="progressbar"
-                aria-label="A carregar"
+                aria-label={str.loadingAria}
                 aria-valuenow={pct}
                 aria-valuemin={0}
                 aria-valuemax={100}
@@ -318,7 +349,7 @@ export function SplashScreen() {
               </div>
               {attempt > 1 && (
                 <p className="text-[11px] text-[#6B5B73]/70">
-                  A tentar novamente… ({attempt}/{MAX_ATTEMPTS})
+                  {str.retrying(attempt, MAX_ATTEMPTS)}
                 </p>
               )}
             </div>
@@ -335,14 +366,14 @@ export function SplashScreen() {
               onClick={() => window.location.reload()}
               className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background transition hover:opacity-90"
             >
-              <RefreshCw className="h-3.5 w-3.5" /> Tentar novamente
+              <RefreshCw className="h-3.5 w-3.5" /> {str.retryBtn}
             </button>
           </div>
         )}
       </div>
       <footer className="pb-[max(1.25rem,env(safe-area-inset-bottom))] px-6 text-center">
         <p className="font-display text-[11px] tracking-wide text-[#6B5B73]/70">
-          © 2026 Craft Business Master. All rights reserved to Art Fusion.
+          {str.copyright}
         </p>
       </footer>
       <style>{`
