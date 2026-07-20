@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore, type Todo } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Trash2, Pencil, Check, X, GripVertical, Bell, CalendarClock, Search } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, GripVertical, Bell, CalendarClock, Search, List, CalendarDays, BellRing } from "lucide-react";
+import { toast } from "sonner";
+import { requestTodoNotificationPermission, useTodoNotifications } from "@/lib/todo-notifications";
 
 type Estado = "por_fazer" | "em_progresso" | "concluida";
 
@@ -32,16 +34,33 @@ export const Route = createFileRoute("/todo")({
   head: () => ({ meta: [{ title: "Tarefas" }] }),
   component: () => {
     const { todos, projetos, add, update, remove } = useStore();
+    useTodoNotifications();
     const [titulo, setTitulo] = useState("");
     const [prioridade, setPrioridade] = useState<"baixa" | "media" | "alta">("media");
     const [projetoId, setProjetoId] = useState<string>("none");
     const [prazo, setPrazo] = useState<string>("");
     const [lembrete, setLembrete] = useState<string>("");
 
-    const [filtroProjeto, setFiltroProjeto] = useState<string>("all");
-    const [ordenar, setOrdenar] = useState<"manual" | "prazo" | "prioridade" | "projeto">("manual");
+    // Persisted prefs
+    const PREFS_KEY = "todo-prefs-v1";
+    const initialPrefs = (() => {
+      try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; }
+    })();
+    const [filtroProjeto, setFiltroProjeto] = useState<string>(initialPrefs.filtroProjeto ?? "all");
+    const [ordenar, setOrdenar] = useState<"manual" | "prazo" | "prioridade" | "projeto">(initialPrefs.ordenar ?? "manual");
     const [pesquisa, setPesquisa] = useState("");
-    const [aba, setAba] = useState<Estado | "todas">("todas");
+    const [aba, setAba] = useState<Estado | "todas">(initialPrefs.aba ?? "todas");
+    const [vista, setVista] = useState<"lista" | "calendario">(initialPrefs.vista ?? "lista");
+    useEffect(() => {
+      try { localStorage.setItem(PREFS_KEY, JSON.stringify({ filtroProjeto, ordenar, aba, vista })); } catch {}
+    }, [filtroProjeto, ordenar, aba, vista]);
+
+    // Bulk selection
+    const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
+    const toggleSelecionada = (id: string) => setSelecionadas((s) => {
+      const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n;
+    });
+    const limparSelecao = () => setSelecionadas(new Set());
 
     const [editId, setEditId] = useState<string | null>(null);
     const [editData, setEditData] = useState<Partial<Todo>>({});
@@ -154,9 +173,74 @@ export const Route = createFileRoute("/todo")({
 
     const nomeProjeto = (id?: string) => projetos.find((p) => p.id === id)?.nome;
 
+    // Bulk actions
+    const bulkSetEstado = (est: Estado) => {
+      selecionadas.forEach((id) => update("todos", id, { estado: est, feito: est === "concluida" }));
+      toast.success(`${selecionadas.size} tarefa(s) atualizada(s)`);
+      limparSelecao();
+    };
+    const bulkSetProjeto = (pid: string) => {
+      selecionadas.forEach((id) => update("todos", id, { projetoId: pid === "none" ? undefined : pid }));
+      toast.success(`${selecionadas.size} tarefa(s) movidas`);
+      limparSelecao();
+    };
+    const bulkRemove = () => {
+      if (!confirm(`Apagar ${selecionadas.size} tarefa(s)?`)) return;
+      selecionadas.forEach((id) => remove("todos", id));
+      limparSelecao();
+    };
+    const marcarTodasVisiveis = () => setSelecionadas(new Set(filtrados.map((t) => t.id)));
+
+    const ativarNotificacoes = async () => {
+      const r = await requestTodoNotificationPermission();
+      if (r === "granted") toast.success("Notificações ativadas");
+      else if (r === "denied") toast.error("Permissão negada nas definições do browser");
+      else if (r === "unsupported") toast.error("Este dispositivo não suporta notificações");
+    };
+
+    // Calendar data
+    const [mesRef, setMesRef] = useState(() => { const d = new Date(); d.setDate(1); return d; });
+    const porDia = useMemo(() => {
+      const map = new Map<string, Todo[]>();
+      filtrados.forEach((t) => {
+        if (!t.prazo) return;
+        const k = t.prazo.slice(0, 10);
+        if (!map.has(k)) map.set(k, []);
+        map.get(k)!.push(t);
+      });
+      return map;
+    }, [filtrados]);
+    const diasDoMes = useMemo(() => {
+      const y = mesRef.getFullYear(), m = mesRef.getMonth();
+      const first = new Date(y, m, 1);
+      const startDow = (first.getDay() + 6) % 7; // segunda=0
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const cells: { date: Date | null; key: string }[] = [];
+      for (let i = 0; i < startDow; i++) cells.push({ date: null, key: `pad-${i}` });
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(y, m, d);
+        cells.push({ date, key: date.toISOString().slice(0, 10) });
+      }
+      return cells;
+    }, [mesRef]);
+
     return (
       <div className="space-y-6">
         <PageHeader title="Tarefas" description="Tarefas do atelier." />
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-md border">
+            <Button size="sm" variant={vista === "lista" ? "default" : "ghost"} onClick={() => setVista("lista")}>
+              <List className="mr-1 h-4 w-4" />Lista
+            </Button>
+            <Button size="sm" variant={vista === "calendario" ? "default" : "ghost"} onClick={() => setVista("calendario")}>
+              <CalendarDays className="mr-1 h-4 w-4" />Calendário
+            </Button>
+          </div>
+          <Button size="sm" variant="outline" onClick={ativarNotificacoes}>
+            <BellRing className="mr-1 h-4 w-4" />Ativar notificações
+          </Button>
+        </div>
 
         <Card>
           <CardContent className="grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -230,6 +314,64 @@ export const Route = createFileRoute("/todo")({
             <TabsTrigger value="concluida">Concluídas ({contas.concluida})</TabsTrigger>
           </TabsList>
           <TabsContent value={aba} className="space-y-2 mt-4">
+          {selecionadas.size > 0 && (
+            <div className="sticky top-2 z-10 flex flex-wrap items-center gap-2 rounded-md border bg-card p-2 shadow-sm">
+              <span className="text-sm font-medium">{selecionadas.size} selecionada(s)</span>
+              <Select onValueChange={(v: any) => bulkSetEstado(v)}>
+                <SelectTrigger className="h-8 w-[150px] text-xs"><SelectValue placeholder="Alterar estado" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="por_fazer">Por fazer</SelectItem>
+                  <SelectItem value="em_progresso">Em progresso</SelectItem>
+                  <SelectItem value="concluida">Concluída</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select onValueChange={(v) => bulkSetProjeto(v)}>
+                <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Mover para projeto" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem projeto</SelectItem>
+                  {projetos.map((p) => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}
+                </SelectContent>
+              </Select>
+              <Button size="sm" variant="ghost" onClick={marcarTodasVisiveis}>Selecionar visíveis</Button>
+              <Button size="sm" variant="ghost" onClick={limparSelecao}>Limpar</Button>
+              <Button size="sm" variant="destructive" onClick={bulkRemove}><Trash2 className="mr-1 h-4 w-4" />Apagar</Button>
+            </div>
+          )}
+          {vista === "calendario" ? (
+            <Card><CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Button size="sm" variant="ghost" onClick={() => setMesRef((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}>‹</Button>
+                <div className="font-display font-semibold">
+                  {mesRef.toLocaleString(undefined, { month: "long", year: "numeric" })}
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setMesRef((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}>›</Button>
+              </div>
+              <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
+                {["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map((d) => <div key={d}>{d}</div>)}
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {diasDoMes.map((c) => {
+                  if (!c.date) return <div key={c.key} className="h-20 rounded-md bg-muted/30" />;
+                  const items = porDia.get(c.key) ?? [];
+                  const hoje = c.key === new Date().toISOString().slice(0, 10);
+                  return (
+                    <div key={c.key} className={`h-20 rounded-md border p-1 text-left text-xs overflow-hidden ${hoje ? "border-primary" : "border-border"}`}>
+                      <div className="font-semibold">{c.date.getDate()}</div>
+                      <div className="space-y-0.5">
+                        {items.slice(0, 3).map((t) => (
+                          <div key={t.id} className={`truncate rounded px-1 ${isVencida(t) ? "bg-destructive/15 text-destructive" : venceEmBreve(t) ? "bg-amber-500/15" : "bg-primary/10"}`} title={t.titulo}>
+                            {t.titulo}
+                          </div>
+                        ))}
+                        {items.length > 3 && <div className="text-muted-foreground">+{items.length - 3}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">A vista de calendário respeita os filtros de projeto e estado acima.</p>
+            </CardContent></Card>
+          ) : (<>
           {filtrados.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-6">Sem tarefas neste filtro.</p>
           )}
@@ -294,6 +436,11 @@ export const Route = createFileRoute("/todo")({
                 ) : (
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
+                      <Checkbox
+                        checked={selecionadas.has(t.id)}
+                        onCheckedChange={() => toggleSelecionada(t.id)}
+                        aria-label="Selecionar tarefa"
+                      />
                       {ordenar === "manual" && (
                         <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab shrink-0" />
                       )}
@@ -336,6 +483,7 @@ export const Route = createFileRoute("/todo")({
               </div>
             );
           })}
+          </>)}
           </TabsContent>
         </Tabs>
       </div>
