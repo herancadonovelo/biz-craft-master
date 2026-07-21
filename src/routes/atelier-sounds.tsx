@@ -96,13 +96,6 @@ function Page() {
         </CardContent>
       </Card>
 
-        <Input
-          placeholder="Pesquisar música ou artista…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="max-w-md"
-        />
-
       {s.loadError && (
         <div role="status" className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200">
           ⚠️ {s.loadError}
@@ -110,6 +103,12 @@ function Page() {
       )}
 
         <TabsContent value="lofi">
+          <Input
+            placeholder="Pesquisar música ou artista…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="mb-3 max-w-md"
+          />
           <MusicTab query={query} />
         </TabsContent>
         <TabsContent value="ambient">
