@@ -567,25 +567,8 @@ function TricotinTab() {
       }
       ctx.stroke();
 
-      // Layer 2: guides (dashed gray) from curve nodes to control
-      ctx.save();
-      ctx.setLineDash([4, 4]); ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1;
-      nodes.forEach((n, i) => {
-        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          const prev = nodes[i - 1] ?? (isClosedPath ? nodes[nodes.length - 1] : null);
-          ctx.beginPath(); ctx.moveTo(n.ctrlX, n.ctrlY); ctx.lineTo(n.x, n.y); ctx.stroke();
-          if (prev) { ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(n.ctrlX, n.ctrlY); ctx.stroke(); }
-        }
-      });
-      ctx.restore();
-
-      // Layer 3: nodes (cinza 70% escuro) & control handles (cinza mais escuro c/ contorno branco)
+      // Layer 2: nodes principais (sem linhas de apoio nem handles de controlo)
       nodes.forEach((n) => {
-        if (n.type === "curve" && n.ctrlX != null && n.ctrlY != null) {
-          ctx.fillStyle = "#333333";
-          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(n.ctrlX, n.ctrlY, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        }
         ctx.fillStyle = "#4d4d4d";
         ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
