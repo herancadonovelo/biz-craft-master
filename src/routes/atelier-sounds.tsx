@@ -54,7 +54,12 @@ function Page() {
   const s = useAtelierSounds();
   const mm = Math.floor(s.sleepRemaining / 60).toString().padStart(2, "0");
   const ss = (s.sleepRemaining % 60).toString().padStart(2, "0");
-  const [query, setQuery] = useState("");
+  const [musicQuery, setMusicQuery] = useState("");
+  const [ambientQuery, setAmbientQuery] = useState("");
+  const aq = ambientQuery.trim().toLowerCase();
+  const visibleAmbients = aq
+    ? AMBIENT_LIST.filter((a) => (a.label + " " + a.key).toLowerCase().includes(aq))
+    : AMBIENT_LIST;
 
   return (
     <div className="space-y-6">
@@ -104,16 +109,27 @@ function Page() {
 
         <TabsContent value="lofi">
           <Input
-            placeholder="Pesquisar música ou artista…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search music or artist…"
+            value={musicQuery}
+            onChange={(e) => setMusicQuery(e.target.value)}
             className="mb-3 max-w-md"
+            aria-label="Search music or artist"
           />
-          <MusicTab query={query} />
+          <MusicTab query={musicQuery} />
         </TabsContent>
         <TabsContent value="ambient">
+          <Input
+            placeholder="Search ambient sound…"
+            value={ambientQuery}
+            onChange={(e) => setAmbientQuery(e.target.value)}
+            className="mb-3 max-w-md"
+            aria-label="Search ambient sound"
+          />
           <Card><CardContent className="grid gap-4 p-4 sm:grid-cols-2">
-            {AMBIENT_LIST.map((a) => {
+            {visibleAmbients.length === 0 && (
+              <div className="col-span-full p-4 text-center text-sm text-muted-foreground">Sem resultados para essa pesquisa.</div>
+            )}
+            {visibleAmbients.map((a) => {
               const st = s.ambient[a.key as AmbientKey];
               const Icon = AMBIENT_ICONS[a.key as AmbientKey];
               return (
