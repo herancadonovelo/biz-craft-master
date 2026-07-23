@@ -26,7 +26,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --font-display: "Make Summer Fun", "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -192,21 +192,13 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
 /* Cabeçalhos globais controlados por Personalização & Configurações */
 [data-testid="page-header-title"],
 [data-testid="page-header-description"] {
-  font-family: var(--page-header-font, "Make Summer Fun", "Playfair Display", Georgia, serif) !important;
+  font-family: var(--page-header-font, "Playfair Display", Georgia, serif);
 }
 
-/* Card titles usam a fonte de display global (Make Summer Fun por defeito) */
+/* Card titles usam a fonte de display global (Sora/Manrope) */
 [data-slot="card-title"] {
   font-family: var(--font-display);
   letter-spacing: 0.01em;
-}
-
-/* Reforço tipográfico limitado aos cabeçalhos de página (PageHeader),
-   para não sobrepor utilitários Tailwind nem a preferência do utilizador
-   (--font-size-title) em h1–h6, card titles ou elementos .font-display. */
-[data-testid="page-header-title"],
-[data-testid="page-header-description"] {
-  font-weight: 800;
 }
 
 /* Outline button — cor personalizável */
