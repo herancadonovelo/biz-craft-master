@@ -209,25 +209,13 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
   letter-spacing: 0.01em;
 }
 
-/* Reforço tipográfico: onde a fonte "Make Summer Fun" é aplicada,
-   aumenta ~40% e coloca em negrito para leitura consistente. */
-h1, h2, h3, h4, h5, h6,
-[data-slot="card-title"],
+/* Reforço tipográfico limitado aos cabeçalhos de página (PageHeader),
+   para não sobrepor utilitários Tailwind nem a preferência do utilizador
+   (--font-size-title) em h1–h6, card titles ou elementos .font-display. */
 [data-testid="page-header-title"],
-[data-testid="page-header-description"],
-.font-display {
-  font-weight: 800 !important;
+[data-testid="page-header-description"] {
+  font-weight: 800;
 }
-h1 { font-size: 2.8em; }
-h2 { font-size: 2.1em; }
-h3 { font-size: 1.68em; }
-h4 { font-size: 1.4em; }
-h5 { font-size: 1.19em; }
-h6 { font-size: 1.05em; }
-[data-slot="card-title"] { font-size: 1.4em; }
-[data-testid="page-header-title"] { font-size: 2.94rem; }
-[data-testid="page-header-description"] { font-size: 1.4rem; }
-.font-display { font-size: 1.4em; }
 
 /* Outline button — cor personalizável */
 .bg-background.border-input,
