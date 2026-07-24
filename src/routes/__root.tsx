@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import sewingIcon from "@/assets/sewing-machine-transparent.png.asset.json";
+import sewingIcon from "@/assets/yarn-menu-icon.png.asset.json";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
