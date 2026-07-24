@@ -77,6 +77,11 @@ import { useT } from "@/lib/i18n";
 import { useSubscription } from "@/lib/subscription";
 import { requiredPlanFor } from "@/lib/access-control";
 import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
+import yarnBallIcon from "@/assets/yarn-ball-icon.png.asset.json";
+
+const YarnBallIcon = ({ className }: { className?: string }) => (
+  <img src={yarnBallIcon.url} alt="" aria-hidden="true" className={className} />
+);
 
 const getGroups = (t: (k: string) => string) => [
   {
@@ -92,7 +97,7 @@ const getGroups = (t: (k: string) => string) => [
     label: t("nav.operation"),
     items: [
       { title: "Encomendas", url: "/encomendas", icon: ShoppingBag },
-      { title: "Projetos & Criação De Projeto", url: "/projetos", icon: FolderPlus },
+      { title: "Projetos & Criação De Projeto", url: "/projetos", icon: YarnBallIcon },
       { title: t("nav.calculator"), url: "/calculadora", icon: Calculator },
       { title: t("nav.hours"), url: "/horas", icon: Clock },
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
