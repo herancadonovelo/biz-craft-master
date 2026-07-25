@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useStore } from "@/lib/store";
 import { translateBatch } from "@/lib/translate.functions";
+import { useAuth } from "@/lib/auth-state";
 
 const ATTRS = ["placeholder", "title", "aria-label"] as const;
 const SKIP_TAGS = new Set([
@@ -39,7 +40,7 @@ type Job = {
 
 export function AutoTranslator() {
   const lang = useStore((s) => s.design.idioma);
-  
+  const { user, loading } = useAuth();
   const setTraducao = useStore((s) => s.setTraducao);
   const run = useServerFn(translateBatch);
   const queueRef = useRef<Map<string, Job[]>>(new Map());
@@ -51,11 +52,16 @@ export function AutoTranslator() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // translateBatch requires an authenticated session. Skip entirely on
+    // public routes / while the session is still loading — otherwise the
+    // server fn 401s with "Unauthorized: No authorization header provided".
+    if (loading || !user) return;
     const getLangCache = (): Record<string, string> => ((useStore.getState().traducoes as any) || {})[lang] || {};
 
     const flush = async () => {
       timerRef.current = null;
       if (lang === "pt") return;
+      if (!user) return;
       const q = queueRef.current;
       queueRef.current = new Map();
       const sources = Array.from(q.keys()).slice(0, 60);
@@ -203,7 +209,7 @@ export function AutoTranslator() {
       obs.disconnect();
       if (timerRef.current != null) { window.clearTimeout(timerRef.current); timerRef.current = null; }
     };
-  }, [lang, run, setTraducao]);
+  }, [lang, run, setTraducao, user, loading]);
 
   return null;
 }
