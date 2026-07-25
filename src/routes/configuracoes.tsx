@@ -16,6 +16,8 @@ import { useAuth } from "@/lib/auth-state";
 import { useAuthedServerFn } from "@/lib/use-authed-server-fn";
 import { deleteMyAccountFn } from "@/lib/account.functions";
 import { signOutAndReset } from "@/lib/sign-out";
+import { Smartphone } from "lucide-react";
+import { Link as RLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações" }] }),
@@ -48,6 +50,7 @@ export function ConfiguracoesContent() {
           ))}
         </div>
         <SecurityAndAccountCard />
+        <TwoFactorCard />
         <Card><CardContent className="space-y-3 p-4">
           <h3 className="font-display text-lg flex items-center gap-2"><Eye className="h-5 w-5" />Modo Preview</h3>
           <p className="text-sm text-muted-foreground">
