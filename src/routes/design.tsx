@@ -102,28 +102,20 @@ function PersonalizacaoConfigHub() {
 
 export function DesignContent() {
     const { design, setDesign } = useStore();
-    const PERSONAL_KEY = "cbm:personalDesignDefault";
-    const hasPersonalDefault = typeof window !== "undefined" && !!window.localStorage.getItem(PERSONAL_KEY);
+    const personalDefault = useStore((s) => (s as any).personalDesignDefault) as any;
+    const hasPersonalDefault = !!personalDefault;
     const saveCurrentAsDefault = () => {
-      if (typeof window === "undefined") return;
       try {
-        window.localStorage.setItem(PERSONAL_KEY, JSON.stringify(design));
-        toast.success("Design atual guardado como o teu padrão pessoal.");
+        useStore.setState({ personalDesignDefault: { ...design } } as any);
+        toast.success("Design guardado como padrão pessoal (sincroniza em todos os dispositivos).");
       } catch {
         toast.error("Não foi possível guardar o padrão pessoal.");
       }
     };
     const restorePersonalDefault = () => {
-      if (typeof window === "undefined") return;
-      const raw = window.localStorage.getItem(PERSONAL_KEY);
-      if (!raw) return toast.error("Ainda não guardaste nenhum padrão pessoal.");
-      try {
-        const parsed = JSON.parse(raw);
-        setDesign(parsed);
-        toast.success("Padrão pessoal restaurado.");
-      } catch {
-        toast.error("Padrão pessoal corrompido.");
-      }
+      if (!personalDefault) return toast.error("Ainda não guardaste nenhum padrão pessoal.");
+      setDesign(personalDefault);
+      toast.success("Padrão pessoal restaurado.");
     };
     const restoreDefaults = () => {
       if (typeof window !== "undefined" && !window.confirm(
