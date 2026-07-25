@@ -1,54 +1,95 @@
-# Fix: Etsy & WhatsApp webhooks are silently dropped
+# Plano de implementação
 
-## Problem (confirmed)
-`src/lib/webhook-queue.ts` `pushEvent` returns `true` without storing anything and `drain()` returns `[]`. The webhook receivers verify signatures, call `pushEvent`, and ACK — but no event ever reaches the app. `WebhookPoller` was removed and `/api/public/webhooks/pending` returns 410. Result: providers report success, the shop sees nothing.
+Duas frentes independentes, entregues na mesma vaga. Cada uma tem testes E2E próprios.
 
-## Approach
-Replace the in-memory queue with per-tenant persistence in the database, then let each signed-in client fetch and process its own pending events via an authenticated server function.
+---
 
-## Steps
+## Parte A — 2FA obrigatório (Supabase Phone Auth nativo)
 
-### 1. Database (migration)
-Create `public.webhook_events`:
-- `id uuid pk`, `user_id uuid not null`, `provider text check in ('etsy','whatsapp')`, `external_id text not null`, `payload jsonb not null`, `received_at timestamptz default now()`, `processed_at timestamptz`, `unique(user_id, provider, external_id)`.
-- GRANT SELECT, UPDATE on `webhook_events` to `authenticated`; GRANT ALL to `service_role`. No `anon`.
-- Enable RLS. Policy: user can SELECT/UPDATE rows where `auth.uid() = user_id`. No INSERT/DELETE from clients (service role writes from webhook route).
+Fluxo: email/password → se `profiles.phone_verified = false` → força enrolamento de telemóvel → envia OTP SMS → valida → cria sessão "2FA-completa". Utilizadores existentes ficam bloqueados no próximo login até associarem telemóvel.
 
-Create `public.webhook_tenant_map` to route inbound events to a `user_id`:
-- Etsy: `(user_id, etsy_shop_id text unique)` — populated when the user connects Etsy.
-- WhatsApp: `(user_id, whatsapp_phone_number_id text unique)` — populated when the user connects WhatsApp Cloud API.
-- GRANT SELECT, INSERT, UPDATE, DELETE to `authenticated` scoped by `auth.uid()`; RLS with `auth.uid() = user_id` policies.
+### Schema (migração)
+- `profiles`: adicionar `phone TEXT`, `phone_verified BOOLEAN DEFAULT false`, `phone_verified_at TIMESTAMPTZ`, `last_2fa_at TIMESTAMPTZ`.
+- Tabela `auth_otp_attempts` (rate-limit / lockout): `user_id`, `kind` (login|enroll), `attempted_at`, `success`. RLS: só o próprio user lê; INSERT via server fn.
+- RPC `mark_phone_verified(_phone text)` SECURITY DEFINER: grava telemóvel + `phone_verified=true` no profile do `auth.uid()`.
+- Trigger em `auth.users` — NÃO tocamos (schema auth é intocável). Em vez disso, `AuthGate` faz o check pós-login.
 
-### 2. Webhook receivers (server routes)
-`src/routes/api/public/webhooks/etsy.ts` and `whatsapp.ts`:
-- Keep HMAC signature verification.
-- Extract the provider tenant key from the payload (Etsy `shop_id`; WhatsApp `entry[].changes[].value.metadata.phone_number_id`).
-- Inside the handler, `await import('@/integrations/supabase/client.server')` and look up `user_id` from `webhook_tenant_map`. If not mapped, return 200 (ACK) and log — do not error-loop the provider.
-- Insert into `webhook_events` with `ON CONFLICT (user_id, provider, external_id) DO NOTHING` for idempotency.
-- Remove `pushEvent` usage entirely; delete `src/lib/webhook-queue.ts`.
+### Server functions (`src/lib/auth-2fa.functions.ts` — thin wrapper)
+- `sendLoginOtpFn({ phone? })` — usa `supabaseAdmin.auth.admin` para enviar OTP SMS via Supabase Phone Auth. Rate-limit: máx 3 envios / 10min por user (consulta `auth_otp_attempts`).
+- `verifyLoginOtpFn({ token })` — chama `supabase.auth.verifyOtp({ type: 'sms' })`, marca `last_2fa_at`, retorna sessão.
+- `sendPhoneEnrollOtpFn({ phone })` — para enrolamento inicial ou troca de número. Validação E.164.
+- `confirmPhoneEnrollFn({ phone, token })` — verifica OTP e chama `mark_phone_verified`.
 
-### 3. Authenticated retrieval
-New `src/lib/webhooks.functions.ts`:
-- `fetchPendingWebhookEvents` (`requireSupabaseAuth`): select unprocessed rows for `context.userId`.
-- `markWebhookEventProcessed({ id })`: set `processed_at = now()` where `id` and `user_id = auth.uid()`.
+Erros amigáveis mapeados: `invalid_otp`, `expired_otp`, `rate_limited`, `sms_provider_offline`, `phone_invalid_format`, `phone_already_taken`. Helper `mapOtpError(e)` em `src/lib/auth-2fa.server.ts`.
 
-### 4. Client poller
-Recreate `src/components/WebhookPoller.tsx`:
-- Runs only when `user` is present.
-- Every ~15s, calls `fetchPendingWebhookEvents`, feeds each into existing `processarWebhookEtsy` / `processarWebhookWhatsapp` in `src/lib/store.ts`, then calls `markWebhookEventProcessed`.
-- Mount in `src/routes/__root.tsx` inside the authenticated branch of `AppShell` (never on public routes).
+### UI
+- **`/auth/verify-2fa`** (rota pública): input 6 dígitos (auto-advance + paste), contador de reenvio 60s, botão "Reenviar código", link "Trocar de número" (só se `phone_verified=false`). Bloqueia navegação para outras rotas até verificar.
+- **`AuthGate`**: após login, se `phone_verified=false` → `/auth/verify-2fa?enroll=1` (mostra input de telemóvel primeiro). Se `phone_verified=true` mas sem `last_2fa_at` na sessão atual → mesma rota sem `enroll`.
+- **`/configuracoes` → Segurança & Conta**: novo bloco "Número de telemóvel (WhatsApp / 2FA)" com input + botão "Enviar código" + input OTP + "Confirmar". Mostra número atual mascarado (`+351 •• •• 406`).
 
-### 5. Retire the disabled endpoint
-Delete `src/routes/api/public/webhooks/pending.ts` (no longer needed; retrieval is authenticated via server fn).
+### Config
+- Documentar em chat que o user precisa activar Phone provider no Supabase Auth (dashboard interno da Cloud) e configurar Twilio/MessageBird lá — sem código.
 
-### 6. Connection UI
-Add fields on the Etsy and WhatsApp settings screens (or reuse existing connection screens) so the user can save their `etsy_shop_id` / `whatsapp_phone_number_id` into `webhook_tenant_map`. Without this mapping, real deliveries cannot be routed to a tenant.
+### Testes E2E
+- `e2e/2fa-enroll-forced.spec.ts`: user existente sem telemóvel → é redirecionado para enrolamento após login; não consegue chegar a `/dashboard` até verificar.
+- `e2e/2fa-otp-resend-lockout.spec.ts`: reenviar antes do contador → bloqueado; 5 tentativas erradas → mensagem de lockout.
+- `e2e/2fa-happy-path.spec.ts`: user com telemóvel → recebe OTP mock → verifica → chega ao dashboard. (Usa hook de dev que expõe OTP no header em ambiente de teste.)
 
-## Security notes
-- Webhook route uses service-role client only after HMAC verification.
-- No cross-tenant leakage: retrieval is per `auth.uid()` with RLS.
-- `external_id` unique constraint prevents duplicate processing on provider retries.
+---
 
-## Out of scope
-- Backfilling events that arrived while the queue was a no-op (they were never persisted).
-- Real-time push (Supabase Realtime) — can replace polling later.
+## Parte B — Hardening do i18n (erro serverFn 500-char)
+
+### B1. Erro detalhado no runtime
+- `translateBatch` retorna, quando falha validação, `{ ok: false, error: 'string_too_long', offending: [{ index, length, preview }] }` em vez de crashar.
+- Cliente (`src/lib/i18n.ts` — `translateStrings`) captura e loga: `[i18n] String too long — key="quem-somos.paragrafo3", ns="page", file="src/routes/quem-somos.tsx", length=1247, limit=5000`. Toast dev-only.
+- Para isto, o wrapper `t()` que chama `translateStrings` passa metadata `{ key, ns, source }` num Map paralelo aos strings enviados.
+
+### B2. Split automático transparente
+- Novo helper `splitLongString(s, limit=4800)` corta em chunks respeitando limites de frase (`. `, `\n\n`, `\n`, espaço).
+- `translateStrings` deteta strings > limit, envia como N entradas numeradas `key__part_1`, `key__part_2`… e recombina no cache com `.join(' ')` antes de devolver.
+- Transparente para os componentes — recebem uma única string traduzida.
+
+### B3. Validação build-time
+- Script `scripts/i18n-length-check.mjs`: percorre `src/lib/i18n.ts` dicionário PT/EN + strings literais em `<Trans>` / `t()` + conteúdos JSX longos em rotas listadas. Falha com exit 1 se algum string > 5000 chars, imprimindo `key`, `file:line`, comprimento.
+- `package.json`: `"i18n:check": "node scripts/i18n-length-check.mjs"`.
+- `.github/workflows/i18n-audit.yml`: adicionar step `bun run i18n:check` ao job existente.
+
+### B4. E2E fresh-account
+- `e2e/i18n-no-serverfn-errors.spec.ts`: cria conta descartável → percorre `/quem-somos`, `/planos`, `/configuracoes`, `/dashboard` em PT e EN → afirma zero requests para `/_serverFn/*` com status 400/500 → afirma zero `console.error` matching `too_big|String must contain`.
+
+---
+
+## Detalhes técnicos
+
+**Ficheiros novos**
+```
+src/lib/auth-2fa.functions.ts
+src/lib/auth-2fa.server.ts
+src/routes/auth.verify-2fa.tsx
+scripts/i18n-length-check.mjs
+e2e/2fa-enroll-forced.spec.ts
+e2e/2fa-otp-resend-lockout.spec.ts
+e2e/2fa-happy-path.spec.ts
+e2e/i18n-no-serverfn-errors.spec.ts
+```
+
+**Ficheiros editados**
+```
+src/lib/translate.functions.ts   (error shape rico)
+src/lib/i18n.ts                  (split, metadata, log detalhado)
+src/components/AuthGate.tsx      (gate 2FA)
+src/routes/configuracoes.tsx     (bloco telemóvel + OTP)
+src/routes/auth.tsx              (banner "verifica telemóvel")
+package.json                     (i18n:check script)
+.github/workflows/i18n-audit.yml (step novo)
+```
+
+**Migração SQL** (schema-only; RLS + GRANTs em cada tabela nova).
+
+**Não incluído** (fora do pedido explícito):
+- Recovery codes para 2FA (posso adicionar depois se pedires).
+- TOTP/Authenticator app — só SMS conforme decisão.
+
+---
+
+Confirmas para eu implementar? Assim que aprovares, entrego tudo numa passagem.
