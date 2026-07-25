@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
@@ -251,7 +251,7 @@ function TwoFactorCard() {
 
   const E164 = /^\+[1-9]\d{6,14}$/;
 
-  useState(() => { void loadStatus(); return undefined; });
+  useEffect(() => { void loadStatus(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user?.id]);
 
   async function loadStatus() {
     if (!user) return;
@@ -259,11 +259,11 @@ function TwoFactorCard() {
     if (data) setStatus({ verified: !!data.phone_verified, masked: data.phone ? data.phone.slice(0, 4) + " •• •• " + data.phone.slice(-3) : null });
   }
 
-  useState(() => {
-    if (cooldown <= 0) return undefined;
+  useEffect(() => {
+    if (cooldown <= 0) return;
     const id = window.setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
     return () => window.clearInterval(id);
-  });
+  }, [cooldown]);
 
   async function sendCode() {
     if (!E164.test(phone)) return toast.error("Formato inválido — usa +351912345678.");
