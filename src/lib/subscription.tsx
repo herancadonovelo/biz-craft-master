@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
+import { cancelSubscriptionFn, startSubscriptionTrialFn, redeemPromoCodeFn } from "@/lib/subscription.functions";
 
 export type Plan = "light" | "base" | "premium" | "premium_vitalicio";
 const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2, premium_vitalicio: 3 };
@@ -163,8 +164,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
     if (next === "light") {
-      const { error } = await supabase.rpc("cancel_subscription" as never);
-      if (error) { toast.error("Falha a cancelar plano"); return; }
+      try {
+        await cancelSubscriptionFn();
+      } catch { toast.error("Falha a cancelar plano"); return; }
       setPlanState("light"); setTrialEnds(null); setBillingCycle(cycle);
       toast.success("Subscrição cancelada — voltaste ao plano Light.");
       return;
@@ -174,9 +176,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   const startTrial = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para iniciar o teste"); return; }
-    const { data, error } = await supabase.rpc("start_subscription_trial" as never, { _plan: next, _cycle: cycle } as never);
-    if (error) { toast.error("Falha a iniciar teste"); return; }
-    const res = data as { ok: boolean; message?: string; trial_ends?: string } | null;
+    let res: { ok: boolean; message?: string; trial_ends?: string } | null = null;
+    try {
+      res = await startSubscriptionTrialFn({ data: { plan: next as "base" | "premium", cycle } });
+    } catch { toast.error("Falha a iniciar teste"); return; }
     if (!res?.ok) { toast.error(res?.message ?? "Não foi possível iniciar o teste."); return; }
     const ends = res.trial_ends ? new Date(res.trial_ends) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     setPlanState(next); setTrialEnds(ends); setBillingCycle(cycle);
@@ -200,9 +203,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const code = rawCode.trim();
     if (!code) return { ok: false, message: "Introduz um código." };
     if (!user) return { ok: false, message: "Inicia sessão para aplicar um código." };
-    const { data, error } = await supabase.rpc("redeem_promo_code" as never, { _code: code } as never);
-    if (error) return { ok: false, message: "Erro a validar o código." };
-    const res = data as { ok: boolean; message: string; lifetime?: boolean; discount_percent?: number; code?: string } | null;
+    type RedeemRes = { ok: boolean; message: string; lifetime?: boolean; discount_percent?: number; code?: string };
+    let res: RedeemRes | null = null;
+    try {
+      res = (await redeemPromoCodeFn({ data: { code } })) as unknown as RedeemRes;
+    } catch { return { ok: false, message: "Erro a validar o código." }; }
     if (!res) return { ok: false, message: "Resposta inválida do servidor." };
     if (!res.ok) return { ok: false, message: res.message };
     if (res.lifetime) {
