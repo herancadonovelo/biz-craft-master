@@ -368,7 +368,7 @@ function SewingMenuTrigger() {
       <img
         src={sewingIcon.url}
         alt=""
-        className="h-[2.1rem] w-[2.1rem] object-contain"
+        className="h-[2.73rem] w-[2.73rem] object-contain"
         draggable={false}
       />
     </button>
