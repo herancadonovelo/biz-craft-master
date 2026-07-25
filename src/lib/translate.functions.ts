@@ -16,7 +16,7 @@ export const translateBatch = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       target: z.string().min(2).max(5),
-      strings: z.array(z.string().min(1).max(500)).min(1).max(80),
+      strings: z.array(z.string().min(1).max(5000)).min(1).max(80),
     }),
   )
   .handler(async ({ data }) => {
