@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium"
+    "test:e2e:install": "playwright install chromium",
+    "i18n:audit": "node scripts/i18n-audit.mjs --dir src/routes --lang en",
+    "i18n:audit:suggest": "node scripts/i18n-audit.mjs --dir src/routes --lang en --suggest",
+    "i18n:audit:ci": "node scripts/i18n-audit.mjs --dir src/routes --lang en --ci"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
