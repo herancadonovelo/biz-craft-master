@@ -307,7 +307,7 @@ function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["de
   if (!user && (isPublic || !loading)) {
     return (
       <div className="flex min-h-screen w-full items-start justify-center bg-background px-4 py-8">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-[560px]">
           <Outlet />
         </div>
       </div>
@@ -338,7 +338,12 @@ function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["de
             <RootSubtitle />
           </header>
           <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8" data-app-bg={design.imagemFundo ? "on" : "off"}>
-            <Outlet />
+            {/* Desktop mirrors the mobile column layout: a single centered
+                content lane keeps cards and tabs contained without stray
+                floating text on wide viewports. */}
+            <div className="mx-auto w-full max-w-[720px]">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>

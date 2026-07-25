@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -22,6 +22,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
+  const search = useRouterState({ select: (r) => r.location.search }) as Record<string, unknown>;
+  const showExpiredBanner = search?.expired === "1" || search?.expired === 1 || search?.expired === true;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -205,6 +207,15 @@ function AuthPage() {
           <p className="text-sm text-muted-foreground">Os teus dados ficam isolados, privados e sincronizados em qualquer dispositivo.</p>
         </CardHeader>
         <CardContent>
+          {showExpiredBanner && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-100"
+            >
+              A tua sessão expirou ou foi encerrada. Introduz as tuas credenciais para voltar a entrar.
+            </div>
+          )}
           {isInIframe && (
             <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-100">
               Estás a ver esta app dentro da pré-visualização do Lovable. Alguns navegadores bloqueiam cookies de login em janelas incorporadas.
