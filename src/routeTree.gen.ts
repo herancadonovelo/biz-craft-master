@@ -9,370 +9,75 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WhatsappRouteImport } from './routes/whatsapp'
-import { Route as VendasRouteImport } from './routes/vendas'
-import { Route as TodoRouteImport } from './routes/todo'
-import { Route as StockRouteImport } from './routes/stock'
-import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
-import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
-import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as QuemSomosRouteImport } from './routes/quem-somos'
-import { Route as ProjetosRouteImport } from './routes/projetos'
-import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PortfolioRouteImport } from './routes/portfolio'
-import { Route as PlanosRouteImport } from './routes/planos'
-import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as NotificacoesRouteImport } from './routes/notificacoes'
-import { Route as NotasRouteImport } from './routes/notas'
-import { Route as MuralRouteImport } from './routes/mural'
-import { Route as MoodboardsRouteImport } from './routes/moodboards'
-import { Route as ModulosRouteImport } from './routes/modulos'
-import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
-import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
-import { Route as MarketingRouteImport } from './routes/marketing'
-import { Route as ListaComprasRouteImport } from './routes/lista-compras'
-import { Route as InstagramRouteImport } from './routes/instagram'
-import { Route as IdiomaRouteImport } from './routes/idioma'
-import { Route as HorasRouteImport } from './routes/horas'
-import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
-import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
-import { Route as FornecedoresRouteImport } from './routes/fornecedores'
-import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
-import { Route as FerramentasTecnicasRouteImport } from './routes/ferramentas-tecnicas'
-import { Route as FaturacaoRouteImport } from './routes/faturacao'
-import { Route as EtsyRouteImport } from './routes/etsy'
-import { Route as EtiquetasRouteImport } from './routes/etiquetas'
-import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
-import { Route as EncomendasRouteImport } from './routes/encomendas'
-import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
-import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards'
-import { Route as DespesasRouteImport } from './routes/despesas'
-import { Route as DesignRouteImport } from './routes/design'
-import { Route as CursosRouteImport } from './routes/cursos'
-import { Route as CrescimentoRouteImport } from './routes/crescimento'
-import { Route as ConversorCoresRouteImport } from './routes/conversor-cores'
-import { Route as ContasRouteImport } from './routes/contas'
-import { Route as ContadorRouteImport } from './routes/contador'
-import { Route as ContactoRouteImport } from './routes/contacto'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as ClientesRouteImport } from './routes/clientes'
-import { Route as CatalogoRouteImport } from './routes/catalogo'
-import { Route as CashflowRouteImport } from './routes/cashflow'
-import { Route as CalendarioRouteImport } from './routes/calendario'
-import { Route as CalculadoraRouteImport } from './routes/calculadora'
-import { Route as BibliotecaRouteImport } from './routes/biblioteca'
-import { Route as BackupRouteImport } from './routes/backup'
-import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
-import { Route as AssistenteRouteImport } from './routes/assistente'
-import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AssistenteRouteImport } from './routes/assistente'
+import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
+import { Route as BackupRouteImport } from './routes/backup'
+import { Route as BibliotecaRouteImport } from './routes/biblioteca'
+import { Route as CalculadoraRouteImport } from './routes/calculadora'
+import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as CashflowRouteImport } from './routes/cashflow'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as ClientesRouteImport } from './routes/clientes'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as ContadorRouteImport } from './routes/contador'
+import { Route as ContasRouteImport } from './routes/contas'
+import { Route as ConversorCoresRouteImport } from './routes/conversor-cores'
+import { Route as CrescimentoRouteImport } from './routes/crescimento'
+import { Route as CursosRouteImport } from './routes/cursos'
+import { Route as DesignRouteImport } from './routes/design'
+import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards'
+import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
+import { Route as EncomendasRouteImport } from './routes/encomendas'
+import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
+import { Route as EtiquetasRouteImport } from './routes/etiquetas'
+import { Route as EtsyRouteImport } from './routes/etsy'
+import { Route as FaturacaoRouteImport } from './routes/faturacao'
+import { Route as FerramentasTecnicasRouteImport } from './routes/ferramentas-tecnicas'
+import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
+import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
+import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
+import { Route as HorasRouteImport } from './routes/horas'
+import { Route as IdiomaRouteImport } from './routes/idioma'
+import { Route as InstagramRouteImport } from './routes/instagram'
+import { Route as ListaComprasRouteImport } from './routes/lista-compras'
+import { Route as MarketingRouteImport } from './routes/marketing'
+import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
+import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
+import { Route as ModulosRouteImport } from './routes/modulos'
+import { Route as MoodboardsRouteImport } from './routes/moodboards'
+import { Route as MuralRouteImport } from './routes/mural'
+import { Route as NotasRouteImport } from './routes/notas'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
+import { Route as PlanosRouteImport } from './routes/planos'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
+import { Route as ProjetosRouteImport } from './routes/projetos'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
+import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
+import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
+import { Route as StockRouteImport } from './routes/stock'
+import { Route as TodoRouteImport } from './routes/todo'
+import { Route as VendasRouteImport } from './routes/vendas'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
-import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
+import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 
-const WhatsappRoute = WhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VendasRoute = VendasRouteImport.update({
-  id: '/vendas',
-  path: '/vendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TodoRoute = TodoRouteImport.update({
-  id: '/todo',
-  path: '/todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StockRoute = StockRouteImport.update({
-  id: '/stock',
-  path: '/stock',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
-  id: '/spotify-callback',
-  path: '/spotify-callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SincronizacaoRoute = SincronizacaoRouteImport.update({
-  id: '/sincronizacao',
-  path: '/sincronizacao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
-  id: '/sessao-expirada',
-  path: '/sessao-expirada',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuemSomosRoute = QuemSomosRouteImport.update({
-  id: '/quem-somos',
-  path: '/quem-somos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjetosRoute = ProjetosRouteImport.update({
-  id: '/projetos',
-  path: '/projetos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjetoPersonalizadoRoute = ProjetoPersonalizadoRouteImport.update({
-  id: '/projeto-personalizado',
-  path: '/projeto-personalizado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PortfolioRoute = PortfolioRouteImport.update({
-  id: '/portfolio',
-  path: '/portfolio',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanosRoute = PlanosRouteImport.update({
-  id: '/planos',
-  path: '/planos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
-  id: '/perfil-negocio',
-  path: '/perfil-negocio',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificacoesRoute = NotificacoesRouteImport.update({
-  id: '/notificacoes',
-  path: '/notificacoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotasRoute = NotasRouteImport.update({
-  id: '/notas',
-  path: '/notas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MuralRoute = MuralRouteImport.update({
-  id: '/mural',
-  path: '/mural',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MoodboardsRoute = MoodboardsRouteImport.update({
-  id: '/moodboards',
-  path: '/moodboards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ModulosRoute = ModulosRouteImport.update({
-  id: '/modulos',
-  path: '/modulos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
-  id: '/marketing-conteudo',
-  path: '/marketing-conteudo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketingCampanhasRoute = MarketingCampanhasRouteImport.update({
-  id: '/marketing-campanhas',
-  path: '/marketing-campanhas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketingRoute = MarketingRouteImport.update({
-  id: '/marketing',
-  path: '/marketing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListaComprasRoute = ListaComprasRouteImport.update({
-  id: '/lista-compras',
-  path: '/lista-compras',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstagramRoute = InstagramRouteImport.update({
-  id: '/instagram',
-  path: '/instagram',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IdiomaRoute = IdiomaRouteImport.update({
-  id: '/idioma',
-  path: '/idioma',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HorasRoute = HorasRouteImport.update({
-  id: '/horas',
-  path: '/horas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
-  id: '/historico-faturas',
-  path: '/historico-faturas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
-  id: '/gestao-fornecedores',
-  path: '/gestao-fornecedores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FornecedoresRoute = FornecedoresRouteImport.update({
-  id: '/fornecedores',
-  path: '/fornecedores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FicheirosDigitaisRoute = FicheirosDigitaisRouteImport.update({
-  id: '/ficheiros-digitais',
-  path: '/ficheiros-digitais',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FerramentasTecnicasRoute = FerramentasTecnicasRouteImport.update({
-  id: '/ferramentas-tecnicas',
-  path: '/ferramentas-tecnicas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FaturacaoRoute = FaturacaoRouteImport.update({
-  id: '/faturacao',
-  path: '/faturacao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EtsyRoute = EtsyRouteImport.update({
-  id: '/etsy',
-  path: '/etsy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EtiquetasRoute = EtiquetasRouteImport.update({
-  id: '/etiquetas',
-  path: '/etiquetas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EstadoEncomendasRoute = EstadoEncomendasRouteImport.update({
-  id: '/estado-encomendas',
-  path: '/estado-encomendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EncomendasRoute = EncomendasRouteImport.update({
-  id: '/encomendas',
-  path: '/encomendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EditorReceitaRoute = EditorReceitaRouteImport.update({
-  id: '/editor-receita',
-  path: '/editor-receita',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EditorMoodboardsRoute = EditorMoodboardsRouteImport.update({
-  id: '/editor-moodboards',
-  path: '/editor-moodboards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DespesasRoute = DespesasRouteImport.update({
-  id: '/despesas',
-  path: '/despesas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignRoute = DesignRouteImport.update({
-  id: '/design',
-  path: '/design',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CursosRoute = CursosRouteImport.update({
-  id: '/cursos',
-  path: '/cursos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrescimentoRoute = CrescimentoRouteImport.update({
-  id: '/crescimento',
-  path: '/crescimento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConversorCoresRoute = ConversorCoresRouteImport.update({
-  id: '/conversor-cores',
-  path: '/conversor-cores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContasRoute = ContasRouteImport.update({
-  id: '/contas',
-  path: '/contas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContadorRoute = ContadorRouteImport.update({
-  id: '/contador',
-  path: '/contador',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactoRoute = ContactoRouteImport.update({
-  id: '/contacto',
-  path: '/contacto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientesRoute = ClientesRouteImport.update({
-  id: '/clientes',
-  path: '/clientes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CatalogoRoute = CatalogoRouteImport.update({
-  id: '/catalogo',
-  path: '/catalogo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CashflowRoute = CashflowRouteImport.update({
-  id: '/cashflow',
-  path: '/cashflow',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarioRoute = CalendarioRouteImport.update({
-  id: '/calendario',
-  path: '/calendario',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalculadoraRoute = CalculadoraRouteImport.update({
-  id: '/calculadora',
-  path: '/calculadora',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BibliotecaRoute = BibliotecaRouteImport.update({
-  id: '/biblioteca',
-  path: '/biblioteca',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BackupRoute = BackupRouteImport.update({
-  id: '/backup',
-  path: '/backup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth-callback',
-  path: '/auth-callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AtelierSoundsRoute = AtelierSoundsRouteImport.update({
-  id: '/atelier-sounds',
-  path: '/atelier-sounds',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssistenteRoute = AssistenteRouteImport.update({
-  id: '/assistente',
-  path: '/assistente',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AjudaRoute = AjudaRouteImport.update({
@@ -380,9 +85,304 @@ const AjudaRoute = AjudaRouteImport.update({
   path: '/ajuda',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AssistenteRoute = AssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtelierSoundsRoute = AtelierSoundsRouteImport.update({
+  id: '/atelier-sounds',
+  path: '/atelier-sounds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackupRoute = BackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibliotecaRoute = BibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculadoraRoute = CalculadoraRouteImport.update({
+  id: '/calculadora',
+  path: '/calculadora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CashflowRoute = CashflowRouteImport.update({
+  id: '/cashflow',
+  path: '/cashflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesRoute = ClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactoRoute = ContactoRouteImport.update({
+  id: '/contacto',
+  path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContadorRoute = ContadorRouteImport.update({
+  id: '/contador',
+  path: '/contador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContasRoute = ContasRouteImport.update({
+  id: '/contas',
+  path: '/contas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConversorCoresRoute = ConversorCoresRouteImport.update({
+  id: '/conversor-cores',
+  path: '/conversor-cores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrescimentoRoute = CrescimentoRouteImport.update({
+  id: '/crescimento',
+  path: '/crescimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CursosRoute = CursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignRoute = DesignRouteImport.update({
+  id: '/design',
+  path: '/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DespesasRoute = DespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorMoodboardsRoute = EditorMoodboardsRouteImport.update({
+  id: '/editor-moodboards',
+  path: '/editor-moodboards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorReceitaRoute = EditorReceitaRouteImport.update({
+  id: '/editor-receita',
+  path: '/editor-receita',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EncomendasRoute = EncomendasRouteImport.update({
+  id: '/encomendas',
+  path: '/encomendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstadoEncomendasRoute = EstadoEncomendasRouteImport.update({
+  id: '/estado-encomendas',
+  path: '/estado-encomendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtiquetasRoute = EtiquetasRouteImport.update({
+  id: '/etiquetas',
+  path: '/etiquetas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtsyRoute = EtsyRouteImport.update({
+  id: '/etsy',
+  path: '/etsy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaturacaoRoute = FaturacaoRouteImport.update({
+  id: '/faturacao',
+  path: '/faturacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FerramentasTecnicasRoute = FerramentasTecnicasRouteImport.update({
+  id: '/ferramentas-tecnicas',
+  path: '/ferramentas-tecnicas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FicheirosDigitaisRoute = FicheirosDigitaisRouteImport.update({
+  id: '/ficheiros-digitais',
+  path: '/ficheiros-digitais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FornecedoresRoute = FornecedoresRouteImport.update({
+  id: '/fornecedores',
+  path: '/fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
+  id: '/gestao-fornecedores',
+  path: '/gestao-fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
+  id: '/historico-faturas',
+  path: '/historico-faturas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorasRoute = HorasRouteImport.update({
+  id: '/horas',
+  path: '/horas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdiomaRoute = IdiomaRouteImport.update({
+  id: '/idioma',
+  path: '/idioma',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstagramRoute = InstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListaComprasRoute = ListaComprasRouteImport.update({
+  id: '/lista-compras',
+  path: '/lista-compras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingRoute = MarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingCampanhasRoute = MarketingCampanhasRouteImport.update({
+  id: '/marketing-campanhas',
+  path: '/marketing-campanhas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
+  id: '/marketing-conteudo',
+  path: '/marketing-conteudo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModulosRoute = ModulosRouteImport.update({
+  id: '/modulos',
+  path: '/modulos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoodboardsRoute = MoodboardsRouteImport.update({
+  id: '/moodboards',
+  path: '/moodboards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MuralRoute = MuralRouteImport.update({
+  id: '/mural',
+  path: '/mural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotasRoute = NotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
+  id: '/perfil-negocio',
+  path: '/perfil-negocio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetoPersonalizadoRoute = ProjetoPersonalizadoRouteImport.update({
+  id: '/projeto-personalizado',
+  path: '/projeto-personalizado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetosRoute = ProjetosRouteImport.update({
+  id: '/projetos',
+  path: '/projetos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
+  id: '/sessao-expirada',
+  path: '/sessao-expirada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SincronizacaoRoute = SincronizacaoRouteImport.update({
+  id: '/sincronizacao',
+  path: '/sincronizacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
+  id: '/spotify-callback',
+  path: '/spotify-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StockRoute = StockRouteImport.update({
+  id: '/stock',
+  path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodoRoute = TodoRouteImport.update({
+  id: '/todo',
+  path: '/todo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendasRoute = VendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
@@ -390,17 +390,17 @@ const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MoodboardsRoute,
 } as any)
+const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
+  id: '/api/public/webhooks/etsy',
+  path: '/api/public/webhooks/etsy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
     path: '/api/public/webhooks/whatsapp',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
-  id: '/api/public/webhooks/etsy',
-  path: '/api/public/webhooks/etsy',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -877,424 +877,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/whatsapp': {
-      id: '/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/whatsapp'
-      preLoaderRoute: typeof WhatsappRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vendas': {
-      id: '/vendas'
-      path: '/vendas'
-      fullPath: '/vendas'
-      preLoaderRoute: typeof VendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/todo': {
-      id: '/todo'
-      path: '/todo'
-      fullPath: '/todo'
-      preLoaderRoute: typeof TodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stock': {
-      id: '/stock'
-      path: '/stock'
-      fullPath: '/stock'
-      preLoaderRoute: typeof StockRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/spotify-callback': {
-      id: '/spotify-callback'
-      path: '/spotify-callback'
-      fullPath: '/spotify-callback'
-      preLoaderRoute: typeof SpotifyCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sincronizacao': {
-      id: '/sincronizacao'
-      path: '/sincronizacao'
-      fullPath: '/sincronizacao'
-      preLoaderRoute: typeof SincronizacaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sessao-expirada': {
-      id: '/sessao-expirada'
-      path: '/sessao-expirada'
-      fullPath: '/sessao-expirada'
-      preLoaderRoute: typeof SessaoExpiradaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quem-somos': {
-      id: '/quem-somos'
-      path: '/quem-somos'
-      fullPath: '/quem-somos'
-      preLoaderRoute: typeof QuemSomosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projetos': {
-      id: '/projetos'
-      path: '/projetos'
-      fullPath: '/projetos'
-      preLoaderRoute: typeof ProjetosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projeto-personalizado': {
-      id: '/projeto-personalizado'
-      path: '/projeto-personalizado'
-      fullPath: '/projeto-personalizado'
-      preLoaderRoute: typeof ProjetoPersonalizadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/portfolio': {
-      id: '/portfolio'
-      path: '/portfolio'
-      fullPath: '/portfolio'
-      preLoaderRoute: typeof PortfolioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planos': {
-      id: '/planos'
-      path: '/planos'
-      fullPath: '/planos'
-      preLoaderRoute: typeof PlanosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil-negocio': {
-      id: '/perfil-negocio'
-      path: '/perfil-negocio'
-      fullPath: '/perfil-negocio'
-      preLoaderRoute: typeof PerfilNegocioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notificacoes': {
-      id: '/notificacoes'
-      path: '/notificacoes'
-      fullPath: '/notificacoes'
-      preLoaderRoute: typeof NotificacoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notas': {
-      id: '/notas'
-      path: '/notas'
-      fullPath: '/notas'
-      preLoaderRoute: typeof NotasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mural': {
-      id: '/mural'
-      path: '/mural'
-      fullPath: '/mural'
-      preLoaderRoute: typeof MuralRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/moodboards': {
-      id: '/moodboards'
-      path: '/moodboards'
-      fullPath: '/moodboards'
-      preLoaderRoute: typeof MoodboardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/modulos': {
-      id: '/modulos'
-      path: '/modulos'
-      fullPath: '/modulos'
-      preLoaderRoute: typeof ModulosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketing-conteudo': {
-      id: '/marketing-conteudo'
-      path: '/marketing-conteudo'
-      fullPath: '/marketing-conteudo'
-      preLoaderRoute: typeof MarketingConteudoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketing-campanhas': {
-      id: '/marketing-campanhas'
-      path: '/marketing-campanhas'
-      fullPath: '/marketing-campanhas'
-      preLoaderRoute: typeof MarketingCampanhasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketing': {
-      id: '/marketing'
-      path: '/marketing'
-      fullPath: '/marketing'
-      preLoaderRoute: typeof MarketingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lista-compras': {
-      id: '/lista-compras'
-      path: '/lista-compras'
-      fullPath: '/lista-compras'
-      preLoaderRoute: typeof ListaComprasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/instagram': {
-      id: '/instagram'
-      path: '/instagram'
-      fullPath: '/instagram'
-      preLoaderRoute: typeof InstagramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/idioma': {
-      id: '/idioma'
-      path: '/idioma'
-      fullPath: '/idioma'
-      preLoaderRoute: typeof IdiomaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/horas': {
-      id: '/horas'
-      path: '/horas'
-      fullPath: '/horas'
-      preLoaderRoute: typeof HorasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historico-faturas': {
-      id: '/historico-faturas'
-      path: '/historico-faturas'
-      fullPath: '/historico-faturas'
-      preLoaderRoute: typeof HistoricoFaturasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gestao-fornecedores': {
-      id: '/gestao-fornecedores'
-      path: '/gestao-fornecedores'
-      fullPath: '/gestao-fornecedores'
-      preLoaderRoute: typeof GestaoFornecedoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fornecedores': {
-      id: '/fornecedores'
-      path: '/fornecedores'
-      fullPath: '/fornecedores'
-      preLoaderRoute: typeof FornecedoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ficheiros-digitais': {
-      id: '/ficheiros-digitais'
-      path: '/ficheiros-digitais'
-      fullPath: '/ficheiros-digitais'
-      preLoaderRoute: typeof FicheirosDigitaisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ferramentas-tecnicas': {
-      id: '/ferramentas-tecnicas'
-      path: '/ferramentas-tecnicas'
-      fullPath: '/ferramentas-tecnicas'
-      preLoaderRoute: typeof FerramentasTecnicasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/faturacao': {
-      id: '/faturacao'
-      path: '/faturacao'
-      fullPath: '/faturacao'
-      preLoaderRoute: typeof FaturacaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/etsy': {
-      id: '/etsy'
-      path: '/etsy'
-      fullPath: '/etsy'
-      preLoaderRoute: typeof EtsyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/etiquetas': {
-      id: '/etiquetas'
-      path: '/etiquetas'
-      fullPath: '/etiquetas'
-      preLoaderRoute: typeof EtiquetasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/estado-encomendas': {
-      id: '/estado-encomendas'
-      path: '/estado-encomendas'
-      fullPath: '/estado-encomendas'
-      preLoaderRoute: typeof EstadoEncomendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/encomendas': {
-      id: '/encomendas'
-      path: '/encomendas'
-      fullPath: '/encomendas'
-      preLoaderRoute: typeof EncomendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/editor-receita': {
-      id: '/editor-receita'
-      path: '/editor-receita'
-      fullPath: '/editor-receita'
-      preLoaderRoute: typeof EditorReceitaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/editor-moodboards': {
-      id: '/editor-moodboards'
-      path: '/editor-moodboards'
-      fullPath: '/editor-moodboards'
-      preLoaderRoute: typeof EditorMoodboardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/despesas': {
-      id: '/despesas'
-      path: '/despesas'
-      fullPath: '/despesas'
-      preLoaderRoute: typeof DespesasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design': {
-      id: '/design'
-      path: '/design'
-      fullPath: '/design'
-      preLoaderRoute: typeof DesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cursos': {
-      id: '/cursos'
-      path: '/cursos'
-      fullPath: '/cursos'
-      preLoaderRoute: typeof CursosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crescimento': {
-      id: '/crescimento'
-      path: '/crescimento'
-      fullPath: '/crescimento'
-      preLoaderRoute: typeof CrescimentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/conversor-cores': {
-      id: '/conversor-cores'
-      path: '/conversor-cores'
-      fullPath: '/conversor-cores'
-      preLoaderRoute: typeof ConversorCoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contas': {
-      id: '/contas'
-      path: '/contas'
-      fullPath: '/contas'
-      preLoaderRoute: typeof ContasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contador': {
-      id: '/contador'
-      path: '/contador'
-      fullPath: '/contador'
-      preLoaderRoute: typeof ContadorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contacto': {
-      id: '/contacto'
-      path: '/contacto'
-      fullPath: '/contacto'
-      preLoaderRoute: typeof ContactoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/configuracoes': {
-      id: '/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/clientes': {
-      id: '/clientes'
-      path: '/clientes'
-      fullPath: '/clientes'
-      preLoaderRoute: typeof ClientesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/catalogo': {
-      id: '/catalogo'
-      path: '/catalogo'
-      fullPath: '/catalogo'
-      preLoaderRoute: typeof CatalogoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cashflow': {
-      id: '/cashflow'
-      path: '/cashflow'
-      fullPath: '/cashflow'
-      preLoaderRoute: typeof CashflowRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendario': {
-      id: '/calendario'
-      path: '/calendario'
-      fullPath: '/calendario'
-      preLoaderRoute: typeof CalendarioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calculadora': {
-      id: '/calculadora'
-      path: '/calculadora'
-      fullPath: '/calculadora'
-      preLoaderRoute: typeof CalculadoraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/biblioteca': {
-      id: '/biblioteca'
-      path: '/biblioteca'
-      fullPath: '/biblioteca'
-      preLoaderRoute: typeof BibliotecaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/backup': {
-      id: '/backup'
-      path: '/backup'
-      fullPath: '/backup'
-      preLoaderRoute: typeof BackupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth-callback': {
-      id: '/auth-callback'
-      path: '/auth-callback'
-      fullPath: '/auth-callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/atelier-sounds': {
-      id: '/atelier-sounds'
-      path: '/atelier-sounds'
-      fullPath: '/atelier-sounds'
-      preLoaderRoute: typeof AtelierSoundsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assistente': {
-      id: '/assistente'
-      path: '/assistente'
-      fullPath: '/assistente'
-      preLoaderRoute: typeof AssistenteRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ajuda': {
@@ -1304,11 +891,424 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AjudaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/assistente': {
+      id: '/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AssistenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atelier-sounds': {
+      id: '/atelier-sounds'
+      path: '/atelier-sounds'
+      fullPath: '/atelier-sounds'
+      preLoaderRoute: typeof AtelierSoundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backup': {
+      id: '/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof BackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculadora': {
+      id: '/calculadora'
+      path: '/calculadora'
+      fullPath: '/calculadora'
+      preLoaderRoute: typeof CalculadoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cashflow': {
+      id: '/cashflow'
+      path: '/cashflow'
+      fullPath: '/cashflow'
+      preLoaderRoute: typeof CashflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes': {
+      id: '/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof ClientesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacto': {
+      id: '/contacto'
+      path: '/contacto'
+      fullPath: '/contacto'
+      preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contador': {
+      id: '/contador'
+      path: '/contador'
+      fullPath: '/contador'
+      preLoaderRoute: typeof ContadorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contas': {
+      id: '/contas'
+      path: '/contas'
+      fullPath: '/contas'
+      preLoaderRoute: typeof ContasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conversor-cores': {
+      id: '/conversor-cores'
+      path: '/conversor-cores'
+      fullPath: '/conversor-cores'
+      preLoaderRoute: typeof ConversorCoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crescimento': {
+      id: '/crescimento'
+      path: '/crescimento'
+      fullPath: '/crescimento'
+      preLoaderRoute: typeof CrescimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cursos': {
+      id: '/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof CursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design': {
+      id: '/design'
+      path: '/design'
+      fullPath: '/design'
+      preLoaderRoute: typeof DesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/despesas': {
+      id: '/despesas'
+      path: '/despesas'
+      fullPath: '/despesas'
+      preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor-moodboards': {
+      id: '/editor-moodboards'
+      path: '/editor-moodboards'
+      fullPath: '/editor-moodboards'
+      preLoaderRoute: typeof EditorMoodboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor-receita': {
+      id: '/editor-receita'
+      path: '/editor-receita'
+      fullPath: '/editor-receita'
+      preLoaderRoute: typeof EditorReceitaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/encomendas': {
+      id: '/encomendas'
+      path: '/encomendas'
+      fullPath: '/encomendas'
+      preLoaderRoute: typeof EncomendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estado-encomendas': {
+      id: '/estado-encomendas'
+      path: '/estado-encomendas'
+      fullPath: '/estado-encomendas'
+      preLoaderRoute: typeof EstadoEncomendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiquetas': {
+      id: '/etiquetas'
+      path: '/etiquetas'
+      fullPath: '/etiquetas'
+      preLoaderRoute: typeof EtiquetasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etsy': {
+      id: '/etsy'
+      path: '/etsy'
+      fullPath: '/etsy'
+      preLoaderRoute: typeof EtsyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faturacao': {
+      id: '/faturacao'
+      path: '/faturacao'
+      fullPath: '/faturacao'
+      preLoaderRoute: typeof FaturacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferramentas-tecnicas': {
+      id: '/ferramentas-tecnicas'
+      path: '/ferramentas-tecnicas'
+      fullPath: '/ferramentas-tecnicas'
+      preLoaderRoute: typeof FerramentasTecnicasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ficheiros-digitais': {
+      id: '/ficheiros-digitais'
+      path: '/ficheiros-digitais'
+      fullPath: '/ficheiros-digitais'
+      preLoaderRoute: typeof FicheirosDigitaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fornecedores': {
+      id: '/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/fornecedores'
+      preLoaderRoute: typeof FornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gestao-fornecedores': {
+      id: '/gestao-fornecedores'
+      path: '/gestao-fornecedores'
+      fullPath: '/gestao-fornecedores'
+      preLoaderRoute: typeof GestaoFornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico-faturas': {
+      id: '/historico-faturas'
+      path: '/historico-faturas'
+      fullPath: '/historico-faturas'
+      preLoaderRoute: typeof HistoricoFaturasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horas': {
+      id: '/horas'
+      path: '/horas'
+      fullPath: '/horas'
+      preLoaderRoute: typeof HorasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/idioma': {
+      id: '/idioma'
+      path: '/idioma'
+      fullPath: '/idioma'
+      preLoaderRoute: typeof IdiomaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instagram': {
+      id: '/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof InstagramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lista-compras': {
+      id: '/lista-compras'
+      path: '/lista-compras'
+      fullPath: '/lista-compras'
+      preLoaderRoute: typeof ListaComprasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing': {
+      id: '/marketing'
+      path: '/marketing'
+      fullPath: '/marketing'
+      preLoaderRoute: typeof MarketingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing-campanhas': {
+      id: '/marketing-campanhas'
+      path: '/marketing-campanhas'
+      fullPath: '/marketing-campanhas'
+      preLoaderRoute: typeof MarketingCampanhasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing-conteudo': {
+      id: '/marketing-conteudo'
+      path: '/marketing-conteudo'
+      fullPath: '/marketing-conteudo'
+      preLoaderRoute: typeof MarketingConteudoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modulos': {
+      id: '/modulos'
+      path: '/modulos'
+      fullPath: '/modulos'
+      preLoaderRoute: typeof ModulosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moodboards': {
+      id: '/moodboards'
+      path: '/moodboards'
+      fullPath: '/moodboards'
+      preLoaderRoute: typeof MoodboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mural': {
+      id: '/mural'
+      path: '/mural'
+      fullPath: '/mural'
+      preLoaderRoute: typeof MuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notas': {
+      id: '/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof NotasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil-negocio': {
+      id: '/perfil-negocio'
+      path: '/perfil-negocio'
+      fullPath: '/perfil-negocio'
+      preLoaderRoute: typeof PerfilNegocioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projeto-personalizado': {
+      id: '/projeto-personalizado'
+      path: '/projeto-personalizado'
+      fullPath: '/projeto-personalizado'
+      preLoaderRoute: typeof ProjetoPersonalizadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projetos': {
+      id: '/projetos'
+      path: '/projetos'
+      fullPath: '/projetos'
+      preLoaderRoute: typeof ProjetosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sessao-expirada': {
+      id: '/sessao-expirada'
+      path: '/sessao-expirada'
+      fullPath: '/sessao-expirada'
+      preLoaderRoute: typeof SessaoExpiradaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sincronizacao': {
+      id: '/sincronizacao'
+      path: '/sincronizacao'
+      fullPath: '/sincronizacao'
+      preLoaderRoute: typeof SincronizacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spotify-callback': {
+      id: '/spotify-callback'
+      path: '/spotify-callback'
+      fullPath: '/spotify-callback'
+      preLoaderRoute: typeof SpotifyCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stock': {
+      id: '/stock'
+      path: '/stock'
+      fullPath: '/stock'
+      preLoaderRoute: typeof StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/todo': {
+      id: '/todo'
+      path: '/todo'
+      fullPath: '/todo'
+      preLoaderRoute: typeof TodoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendas': {
+      id: '/vendas'
+      path: '/vendas'
+      fullPath: '/vendas'
+      preLoaderRoute: typeof VendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/moodboards/$id': {
@@ -1318,18 +1318,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoodboardsIdRouteImport
       parentRoute: typeof MoodboardsRoute
     }
-    '/api/public/webhooks/whatsapp': {
-      id: '/api/public/webhooks/whatsapp'
-      path: '/api/public/webhooks/whatsapp'
-      fullPath: '/api/public/webhooks/whatsapp'
-      preLoaderRoute: typeof ApiPublicWebhooksWhatsappRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/webhooks/etsy': {
       id: '/api/public/webhooks/etsy'
       path: '/api/public/webhooks/etsy'
       fullPath: '/api/public/webhooks/etsy'
       preLoaderRoute: typeof ApiPublicWebhooksEtsyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/whatsapp': {
+      id: '/api/public/webhooks/whatsapp'
+      path: '/api/public/webhooks/whatsapp'
+      fullPath: '/api/public/webhooks/whatsapp'
+      preLoaderRoute: typeof ApiPublicWebhooksWhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
