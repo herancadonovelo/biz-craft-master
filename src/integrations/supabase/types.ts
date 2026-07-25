@@ -68,6 +68,7 @@ export type Database = {
           expires_at: string | null
           id: string
           is_lifetime: boolean
+          max_redemptions: number | null
           updated_at: string
         }
         Insert: {
@@ -78,6 +79,7 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_lifetime?: boolean
+          max_redemptions?: number | null
           updated_at?: string
         }
         Update: {
@@ -88,6 +90,7 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_lifetime?: boolean
+          max_redemptions?: number | null
           updated_at?: string
         }
         Relationships: []
