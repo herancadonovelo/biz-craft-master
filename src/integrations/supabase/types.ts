@@ -32,10 +32,44 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_otp_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          kind: string
+          phone: string | null
+          success: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          kind: string
+          phone?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          kind?: string
+          phone?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"]
           created_at: string
+          last_2fa_at: string | null
+          phone: string | null
+          phone_verified: boolean
+          phone_verified_at: string | null
           subscription_status: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends: string | null
           updated_at: string
@@ -44,6 +78,10 @@ export type Database = {
         Insert: {
           billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
+          last_2fa_at?: string | null
+          phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
           updated_at?: string
@@ -52,6 +90,10 @@ export type Database = {
         Update: {
           billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
+          last_2fa_at?: string | null
+          phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
           updated_at?: string
@@ -229,6 +271,8 @@ export type Database = {
     }
     Functions: {
       cancel_subscription: { Args: never; Returns: Json }
+      mark_2fa_completed: { Args: never; Returns: Json }
+      mark_phone_verified: { Args: { _phone: string }; Returns: Json }
       redeem_promo_code: { Args: { _code: string }; Returns: Json }
       start_subscription_trial: {
         Args: { _cycle?: string; _plan: string }

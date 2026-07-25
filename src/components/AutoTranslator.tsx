@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useStore } from "@/lib/store";
-import { translateBatch } from "@/lib/translate.functions";
+import { translateBatch, TRANSLATE_STRING_LIMIT } from "@/lib/translate.functions";
 import { useAuth } from "@/lib/auth-state";
+import { toast } from "sonner";
 
 const ATTRS = ["placeholder", "title", "aria-label"] as const;
 const SKIP_TAGS = new Set([
@@ -36,7 +37,44 @@ function isInsideSkip(node: Node) {
 type Job = {
   apply: (translated: string) => void;
   source: string;
+  // For long strings we translate chunk-by-chunk and rejoin them before
+  // applying — the caller only ever sees the fully-translated string.
+  parts?: { total: number; results: (string | null)[] };
+  partIndex?: number;
 };
+
+// Split a long string on paragraph / sentence / whitespace boundaries so each
+// chunk fits within TRANSLATE_STRING_LIMIT. Rejoined with the same separator.
+function splitLongString(input: string, limit = TRANSLATE_STRING_LIMIT - 200): string[] {
+  if (input.length <= limit) return [input];
+  const chunks: string[] = [];
+  let rest = input;
+  while (rest.length > limit) {
+    let cut = rest.lastIndexOf("\n\n", limit);
+    if (cut < limit * 0.5) cut = rest.lastIndexOf(". ", limit);
+    if (cut < limit * 0.5) cut = rest.lastIndexOf(" ", limit);
+    if (cut < limit * 0.3) cut = limit;
+    chunks.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).replace(/^[.\s]+/, "");
+  }
+  if (rest) chunks.push(rest);
+  return chunks;
+}
+
+function describeElement(root: Node): string {
+  try {
+    let el: Node | null = root;
+    while (el && el.nodeType !== 1) el = el.parentNode;
+    if (!el) return "unknown";
+    const e = el as HTMLElement;
+    const tag = e.tagName.toLowerCase();
+    const id = e.id ? `#${e.id}` : "";
+    const cls = e.className && typeof e.className === "string"
+      ? "." + e.className.trim().split(/\s+/).slice(0, 2).join(".")
+      : "";
+    return `${tag}${id}${cls}`.slice(0, 80);
+  } catch { return "unknown"; }
+}
 
 export function AutoTranslator() {
   const lang = useStore((s) => s.design.idioma);
@@ -68,7 +106,45 @@ export function AutoTranslator() {
       if (sources.length === 0) return;
       try {
         const res = await run({ data: { target: lang, strings: sources } });
-        if (!res.ok) return;
+        if (!res.ok) {
+          if ((res as any).error === "string_too_long") {
+            const off = (res as any).offending as { index: number; length: number; preview: string }[];
+            for (const o of off) {
+              const src = sources[o.index];
+              // eslint-disable-next-line no-console
+              console.error(
+                `[i18n] String exceeds serverFn limit (${o.length}/${TRANSLATE_STRING_LIMIT} chars)`,
+                {
+                  preview: o.preview + "…",
+                  origin: (q.get(src) || [])[0] ? "auto-translator (DOM scrape)" : "unknown",
+                  source: "src/components/AutoTranslator.tsx",
+                  hint: "The string will be re-queued as split chunks. Consider breaking the source paragraph into <p> elements.",
+                },
+              );
+            }
+            if (import.meta.env.DEV) {
+              toast.error("i18n: string demasiado longa — ver consola para localização.");
+            }
+            // Re-enqueue as split chunks and let the next flush handle them.
+            for (const o of off) {
+              const src = sources[o.index];
+              const jobs = q.get(src) || [];
+              const parts = splitLongString(src);
+              const bag = { total: parts.length, results: new Array(parts.length).fill(null) as (string | null)[] };
+              parts.forEach((p, i) => {
+                for (const j of jobs) {
+                  enqueue(p, (translated) => {
+                    bag.results[i] = translated;
+                    if (bag.results.every((r) => r !== null)) {
+                      j.apply(bag.results.join(" "));
+                    }
+                  });
+                }
+              });
+            }
+          }
+          return;
+        }
         res.translations.forEach((t, i) => {
           const src = sources[i];
           setTraducao(lang, src, t);
@@ -78,6 +154,20 @@ export function AutoTranslator() {
     };
 
     const enqueue = (source: string, apply: (t: string) => void) => {
+      // Short-circuit: never send an over-limit string to the server — split
+      // it locally first so the server call always succeeds. This is the
+      // "seamless" fallback promised in the plan.
+      if (source.length > TRANSLATE_STRING_LIMIT) {
+        const parts = splitLongString(source);
+        const bag = { total: parts.length, results: new Array(parts.length).fill(null) as (string | null)[] };
+        parts.forEach((p, i) => {
+          enqueue(p, (translated) => {
+            bag.results[i] = translated;
+            if (bag.results.every((r) => r !== null)) apply(bag.results.join(" "));
+          });
+        });
+        return;
+      }
       const list = queueRef.current.get(source) || [];
       list.push({ apply, source });
       queueRef.current.set(source, list);
@@ -123,6 +213,8 @@ export function AutoTranslator() {
         return;
       }
       enqueue(original, (t) => { try { n.data = t; } catch {} });
+      // silence unused-var lint on describeElement in prod
+      void describeElement;
     };
 
     const handleAttrs = (el: Element) => {

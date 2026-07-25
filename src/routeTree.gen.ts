@@ -71,6 +71,7 @@ import { Route as StockRouteImport } from './routes/stock'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
+import { Route as AuthVerify2faRouteImport } from './routes/auth.verify-2fa'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
@@ -385,6 +386,11 @@ const WhatsappRoute = WhatsappRouteImport.update({
   path: '/whatsapp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerify2faRoute = AuthVerify2faRouteImport.update({
+  id: '/verify-2fa',
+  path: '/verify-2fa',
+  getParentRoute: () => AuthRoute,
+} as any)
 const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -407,7 +413,7 @@ export interface FileRoutesByFullPath {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -474,7 +481,7 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
@@ -532,6 +539,7 @@ export interface FileRoutesByTo {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -542,7 +550,7 @@ export interface FileRoutesById {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
   '/biblioteca': typeof BibliotecaRoute
@@ -600,6 +608,7 @@ export interface FileRoutesById {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -669,6 +678,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/whatsapp'
@@ -736,6 +746,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/whatsapp'
@@ -803,6 +814,7 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/whatsapp'
@@ -813,7 +825,7 @@ export interface RootRouteChildren {
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   AtelierSoundsRoute: typeof AtelierSoundsRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   BackupRoute: typeof BackupRoute
   BibliotecaRoute: typeof BibliotecaRoute
@@ -1311,6 +1323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify-2fa': {
+      id: '/auth/verify-2fa'
+      path: '/verify-2fa'
+      fullPath: '/auth/verify-2fa'
+      preLoaderRoute: typeof AuthVerify2faRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/moodboards/$id': {
       id: '/moodboards/$id'
       path: '/$id'
@@ -1335,6 +1354,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthRouteChildren {
+  AuthVerify2faRoute: typeof AuthVerify2faRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthVerify2faRoute: AuthVerify2faRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface MoodboardsRouteChildren {
   MoodboardsIdRoute: typeof MoodboardsIdRoute
 }
@@ -1352,7 +1381,7 @@ const rootRouteChildren: RootRouteChildren = {
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   AtelierSoundsRoute: AtelierSoundsRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   BackupRoute: BackupRoute,
   BibliotecaRoute: BibliotecaRoute,

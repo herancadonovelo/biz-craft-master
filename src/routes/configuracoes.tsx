@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
@@ -16,6 +16,8 @@ import { useAuth } from "@/lib/auth-state";
 import { useAuthedServerFn } from "@/lib/use-authed-server-fn";
 import { deleteMyAccountFn } from "@/lib/account.functions";
 import { signOutAndReset } from "@/lib/sign-out";
+import { Smartphone } from "lucide-react";
+import { Link as RLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações" }] }),
@@ -48,6 +50,7 @@ export function ConfiguracoesContent() {
           ))}
         </div>
         <SecurityAndAccountCard />
+        <TwoFactorCard />
         <Card><CardContent className="space-y-3 p-4">
           <h3 className="font-display text-lg flex items-center gap-2"><Eye className="h-5 w-5" />Modo Preview</h3>
           <p className="text-sm text-muted-foreground">
@@ -231,6 +234,98 @@ function SecurityAndAccountCard() {
               </div>
             </div>
           )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TwoFactorCard() {
+  const { user } = useAuth();
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<{ verified: boolean; masked: string | null }>({ verified: false, masked: null });
+  const [busy, setBusy] = useState<null | "send" | "verify">(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  const E164 = /^\+[1-9]\d{6,14}$/;
+
+  useEffect(() => { void loadStatus(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user?.id]);
+
+  async function loadStatus() {
+    if (!user) return;
+    const { data } = await supabase.from("profiles").select("phone, phone_verified").eq("user_id", user.id).maybeSingle();
+    if (data) setStatus({ verified: !!data.phone_verified, masked: data.phone ? data.phone.slice(0, 4) + " •• •• " + data.phone.slice(-3) : null });
+  }
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = window.setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => window.clearInterval(id);
+  }, [cooldown]);
+
+  async function sendCode() {
+    if (!E164.test(phone)) return toast.error("Formato inválido — usa +351912345678.");
+    setBusy("send");
+    const { error } = await supabase.auth.updateUser({ phone });
+    setBusy(null);
+    if (error) return toast.error("Não foi possível enviar código: " + error.message);
+    setSent(true); setCooldown(60);
+    toast.success("Código enviado por SMS.");
+  }
+
+  async function verify() {
+    if (code.length !== 6) return toast.error("Introduz os 6 dígitos.");
+    setBusy("verify");
+    const { error } = await supabase.auth.verifyOtp({ phone, token: code, type: "phone_change" });
+    if (error) { setBusy(null); return toast.error("Código incorreto ou expirado."); }
+    const { error: rpc } = await supabase.rpc("mark_phone_verified", { _phone: phone });
+    setBusy(null);
+    if (rpc) return toast.error("Não foi possível gravar: " + rpc.message);
+    toast.success("Telemóvel verificado!");
+    setSent(false); setCode(""); setPhone("");
+    await loadStatus();
+  }
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-4">
+        <h3 className="font-display text-lg flex items-center gap-2">
+          <Smartphone className="h-5 w-5" /> Telemóvel (WhatsApp & 2FA)
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Estado: {status.verified ? <>verificado ({status.masked ?? "—"}) <span className="text-primary">✓</span></> : <span className="text-destructive">não verificado</span>}
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div>
+            <Label>Número (formato internacional)</Label>
+            <Input type="tel" placeholder="+351912345678" value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^\d+]/g, ""))} disabled={sent} />
+          </div>
+          {sent && (
+            <div>
+              <Label>Código SMS (6 dígitos)</Label>
+              <Input inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {!sent ? (
+            <Button onClick={sendCode} disabled={busy === "send" || !E164.test(phone)}>
+              {busy === "send" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enviar código
+            </Button>
+          ) : (
+            <>
+              <Button onClick={verify} disabled={busy === "verify" || code.length !== 6}>
+                {busy === "verify" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Confirmar
+              </Button>
+              <Button variant="ghost" onClick={sendCode} disabled={cooldown > 0 || busy !== null}>
+                {cooldown > 0 ? `Reenviar em ${cooldown}s` : "Reenviar código"}
+              </Button>
+              <Button variant="ghost" onClick={() => { setSent(false); setCode(""); }}>Cancelar</Button>
+            </>
+          )}
+          <RLink to="/auth/verify-2fa" className="text-xs text-muted-foreground self-center underline">Abrir página completa de verificação</RLink>
         </div>
       </CardContent>
     </Card>

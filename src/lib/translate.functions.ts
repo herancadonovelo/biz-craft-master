@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Keep this in sync with scripts/i18n-length-check.mjs
+export const TRANSLATE_STRING_LIMIT = 5000;
+
 const LANG_NAMES: Record<string, string> = {
   en: "English",
   es: "Spanish (Spain)",
@@ -15,11 +18,25 @@ export const translateBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
+      // Do NOT enforce per-string max here — a Zod throw crashes the request
+      // and gives no actionable info. We validate manually below and return a
+      // structured payload so the client can log which entry is too long.
       target: z.string().min(2).max(5),
-      strings: z.array(z.string().min(1).max(5000)).min(1).max(80),
+      strings: z.array(z.string().min(1)).min(1).max(80),
     }),
   )
   .handler(async ({ data }) => {
+    const offending = data.strings
+      .map((s, index) => ({ index, length: s.length, preview: s.slice(0, 80) }))
+      .filter((s) => s.length > TRANSLATE_STRING_LIMIT);
+    if (offending.length > 0) {
+      return {
+        ok: false as const,
+        error: "string_too_long" as const,
+        limit: TRANSLATE_STRING_LIMIT,
+        offending,
+      };
+    }
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) return { ok: false as const, error: "LOVABLE_API_KEY missing" };
     if (data.target === "pt") {

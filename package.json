@@ -15,6 +15,7 @@
     "i18n:audit": "node scripts/i18n-audit.mjs --dir src/routes --lang en",
     "i18n:audit:suggest": "node scripts/i18n-audit.mjs --dir src/routes --lang en --suggest",
     "i18n:audit:ci": "node scripts/i18n-audit.mjs --dir src/routes --lang en --ci"
+    ,"i18n:length-check": "node scripts/i18n-length-check.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

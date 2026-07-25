@@ -5,8 +5,9 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logSessionEvent } from "@/lib/session-telemetry";
 
-const PUBLIC_ROUTES = ["/auth", "/auth-callback", "/sessao-expirada", "/reset-password"];
+const PUBLIC_ROUTES = ["/auth", "/auth-callback", "/sessao-expirada", "/reset-password", "/auth/verify-2fa"];
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
+const E2E_2FA_BYPASS_KEY = "atelier-e2e-2fa-bypass";
 const REVALIDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 const REDIRECT_KEY = "cbm:postLoginRedirect";
 
@@ -37,6 +38,7 @@ export function AuthGate() {
   const search = useRouterState({ select: (r) => r.location.search });
   const nav = useNavigate();
   const hadUser = useRef(false);
+  const twoFaChecked = useRef(false);
 
   useEffect(() => {
     if (loading) return;
@@ -60,6 +62,34 @@ export function AuthGate() {
     });
     nav({ to: "/auth" });
   }, [user, loading, pathname, search, nav]);
+
+  // 2FA enforcement: once signed in, check profile.phone_verified /
+  // last_2fa_at and redirect to /auth/verify-2fa when required.
+  useEffect(() => {
+    if (loading || !user) return;
+    if (pathname === "/auth/verify-2fa") return;
+    if (canRenderWithoutSession(pathname)) return;
+    if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_2FA_BYPASS_KEY)) return;
+    if (twoFaChecked.current) return;
+    twoFaChecked.current = true;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("phone_verified, last_2fa_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!data) return;
+      const fresh = data.last_2fa_at && new Date(data.last_2fa_at).getTime() > Date.now() - 24 * 60 * 60 * 1000;
+      if (!data.phone_verified) {
+        nav({ to: "/auth/verify-2fa", search: { enroll: 1 } as any });
+      } else if (!fresh) {
+        nav({ to: "/auth/verify-2fa" });
+      }
+    })();
+  }, [user, loading, pathname, nav]);
+
+  // Reset the 2FA check flag on sign-out so a new session re-checks.
+  useEffect(() => { if (!user) twoFaChecked.current = false; }, [user]);
 
   // Periodic revalidation on protected routes — catches server-side revoked
   // sessions (logout in another device) before the user hits a 401.
