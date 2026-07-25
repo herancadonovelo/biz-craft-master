@@ -644,6 +644,7 @@ interface State {
   perfilNegocio: PerfilNegocio;
   sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
+  personalDesignDefault: DesignSettings | null;
   // novos
   whatsappTemplates: WhatsappTemplate[];
   whatsappMensagens: WhatsappMensagem[];
