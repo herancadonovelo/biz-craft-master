@@ -203,9 +203,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const code = rawCode.trim();
     if (!code) return { ok: false, message: "Introduz um código." };
     if (!user) return { ok: false, message: "Inicia sessão para aplicar um código." };
-    let res: { ok: boolean; message: string; lifetime?: boolean; discount_percent?: number; code?: string } | null = null;
+    type RedeemRes = { ok: boolean; message: string; lifetime?: boolean; discount_percent?: number; code?: string };
+    let res: RedeemRes | null = null;
     try {
-      res = (await redeemPromoCodeFn({ data: { code } })) as typeof res;
+      res = (await redeemPromoCodeFn({ data: { code } })) as unknown as RedeemRes;
     } catch { return { ok: false, message: "Erro a validar o código." }; }
     if (!res) return { ok: false, message: "Resposta inválida do servidor." };
     if (!res.ok) return { ok: false, message: res.message };
