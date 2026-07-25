@@ -1,0 +1,2417 @@
+[
+  {
+    "file": "src/routes/ajuda.tsx",
+    "findings": [
+      {
+        "kind": "attr:description",
+        "line": 91,
+        "text": "Perguntas frequentes sobre o funcionamento da aplicação."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 97,
+        "text": "Procurar pergunta ou palavra-chave…"
+      },
+      {
+        "kind": "attr:aria-label",
+        "line": 99,
+        "text": "Pesquisar no FAQ"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/atelier-sounds.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 160,
+        "text": "Temporizador de desconexão"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 239,
+        "text": "Ligar conta Spotify"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 241,
+        "text": "A integração com Spotify está temporariamente indisponível."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 246,
+        "text": "A carregar…"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 275,
+        "text": "A reprodução acontece no teu leitor Spotify ativo (telemóvel, desktop ou web). Abre o Spotify primeiro se nada acontecer."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 301,
+        "text": "ligação direta"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 305,
+        "text": "URL Amazon Music (playlist, estação ou álbum)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 315,
+        "text": "Estações"
+      },
+      {
+        "kind": "attr:description",
+        "line": 66,
+        "text": "Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app."
+      },
+      {
+        "kind": "attr:aria-label",
+        "line": 94,
+        "text": "Próxima faixa"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/auth.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 204,
+        "text": "Aceder à tua conta"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 211,
+        "text": "abre numa nova janela"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 223,
+        "text": "Email da conta"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 258,
+        "text": "Mínimo 6 caracteres"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/backup.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 114,
+        "text": "Não estás autenticado — o backup será feito a partir dos dados locais deste navegador. Para garantir a cópia da nuvem, inicia sessão."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 123,
+        "text": "Um único ficheiro com todas as coleções (clientes, materiais, projetos, faturas, etc.). Ideal para restauro completo."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 133,
+        "text": "Um CSV por coleção dentro de um zip — útil para abrir no Excel/Sheets ou migrar para outras ferramentas."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 145,
+        "text": "previamente exportado. Isto irá"
+      },
+      {
+        "kind": "attr:description",
+        "line": 108,
+        "text": "Exporta tudo o que está associado à tua conta em JSON ou CSV e restaura quando precisares."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/biblioteca.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 68,
+        "text": "URL cloud (preferível)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 75,
+        "text": "Formato sem pré-visualização disponível."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 135,
+        "text": "📄 Pré-visualizar PDF"
+      },
+      {
+        "kind": "attr:description",
+        "line": 52,
+        "text": "Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 55,
+        "text": "Título"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 67,
+        "text": "Descrição"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 87,
+        "text": "Pesquisar…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/calculadora.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 130,
+        "text": "Cria um projeto primeiro para guardar cotações."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 169,
+        "text": "Preço-hora (€)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 197,
+        "text": "Preço final"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 200,
+        "text": "Fórmula: (Materiais + Horas × €/h + Extras) × (1 + margem)."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 208,
+        "text": "Últimas cotações"
+      },
+      {
+        "kind": "attr:title",
+        "line": 115,
+        "text": "Calculadora de preço"
+      },
+      {
+        "kind": "attr:description",
+        "line": 115,
+        "text": "Calcula o preço final de uma peça: materiais + horas + margem."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/calendario.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 114,
+        "text": "Título"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 134,
+        "text": "Toque padrão da aplicação"
+      },
+      {
+        "kind": "attr:title",
+        "line": 86,
+        "text": "Calendário & Agenda"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/cashflow.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 49,
+        "text": "Saídas por categoria"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 64,
+        "text": "Sugestões"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 66,
+        "text": "A finança está saudável. Continua assim!"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 73,
+        "text": "Novo movimento"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 78,
+        "text": "Saída"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 82,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 91,
+        "text": "Descrição"
+      },
+      {
+        "kind": "attr:label",
+        "line": 42,
+        "text": "Saídas"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/catalogo.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 57,
+        "text": "Sem itens no catálogo."
+      },
+      {
+        "kind": "attr:title",
+        "line": 28,
+        "text": "Catálogo"
+      },
+      {
+        "kind": "attr:description",
+        "line": 28,
+        "text": "Peças à venda. Liga-se à Calculadora para guardar o preço final como Preço de Venda."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 31,
+        "text": "Preço (€)"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 34,
+        "text": "Descrição"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/clientes.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 45,
+        "text": "Novo cliente"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 48,
+        "text": "Novo cliente"
+      },
+      {
+        "kind": "attr:description",
+        "line": 41,
+        "text": "Detalhes e histórico de cada cliente."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 67,
+        "text": "Pesquisar cliente…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/configuracoes.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 60,
+        "text": "A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 66,
+        "text": "Carregar dados de demonstração"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 72,
+        "text": "Apagar todos os dados"
+      },
+      {
+        "kind": "attr:title",
+        "line": 28,
+        "text": "Configurações"
+      },
+      {
+        "kind": "attr:description",
+        "line": 28,
+        "text": "Tudo o que controla o comportamento da aplicação."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/contacto.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 32,
+        "text": "Resposta tipicamente em 24-48h em dias úteis."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/contador.tsx",
+    "findings": [
+      {
+        "kind": "attr:description",
+        "line": 196,
+        "text": "Gere carreiras e pontos em simultâneo — toque ou voz."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/contas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 65,
+        "text": "Guardar conta"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 95,
+        "text": "Novo PIN (4 dígitos)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 96,
+        "text": "Confirmar novo PIN"
+      },
+      {
+        "kind": "attr:description",
+        "line": 29,
+        "text": "Esta área está protegida. Introduz o PIN de 4 dígitos. (Inicial: 0000)"
+      },
+      {
+        "kind": "attr:description",
+        "line": 49,
+        "text": "Guarda os teus logins de plataformas em segurança local."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/conversor-cores.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 71,
+        "text": "Código da linha"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 78,
+        "text": "A carregar paleta"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 123,
+        "text": "As equivalências entre marcas são aproximadas (vizinho cromático mais próximo). Para correspondência exata consulta o catálogo oficial de cada marca."
+      },
+      {
+        "kind": "attr:description",
+        "line": 55,
+        "text": "Digita o código de uma linha e vê a correspondência aproximada em todas as marcas."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/crescimento.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 41,
+        "text": "Vendas por mês"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 55,
+        "text": "Distribuição encomendas"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 70,
+        "text": "Relatório executivo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 72,
+        "text": "• Margem média por projeto:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 73,
+        "text": "• Estado mais comum das encomendas:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 75,
+        "text": "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume."
+      },
+      {
+        "kind": "attr:title",
+        "line": 32,
+        "text": "Crescimento do negócio"
+      },
+      {
+        "kind": "attr:description",
+        "line": 32,
+        "text": "Estatísticas e relatórios periódicos para gestão estratégica."
+      },
+      {
+        "kind": "attr:label",
+        "line": 37,
+        "text": "Lucro médio/projeto"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/cursos.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 38,
+        "text": "Preço (€)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 40,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 42,
+        "text": "Páginas do curso"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 50,
+        "text": "Criar curso"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 71,
+        "text": "Páginas:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 99,
+        "text": "Módulo atual"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 87,
+        "text": "Módulo atual"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/design.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 93,
+        "text": "Personalização"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 94,
+        "text": "Configurações"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 174,
+        "text": "Tipo de letra dos cabeçalhos"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 176,
+        "text": "Aplica-se ao título de todas as páginas ao mesmo tempo."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 180,
+        "text": "Limpar overrides por página"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 187,
+        "text": "Nome do negócio"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 189,
+        "text": "Preço-hora base (€)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 192,
+        "text": "Usado por defeito em novos projetos e na calculadora."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 218,
+        "text": "Controla luminosidade, saturação, matiz e contraste dos itens."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 240,
+        "text": "Transparência das janelas com contorno"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 242,
+        "text": "Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 255,
+        "text": "Calibrar opacidade dos botões"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 257,
+        "text": "Controla independentemente a opacidade dos botões primários, secundários e outline."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 285,
+        "text": "Pré-visualização"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 287,
+        "text": "Botão primário"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 288,
+        "text": "Botão outline"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 289,
+        "text": "Secundário"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 325,
+        "text": "A categoria selecionada mantém-se destacada enquanto navegas dentro dela."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 337,
+        "text": "Cores gerais (janelas, botões, fundos)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 349,
+        "text": "Aplica-se a toda a app. Deixa vazio para usar o padrão."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 353,
+        "text": "Cabeçalho da aplicação"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 355,
+        "text": "Barra superior onde está o ícone que abre o menu lateral."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 389,
+        "text": "Repor padrão"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 395,
+        "text": "Personaliza a cor de fundo e do texto das caixas de aviso (ex.: ecrã de \"Sessão expirada\"). Funciona com tons claros ou escuros."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 402,
+        "text": "Âmbar (claro)"
+      },
+      {
+        "kind": "attr:title",
+        "line": 90,
+        "text": "Personalização & Configurações"
+      },
+      {
+        "kind": "attr:description",
+        "line": 90,
+        "text": "Aparência da aplicação e definições gerais num só sítio."
+      },
+      {
+        "kind": "attr:label",
+        "line": 177,
+        "text": "Letra global dos cabeçalhos"
+      },
+      {
+        "kind": "attr:label",
+        "line": 312,
+        "text": "Tipo de letra dos títulos"
+      },
+      {
+        "kind": "attr:label",
+        "line": 313,
+        "text": "Cor dos títulos"
+      },
+      {
+        "kind": "attr:label",
+        "line": 339,
+        "text": "Cor de fundo das páginas"
+      },
+      {
+        "kind": "attr:label",
+        "line": 342,
+        "text": "Cor de áreas suaves (muted)"
+      },
+      {
+        "kind": "attr:label",
+        "line": 343,
+        "text": "Cor dos botões primários"
+      },
+      {
+        "kind": "attr:label",
+        "line": 344,
+        "text": "Cor do texto dos botões"
+      },
+      {
+        "kind": "attr:label",
+        "line": 345,
+        "text": "Cor dos botões secundários"
+      },
+      {
+        "kind": "attr:label",
+        "line": 346,
+        "text": "Cor do texto dos botões secundários"
+      },
+      {
+        "kind": "attr:label",
+        "line": 347,
+        "text": "Cor dos botões outline"
+      },
+      {
+        "kind": "attr:label",
+        "line": 348,
+        "text": "Cor do texto dos botões outline"
+      },
+      {
+        "kind": "attr:label",
+        "line": 356,
+        "text": "Cor de fundo do cabeçalho"
+      },
+      {
+        "kind": "attr:label",
+        "line": 357,
+        "text": "Cor do ícone/texto do cabeçalho"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/editor-moodboards.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 255,
+        "text": "Guardar na aplicação"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 256,
+        "text": "Guardar no dispositivo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 307,
+        "text": "Trás"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 356,
+        "text": "Tema / paleta para começar"
+      },
+      {
+        "kind": "attr:description",
+        "line": 251,
+        "text": "Estúdio interativo · folha A4 vertical."
+      },
+      {
+        "kind": "attr:aria-label",
+        "line": 268,
+        "text": "Decoração"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 357,
+        "text": "ex.: Coleção de outono aconchegante"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 442,
+        "text": "ex.: Título para post de cachecol de lã"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/editor-receita.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 58,
+        "text": "Novo Projeto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 77,
+        "text": "Crochê Tradicional"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 114,
+        "text": "Adicionar Carreira"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 119,
+        "text": "Adicionar Secção"
+      },
+      {
+        "kind": "attr:title",
+        "line": 48,
+        "text": "Hub de Criação · Editor de Receita"
+      },
+      {
+        "kind": "attr:description",
+        "line": 48,
+        "text": "Cria receitas estruturadas de amigurumi e crochê com pré-visualização."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 109,
+        "text": "ex: 6 pa no anel mágico"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/encomendas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 63,
+        "text": "Nova encomenda"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 65,
+        "text": "Nova encomenda"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 79,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 82,
+        "text": "Preço"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 95,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 95,
+        "text": "Preço"
+      },
+      {
+        "kind": "attr:description",
+        "line": 37,
+        "text": "Gestão completa de encomendas, estado atual e etiquetas de envio."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 91,
+        "text": "Pesquisar encomenda ou cliente…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/etiquetas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 69,
+        "text": "Destinatário"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 71,
+        "text": "Código postal"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 72,
+        "text": "País"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 75,
+        "text": "Observações"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 76,
+        "text": "Criar etiqueta"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 81,
+        "text": "Destinatário"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 81,
+        "text": "País"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/etsy.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 111,
+        "text": "Envia o mesmo evento várias vezes para confirmar que o stock só é descontado uma vez (idempotência por"
+      },
+      {
+        "kind": "attr:description",
+        "line": 25,
+        "text": "Integração Etsy e biblioteca de ficheiros digitais."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 113,
+        "text": "Event ID (único)"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 115,
+        "text": "Variação"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/faturacao.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 30,
+        "text": "Criar Fatura"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 31,
+        "text": "Histórico De Faturas"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 94,
+        "text": "Criar fatura"
+      },
+      {
+        "kind": "attr:title",
+        "line": 27,
+        "text": "Faturação: Criar & Histórico"
+      },
+      {
+        "kind": "attr:description",
+        "line": 27,
+        "text": "Emite novas faturas e consulta o histórico completo."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/ferramentas-tecnicas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 48,
+        "text": "Instruções de uso"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 50,
+        "text": "Editor de Receitas: Amigurumis & Crochê"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 52,
+        "text": "Editor de Gráficos: Ponto Cruz"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 53,
+        "text": "Editor de Padrões: Bordado"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 686,
+        "text": "Modo Seleção"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 687,
+        "text": "Adicionar Ponto Reto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 688,
+        "text": "Adicionar Ponto Curvo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 755,
+        "text": "Gestão do Molde:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 756,
+        "text": "Guardar na Biblioteca"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 757,
+        "text": "Guardar no Dispositivo (.json)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 758,
+        "text": "Guardar no Dispositivo (.png)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 785,
+        "text": "Apagar…"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 795,
+        "text": "Calibração de escala:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 812,
+        "text": "Calibração automática"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 818,
+        "text": "Medição obtida (mm)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 906,
+        "text": "Instruções"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 1007,
+        "text": "Adicionar linha por medida"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 1116,
+        "text": "Símbolos"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 1273,
+        "text": "Imagem de referência"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 1300,
+        "text": "Limpar traços"
+      },
+      {
+        "kind": "attr:feature",
+        "line": 35,
+        "text": "Ferramentas Técnicas"
+      },
+      {
+        "kind": "attr:title",
+        "line": 44,
+        "text": "Ferramentas Técnicas"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 918,
+        "text": "Título da receita"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 919,
+        "text": "Materiais, agulha, nível..."
+      },
+      {
+        "kind": "attr:defaultTitulo",
+        "line": 1137,
+        "text": "Gráfico Ponto Cruz"
+      },
+      {
+        "kind": "attr:defaultTitulo",
+        "line": 1303,
+        "text": "Padrão Bordado"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/ficheiros-digitais.tsx",
+    "findings": [
+      {
+        "kind": "attr:description",
+        "line": 35,
+        "text": "Receitas, moldes e PDFs comprados ou vendidos (inclui ligação à Etsy)."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/fornecedores.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 44,
+        "text": "Novo fornecedor"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 46,
+        "text": "Novo fornecedor"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 55,
+        "text": "Código de Desconto de Membro"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 56,
+        "text": "Código"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 87,
+        "text": "Código de Desconto"
+      },
+      {
+        "kind": "attr:description",
+        "line": 41,
+        "text": "Lista de fornecedores de material para os artigos."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 83,
+        "text": "Pesquisar fornecedor…"
+      },
+      {
+        "kind": "attr:title",
+        "line": 99,
+        "text": "Copiar código"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/gestao-fornecedores.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 17,
+        "text": "Editar fornecedores"
+      },
+      {
+        "kind": "attr:title",
+        "line": 15,
+        "text": "Gestão de fornecedores"
+      },
+      {
+        "kind": "attr:description",
+        "line": 16,
+        "text": "Informação detalhada de cada fornecedor e os artigos que disponibiliza."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/historico-faturas.tsx",
+    "findings": [
+      {
+        "kind": "attr:title",
+        "line": 29,
+        "text": "Histórico De Faturas"
+      },
+      {
+        "kind": "attr:description",
+        "line": 29,
+        "text": "Todas as faturas emitidas, com pesquisa e impressão."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 32,
+        "text": "Pesquisar nº, cliente ou estado…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/horas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 42,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 47,
+        "text": "Descrição"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/idioma.tsx",
+    "findings": [
+      {
+        "kind": "attr:description",
+        "line": 17,
+        "text": "Escolhe a língua da aplicação. A mudança é imediata."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/index.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 89,
+        "text": "Novo projeto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 226,
+        "text": "Projetos em curso"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 101,
+        "text": "Pesquisar em toda a app: páginas, categorias, abas…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/instagram.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 40,
+        "text": "Comentários"
+      },
+      {
+        "kind": "attr:description",
+        "line": 27,
+        "text": "Acompanha publicações e estatísticas do teu Instagram (sincronização manual)."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/lista-compras.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 29,
+        "text": "Preço"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 29,
+        "text": "Mínimo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 31,
+        "text": "Nada a comprar! Todos os materiais acima do mínimo."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 25,
+        "text": "Pesquisar material…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/marketing-conteudo.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 35,
+        "text": "Campanhas e Métricas"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 95,
+        "text": "Conversões"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 108,
+        "text": "Histórico de campanhas"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 132,
+        "text": "Calendário Festivo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 260,
+        "text": "Edita cada ideia antes de adicionar ao calendário."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 315,
+        "text": "Quem é o meu cliente?"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 346,
+        "text": "Análise de Mercado e Tendências"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 349,
+        "text": "Notas livres sobre concorrência, tendências e hashtags"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 360,
+        "text": "Guardar alterações"
+      },
+      {
+        "kind": "attr:title",
+        "line": 30,
+        "text": "Marketing e Conteúdo"
+      },
+      {
+        "kind": "attr:description",
+        "line": 31,
+        "text": "Campanhas, métricas, persona do comprador e atalhos criativos — tudo num só lugar."
+      },
+      {
+        "kind": "attr:label",
+        "line": 83,
+        "text": "Conversões"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 272,
+        "text": "Título"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 318,
+        "text": "Ex.: Mulher 30-55 anos, mãe ou avó, sensível a artesanato genuíno…"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 327,
+        "text": "Ex.: Procura presentes únicos e com significado; quer apoiar pequenos negócios…"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 352,
+        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes"
+      },
+      {
+        "kind": "jsx-brace-string",
+        "line": 352,
+        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/modulos.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 89,
+        "text": "Intermédio"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 90,
+        "text": "Avançado"
+      },
+      {
+        "kind": "attr:title",
+        "line": 86,
+        "text": "Módulos ativos"
+      },
+      {
+        "kind": "attr:description",
+        "line": 86,
+        "text": "Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/moodboards.$id.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 33,
+        "text": "Moodboard não encontrado."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 55,
+        "text": "Stock baixo — adicionar às compras"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 68,
+        "text": "📌 Vinculado à encomenda de"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 138,
+        "text": "Adicionar cor"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 144,
+        "text": "Links de referência"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 161,
+        "text": "Adicionar link"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 155,
+        "text": "Título"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/moodboards.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 231,
+        "text": "Guardar no dispositivo"
+      },
+      {
+        "kind": "attr:title",
+        "line": 32,
+        "text": "Moodboards & Inspiração"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 194,
+        "text": "Pesquisar moodboards..."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/mural.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 39,
+        "text": "Criar Inspiração"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 203,
+        "text": "Ainda não criaste nenhuma. Começa pela primeira!"
+      },
+      {
+        "kind": "attr:title",
+        "line": 32,
+        "text": "Mural de Inspiração"
+      },
+      {
+        "kind": "attr:description",
+        "line": 33,
+        "text": "Gira a sorte, guarda favoritas e cria as tuas próprias frases."
+      },
+      {
+        "kind": "attr:title",
+        "line": 123,
+        "text": "Remover dos favoritos"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 167,
+        "text": "Ex: O meu atelier é o meu refúgio favorito."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/notas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 76,
+        "text": "Nova Nota"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 119,
+        "text": "Editar nota"
+      },
+      {
+        "kind": "attr:description",
+        "line": 69,
+        "text": "Captura rápida de ideias, receitas e tarefas do atelier."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 74,
+        "text": "Pesquisar notas..."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 122,
+        "text": "Título"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 141,
+        "text": "Tags separadas por vírgula (#urgente)"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/notificacoes.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 50,
+        "text": "Fila de notificações"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 51,
+        "text": "Sem notificações pendentes."
+      },
+      {
+        "kind": "attr:title",
+        "line": 22,
+        "text": "Gatilhos de notificação"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 43,
+        "text": "Olá {cliente}, a tua encomenda {encomenda}…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/onboarding.tsx",
+    "findings": [
+      {
+        "kind": "attr:title",
+        "line": 43,
+        "text": "Configuração inicial"
+      },
+      {
+        "kind": "attr:description",
+        "line": 43,
+        "text": "Escolhe um nível de complexidade para começar. Podes mudar a qualquer momento em Módulos ativos."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/perfil-negocio.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 76,
+        "text": "Guardar alterações"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 88,
+        "text": "Perfil de Negócio"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 100,
+        "text": "Foto de perfil — visível no cabeçalho e exportações."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 132,
+        "text": "Logótipo do Atelier"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 135,
+        "text": "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos."
+      },
+      {
+        "kind": "attr:emailPessoal",
+        "line": 41,
+        "text": "E-mail inválido"
+      },
+      {
+        "kind": "attr:email",
+        "line": 42,
+        "text": "E-mail inválido"
+      },
+      {
+        "kind": "attr:telefonePessoal",
+        "line": 43,
+        "text": "Telemóvel inválido"
+      },
+      {
+        "kind": "attr:telefone",
+        "line": 44,
+        "text": "Telefone inválido"
+      },
+      {
+        "kind": "attr:nif",
+        "line": 45,
+        "text": "NIF inválido (9 dígitos)"
+      },
+      {
+        "kind": "attr:website",
+        "line": 46,
+        "text": "URL inválido (https://…)"
+      },
+      {
+        "kind": "attr:pinterest",
+        "line": 47,
+        "text": "URL inválido (https://…)"
+      },
+      {
+        "kind": "attr:lojaOnline",
+        "line": 48,
+        "text": "URL inválido (https://…)"
+      },
+      {
+        "kind": "attr:title",
+        "line": 84,
+        "text": "Perfil Pessoal & Negócio"
+      },
+      {
+        "kind": "attr:description",
+        "line": 84,
+        "text": "A artesã por trás da marca e a identidade do atelier."
+      },
+      {
+        "kind": "attr:label",
+        "line": 109,
+        "text": "Telemóvel"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 114,
+        "text": "Conta a tua história no artesanato…"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 124,
+        "text": "Ex: Herança do Novelo"
+      },
+      {
+        "kind": "attr:label",
+        "line": 143,
+        "text": "E-mail do negócio"
+      },
+      {
+        "kind": "attr:label",
+        "line": 146,
+        "text": "Telefone do negócio"
+      },
+      {
+        "kind": "attr:label",
+        "line": 158,
+        "text": "Código Postal"
+      },
+      {
+        "kind": "attr:label",
+        "line": 164,
+        "text": "País"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/planos.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 117,
+        "text": "inicia sessão"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 129,
+        "text": "Vitalício"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 157,
+        "text": "Grátis"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 166,
+        "text": "/mês"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 183,
+        "text": "Experimente Grátis por 14 Dias"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 249,
+        "text": "Tens um código promocional?"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 305,
+        "text": "Resumo do benefício ativado:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 309,
+        "text": "Código Aplicado:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 311,
+        "text": "Novos Preços:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 311,
+        "text": "Os valores exibidos nos cartões de plano acima já incluem este desconto!"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 315,
+        "text": "Acesso Vitalício:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 316,
+        "text": "Premium Vitalício"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 317,
+        "text": "Acesso total a todas as ferramentas (Criador de Moldes, Assistente IA, Exportações e mais), sem necessidade de pagamentos recorrentes ou subscrições futuras."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 320,
+        "text": "Código aplicado com sucesso no seu perfil do atelier."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 331,
+        "text": "Acesso Premium Vitalício Ativo"
+      },
+      {
+        "kind": "attr:title",
+        "line": 97,
+        "text": "Planos e Subscrições"
+      },
+      {
+        "kind": "attr:description",
+        "line": 98,
+        "text": "Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/portfolio.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 83,
+        "text": "Título"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 84,
+        "text": "Técnica"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 87,
+        "text": "Descrição"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 96,
+        "text": "Adicionar peça"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 112,
+        "text": "Adiciona projetos terminados aqui."
+      },
+      {
+        "kind": "attr:title",
+        "line": 74,
+        "text": "Portefólio"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 84,
+        "text": "Tricotin, crochê…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/privacidade.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 12,
+        "text": "A sua privacidade é de extrema importância para nós. Esta Política de Privacidade explica como a nossa aplicação de gestão de negócios recolhe, utiliza, armazena, partilha e protege as informações dos utilizadores da aplicação (\"Utilizadores\" ou \"Clientes Comerciais\") e, por conta destes, os dados dos clientes finais dos seus respetivos negócios (\"Clientes Finais\")."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 13,
+        "text": "Ao utilizar a aplicação, concorda com as práticas descritas nesta política."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 14,
+        "text": "1. INFORMAÇÕES QUE RECOLHEMOS"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 15,
+        "text": "Para fornecer uma experiência de gestão completa e permitir a sincronização com canais externos, recolhemos e processamos os seguintes dados:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 16,
+        "text": "A. Dados de Conta e Gestão do Utilizador (Cliente Comercial)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 17,
+        "text": "Informações de Registo:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 17,
+        "text": "Nome, endereço de e-mail, número de telefone e dados de autenticação."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 18,
+        "text": "Dados de Faturação e Pagamento:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 18,
+        "text": "Informações necessárias para processar assinaturas ou pagamentos da aplicação (sincronizados em segurança através do nosso website)."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 19,
+        "text": "B. Dados do Negócio e Operações (Armazenados na Nuvem)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 20,
+        "text": "Como plataforma de gestão, armazenamos na nuvem as informações que insere para gerir o seu negócio, o que inclui:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 22,
+        "text": "Gestão de Stock:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 22,
+        "text": "Listagem de produtos, materiais, quantidades e fornecedores."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 23,
+        "text": "Encomendas e Vendas:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 23,
+        "text": "Histórico de compras, valores e status de entrega."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 24,
+        "text": "Marketing e Relatórios:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 24,
+        "text": "Dados de desempenho e métricas internas do seu negócio."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 26,
+        "text": "C. Dados dos Clientes Finais (Processados em nome do Utilizador)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 27,
+        "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 29,
+        "text": "Dados de Identificação e Entrega:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 29,
+        "text": "Nomes e moradas para envio de encomendas."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 30,
+        "text": "E-mail e número de telefone."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 32,
+        "text": "D. Dados de Integração e Sincronização (Website, Redes Sociais e E-mail)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 33,
+        "text": "Quando opta por sincronizar a aplicação com plataformas externas (como o seu Website, Instagram ou Contas de E-mail):"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 34,
+        "text": "Comunicações e Conversas:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 34,
+        "text": "Recolhemos e armazenamos o histórico de mensagens e conversas trocadas com os clientes através do Instagram e e-mail. Estas informações são processadas estritamente para centralizar o seu atendimento ao cliente e apoiar a gestão do negócio."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 35,
+        "text": "Sincronização de Dados:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 35,
+        "text": "Informações de encomendas ou contactos gerados no seu website são importados automaticamente para a aplicação."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 36,
+        "text": "2. COMO UTILIZAMOS AS INFORMAÇÕES"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 38,
+        "text": "Prestação, manutenção e melhoria de todas as funcionalidades da aplicação."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 39,
+        "text": "Processamento de pagamentos e gestão de assinaturas."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 40,
+        "text": "Sincronização em tempo real entre a aplicação, o seu website, e-mail e Instagram."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 41,
+        "text": "Suporte técnico e atendimento ao cliente."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 42,
+        "text": "Envio de comunicações importantes sobre atualizações de segurança ou alterações nos termos de serviço."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 44,
+        "text": "3. SEGURANÇA E ARMAZENAMENTO NA NUVEM"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 45,
+        "text": "Segregação de Dados:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 45,
+        "text": "Garantimos que todos os dados do seu negócio (encomendas, stock, conversas) estão completamente segregados e isolados. Nenhum outro utilizador da aplicação terá acesso às suas informações operacionais."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 46,
+        "text": "Todos os dados são armazenados em servidores na nuvem que cumprem elevados padrões de segurança e encriptação."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 47,
+        "text": "Retenção:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 47,
+        "text": "Os dados serão conservados enquanto a sua conta estiver ativa ou conforme necessário para fornecer os serviços. Pode solicitar a eliminação dos seus dados a qualquer momento."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 49,
+        "text": "Não vendemos nem partilhamos dados comerciais ou pessoais com terceiros para fins publicitários. Os dados apenas são partilhados nas seguintes condições:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 51,
+        "text": "Prestadores de Serviços (Subprocessadores):"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 51,
+        "text": "Com empresas terceiras que nos ajudam a manter a aplicação a funcionar (como fornecedores de alojamento na nuvem e processadores de pagamento seguros)."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 52,
+        "text": "Obrigações Legais:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 57,
+        "text": "Solicitar a eliminação definitiva dos seus dados dos nossos servidores na nuvem."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 58,
+        "text": "Exportar os dados do seu negócio (portabilidade)."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 59,
+        "text": "Retirar o consentimento para integrações (como desconectar o Instagram ou o e-mail) a qualquer momento."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 61,
+        "text": "Para exercer qualquer um destes direitos, entre em contacto connosco através do e-mail de suporte configurado na aplicação."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 62,
+        "text": "6. ALTERAÇÕES A ESTA POLÍTICA"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 63,
+        "text": "Poderemos atualizar esta Política de Privacidade periodicamente para refletir mudanças na aplicação ou por motivos legais. Notificaremos os utilizadores sobre quaisquer alterações significativas através da aplicação ou por e-mail."
+      },
+      {
+        "kind": "attr:title",
+        "line": 9,
+        "text": "Política de privacidade"
+      },
+      {
+        "kind": "attr:description",
+        "line": 9,
+        "text": "Última atualização: 9 de junho de 2026"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/projeto-personalizado.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 75,
+        "text": "Cálculo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 82,
+        "text": "Mão de obra"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 89,
+        "text": "Guardar como projeto"
+      },
+      {
+        "kind": "attr:description",
+        "line": 46,
+        "text": "Seleciona materiais, horas e margem para obter o preço final."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/projetos.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 57,
+        "text": "Custo de materiais + horas × preço/hora + margem (default 70%)."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 59,
+        "text": "Novo projeto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 61,
+        "text": "Novo projeto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 77,
+        "text": "Concluído"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 109,
+        "text": "Guardar projeto"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 134,
+        "text": "Preço final"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 143,
+        "text": "Concluído"
+      },
+      {
+        "kind": "attr:title",
+        "line": 25,
+        "text": "Projetos & Criação De Projeto"
+      },
+      {
+        "kind": "attr:description",
+        "line": 25,
+        "text": "Todos os teus projetos e o assistente para iniciar um projeto personalizado."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/quem-somos.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 41,
+        "text": "Herança do Novelo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 70,
+        "text": "primeira plataforma de gestão de negócio criada e focada exclusivamente na nossa área de trabalho"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 82,
+        "text": "A Gestão Descomplicada:"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 87,
+        "text": "O Apoio à Criação:"
+      },
+      {
+        "kind": "attr:description",
+        "line": 24,
+        "text": "A herança e o futuro do nosso artesanato."
+      },
+      {
+        "kind": "attr:alt",
+        "line": 113,
+        "text": "Sara Afonso em criança ao lado da avó."
+      }
+    ]
+  },
+  {
+    "file": "src/routes/reset-password.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 61,
+        "text": "Nova palavra-passe"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 65,
+        "text": "Confirmar palavra-passe"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 62,
+        "text": "Mínimo 6 caracteres"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/sessao-expirada.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 81,
+        "text": "Sessão inválida ou expirada"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 115,
+        "text": "A limpar sessão…"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 117,
+        "text": "Voltar a entrar"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 136,
+        "text": "Confirmar saída da sessão"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 144,
+        "text": "Sim, ir para /auth"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/sincronizacao.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 58,
+        "text": "Domínio da loja"
+      },
+      {
+        "kind": "attr:title",
+        "line": 25,
+        "text": "Sincronização"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/stock.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 56,
+        "text": "Novo material"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 58,
+        "text": "Novo material"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 68,
+        "text": "Código"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 78,
+        "text": "Código/Nº da cor *"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 93,
+        "text": "Preço de compra (€/un)"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 94,
+        "text": "Stock mínimo"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 159,
+        "text": "Código"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 159,
+        "text": "Preço"
+      },
+      {
+        "kind": "attr:description",
+        "line": 53,
+        "text": "Materiais em stock, com fornecedor e preço praticado."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 154,
+        "text": "Pesquisar material por nome ou código…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/todo.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 258,
+        "text": "Média"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 325,
+        "text": "Concluída"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 335,
+        "text": "Selecionar visíveis"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 372,
+        "text": "A vista de calendário respeita os filtros de projeto e estado acima."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 376,
+        "text": "Sem tarefas neste filtro."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 408,
+        "text": "Média"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 426,
+        "text": "Concluída"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 474,
+        "text": "Concluída"
+      },
+      {
+        "kind": "attr:description",
+        "line": 229,
+        "text": "Tarefas do atelier."
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 249,
+        "text": "Nova tarefa…"
+      },
+      {
+        "kind": "attr:placeholder",
+        "line": 285,
+        "text": "Pesquisar tarefas…"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/vendas.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 16,
+        "text": "Histórico"
+      },
+      {
+        "kind": "attr:title",
+        "line": 14,
+        "text": "Vendas concluídas"
+      }
+    ]
+  },
+  {
+    "file": "src/routes/whatsapp.tsx",
+    "findings": [
+      {
+        "kind": "jsx-text",
+        "line": 33,
+        "text": "Verificar ligação"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 38,
+        "text": "Nova mensagem"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 51,
+        "text": "Templates rápidos"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 79,
+        "text": "Histórico de conversas"
+      },
+      {
+        "kind": "jsx-text",
+        "line": 80,
+        "text": "Mensagens recebidas tentam associar-se automaticamente ao cliente por telefone e à encomenda mais recente. Sem correspondência, podes associar manualmente abaixo."
+      },
+      {
+        "kind": "jsx-text",
+        "line": 92,
+        "text": "Sem correspondência automática — associar manualmente:"
+      },
+      {
+        "kind": "attr:title",
+        "line": 29,
+        "text": "Sincronização WhatsApp"
+      },
+      {
+        "kind": "attr:description",
+        "line": 29,
+        "text": "Centraliza mensagens, associa-as a clientes/encomendas e usa templates rápidos."
+      }
+    ]
+  }
+]
