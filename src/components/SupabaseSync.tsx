@@ -14,7 +14,7 @@ const PERSIST_KEYS = [
   "sincronizacao","design","whatsappTemplates","whatsappMensagens","notificacoes",
   "gatilhos","etsyConfig","etsyProdutos","ficheirosDigitais","catalogo","biblioteca",
   "traducoes","modulos","onboardingFeito","moodboards","notas","datasFestivas",
-  "acoesMarketing","contadores","receitasEditor",
+  "acoesMarketing","contadores","receitasEditor","personalDesignDefault",
 ] as const;
 
 function pickState(s: any) {

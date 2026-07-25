@@ -644,6 +644,7 @@ interface State {
   perfilNegocio: PerfilNegocio;
   sincronizacao: SincronizacaoConfig;
   design: DesignSettings;
+  personalDesignDefault: DesignSettings | null;
   // novos
   whatsappTemplates: WhatsappTemplate[];
   whatsappMensagens: WhatsappMensagem[];
@@ -913,6 +914,7 @@ export const useStore = create<State>()(
       onboardingFeito: false,
       moodboards: [],
       notas: [],
+      personalDesignDefault: null,
       datasFestivas: [
         { id: uid(), nome: "Dia do Artesão", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
         { id: uid(), nome: "Dia do Pai", dia: 19, mes: 3, pais: "Portugal", alertaAtivo: true, diasAntes: 30 },
