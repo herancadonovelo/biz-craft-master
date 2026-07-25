@@ -22,7 +22,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
-  const search = useRouterState({ select: (r) => r.location.search }) as Record<string, unknown>;
+  const search = useRouterState({ select: (r) => r.location.search as Record<string, unknown> });
   const showExpiredBanner = search?.expired === "1" || search?.expired === 1 || search?.expired === true;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
