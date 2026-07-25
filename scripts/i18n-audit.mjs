@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 /**
- * i18n audit — scans src/routes/** for Portuguese literal strings in JSX/TSX
- * that are not wrapped in the translation helper (t("..."), useT, <Trans>, etc.)
- * and produces a Markdown + JSON report at reports/i18n-audit.{md,json}.
+ * i18n audit v2 — scans a directory (default `src/routes`) for literal
+ * strings in JSX/TSX that are NOT wrapped in the translation helper
+ * (`t("...")`, `i18n.t(...)`, `tr(...)`, `<Trans>`) and are written in a
+ * language different from the configured target (`--lang`, default `en`).
  *
- * Usage:  node scripts/i18n-audit.mjs [--dir src/routes] [--json] [--quiet]
+ * Reports:
+ *  - reports/i18n-audit.md   (grouped by route/component, with file:line links)
+ *  - reports/i18n-audit.json
+ *  - reports/i18n-audit.messages.json (translation-key skeleton, when --suggest)
  *
- * Heuristics:
- *  - Flags JSX text nodes and JSX string attribute values (title, placeholder,
- *    aria-label, alt, label) containing PT-specific characters (á à â ã é ê í
- *    ó ô õ ú ç) OR common PT stopwords ("não", "sim", "olá", "obrigado",
- *    "adicionar", "guardar", "eliminar", "editar", "cancelar", ...).
- *  - Ignores strings inside t(), i18n.t(), tr(), useT()(), <Trans>, imports,
- *    URLs, className, style, data-* attributes, and pure identifiers.
- *  - Ignores comments and template expressions.
+ * Usage:
+ *   node scripts/i18n-audit.mjs [--dir src/routes] [--lang en]
+ *                               [--exclude "regex1,regex2"]
+ *                               [--suggest] [--ci] [--json] [--quiet]
+ *
+ * Exit codes:
+ *   0 — no findings
+ *   1 — findings present (only when --ci is set)
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -25,6 +29,13 @@ const getArg = (name, def) => {
 };
 const ROOT = process.cwd();
 const TARGET_DIR = path.resolve(ROOT, getArg("--dir", "src/routes"));
+const TARGET_LANG = String(getArg("--lang", "en")).toLowerCase();
+const EXCLUDE_RAW = String(getArg("--exclude", "")).trim();
+const EXCLUDE_RES = EXCLUDE_RAW
+  ? EXCLUDE_RAW.split(",").map((p) => new RegExp(p.trim(), "i")).filter(Boolean)
+  : [];
+const SUGGEST = args.includes("--suggest");
+const CI_MODE = args.includes("--ci");
 const EMIT_JSON = args.includes("--json");
 const QUIET = args.includes("--quiet");
 
@@ -45,6 +56,21 @@ const PT_STOPWORD_RE = new RegExp(
   "i",
 );
 
+const EN_STOPWORDS = [
+  "the", "and", "or", "of", "to", "for", "with", "from", "your", "our",
+  "please", "cancel", "save", "delete", "edit", "add", "create", "new",
+  "loading", "success", "error", "warning", "search", "filter", "sort",
+  "tasks", "projects", "orders", "clients", "suppliers",
+  "settings", "language", "theme", "appearance", "sign in", "sign out",
+];
+const EN_STOPWORD_RE = new RegExp("\\b(" + EN_STOPWORDS.join("|") + ")\\b", "i");
+
+function detectLanguage(s) {
+  if (PT_DIACRITICS.test(s) || PT_STOPWORD_RE.test(s)) return "pt";
+  if (EN_STOPWORD_RE.test(s)) return "en";
+  return "unknown";
+}
+
 const IGNORE_ATTRS = new Set([
   "className", "class", "style", "id", "key", "ref", "type", "name",
   "href", "src", "to", "value", "defaultValue", "onClick", "onChange",
@@ -52,11 +78,16 @@ const IGNORE_ATTRS = new Set([
 ]);
 
 const looksLikeCode = (s) =>
-  /^[a-z0-9_\-./#?=&:%+]+$/i.test(s) || // urls, css classes, ids
+  /^[a-z0-9_\-./#?=&:%+]+$/i.test(s) ||
   /^\s*$/.test(s) ||
   s.length < 3;
 
-const isPortuguese = (s) => PT_DIACRITICS.test(s) || PT_STOPWORD_RE.test(s);
+function shouldReport(s) {
+  if (EXCLUDE_RES.some((re) => re.test(s))) return false;
+  const lang = detectLanguage(s);
+  if (lang === "unknown") return false;
+  return lang !== TARGET_LANG;
+}
 
 async function walk(dir) {
   const out = [];
@@ -69,55 +100,69 @@ async function walk(dir) {
 }
 
 function stripCommentsAndStrings(src) {
-  // Remove block/line comments so we don't inspect them.
   return src
     .replace(/\/\*[\s\S]*?\*\//g, (m) => " ".repeat(m.length))
     .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + " ".repeat(m.length - p1.length));
 }
 
 function isWrappedByT(src, index) {
-  // Look back ~40 chars for t( / tr( / i18n.t( / useT()(
   const back = src.slice(Math.max(0, index - 60), index);
   return /\b(t|tr|i18n\.t|__)\s*\(\s*$/.test(back) ||
          /\bTrans\b[^>]*>\s*$/.test(back);
 }
 
+function toKey(routeSlug, text) {
+  const norm = text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40);
+  return `${routeSlug}.${norm || "text"}`;
+}
+
+function routeSlugFromFile(rel) {
+  return rel
+    .replace(/^src\/(routes|components)\//, "")
+    .replace(/\.(tsx|jsx)$/, "")
+    .replace(/[\\/]+/g, ".")
+    .replace(/[^a-z0-9._-]/gi, "_");
+}
+
 function scanFile(file, src) {
   const findings = [];
   const clean = stripCommentsAndStrings(src);
-
-  // 1. JSX text nodes: >TEXT<
-  const jsxText = />([^<>{}\n]{3,}?)</g;
   let m;
+
+  const jsxText = />([^<>{}\n]{3,}?)</g;
   while ((m = jsxText.exec(clean))) {
     const text = m[1].trim();
     if (!text || looksLikeCode(text)) continue;
-    if (!isPortuguese(text)) continue;
+    if (!shouldReport(text)) continue;
     const line = clean.slice(0, m.index).split("\n").length;
-    findings.push({ kind: "jsx-text", line, text });
+    findings.push({ kind: "jsx-text", line, text, lang: detectLanguage(text) });
   }
 
-  // 2. JSX string attributes: attr="text" or attr={"text"}
   const attrRe = /\b([a-zA-Z_][\w-]*)\s*=\s*(?:\{?\s*)["']([^"'\n]{3,}?)["']/g;
   while ((m = attrRe.exec(clean))) {
     const [, attr, text] = m;
     if (IGNORE_ATTRS.has(attr)) continue;
     if (looksLikeCode(text)) continue;
-    if (!isPortuguese(text)) continue;
+    if (!shouldReport(text)) continue;
     if (isWrappedByT(clean, m.index + m[0].indexOf(text) - 1)) continue;
     const line = clean.slice(0, m.index).split("\n").length;
-    findings.push({ kind: `attr:${attr}`, line, text });
+    findings.push({ kind: `attr:${attr}`, line, text, lang: detectLanguage(text) });
   }
 
-  // 3. Bare string literals inside JSX braces: {"texto"} or {'texto'}
   const braceRe = /\{\s*["']([^"'\n]{3,}?)["']\s*\}/g;
   while ((m = braceRe.exec(clean))) {
     const text = m[1];
     if (looksLikeCode(text)) continue;
-    if (!isPortuguese(text)) continue;
+    if (!shouldReport(text)) continue;
     if (isWrappedByT(clean, m.index)) continue;
     const line = clean.slice(0, m.index).split("\n").length;
-    findings.push({ kind: "jsx-brace-string", line, text });
+    findings.push({ kind: "jsx-brace-string", line, text, lang: detectLanguage(text) });
   }
 
   return findings;
@@ -129,48 +174,87 @@ async function main() {
   for (const file of files) {
     const src = await fs.readFile(file, "utf8");
     const findings = scanFile(file, src);
-    if (findings.length) {
-      report.push({ file: path.relative(ROOT, file), findings });
-    }
+    if (findings.length) report.push({ file: path.relative(ROOT, file), findings });
   }
 
   await fs.mkdir(path.resolve(ROOT, "reports"), { recursive: true });
   const jsonPath = path.resolve(ROOT, "reports/i18n-audit.json");
   const mdPath = path.resolve(ROOT, "reports/i18n-audit.md");
+  const msgsPath = path.resolve(ROOT, "reports/i18n-audit.messages.json");
 
   await fs.writeFile(jsonPath, JSON.stringify(report, null, 2));
 
   const totalFindings = report.reduce((n, r) => n + r.findings.length, 0);
+
+  const suggestions = {};
+  if (SUGGEST) {
+    for (const r of report) {
+      const slug = routeSlugFromFile(r.file);
+      for (const f of r.findings) {
+        const key = toKey(slug, f.text);
+        if (!(key in suggestions)) suggestions[key] = f.text;
+        f.suggestedKey = key;
+      }
+    }
+    await fs.writeFile(msgsPath, JSON.stringify(suggestions, null, 2));
+  }
+
   const md = [
-    `# i18n audit — literais PT fora de t()`,
+    `# i18n audit — literais fora do idioma-alvo (\`${TARGET_LANG}\`)`,
     ``,
     `- Diretório: \`${path.relative(ROOT, TARGET_DIR)}\``,
+    `- Idioma-alvo: \`${TARGET_LANG}\``,
+    EXCLUDE_RES.length
+      ? `- Exclusões: ${EXCLUDE_RES.map((r) => `\`${r.source}\``).join(", ")}`
+      : `- Exclusões: _nenhuma_`,
+    SUGGEST ? `- Mensagens sugeridas: \`${path.relative(ROOT, msgsPath)}\`` : ``,
     `- Ficheiros com ocorrências: **${report.length}**`,
     `- Total de ocorrências: **${totalFindings}**`,
     `- Gerado: ${new Date().toISOString()}`,
     ``,
-    `> Heurística: strings com diacríticos PT ou stopwords comuns em JSX/atributos, não envolvidas em \`t(...)\`, \`i18n.t(...)\`, \`tr(...)\` ou \`<Trans>\`.`,
+    `> Heurística: strings cujo idioma detetado difere de \`${TARGET_LANG}\` e não estão envolvidas em \`t(...)\`, \`i18n.t(...)\`, \`tr(...)\` ou \`<Trans>\`.`,
     ``,
   ];
-  for (const r of report) {
-    md.push(`## \`${r.file}\`  _(${r.findings.length})_`);
+
+  const sorted = [...report].sort((a, b) => b.findings.length - a.findings.length);
+  for (const r of sorted) {
+    md.push(`## \`${r.file}\` — **${r.findings.length}** ocorrência(s)`);
     md.push("");
-    md.push("| Linha | Tipo | Texto |");
-    md.push("|------:|------|-------|");
+    md.push(SUGGEST
+      ? "| Linha | Tipo | Idioma | Texto | Chave sugerida |"
+      : "| Linha | Tipo | Idioma | Texto |");
+    md.push(SUGGEST
+      ? "|------:|------|--------|-------|----------------|"
+      : "|------:|------|--------|-------|");
     for (const f of r.findings) {
       const safe = f.text.replace(/\|/g, "\\|").slice(0, 160);
-      md.push(`| ${f.line} | \`${f.kind}\` | ${safe} |`);
+      const link = `[${f.line}](${r.file}#L${f.line})`;
+      if (SUGGEST) {
+        md.push(`| ${link} | \`${f.kind}\` | \`${f.lang}\` | ${safe} | \`${f.suggestedKey}\` |`);
+      } else {
+        md.push(`| ${link} | \`${f.kind}\` | \`${f.lang}\` | ${safe} |`);
+      }
     }
     md.push("");
   }
   await fs.writeFile(mdPath, md.join("\n"));
 
   if (!QUIET) {
-    console.log(`i18n audit: ${totalFindings} ocorrência(s) em ${report.length} ficheiro(s).`);
+    console.log(
+      `i18n audit (alvo=${TARGET_LANG}): ${totalFindings} ocorrência(s) em ${report.length} ficheiro(s).`,
+    );
     console.log(`  → ${path.relative(ROOT, mdPath)}`);
     console.log(`  → ${path.relative(ROOT, jsonPath)}`);
+    if (SUGGEST) console.log(`  → ${path.relative(ROOT, msgsPath)}`);
   }
   if (EMIT_JSON) console.log(JSON.stringify(report, null, 2));
+
+  if (CI_MODE && totalFindings > 0) {
+    console.error(
+      `\n✖ i18n-audit (--ci): ${totalFindings} ocorrência(s). Ver reports/i18n-audit.md`,
+    );
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {

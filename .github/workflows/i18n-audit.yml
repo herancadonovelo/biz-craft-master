@@ -1,0 +1,29 @@
+name: i18n audit
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/i18n-audit.mjs"
+      - ".github/workflows/i18n-audit.yml"
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install deps
+        run: bun install --frozen-lockfile || bun install
+      - name: Run i18n audit (fails on new findings)
+        run: bun run i18n:audit:ci
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-audit-report
+          path: reports/i18n-audit.*

@@ -5,17 +5,20 @@
       {
         "kind": "attr:description",
         "line": 91,
-        "text": "Perguntas frequentes sobre o funcionamento da aplicação."
+        "text": "Perguntas frequentes sobre o funcionamento da aplicação.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 97,
-        "text": "Procurar pergunta ou palavra-chave…"
+        "text": "Procurar pergunta ou palavra-chave…",
+        "lang": "pt"
       },
       {
         "kind": "attr:aria-label",
         "line": 99,
-        "text": "Pesquisar no FAQ"
+        "text": "Pesquisar no FAQ",
+        "lang": "pt"
       }
     ]
   },
@@ -25,52 +28,62 @@
       {
         "kind": "jsx-text",
         "line": 160,
-        "text": "Temporizador de desconexão"
+        "text": "Temporizador de desconexão",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 239,
-        "text": "Ligar conta Spotify"
+        "text": "Ligar conta Spotify",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 241,
-        "text": "A integração com Spotify está temporariamente indisponível."
+        "text": "A integração com Spotify está temporariamente indisponível.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 246,
-        "text": "A carregar…"
+        "text": "A carregar…",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 275,
-        "text": "A reprodução acontece no teu leitor Spotify ativo (telemóvel, desktop ou web). Abre o Spotify primeiro se nada acontecer."
+        "text": "A reprodução acontece no teu leitor Spotify ativo (telemóvel, desktop ou web). Abre o Spotify primeiro se nada acontecer.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 301,
-        "text": "ligação direta"
+        "text": "ligação direta",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 305,
-        "text": "URL Amazon Music (playlist, estação ou álbum)"
+        "text": "URL Amazon Music (playlist, estação ou álbum)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 315,
-        "text": "Estações"
+        "text": "Estações",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 66,
-        "text": "Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app."
+        "text": "Música ambiente e sons de relaxamento — continuam a tocar enquanto navegas pela app.",
+        "lang": "pt"
       },
       {
         "kind": "attr:aria-label",
         "line": 94,
-        "text": "Próxima faixa"
+        "text": "Próxima faixa",
+        "lang": "pt"
       }
     ]
   },
@@ -80,22 +93,26 @@
       {
         "kind": "jsx-text",
         "line": 204,
-        "text": "Aceder à tua conta"
+        "text": "Aceder à tua conta",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 211,
-        "text": "abre numa nova janela"
+        "text": "abre numa nova janela",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 223,
-        "text": "Email da conta"
+        "text": "Email da conta",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 258,
-        "text": "Mínimo 6 caracteres"
+        "text": "Mínimo 6 caracteres",
+        "lang": "pt"
       }
     ]
   },
@@ -105,27 +122,32 @@
       {
         "kind": "jsx-text",
         "line": 114,
-        "text": "Não estás autenticado — o backup será feito a partir dos dados locais deste navegador. Para garantir a cópia da nuvem, inicia sessão."
+        "text": "Não estás autenticado — o backup será feito a partir dos dados locais deste navegador. Para garantir a cópia da nuvem, inicia sessão.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 123,
-        "text": "Um único ficheiro com todas as coleções (clientes, materiais, projetos, faturas, etc.). Ideal para restauro completo."
+        "text": "Um único ficheiro com todas as coleções (clientes, materiais, projetos, faturas, etc.). Ideal para restauro completo.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 133,
-        "text": "Um CSV por coleção dentro de um zip — útil para abrir no Excel/Sheets ou migrar para outras ferramentas."
+        "text": "Um CSV por coleção dentro de um zip — útil para abrir no Excel/Sheets ou migrar para outras ferramentas.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 145,
-        "text": "previamente exportado. Isto irá"
+        "text": "previamente exportado. Isto irá",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 108,
-        "text": "Exporta tudo o que está associado à tua conta em JSON ou CSV e restaura quando precisares."
+        "text": "Exporta tudo o que está associado à tua conta em JSON ou CSV e restaura quando precisares.",
+        "lang": "pt"
       }
     ]
   },
@@ -135,37 +157,44 @@
       {
         "kind": "jsx-text",
         "line": 68,
-        "text": "URL cloud (preferível)"
+        "text": "URL cloud (preferível)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 75,
-        "text": "Formato sem pré-visualização disponível."
+        "text": "Formato sem pré-visualização disponível.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 135,
-        "text": "📄 Pré-visualizar PDF"
+        "text": "📄 Pré-visualizar PDF",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 52,
-        "text": "Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos."
+        "text": "Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 55,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 67,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 87,
-        "text": "Pesquisar…"
+        "text": "Pesquisar…",
+        "lang": "pt"
       }
     ]
   },
@@ -175,37 +204,44 @@
       {
         "kind": "jsx-text",
         "line": 130,
-        "text": "Cria um projeto primeiro para guardar cotações."
+        "text": "Cria um projeto primeiro para guardar cotações.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 169,
-        "text": "Preço-hora (€)"
+        "text": "Preço-hora (€)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 197,
-        "text": "Preço final"
+        "text": "Preço final",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 200,
-        "text": "Fórmula: (Materiais + Horas × €/h + Extras) × (1 + margem)."
+        "text": "Fórmula: (Materiais + Horas × €/h + Extras) × (1 + margem).",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 208,
-        "text": "Últimas cotações"
+        "text": "Últimas cotações",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 115,
-        "text": "Calculadora de preço"
+        "text": "Calculadora de preço",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 115,
-        "text": "Calcula o preço final de uma peça: materiais + horas + margem."
+        "text": "Calcula o preço final de uma peça: materiais + horas + margem.",
+        "lang": "pt"
       }
     ]
   },
@@ -215,17 +251,20 @@
       {
         "kind": "jsx-text",
         "line": 114,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 134,
-        "text": "Toque padrão da aplicação"
+        "text": "Toque padrão da aplicação",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 86,
-        "text": "Calendário & Agenda"
+        "text": "Calendário & Agenda",
+        "lang": "pt"
       }
     ]
   },
@@ -235,42 +274,50 @@
       {
         "kind": "jsx-text",
         "line": 49,
-        "text": "Saídas por categoria"
+        "text": "Saídas por categoria",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 64,
-        "text": "Sugestões"
+        "text": "Sugestões",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 66,
-        "text": "A finança está saudável. Continua assim!"
+        "text": "A finança está saudável. Continua assim!",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 73,
-        "text": "Novo movimento"
+        "text": "Novo movimento",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 78,
-        "text": "Saída"
+        "text": "Saída",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 82,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 91,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 42,
-        "text": "Saídas"
+        "text": "Saídas",
+        "lang": "pt"
       }
     ]
   },
@@ -280,27 +327,32 @@
       {
         "kind": "jsx-text",
         "line": 57,
-        "text": "Sem itens no catálogo."
+        "text": "Sem itens no catálogo.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 28,
-        "text": "Catálogo"
+        "text": "Catálogo",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 28,
-        "text": "Peças à venda. Liga-se à Calculadora para guardar o preço final como Preço de Venda."
+        "text": "Peças à venda. Liga-se à Calculadora para guardar o preço final como Preço de Venda.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 31,
-        "text": "Preço (€)"
+        "text": "Preço (€)",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 34,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       }
     ]
   },
@@ -310,22 +362,26 @@
       {
         "kind": "jsx-text",
         "line": 45,
-        "text": "Novo cliente"
+        "text": "Novo cliente",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 48,
-        "text": "Novo cliente"
+        "text": "Novo cliente",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 41,
-        "text": "Detalhes e histórico de cada cliente."
+        "text": "Detalhes e histórico de cada cliente.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 67,
-        "text": "Pesquisar cliente…"
+        "text": "Pesquisar cliente…",
+        "lang": "pt"
       }
     ]
   },
@@ -335,27 +391,32 @@
       {
         "kind": "jsx-text",
         "line": 60,
-        "text": "A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar."
+        "text": "A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 66,
-        "text": "Carregar dados de demonstração"
+        "text": "Carregar dados de demonstração",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 72,
-        "text": "Apagar todos os dados"
+        "text": "Apagar todos os dados",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 28,
-        "text": "Configurações"
+        "text": "Configurações",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 28,
-        "text": "Tudo o que controla o comportamento da aplicação."
+        "text": "Tudo o que controla o comportamento da aplicação.",
+        "lang": "pt"
       }
     ]
   },
@@ -365,7 +426,8 @@
       {
         "kind": "jsx-text",
         "line": 32,
-        "text": "Resposta tipicamente em 24-48h em dias úteis."
+        "text": "Resposta tipicamente em 24-48h em dias úteis.",
+        "lang": "pt"
       }
     ]
   },
@@ -375,7 +437,8 @@
       {
         "kind": "attr:description",
         "line": 196,
-        "text": "Gere carreiras e pontos em simultâneo — toque ou voz."
+        "text": "Gere carreiras e pontos em simultâneo — toque ou voz.",
+        "lang": "pt"
       }
     ]
   },
@@ -385,27 +448,32 @@
       {
         "kind": "jsx-text",
         "line": 65,
-        "text": "Guardar conta"
+        "text": "Guardar conta",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 95,
-        "text": "Novo PIN (4 dígitos)"
+        "text": "Novo PIN (4 dígitos)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 96,
-        "text": "Confirmar novo PIN"
+        "text": "Confirmar novo PIN",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 29,
-        "text": "Esta área está protegida. Introduz o PIN de 4 dígitos. (Inicial: 0000)"
+        "text": "Esta área está protegida. Introduz o PIN de 4 dígitos. (Inicial: 0000)",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 49,
-        "text": "Guarda os teus logins de plataformas em segurança local."
+        "text": "Guarda os teus logins de plataformas em segurança local.",
+        "lang": "pt"
       }
     ]
   },
@@ -415,22 +483,26 @@
       {
         "kind": "jsx-text",
         "line": 71,
-        "text": "Código da linha"
+        "text": "Código da linha",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 78,
-        "text": "A carregar paleta"
+        "text": "A carregar paleta",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 123,
-        "text": "As equivalências entre marcas são aproximadas (vizinho cromático mais próximo). Para correspondência exata consulta o catálogo oficial de cada marca."
+        "text": "As equivalências entre marcas são aproximadas (vizinho cromático mais próximo). Para correspondência exata consulta o catálogo oficial de cada marca.",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 55,
-        "text": "Digita o código de uma linha e vê a correspondência aproximada em todas as marcas."
+        "text": "Digita o código de uma linha e vê a correspondência aproximada em todas as marcas.",
+        "lang": "pt"
       }
     ]
   },
@@ -440,47 +512,56 @@
       {
         "kind": "jsx-text",
         "line": 41,
-        "text": "Vendas por mês"
+        "text": "Vendas por mês",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 55,
-        "text": "Distribuição encomendas"
+        "text": "Distribuição encomendas",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 70,
-        "text": "Relatório executivo"
+        "text": "Relatório executivo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 72,
-        "text": "• Margem média por projeto:"
+        "text": "• Margem média por projeto:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 73,
-        "text": "• Estado mais comum das encomendas:"
+        "text": "• Estado mais comum das encomendas:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 75,
-        "text": "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume."
+        "text": "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 32,
-        "text": "Crescimento do negócio"
+        "text": "Crescimento do negócio",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 32,
-        "text": "Estatísticas e relatórios periódicos para gestão estratégica."
+        "text": "Estatísticas e relatórios periódicos para gestão estratégica.",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 37,
-        "text": "Lucro médio/projeto"
+        "text": "Lucro médio/projeto",
+        "lang": "pt"
       }
     ]
   },
@@ -490,37 +571,44 @@
       {
         "kind": "jsx-text",
         "line": 38,
-        "text": "Preço (€)"
+        "text": "Preço (€)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 40,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 42,
-        "text": "Páginas do curso"
+        "text": "Páginas do curso",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 50,
-        "text": "Criar curso"
+        "text": "Criar curso",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 71,
-        "text": "Páginas:"
+        "text": "Páginas:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 99,
-        "text": "Módulo atual"
+        "text": "Módulo atual",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 87,
-        "text": "Módulo atual"
+        "text": "Módulo atual",
+        "lang": "pt"
       }
     ]
   },
@@ -530,202 +618,242 @@
       {
         "kind": "jsx-text",
         "line": 93,
-        "text": "Personalização"
+        "text": "Personalização",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 94,
-        "text": "Configurações"
+        "text": "Configurações",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 174,
-        "text": "Tipo de letra dos cabeçalhos"
+        "text": "Tipo de letra dos cabeçalhos",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 176,
-        "text": "Aplica-se ao título de todas as páginas ao mesmo tempo."
+        "text": "Aplica-se ao título de todas as páginas ao mesmo tempo.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 180,
-        "text": "Limpar overrides por página"
+        "text": "Limpar overrides por página",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 187,
-        "text": "Nome do negócio"
+        "text": "Nome do negócio",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 189,
-        "text": "Preço-hora base (€)"
+        "text": "Preço-hora base (€)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 192,
-        "text": "Usado por defeito em novos projetos e na calculadora."
+        "text": "Usado por defeito em novos projetos e na calculadora.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 218,
-        "text": "Controla luminosidade, saturação, matiz e contraste dos itens."
+        "text": "Controla luminosidade, saturação, matiz e contraste dos itens.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 240,
-        "text": "Transparência das janelas com contorno"
+        "text": "Transparência das janelas com contorno",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 242,
-        "text": "Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente."
+        "text": "Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 255,
-        "text": "Calibrar opacidade dos botões"
+        "text": "Calibrar opacidade dos botões",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 257,
-        "text": "Controla independentemente a opacidade dos botões primários, secundários e outline."
+        "text": "Controla independentemente a opacidade dos botões primários, secundários e outline.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 285,
-        "text": "Pré-visualização"
+        "text": "Pré-visualização",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 287,
-        "text": "Botão primário"
+        "text": "Botão primário",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 288,
-        "text": "Botão outline"
+        "text": "Botão outline",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 289,
-        "text": "Secundário"
+        "text": "Secundário",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 325,
-        "text": "A categoria selecionada mantém-se destacada enquanto navegas dentro dela."
+        "text": "A categoria selecionada mantém-se destacada enquanto navegas dentro dela.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 337,
-        "text": "Cores gerais (janelas, botões, fundos)"
+        "text": "Cores gerais (janelas, botões, fundos)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 349,
-        "text": "Aplica-se a toda a app. Deixa vazio para usar o padrão."
+        "text": "Aplica-se a toda a app. Deixa vazio para usar o padrão.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 353,
-        "text": "Cabeçalho da aplicação"
+        "text": "Cabeçalho da aplicação",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 355,
-        "text": "Barra superior onde está o ícone que abre o menu lateral."
+        "text": "Barra superior onde está o ícone que abre o menu lateral.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 389,
-        "text": "Repor padrão"
+        "text": "Repor padrão",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 395,
-        "text": "Personaliza a cor de fundo e do texto das caixas de aviso (ex.: ecrã de \"Sessão expirada\"). Funciona com tons claros ou escuros."
+        "text": "Personaliza a cor de fundo e do texto das caixas de aviso (ex.: ecrã de \"Sessão expirada\"). Funciona com tons claros ou escuros.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 402,
-        "text": "Âmbar (claro)"
+        "text": "Âmbar (claro)",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 90,
-        "text": "Personalização & Configurações"
+        "text": "Personalização & Configurações",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 90,
-        "text": "Aparência da aplicação e definições gerais num só sítio."
+        "text": "Aparência da aplicação e definições gerais num só sítio.",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 177,
-        "text": "Letra global dos cabeçalhos"
+        "text": "Letra global dos cabeçalhos",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 312,
-        "text": "Tipo de letra dos títulos"
+        "text": "Tipo de letra dos títulos",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 313,
-        "text": "Cor dos títulos"
+        "text": "Cor dos títulos",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 339,
-        "text": "Cor de fundo das páginas"
+        "text": "Cor de fundo das páginas",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 342,
-        "text": "Cor de áreas suaves (muted)"
+        "text": "Cor de áreas suaves (muted)",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 343,
-        "text": "Cor dos botões primários"
+        "text": "Cor dos botões primários",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 344,
-        "text": "Cor do texto dos botões"
+        "text": "Cor do texto dos botões",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 345,
-        "text": "Cor dos botões secundários"
+        "text": "Cor dos botões secundários",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 346,
-        "text": "Cor do texto dos botões secundários"
+        "text": "Cor do texto dos botões secundários",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 347,
-        "text": "Cor dos botões outline"
+        "text": "Cor dos botões outline",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 348,
-        "text": "Cor do texto dos botões outline"
+        "text": "Cor do texto dos botões outline",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 356,
-        "text": "Cor de fundo do cabeçalho"
+        "text": "Cor de fundo do cabeçalho",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 357,
-        "text": "Cor do ícone/texto do cabeçalho"
+        "text": "Cor do ícone/texto do cabeçalho",
+        "lang": "pt"
       }
     ]
   },
@@ -735,42 +863,50 @@
       {
         "kind": "jsx-text",
         "line": 255,
-        "text": "Guardar na aplicação"
+        "text": "Guardar na aplicação",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 256,
-        "text": "Guardar no dispositivo"
+        "text": "Guardar no dispositivo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 307,
-        "text": "Trás"
+        "text": "Trás",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 356,
-        "text": "Tema / paleta para começar"
+        "text": "Tema / paleta para começar",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 251,
-        "text": "Estúdio interativo · folha A4 vertical."
+        "text": "Estúdio interativo · folha A4 vertical.",
+        "lang": "pt"
       },
       {
         "kind": "attr:aria-label",
         "line": 268,
-        "text": "Decoração"
+        "text": "Decoração",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 357,
-        "text": "ex.: Coleção de outono aconchegante"
+        "text": "ex.: Coleção de outono aconchegante",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 442,
-        "text": "ex.: Título para post de cachecol de lã"
+        "text": "ex.: Título para post de cachecol de lã",
+        "lang": "pt"
       }
     ]
   },
@@ -780,37 +916,44 @@
       {
         "kind": "jsx-text",
         "line": 58,
-        "text": "Novo Projeto"
+        "text": "Novo Projeto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 77,
-        "text": "Crochê Tradicional"
+        "text": "Crochê Tradicional",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 114,
-        "text": "Adicionar Carreira"
+        "text": "Adicionar Carreira",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 119,
-        "text": "Adicionar Secção"
+        "text": "Adicionar Secção",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 48,
-        "text": "Hub de Criação · Editor de Receita"
+        "text": "Hub de Criação · Editor de Receita",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 48,
-        "text": "Cria receitas estruturadas de amigurumi e crochê com pré-visualização."
+        "text": "Cria receitas estruturadas de amigurumi e crochê com pré-visualização.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 109,
-        "text": "ex: 6 pa no anel mágico"
+        "text": "ex: 6 pa no anel mágico",
+        "lang": "pt"
       }
     ]
   },
@@ -820,42 +963,50 @@
       {
         "kind": "jsx-text",
         "line": 63,
-        "text": "Nova encomenda"
+        "text": "Nova encomenda",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 65,
-        "text": "Nova encomenda"
+        "text": "Nova encomenda",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 79,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 82,
-        "text": "Preço"
+        "text": "Preço",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 95,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 95,
-        "text": "Preço"
+        "text": "Preço",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 37,
-        "text": "Gestão completa de encomendas, estado atual e etiquetas de envio."
+        "text": "Gestão completa de encomendas, estado atual e etiquetas de envio.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 91,
-        "text": "Pesquisar encomenda ou cliente…"
+        "text": "Pesquisar encomenda ou cliente…",
+        "lang": "pt"
       }
     ]
   },
@@ -865,37 +1016,44 @@
       {
         "kind": "jsx-text",
         "line": 69,
-        "text": "Destinatário"
+        "text": "Destinatário",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 71,
-        "text": "Código postal"
+        "text": "Código postal",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 72,
-        "text": "País"
+        "text": "País",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 75,
-        "text": "Observações"
+        "text": "Observações",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 76,
-        "text": "Criar etiqueta"
+        "text": "Criar etiqueta",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 81,
-        "text": "Destinatário"
+        "text": "Destinatário",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 81,
-        "text": "País"
+        "text": "País",
+        "lang": "pt"
       }
     ]
   },
@@ -905,22 +1063,26 @@
       {
         "kind": "jsx-text",
         "line": 111,
-        "text": "Envia o mesmo evento várias vezes para confirmar que o stock só é descontado uma vez (idempotência por"
+        "text": "Envia o mesmo evento várias vezes para confirmar que o stock só é descontado uma vez (idempotência por",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 25,
-        "text": "Integração Etsy e biblioteca de ficheiros digitais."
+        "text": "Integração Etsy e biblioteca de ficheiros digitais.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 113,
-        "text": "Event ID (único)"
+        "text": "Event ID (único)",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 115,
-        "text": "Variação"
+        "text": "Variação",
+        "lang": "pt"
       }
     ]
   },
@@ -930,27 +1092,32 @@
       {
         "kind": "jsx-text",
         "line": 30,
-        "text": "Criar Fatura"
+        "text": "Criar Fatura",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 31,
-        "text": "Histórico De Faturas"
+        "text": "Histórico De Faturas",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 94,
-        "text": "Criar fatura"
+        "text": "Criar fatura",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 27,
-        "text": "Faturação: Criar & Histórico"
+        "text": "Faturação: Criar & Histórico",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 27,
-        "text": "Emite novas faturas e consulta o histórico completo."
+        "text": "Emite novas faturas e consulta o histórico completo.",
+        "lang": "pt"
       }
     ]
   },
@@ -960,132 +1127,158 @@
       {
         "kind": "jsx-text",
         "line": 48,
-        "text": "Instruções de uso"
+        "text": "Instruções de uso",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 50,
-        "text": "Editor de Receitas: Amigurumis & Crochê"
+        "text": "Editor de Receitas: Amigurumis & Crochê",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 52,
-        "text": "Editor de Gráficos: Ponto Cruz"
+        "text": "Editor de Gráficos: Ponto Cruz",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 53,
-        "text": "Editor de Padrões: Bordado"
+        "text": "Editor de Padrões: Bordado",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 686,
-        "text": "Modo Seleção"
+        "text": "Modo Seleção",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 687,
-        "text": "Adicionar Ponto Reto"
+        "text": "Adicionar Ponto Reto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 688,
-        "text": "Adicionar Ponto Curvo"
+        "text": "Adicionar Ponto Curvo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 755,
-        "text": "Gestão do Molde:"
+        "text": "Gestão do Molde:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 756,
-        "text": "Guardar na Biblioteca"
+        "text": "Guardar na Biblioteca",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 757,
-        "text": "Guardar no Dispositivo (.json)"
+        "text": "Guardar no Dispositivo (.json)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 758,
-        "text": "Guardar no Dispositivo (.png)"
+        "text": "Guardar no Dispositivo (.png)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 785,
-        "text": "Apagar…"
+        "text": "Apagar…",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 795,
-        "text": "Calibração de escala:"
+        "text": "Calibração de escala:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 812,
-        "text": "Calibração automática"
+        "text": "Calibração automática",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 818,
-        "text": "Medição obtida (mm)"
+        "text": "Medição obtida (mm)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 906,
-        "text": "Instruções"
+        "text": "Instruções",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 1007,
-        "text": "Adicionar linha por medida"
+        "text": "Adicionar linha por medida",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 1116,
-        "text": "Símbolos"
+        "text": "Símbolos",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 1273,
-        "text": "Imagem de referência"
+        "text": "Imagem de referência",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 1300,
-        "text": "Limpar traços"
+        "text": "Limpar traços",
+        "lang": "pt"
       },
       {
         "kind": "attr:feature",
         "line": 35,
-        "text": "Ferramentas Técnicas"
+        "text": "Ferramentas Técnicas",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 44,
-        "text": "Ferramentas Técnicas"
+        "text": "Ferramentas Técnicas",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 918,
-        "text": "Título da receita"
+        "text": "Título da receita",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 919,
-        "text": "Materiais, agulha, nível..."
+        "text": "Materiais, agulha, nível...",
+        "lang": "pt"
       },
       {
         "kind": "attr:defaultTitulo",
         "line": 1137,
-        "text": "Gráfico Ponto Cruz"
+        "text": "Gráfico Ponto Cruz",
+        "lang": "pt"
       },
       {
         "kind": "attr:defaultTitulo",
         "line": 1303,
-        "text": "Padrão Bordado"
+        "text": "Padrão Bordado",
+        "lang": "pt"
       }
     ]
   },
@@ -1095,7 +1288,8 @@
       {
         "kind": "attr:description",
         "line": 35,
-        "text": "Receitas, moldes e PDFs comprados ou vendidos (inclui ligação à Etsy)."
+        "text": "Receitas, moldes e PDFs comprados ou vendidos (inclui ligação à Etsy).",
+        "lang": "pt"
       }
     ]
   },
@@ -1105,42 +1299,50 @@
       {
         "kind": "jsx-text",
         "line": 44,
-        "text": "Novo fornecedor"
+        "text": "Novo fornecedor",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 46,
-        "text": "Novo fornecedor"
+        "text": "Novo fornecedor",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 55,
-        "text": "Código de Desconto de Membro"
+        "text": "Código de Desconto de Membro",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 56,
-        "text": "Código"
+        "text": "Código",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 87,
-        "text": "Código de Desconto"
+        "text": "Código de Desconto",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 41,
-        "text": "Lista de fornecedores de material para os artigos."
+        "text": "Lista de fornecedores de material para os artigos.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 83,
-        "text": "Pesquisar fornecedor…"
+        "text": "Pesquisar fornecedor…",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 99,
-        "text": "Copiar código"
+        "text": "Copiar código",
+        "lang": "pt"
       }
     ]
   },
@@ -1150,17 +1352,20 @@
       {
         "kind": "jsx-text",
         "line": 17,
-        "text": "Editar fornecedores"
+        "text": "Editar fornecedores",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 15,
-        "text": "Gestão de fornecedores"
+        "text": "Gestão de fornecedores",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 16,
-        "text": "Informação detalhada de cada fornecedor e os artigos que disponibiliza."
+        "text": "Informação detalhada de cada fornecedor e os artigos que disponibiliza.",
+        "lang": "pt"
       }
     ]
   },
@@ -1170,17 +1375,20 @@
       {
         "kind": "attr:title",
         "line": 29,
-        "text": "Histórico De Faturas"
+        "text": "Histórico De Faturas",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 29,
-        "text": "Todas as faturas emitidas, com pesquisa e impressão."
+        "text": "Todas as faturas emitidas, com pesquisa e impressão.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 32,
-        "text": "Pesquisar nº, cliente ou estado…"
+        "text": "Pesquisar nº, cliente ou estado…",
+        "lang": "pt"
       }
     ]
   },
@@ -1190,12 +1398,14 @@
       {
         "kind": "jsx-text",
         "line": 42,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 47,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       }
     ]
   },
@@ -1205,7 +1415,8 @@
       {
         "kind": "attr:description",
         "line": 17,
-        "text": "Escolhe a língua da aplicação. A mudança é imediata."
+        "text": "Escolhe a língua da aplicação. A mudança é imediata.",
+        "lang": "pt"
       }
     ]
   },
@@ -1215,17 +1426,20 @@
       {
         "kind": "jsx-text",
         "line": 89,
-        "text": "Novo projeto"
+        "text": "Novo projeto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 226,
-        "text": "Projetos em curso"
+        "text": "Projetos em curso",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 101,
-        "text": "Pesquisar em toda a app: páginas, categorias, abas…"
+        "text": "Pesquisar em toda a app: páginas, categorias, abas…",
+        "lang": "pt"
       }
     ]
   },
@@ -1235,12 +1449,14 @@
       {
         "kind": "jsx-text",
         "line": 40,
-        "text": "Comentários"
+        "text": "Comentários",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 27,
-        "text": "Acompanha publicações e estatísticas do teu Instagram (sincronização manual)."
+        "text": "Acompanha publicações e estatísticas do teu Instagram (sincronização manual).",
+        "lang": "pt"
       }
     ]
   },
@@ -1250,22 +1466,26 @@
       {
         "kind": "jsx-text",
         "line": 29,
-        "text": "Preço"
+        "text": "Preço",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 29,
-        "text": "Mínimo"
+        "text": "Mínimo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 31,
-        "text": "Nada a comprar! Todos os materiais acima do mínimo."
+        "text": "Nada a comprar! Todos os materiais acima do mínimo.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 25,
-        "text": "Pesquisar material…"
+        "text": "Pesquisar material…",
+        "lang": "pt"
       }
     ]
   },
@@ -1275,87 +1495,104 @@
       {
         "kind": "jsx-text",
         "line": 35,
-        "text": "Campanhas e Métricas"
+        "text": "Campanhas e Métricas",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 95,
-        "text": "Conversões"
+        "text": "Conversões",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 108,
-        "text": "Histórico de campanhas"
+        "text": "Histórico de campanhas",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 132,
-        "text": "Calendário Festivo"
+        "text": "Calendário Festivo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 260,
-        "text": "Edita cada ideia antes de adicionar ao calendário."
+        "text": "Edita cada ideia antes de adicionar ao calendário.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 315,
-        "text": "Quem é o meu cliente?"
+        "text": "Quem é o meu cliente?",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 346,
-        "text": "Análise de Mercado e Tendências"
+        "text": "Análise de Mercado e Tendências",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 349,
-        "text": "Notas livres sobre concorrência, tendências e hashtags"
+        "text": "Notas livres sobre concorrência, tendências e hashtags",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 360,
-        "text": "Guardar alterações"
+        "text": "Guardar alterações",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 30,
-        "text": "Marketing e Conteúdo"
+        "text": "Marketing e Conteúdo",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 31,
-        "text": "Campanhas, métricas, persona do comprador e atalhos criativos — tudo num só lugar."
+        "text": "Campanhas, métricas, persona do comprador e atalhos criativos — tudo num só lugar.",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 83,
-        "text": "Conversões"
+        "text": "Conversões",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 272,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 318,
-        "text": "Ex.: Mulher 30-55 anos, mãe ou avó, sensível a artesanato genuíno…"
+        "text": "Ex.: Mulher 30-55 anos, mãe ou avó, sensível a artesanato genuíno…",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 327,
-        "text": "Ex.: Procura presentes únicos e com significado; quer apoiar pequenos negócios…"
+        "text": "Ex.: Procura presentes únicos e com significado; quer apoiar pequenos negócios…",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 352,
-        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes"
+        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes",
+        "lang": "pt"
       },
       {
         "kind": "jsx-brace-string",
         "line": 352,
-        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes"
+        "text": "• Concorrente X: lançou coleção de amigurumi de animais marinhos\\n• Tendência: cores terrosas, tons pastel\\n• Hashtags fortes: #amigurumipt #tricotin #handmadewithlove\\n• Produtos que estão a vender: porta-chaves, mini-mascotes",
+        "lang": "pt"
       }
     ]
   },
@@ -1365,22 +1602,26 @@
       {
         "kind": "jsx-text",
         "line": 89,
-        "text": "Intermédio"
+        "text": "Intermédio",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 90,
-        "text": "Avançado"
+        "text": "Avançado",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 86,
-        "text": "Módulos ativos"
+        "text": "Módulos ativos",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 86,
-        "text": "Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo."
+        "text": "Liga ou desliga categorias do menu. Mantém a app limpa e ajustada ao teu fluxo.",
+        "lang": "pt"
       }
     ]
   },
@@ -1390,37 +1631,44 @@
       {
         "kind": "jsx-text",
         "line": 33,
-        "text": "Moodboard não encontrado."
+        "text": "Moodboard não encontrado.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 55,
-        "text": "Stock baixo — adicionar às compras"
+        "text": "Stock baixo — adicionar às compras",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 68,
-        "text": "📌 Vinculado à encomenda de"
+        "text": "📌 Vinculado à encomenda de",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 138,
-        "text": "Adicionar cor"
+        "text": "Adicionar cor",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 144,
-        "text": "Links de referência"
+        "text": "Links de referência",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 161,
-        "text": "Adicionar link"
+        "text": "Adicionar link",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 155,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       }
     ]
   },
@@ -1430,17 +1678,20 @@
       {
         "kind": "jsx-text",
         "line": 231,
-        "text": "Guardar no dispositivo"
+        "text": "Guardar no dispositivo",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 32,
-        "text": "Moodboards & Inspiração"
+        "text": "Moodboards & Inspiração",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 194,
-        "text": "Pesquisar moodboards..."
+        "text": "Pesquisar moodboards...",
+        "lang": "pt"
       }
     ]
   },
@@ -1450,32 +1701,38 @@
       {
         "kind": "jsx-text",
         "line": 39,
-        "text": "Criar Inspiração"
+        "text": "Criar Inspiração",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 203,
-        "text": "Ainda não criaste nenhuma. Começa pela primeira!"
+        "text": "Ainda não criaste nenhuma. Começa pela primeira!",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 32,
-        "text": "Mural de Inspiração"
+        "text": "Mural de Inspiração",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 33,
-        "text": "Gira a sorte, guarda favoritas e cria as tuas próprias frases."
+        "text": "Gira a sorte, guarda favoritas e cria as tuas próprias frases.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 123,
-        "text": "Remover dos favoritos"
+        "text": "Remover dos favoritos",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 167,
-        "text": "Ex: O meu atelier é o meu refúgio favorito."
+        "text": "Ex: O meu atelier é o meu refúgio favorito.",
+        "lang": "pt"
       }
     ]
   },
@@ -1485,32 +1742,38 @@
       {
         "kind": "jsx-text",
         "line": 76,
-        "text": "Nova Nota"
+        "text": "Nova Nota",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 119,
-        "text": "Editar nota"
+        "text": "Editar nota",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 69,
-        "text": "Captura rápida de ideias, receitas e tarefas do atelier."
+        "text": "Captura rápida de ideias, receitas e tarefas do atelier.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 74,
-        "text": "Pesquisar notas..."
+        "text": "Pesquisar notas...",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 122,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 141,
-        "text": "Tags separadas por vírgula (#urgente)"
+        "text": "Tags separadas por vírgula (#urgente)",
+        "lang": "pt"
       }
     ]
   },
@@ -1520,22 +1783,26 @@
       {
         "kind": "jsx-text",
         "line": 50,
-        "text": "Fila de notificações"
+        "text": "Fila de notificações",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 51,
-        "text": "Sem notificações pendentes."
+        "text": "Sem notificações pendentes.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 22,
-        "text": "Gatilhos de notificação"
+        "text": "Gatilhos de notificação",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 43,
-        "text": "Olá {cliente}, a tua encomenda {encomenda}…"
+        "text": "Olá {cliente}, a tua encomenda {encomenda}…",
+        "lang": "pt"
       }
     ]
   },
@@ -1545,12 +1812,14 @@
       {
         "kind": "attr:title",
         "line": 43,
-        "text": "Configuração inicial"
+        "text": "Configuração inicial",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 43,
-        "text": "Escolhe um nível de complexidade para começar. Podes mudar a qualquer momento em Módulos ativos."
+        "text": "Escolhe um nível de complexidade para começar. Podes mudar a qualquer momento em Módulos ativos.",
+        "lang": "pt"
       }
     ]
   },
@@ -1560,112 +1829,134 @@
       {
         "kind": "jsx-text",
         "line": 76,
-        "text": "Guardar alterações"
+        "text": "Guardar alterações",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 88,
-        "text": "Perfil de Negócio"
+        "text": "Perfil de Negócio",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 100,
-        "text": "Foto de perfil — visível no cabeçalho e exportações."
+        "text": "Foto de perfil — visível no cabeçalho e exportações.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 132,
-        "text": "Logótipo do Atelier"
+        "text": "Logótipo do Atelier",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 135,
-        "text": "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos."
+        "text": "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos.",
+        "lang": "pt"
       },
       {
         "kind": "attr:emailPessoal",
         "line": 41,
-        "text": "E-mail inválido"
+        "text": "E-mail inválido",
+        "lang": "pt"
       },
       {
         "kind": "attr:email",
         "line": 42,
-        "text": "E-mail inválido"
+        "text": "E-mail inválido",
+        "lang": "pt"
       },
       {
         "kind": "attr:telefonePessoal",
         "line": 43,
-        "text": "Telemóvel inválido"
+        "text": "Telemóvel inválido",
+        "lang": "pt"
       },
       {
         "kind": "attr:telefone",
         "line": 44,
-        "text": "Telefone inválido"
+        "text": "Telefone inválido",
+        "lang": "pt"
       },
       {
         "kind": "attr:nif",
         "line": 45,
-        "text": "NIF inválido (9 dígitos)"
+        "text": "NIF inválido (9 dígitos)",
+        "lang": "pt"
       },
       {
         "kind": "attr:website",
         "line": 46,
-        "text": "URL inválido (https://…)"
+        "text": "URL inválido (https://…)",
+        "lang": "pt"
       },
       {
         "kind": "attr:pinterest",
         "line": 47,
-        "text": "URL inválido (https://…)"
+        "text": "URL inválido (https://…)",
+        "lang": "pt"
       },
       {
         "kind": "attr:lojaOnline",
         "line": 48,
-        "text": "URL inválido (https://…)"
+        "text": "URL inválido (https://…)",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 84,
-        "text": "Perfil Pessoal & Negócio"
+        "text": "Perfil Pessoal & Negócio",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 84,
-        "text": "A artesã por trás da marca e a identidade do atelier."
+        "text": "A artesã por trás da marca e a identidade do atelier.",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 109,
-        "text": "Telemóvel"
+        "text": "Telemóvel",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 114,
-        "text": "Conta a tua história no artesanato…"
+        "text": "Conta a tua história no artesanato…",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 124,
-        "text": "Ex: Herança do Novelo"
+        "text": "Ex: Herança do Novelo",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 143,
-        "text": "E-mail do negócio"
+        "text": "E-mail do negócio",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 146,
-        "text": "Telefone do negócio"
+        "text": "Telefone do negócio",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 158,
-        "text": "Código Postal"
+        "text": "Código Postal",
+        "lang": "pt"
       },
       {
         "kind": "attr:label",
         "line": 164,
-        "text": "País"
+        "text": "País",
+        "lang": "pt"
       }
     ]
   },
@@ -1675,87 +1966,104 @@
       {
         "kind": "jsx-text",
         "line": 117,
-        "text": "inicia sessão"
+        "text": "inicia sessão",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 129,
-        "text": "Vitalício"
+        "text": "Vitalício",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 157,
-        "text": "Grátis"
+        "text": "Grátis",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 166,
-        "text": "/mês"
+        "text": "/mês",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 183,
-        "text": "Experimente Grátis por 14 Dias"
+        "text": "Experimente Grátis por 14 Dias",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 249,
-        "text": "Tens um código promocional?"
+        "text": "Tens um código promocional?",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 305,
-        "text": "Resumo do benefício ativado:"
+        "text": "Resumo do benefício ativado:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 309,
-        "text": "Código Aplicado:"
+        "text": "Código Aplicado:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 311,
-        "text": "Novos Preços:"
+        "text": "Novos Preços:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 311,
-        "text": "Os valores exibidos nos cartões de plano acima já incluem este desconto!"
+        "text": "Os valores exibidos nos cartões de plano acima já incluem este desconto!",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 315,
-        "text": "Acesso Vitalício:"
+        "text": "Acesso Vitalício:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 316,
-        "text": "Premium Vitalício"
+        "text": "Premium Vitalício",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 317,
-        "text": "Acesso total a todas as ferramentas (Criador de Moldes, Assistente IA, Exportações e mais), sem necessidade de pagamentos recorrentes ou subscrições futuras."
+        "text": "Acesso total a todas as ferramentas (Criador de Moldes, Assistente IA, Exportações e mais), sem necessidade de pagamentos recorrentes ou subscrições futuras.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 320,
-        "text": "Código aplicado com sucesso no seu perfil do atelier."
+        "text": "Código aplicado com sucesso no seu perfil do atelier.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 331,
-        "text": "Acesso Premium Vitalício Ativo"
+        "text": "Acesso Premium Vitalício Ativo",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 97,
-        "text": "Planos e Subscrições"
+        "text": "Planos e Subscrições",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 98,
-        "text": "Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso."
+        "text": "Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso.",
+        "lang": "pt"
       }
     ]
   },
@@ -1765,37 +2073,44 @@
       {
         "kind": "jsx-text",
         "line": 83,
-        "text": "Título"
+        "text": "Título",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 84,
-        "text": "Técnica"
+        "text": "Técnica",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 87,
-        "text": "Descrição"
+        "text": "Descrição",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 96,
-        "text": "Adicionar peça"
+        "text": "Adicionar peça",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 112,
-        "text": "Adiciona projetos terminados aqui."
+        "text": "Adiciona projetos terminados aqui.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 74,
-        "text": "Portefólio"
+        "text": "Portefólio",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 84,
-        "text": "Tricotin, crochê…"
+        "text": "Tricotin, crochê…",
+        "lang": "pt"
       }
     ]
   },
@@ -1805,262 +2120,314 @@
       {
         "kind": "jsx-text",
         "line": 12,
-        "text": "A sua privacidade é de extrema importância para nós. Esta Política de Privacidade explica como a nossa aplicação de gestão de negócios recolhe, utiliza, armazena, partilha e protege as informações dos utilizadores da aplicação (\"Utilizadores\" ou \"Clientes Comerciais\") e, por conta destes, os dados dos clientes finais dos seus respetivos negócios (\"Clientes Finais\")."
+        "text": "A sua privacidade é de extrema importância para nós. Esta Política de Privacidade explica como a nossa aplicação de gestão de negócios recolhe, utiliza, armazena, partilha e protege as informações dos utilizadores da aplicação (\"Utilizadores\" ou \"Clientes Comerciais\") e, por conta destes, os dados dos clientes finais dos seus respetivos negócios (\"Clientes Finais\").",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 13,
-        "text": "Ao utilizar a aplicação, concorda com as práticas descritas nesta política."
+        "text": "Ao utilizar a aplicação, concorda com as práticas descritas nesta política.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 14,
-        "text": "1. INFORMAÇÕES QUE RECOLHEMOS"
+        "text": "1. INFORMAÇÕES QUE RECOLHEMOS",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 15,
-        "text": "Para fornecer uma experiência de gestão completa e permitir a sincronização com canais externos, recolhemos e processamos os seguintes dados:"
+        "text": "Para fornecer uma experiência de gestão completa e permitir a sincronização com canais externos, recolhemos e processamos os seguintes dados:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 16,
-        "text": "A. Dados de Conta e Gestão do Utilizador (Cliente Comercial)"
+        "text": "A. Dados de Conta e Gestão do Utilizador (Cliente Comercial)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 17,
-        "text": "Informações de Registo:"
+        "text": "Informações de Registo:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 17,
-        "text": "Nome, endereço de e-mail, número de telefone e dados de autenticação."
+        "text": "Nome, endereço de e-mail, número de telefone e dados de autenticação.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 18,
-        "text": "Dados de Faturação e Pagamento:"
+        "text": "Dados de Faturação e Pagamento:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 18,
-        "text": "Informações necessárias para processar assinaturas ou pagamentos da aplicação (sincronizados em segurança através do nosso website)."
+        "text": "Informações necessárias para processar assinaturas ou pagamentos da aplicação (sincronizados em segurança através do nosso website).",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 19,
-        "text": "B. Dados do Negócio e Operações (Armazenados na Nuvem)"
+        "text": "B. Dados do Negócio e Operações (Armazenados na Nuvem)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 20,
-        "text": "Como plataforma de gestão, armazenamos na nuvem as informações que insere para gerir o seu negócio, o que inclui:"
+        "text": "Como plataforma de gestão, armazenamos na nuvem as informações que insere para gerir o seu negócio, o que inclui:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 22,
-        "text": "Gestão de Stock:"
+        "text": "Gestão de Stock:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 22,
-        "text": "Listagem de produtos, materiais, quantidades e fornecedores."
+        "text": "Listagem de produtos, materiais, quantidades e fornecedores.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 23,
-        "text": "Encomendas e Vendas:"
+        "text": "Encomendas e Vendas:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 23,
-        "text": "Histórico de compras, valores e status de entrega."
+        "text": "Histórico de compras, valores e status de entrega.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 24,
-        "text": "Marketing e Relatórios:"
+        "text": "Marketing e Relatórios:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 24,
-        "text": "Dados de desempenho e métricas internas do seu negócio."
+        "text": "Dados de desempenho e métricas internas do seu negócio.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 26,
-        "text": "C. Dados dos Clientes Finais (Processados em nome do Utilizador)"
+        "text": "C. Dados dos Clientes Finais (Processados em nome do Utilizador)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 27,
-        "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:"
+        "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 29,
-        "text": "Dados de Identificação e Entrega:"
+        "text": "Dados de Identificação e Entrega:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 29,
-        "text": "Nomes e moradas para envio de encomendas."
+        "text": "Nomes e moradas para envio de encomendas.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 30,
-        "text": "E-mail e número de telefone."
+        "text": "E-mail e número de telefone.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 32,
-        "text": "D. Dados de Integração e Sincronização (Website, Redes Sociais e E-mail)"
+        "text": "D. Dados de Integração e Sincronização (Website, Redes Sociais e E-mail)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 33,
-        "text": "Quando opta por sincronizar a aplicação com plataformas externas (como o seu Website, Instagram ou Contas de E-mail):"
+        "text": "Quando opta por sincronizar a aplicação com plataformas externas (como o seu Website, Instagram ou Contas de E-mail):",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 34,
-        "text": "Comunicações e Conversas:"
+        "text": "Comunicações e Conversas:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 34,
-        "text": "Recolhemos e armazenamos o histórico de mensagens e conversas trocadas com os clientes através do Instagram e e-mail. Estas informações são processadas estritamente para centralizar o seu atendimento ao cliente e apoiar a gestão do negócio."
+        "text": "Recolhemos e armazenamos o histórico de mensagens e conversas trocadas com os clientes através do Instagram e e-mail. Estas informações são processadas estritamente para centralizar o seu atendimento ao cliente e apoiar a gestão do negócio.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 35,
-        "text": "Sincronização de Dados:"
+        "text": "Sincronização de Dados:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 35,
-        "text": "Informações de encomendas ou contactos gerados no seu website são importados automaticamente para a aplicação."
+        "text": "Informações de encomendas ou contactos gerados no seu website são importados automaticamente para a aplicação.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 36,
-        "text": "2. COMO UTILIZAMOS AS INFORMAÇÕES"
+        "text": "2. COMO UTILIZAMOS AS INFORMAÇÕES",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 38,
-        "text": "Prestação, manutenção e melhoria de todas as funcionalidades da aplicação."
+        "text": "Prestação, manutenção e melhoria de todas as funcionalidades da aplicação.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 39,
-        "text": "Processamento de pagamentos e gestão de assinaturas."
+        "text": "Processamento de pagamentos e gestão de assinaturas.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 40,
-        "text": "Sincronização em tempo real entre a aplicação, o seu website, e-mail e Instagram."
+        "text": "Sincronização em tempo real entre a aplicação, o seu website, e-mail e Instagram.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 41,
-        "text": "Suporte técnico e atendimento ao cliente."
+        "text": "Suporte técnico e atendimento ao cliente.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 42,
-        "text": "Envio de comunicações importantes sobre atualizações de segurança ou alterações nos termos de serviço."
+        "text": "Envio de comunicações importantes sobre atualizações de segurança ou alterações nos termos de serviço.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 44,
-        "text": "3. SEGURANÇA E ARMAZENAMENTO NA NUVEM"
+        "text": "3. SEGURANÇA E ARMAZENAMENTO NA NUVEM",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 45,
-        "text": "Segregação de Dados:"
+        "text": "Segregação de Dados:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 45,
-        "text": "Garantimos que todos os dados do seu negócio (encomendas, stock, conversas) estão completamente segregados e isolados. Nenhum outro utilizador da aplicação terá acesso às suas informações operacionais."
+        "text": "Garantimos que todos os dados do seu negócio (encomendas, stock, conversas) estão completamente segregados e isolados. Nenhum outro utilizador da aplicação terá acesso às suas informações operacionais.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 46,
-        "text": "Todos os dados são armazenados em servidores na nuvem que cumprem elevados padrões de segurança e encriptação."
+        "text": "Todos os dados são armazenados em servidores na nuvem que cumprem elevados padrões de segurança e encriptação.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 47,
-        "text": "Retenção:"
+        "text": "Retenção:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 47,
-        "text": "Os dados serão conservados enquanto a sua conta estiver ativa ou conforme necessário para fornecer os serviços. Pode solicitar a eliminação dos seus dados a qualquer momento."
+        "text": "Os dados serão conservados enquanto a sua conta estiver ativa ou conforme necessário para fornecer os serviços. Pode solicitar a eliminação dos seus dados a qualquer momento.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 49,
-        "text": "Não vendemos nem partilhamos dados comerciais ou pessoais com terceiros para fins publicitários. Os dados apenas são partilhados nas seguintes condições:"
+        "text": "Não vendemos nem partilhamos dados comerciais ou pessoais com terceiros para fins publicitários. Os dados apenas são partilhados nas seguintes condições:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 51,
-        "text": "Prestadores de Serviços (Subprocessadores):"
+        "text": "Prestadores de Serviços (Subprocessadores):",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 51,
-        "text": "Com empresas terceiras que nos ajudam a manter a aplicação a funcionar (como fornecedores de alojamento na nuvem e processadores de pagamento seguros)."
+        "text": "Com empresas terceiras que nos ajudam a manter a aplicação a funcionar (como fornecedores de alojamento na nuvem e processadores de pagamento seguros).",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 52,
-        "text": "Obrigações Legais:"
+        "text": "Obrigações Legais:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 57,
-        "text": "Solicitar a eliminação definitiva dos seus dados dos nossos servidores na nuvem."
+        "text": "Solicitar a eliminação definitiva dos seus dados dos nossos servidores na nuvem.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 58,
-        "text": "Exportar os dados do seu negócio (portabilidade)."
+        "text": "Exportar os dados do seu negócio (portabilidade).",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 59,
-        "text": "Retirar o consentimento para integrações (como desconectar o Instagram ou o e-mail) a qualquer momento."
+        "text": "Retirar o consentimento para integrações (como desconectar o Instagram ou o e-mail) a qualquer momento.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 61,
-        "text": "Para exercer qualquer um destes direitos, entre em contacto connosco através do e-mail de suporte configurado na aplicação."
+        "text": "Para exercer qualquer um destes direitos, entre em contacto connosco através do e-mail de suporte configurado na aplicação.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 62,
-        "text": "6. ALTERAÇÕES A ESTA POLÍTICA"
+        "text": "6. ALTERAÇÕES A ESTA POLÍTICA",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 63,
-        "text": "Poderemos atualizar esta Política de Privacidade periodicamente para refletir mudanças na aplicação ou por motivos legais. Notificaremos os utilizadores sobre quaisquer alterações significativas através da aplicação ou por e-mail."
+        "text": "Poderemos atualizar esta Política de Privacidade periodicamente para refletir mudanças na aplicação ou por motivos legais. Notificaremos os utilizadores sobre quaisquer alterações significativas através da aplicação ou por e-mail.",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 9,
-        "text": "Política de privacidade"
+        "text": "Política de privacidade",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 9,
-        "text": "Última atualização: 9 de junho de 2026"
+        "text": "Última atualização: 9 de junho de 2026",
+        "lang": "pt"
       }
     ]
   },
@@ -2070,22 +2437,26 @@
       {
         "kind": "jsx-text",
         "line": 75,
-        "text": "Cálculo"
+        "text": "Cálculo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 82,
-        "text": "Mão de obra"
+        "text": "Mão de obra",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 89,
-        "text": "Guardar como projeto"
+        "text": "Guardar como projeto",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 46,
-        "text": "Seleciona materiais, horas e margem para obter o preço final."
+        "text": "Seleciona materiais, horas e margem para obter o preço final.",
+        "lang": "pt"
       }
     ]
   },
@@ -2095,47 +2466,56 @@
       {
         "kind": "jsx-text",
         "line": 57,
-        "text": "Custo de materiais + horas × preço/hora + margem (default 70%)."
+        "text": "Custo de materiais + horas × preço/hora + margem (default 70%).",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 59,
-        "text": "Novo projeto"
+        "text": "Novo projeto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 61,
-        "text": "Novo projeto"
+        "text": "Novo projeto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 77,
-        "text": "Concluído"
+        "text": "Concluído",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 109,
-        "text": "Guardar projeto"
+        "text": "Guardar projeto",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 134,
-        "text": "Preço final"
+        "text": "Preço final",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 143,
-        "text": "Concluído"
+        "text": "Concluído",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 25,
-        "text": "Projetos & Criação De Projeto"
+        "text": "Projetos & Criação De Projeto",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 25,
-        "text": "Todos os teus projetos e o assistente para iniciar um projeto personalizado."
+        "text": "Todos os teus projetos e o assistente para iniciar um projeto personalizado.",
+        "lang": "pt"
       }
     ]
   },
@@ -2145,32 +2525,38 @@
       {
         "kind": "jsx-text",
         "line": 41,
-        "text": "Herança do Novelo"
+        "text": "Herança do Novelo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 70,
-        "text": "primeira plataforma de gestão de negócio criada e focada exclusivamente na nossa área de trabalho"
+        "text": "primeira plataforma de gestão de negócio criada e focada exclusivamente na nossa área de trabalho",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 82,
-        "text": "A Gestão Descomplicada:"
+        "text": "A Gestão Descomplicada:",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 87,
-        "text": "O Apoio à Criação:"
+        "text": "O Apoio à Criação:",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 24,
-        "text": "A herança e o futuro do nosso artesanato."
+        "text": "A herança e o futuro do nosso artesanato.",
+        "lang": "pt"
       },
       {
         "kind": "attr:alt",
         "line": 113,
-        "text": "Sara Afonso em criança ao lado da avó."
+        "text": "Sara Afonso em criança ao lado da avó.",
+        "lang": "pt"
       }
     ]
   },
@@ -2180,17 +2566,20 @@
       {
         "kind": "jsx-text",
         "line": 61,
-        "text": "Nova palavra-passe"
+        "text": "Nova palavra-passe",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 65,
-        "text": "Confirmar palavra-passe"
+        "text": "Confirmar palavra-passe",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 62,
-        "text": "Mínimo 6 caracteres"
+        "text": "Mínimo 6 caracteres",
+        "lang": "pt"
       }
     ]
   },
@@ -2200,27 +2589,32 @@
       {
         "kind": "jsx-text",
         "line": 81,
-        "text": "Sessão inválida ou expirada"
+        "text": "Sessão inválida ou expirada",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 115,
-        "text": "A limpar sessão…"
+        "text": "A limpar sessão…",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 117,
-        "text": "Voltar a entrar"
+        "text": "Voltar a entrar",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 136,
-        "text": "Confirmar saída da sessão"
+        "text": "Confirmar saída da sessão",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 144,
-        "text": "Sim, ir para /auth"
+        "text": "Sim, ir para /auth",
+        "lang": "pt"
       }
     ]
   },
@@ -2230,12 +2624,14 @@
       {
         "kind": "jsx-text",
         "line": 58,
-        "text": "Domínio da loja"
+        "text": "Domínio da loja",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 25,
-        "text": "Sincronização"
+        "text": "Sincronização",
+        "lang": "pt"
       }
     ]
   },
@@ -2245,52 +2641,62 @@
       {
         "kind": "jsx-text",
         "line": 56,
-        "text": "Novo material"
+        "text": "Novo material",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 58,
-        "text": "Novo material"
+        "text": "Novo material",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 68,
-        "text": "Código"
+        "text": "Código",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 78,
-        "text": "Código/Nº da cor *"
+        "text": "Código/Nº da cor *",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 93,
-        "text": "Preço de compra (€/un)"
+        "text": "Preço de compra (€/un)",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 94,
-        "text": "Stock mínimo"
+        "text": "Stock mínimo",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 159,
-        "text": "Código"
+        "text": "Código",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 159,
-        "text": "Preço"
+        "text": "Preço",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 53,
-        "text": "Materiais em stock, com fornecedor e preço praticado."
+        "text": "Materiais em stock, com fornecedor e preço praticado.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 154,
-        "text": "Pesquisar material por nome ou código…"
+        "text": "Pesquisar material por nome ou código…",
+        "lang": "pt"
       }
     ]
   },
@@ -2300,57 +2706,68 @@
       {
         "kind": "jsx-text",
         "line": 258,
-        "text": "Média"
+        "text": "Média",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 325,
-        "text": "Concluída"
+        "text": "Concluída",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 335,
-        "text": "Selecionar visíveis"
+        "text": "Selecionar visíveis",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 372,
-        "text": "A vista de calendário respeita os filtros de projeto e estado acima."
+        "text": "A vista de calendário respeita os filtros de projeto e estado acima.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 376,
-        "text": "Sem tarefas neste filtro."
+        "text": "Sem tarefas neste filtro.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 408,
-        "text": "Média"
+        "text": "Média",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 426,
-        "text": "Concluída"
+        "text": "Concluída",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 474,
-        "text": "Concluída"
+        "text": "Concluída",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 229,
-        "text": "Tarefas do atelier."
+        "text": "Tarefas do atelier.",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 249,
-        "text": "Nova tarefa…"
+        "text": "Nova tarefa…",
+        "lang": "pt"
       },
       {
         "kind": "attr:placeholder",
         "line": 285,
-        "text": "Pesquisar tarefas…"
+        "text": "Pesquisar tarefas…",
+        "lang": "pt"
       }
     ]
   },
@@ -2360,12 +2777,14 @@
       {
         "kind": "jsx-text",
         "line": 16,
-        "text": "Histórico"
+        "text": "Histórico",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 14,
-        "text": "Vendas concluídas"
+        "text": "Vendas concluídas",
+        "lang": "pt"
       }
     ]
   },
@@ -2375,42 +2794,50 @@
       {
         "kind": "jsx-text",
         "line": 33,
-        "text": "Verificar ligação"
+        "text": "Verificar ligação",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 38,
-        "text": "Nova mensagem"
+        "text": "Nova mensagem",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 51,
-        "text": "Templates rápidos"
+        "text": "Templates rápidos",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 79,
-        "text": "Histórico de conversas"
+        "text": "Histórico de conversas",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 80,
-        "text": "Mensagens recebidas tentam associar-se automaticamente ao cliente por telefone e à encomenda mais recente. Sem correspondência, podes associar manualmente abaixo."
+        "text": "Mensagens recebidas tentam associar-se automaticamente ao cliente por telefone e à encomenda mais recente. Sem correspondência, podes associar manualmente abaixo.",
+        "lang": "pt"
       },
       {
         "kind": "jsx-text",
         "line": 92,
-        "text": "Sem correspondência automática — associar manualmente:"
+        "text": "Sem correspondência automática — associar manualmente:",
+        "lang": "pt"
       },
       {
         "kind": "attr:title",
         "line": 29,
-        "text": "Sincronização WhatsApp"
+        "text": "Sincronização WhatsApp",
+        "lang": "pt"
       },
       {
         "kind": "attr:description",
         "line": 29,
-        "text": "Centraliza mensagens, associa-as a clientes/encomendas e usa templates rápidos."
+        "text": "Centraliza mensagens, associa-as a clientes/encomendas e usa templates rápidos.",
+        "lang": "pt"
       }
     ]
   }
