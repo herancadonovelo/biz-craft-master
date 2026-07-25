@@ -77,6 +77,8 @@ const pt: Dict = {
   "common.print": "Imprimir",
   "common.total": "Total",
   "app.subtitle": "painel de gestão",
+  "dashboard.searchPlaceholder": "Pesquisar em toda a app: páginas, categorias, abas…",
+  "nav.settingsAlias": "Configurações",
 };
 
 const en: Dict = {
@@ -105,7 +107,7 @@ const en: Dict = {
   "nav.cashflow": "Cash flow",
   "nav.expenses": "Fixed expenses",
   "nav.design": "Customization",
-  "nav.supplierMgmt": "Supplier mgmt",
+  "nav.supplierMgmt": "Supplier Management",
   "nav.accounts": "Accounts & passwords",
   "nav.portfolio": "Portfolio",
   "nav.courses": "Courses",
@@ -153,6 +155,8 @@ const en: Dict = {
   "common.description": "Description",
   "common.actions": "Actions",
   "app.subtitle": "management panel",
+  "dashboard.searchPlaceholder": "Search the whole app: pages, categories, tabs…",
+  "nav.settingsAlias": "Settings",
 };
 
 const es: Dict = {

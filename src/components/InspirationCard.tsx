@@ -68,12 +68,12 @@ export function InspirationCard({ variant = "dashboard", className }: Props) {
       >
         <p
           className={cn(
-            "text-center text-stone-700",
+            "text-center text-stone-700 font-sans",
             isHero
-              ? "text-3xl sm:text-5xl leading-snug"
-              : "text-xl sm:text-2xl leading-snug",
+              ? "text-[2.35rem] sm:text-[3.75rem] leading-snug"
+              : "text-[1.5625rem] sm:text-[1.875rem] leading-snug",
           )}
-          style={{ fontFamily: "'Caveat', 'Quicksand', cursive", fontWeight: 600 }}
+          style={{ fontWeight: 600 }}
         >
           <span className="mr-2 text-2xl sm:text-3xl">{frase.emojis}</span>
           {frase.texto}

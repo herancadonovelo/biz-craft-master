@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import fotoSaraAvo from "@/assets/quem-somos-sara-avo.png.asset.json";
+import fotoSaraAvo from "@/assets/quem-somos-sara-avo-boneca.jpg.asset.json";
 
 export const Route = createFileRoute("/quem-somos")({
   head: () => ({
@@ -110,14 +110,56 @@ function QuemSomos() {
         <figure className="mx-auto flex flex-col items-center gap-3 pt-6">
           <img
             src={fotoSaraAvo.url}
-            alt="Sara Afonso em criança ao lado da avó."
+            alt="Sara aos 8 anos com a avó Albina e uma boneca de pano por terminar."
             loading="lazy"
             className="w-full max-w-sm rounded-2xl shadow-md ring-1 ring-black/5"
           />
-          <figcaption className="text-sm italic text-muted-foreground text-center max-w-sm">
-            Eu e a minha avó na altura que comecei a seguir as pizadas dela e da minha bisa avó.
-          </figcaption>
         </figure>
+
+        <p className="pt-8 text-center italic text-foreground/90 leading-relaxed max-w-xl mx-auto">
+          Onde tudo começou: uma herança de amor e arte.
+        </p>
+
+        <div className="pt-8 space-y-4 leading-relaxed text-[hsl(280_35%_32%)] max-w-xl mx-auto">
+          <p>
+            Na fotografia: Eu, aos 8 anos, com a minha avó materna, Albina.
+            Ao meu lado, uma das suas bonecas de pano ainda por terminar, à
+            espera de um rosto e do resto da roupa.
+          </p>
+          <p>
+            A minha história e a minha paixão pela criação são uma herança
+            de três gerações de mulheres extraordinárias. Tudo começa com a
+            minha bisavó Júlia, costureira de uma Marquesa. Foi uma mulher à
+            frente do seu tempo: no final dos anos 40, em Portugal, separou-se
+            do marido e assumiu o sustento da casa, cuidando de netos e
+            bisnetas enquanto costurava para toda a família. Embora tenha
+            partido cinco anos antes de eu nascer, o seu legado de
+            resiliência e amor chegou até mim de forma intacta.
+          </p>
+          <p>
+            Foi a sua filha, a minha avó Albina, quem me passou a agulha e a
+            linha para as mãos. Nas semanas que passávamos juntas na minha
+            infância, ensinou-me a bordar, costurar e a fazer croché. Até aos
+            75 anos, altura em que a saúde lhe exigiu descanso, manteve o seu
+            negócio de venda destas bonecas de pano e encheu a nossa vida de
+            vestidos e mantas feitas à mão. Foi ela que plantou em mim a
+            semente desta vocação.
+          </p>
+          <p>
+            Saber de onde venho deu-me a base, mas também me deu a ambição
+            de voar mais alto. Olhando para a dedicação delas, nasceu em mim
+            o desejo profundo de construir uma carreira independente,
+            elevando o nosso ofício a um novo patamar de estabilidade e
+            valorização.
+          </p>
+          <p>
+            O Craft Business Master é o resultado prático desse sonho. Nasceu
+            para ser a ponte entre a magia da criação e a estrutura de um
+            negócio real. É a ferramenta que eu precisava, e que agora
+            partilho com todas as artesãs que procuram organizar a sua arte,
+            desde a primeira laçada até à entrega ao cliente final.
+          </p>
+        </div>
       </article>
     </div>
   );

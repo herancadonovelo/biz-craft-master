@@ -56,7 +56,7 @@ function SessionExpired() {
 
   const goToAuth = async () => {
     await cleanup();
-    nav({ to: "/auth" });
+    nav({ to: "/auth", search: { expired: "1" } as any });
   };
 
   return (
@@ -108,7 +108,7 @@ function SessionExpired() {
             </Button>
             <Button
               className="w-full"
-              onClick={() => nav({ to: "/auth" })}
+              onClick={() => nav({ to: "/auth", search: { expired: "1" } as any })}
               disabled={cleaning || retrying}
             >
               {cleaning ? (

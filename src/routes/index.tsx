@@ -98,7 +98,7 @@ function Dashboard() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Pesquisar em toda a app: páginas, categorias, abas…"
+              placeholder={t("dashboard.searchPlaceholder")}
               className="pl-9"
               aria-label="Pesquisa global"
             />
@@ -283,7 +283,7 @@ function buildSearchIndex(t: (k: string) => string): SearchItem[] {
     { label: "Etsy & Biblioteca Digital", url: "/etsy" },
     { label: t("nav.cashflow"), url: "/cashflow" },
     { label: t("nav.expenses"), url: "/despesas" },
-    { label: "Personalização & Configurações", url: "/design" },
+    { label: t("nav.settingsAlias"), url: "/design" },
     { label: t("nav.supplierMgmt"), url: "/gestao-fornecedores" },
     { label: t("nav.accounts"), url: "/contas" },
     { label: t("nav.language"), url: "/idioma" },

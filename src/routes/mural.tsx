@@ -99,8 +99,8 @@ function FavoritasTab() {
                   {CATEGORIA_LABEL[f.categoria]}
                 </Badge>
                 <p
-                  className="text-lg text-stone-700 leading-snug"
-                  style={{ fontFamily: "'Caveat', 'Quicksand', cursive", fontWeight: 600 }}
+                  className="text-[1.4rem] text-stone-700 leading-snug font-sans"
+                  style={{ fontWeight: 600 }}
                 >
                   <span className="mr-2">{f.emojis}</span>
                   {f.texto}
@@ -206,8 +206,8 @@ function CriarTab() {
           <Card key={f.id} className="rounded-2xl border-pink-200/40">
             <CardContent className="flex items-start gap-3 p-4">
               <p
-                className="flex-1 text-base text-stone-700"
-                style={{ fontFamily: "'Caveat', 'Quicksand', cursive", fontWeight: 600 }}
+                className="flex-1 text-[1.25rem] text-stone-700 font-sans"
+                style={{ fontWeight: 600 }}
               >
                 <span className="mr-1">{f.emojis}</span>
                 {f.texto}
