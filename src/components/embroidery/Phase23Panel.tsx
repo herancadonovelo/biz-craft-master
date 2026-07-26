@@ -32,6 +32,7 @@ import {
   applyOverrides, loadOverrides, saveOverrides,
   loadChecklistState, saveChecklistState,
   auditEditor, EDITOR_SHORTCUTS,
+  autoFixOverrides,
   type LayerOverride, type LayerOverrideMap,
 } from "@/lib/embroidery-phase23";
 
@@ -83,6 +84,24 @@ export function Phase23Panel({
     toast.success(`Exportado ${out.filename}${out.note ? ` (${out.note})` : ""}`);
   };
 
+  const doAutoFix = () => {
+    const res = autoFixOverrides(initialRules, overrides);
+    if (res.changes.length === 0) {
+      toast.info("Nada a corrigir — as camadas já estão dentro dos parâmetros.");
+      return;
+    }
+    setOverrides(res.overrides);
+    const manual: string[] = [];
+    if (report.outOfHoop) manual.push("desenho fora do bastidor");
+    if (report.longJumps >= 5 && !machine.supportsTrim) manual.push(`${report.longJumps} saltos longos`);
+    if (report.colorCount > machine.needleCount && !machine.supportsColorChange)
+      manual.push(`${report.colorCount} cores > ${machine.needleCount} agulhas`);
+    toast.success(
+      `${res.changes.length} ajuste(s) aplicado(s) em ${new Set(res.changes.map((c) => c.layerIndex)).size} camada(s).`,
+      manual.length ? { description: `Ainda requer ação manual: ${manual.join(" · ")}` } : undefined,
+    );
+  };
+
   return (
     <Card className="bg-card">
       <CardContent className="p-4 space-y-5">
@@ -112,6 +131,17 @@ export function Phase23Panel({
               </Badge>
             </div>
           </div>
+
+        <div className="flex items-center justify-between gap-2 rounded border bg-muted/30 p-2">
+          <div className="text-[11px] text-muted-foreground">
+            Correção automática · ajusta densidade, tipo de ponto, underlay e pull-comp
+            das camadas para eliminar os alertas do relatório QA.
+          </div>
+          <Button size="sm" variant="secondary" onClick={doAutoFix}
+            disabled={initialRules.length === 0}>
+            Corrigir automaticamente
+          </Button>
+        </div>
 
           {(report.issues.length > 0 || report.digitizeAlerts.length > 0) && (
             <div className="space-y-1 text-xs">

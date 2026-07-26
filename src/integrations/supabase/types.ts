@@ -70,6 +70,7 @@ export type Database = {
           phone: string | null
           phone_verified: boolean
           phone_verified_at: string | null
+          preferred_currency: string
           subscription_status: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends: string | null
           updated_at: string
@@ -82,6 +83,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean
           phone_verified_at?: string | null
+          preferred_currency?: string
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
           updated_at?: string
@@ -94,6 +96,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean
           phone_verified_at?: string | null
+          preferred_currency?: string
           subscription_status?: Database["public"]["Enums"]["subscription_plan"]
           subscription_trial_ends?: string | null
           updated_at?: string
