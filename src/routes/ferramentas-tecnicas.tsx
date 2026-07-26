@@ -58,6 +58,7 @@ import { Phase17Panel } from "@/components/embroidery/Phase17Panel";
 import { Phase18Panel } from "@/components/embroidery/Phase18Panel";
 import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
 import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
+import { Phase21Panel } from "@/components/embroidery/Phase21Panel";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
