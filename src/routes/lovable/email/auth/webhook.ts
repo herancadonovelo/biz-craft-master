@@ -12,12 +12,12 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Bem-vindo(a) ao Craft Business Master! 🎉 Confirma o teu acesso',
+  invite: 'Foste convidado(a) para o Craft Business Master',
+  magiclink: 'O teu link de acesso ao Craft Business Master',
+  recovery: 'Recupera a tua palavra-passe — Craft Business Master',
+  email_change: 'Confirma o teu novo email — Craft Business Master',
+  reauthentication: 'O teu código de verificação — Craft Business Master',
 }
 
 // Template mapping
