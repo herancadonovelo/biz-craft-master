@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS preferred_currency text NOT NULL DEFAULT 'EUR' CHECK (char_length(preferred_currency) BETWEEN 3 AND 8);
