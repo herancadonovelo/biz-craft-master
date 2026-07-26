@@ -69,6 +69,7 @@ export interface Projeto {
   estado: "rascunho" | "em_curso" | "concluido";
   criadoEm: string;
   notas?: string;
+  receitaId?: ID;
 }
 
 export interface Encomenda {
@@ -474,6 +475,27 @@ export interface ReceitaEditor {
   }[];
   notas?: string;
   criadoEm: string;
+  tags?: string[];
+  horasEstimadas?: number;
+  materiaisRef?: { materialId: ID; quantidade: number }[];
+  historico?: { id: ID; data: string; label?: string; snapshot: string }[];
+}
+
+export interface EtapaProducao {
+  id: ID;
+  nome: string;
+  inicio?: string;   // ISO date
+  fim?: string;      // ISO date
+  concluida: boolean;
+  tarefas: { id: ID; texto: string; feito: boolean; prazo?: string }[];
+}
+
+export interface ProducaoPlano {
+  id: ID;
+  nome: string;
+  projetoId?: ID;
+  etapas: EtapaProducao[];
+  criadoEm: string;
 }
 
 export const MODULOS_PRESETS = {
@@ -666,6 +688,7 @@ interface State {
   contadores: ContadorReceita[];
   receitasEditor: ReceitaEditor[];
   marketingInfo: MarketingInfo;
+  producaoPlanos: ProducaoPlano[];
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -724,6 +747,7 @@ type CollectionMap = {
   acoesMarketing: AcaoMarketing;
   contadores: ContadorReceita;
   receitasEditor: ReceitaEditor;
+  producaoPlanos: ProducaoPlano;
 };
 
 const seed = (): Pick<
@@ -930,6 +954,7 @@ export const useStore = create<State>()(
       contadores: [],
       receitasEditor: [],
       marketingInfo: { personaQuem: "", personaDificuldades: "", personaValoriza: "", mercadoNotas: "" },
+      producaoPlanos: [],
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>

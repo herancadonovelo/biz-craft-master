@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useStore, type ReceitaEditor } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { PremiumRoute } from "@/components/PremiumRoute";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Save, FileDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Trash2, Save, FileDown, Upload, Download, History as HistoryIcon, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -28,6 +29,23 @@ function Page() {
   const { receitasEditor, add, update, remove } = useStore();
   const [editId, setEditId] = useState<string | null>(receitasEditor[0]?.id || null);
   const r = receitasEditor.find((x) => x.id === editId);
+  const [query, setQuery] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return receitasEditor;
+    return receitasEditor.filter((x) => {
+      const hay = [
+        x.nome, x.categoria, x.notas ?? "",
+        ...(x.tags ?? []),
+        ...x.materiais.map((m) => m.nome),
+        ...x.seccoes.map((s) => s.nome),
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [receitasEditor, query]);
 
   const novo = () => {
     const novo: Omit<ReceitaEditor, "id"> = {
@@ -43,19 +61,101 @@ function Page() {
 
   const patch = (p: Partial<ReceitaEditor>) => r && update("receitasEditor", r.id, p);
 
+  const snapshot = (label?: string) => {
+    if (!r) return;
+    const hist = r.historico ?? [];
+    const entry = {
+      id: uid(),
+      data: new Date().toISOString(),
+      label,
+      snapshot: JSON.stringify({ ...r, historico: undefined }),
+    };
+    patch({ historico: [entry, ...hist].slice(0, 30) });
+  };
+  const guardar = () => {
+    try { snapshot("guardado"); toast.success("Receita guardada (versão registada)"); }
+    catch (e: any) { toast.error("Erro ao guardar: " + (e?.message ?? e)); }
+  };
+  const restaurar = (snap: NonNullable<ReceitaEditor["historico"]>[number]) => {
+    if (!r) return;
+    try {
+      const parsed = JSON.parse(snap.snapshot);
+      update("receitasEditor", r.id, { ...parsed, id: r.id, historico: r.historico });
+      toast.success("Versão restaurada");
+    } catch { toast.error("Não foi possível restaurar esta versão"); }
+  };
+  const exportarJSON = () => {
+    if (!r) return;
+    const blob = new Blob([JSON.stringify(r, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${(r.nome || "receita").replace(/[^\w-]+/g, "_")}.json`;
+    a.click();
+    toast.success("receita.json exportada");
+  };
+  const importarJSON = async (file: File) => {
+    try {
+      const data = JSON.parse(await file.text());
+      const clean: Omit<ReceitaEditor, "id"> = {
+        nome: data.nome ?? "Receita importada",
+        categoria: (["amigurumi", "crochet", "tricotin"].includes(data.categoria) ? data.categoria : "amigurumi"),
+        materiais: Array.isArray(data.materiais) ? data.materiais.map((m: any) => ({
+          id: m.id ?? uid(), nome: String(m.nome ?? ""), quantidade: String(m.quantidade ?? ""),
+        })) : [],
+        seccoes: Array.isArray(data.seccoes) ? data.seccoes.map((s: any) => ({
+          id: s.id ?? uid(), nome: String(s.nome ?? "Secção"),
+          imagem: s.imagem,
+          carreiras: Array.isArray(s.carreiras) ? s.carreiras.map((c: any) => ({
+            id: c.id ?? uid(), texto: String(c.texto ?? ""),
+            totalPontos: typeof c.totalPontos === "number" ? c.totalPontos : undefined,
+          })) : [],
+        })) : [],
+        notas: data.notas,
+        criadoEm: data.criadoEm ?? new Date().toISOString(),
+        tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+        horasEstimadas: typeof data.horasEstimadas === "number" ? data.horasEstimadas : undefined,
+        materiaisRef: Array.isArray(data.materiaisRef) ? data.materiaisRef : undefined,
+        historico: [],
+      };
+      add("receitasEditor", clean);
+      setTimeout(() => {
+        const c = useStore.getState().receitasEditor.slice(-1)[0];
+        if (c) setEditId(c.id);
+      }, 0);
+      toast.success("Receita importada");
+    } catch (e: any) { toast.error("JSON inválido: " + (e?.message ?? e)); }
+  };
+  const addTag = () => {
+    if (!r || !tagInput.trim()) return;
+    patch({ tags: Array.from(new Set([...(r.tags ?? []), tagInput.trim()])) });
+    setTagInput("");
+  };
+  const removeTag = (t: string) => r && patch({ tags: (r.tags ?? []).filter((x) => x !== t) });
+
   return (
     <div className="space-y-6">
       <PageHeader title="Hub de Criação · Editor de Receita" description="Cria receitas estruturadas de amigurumi e crochê com pré-visualização." />
 
       <div className="flex flex-wrap items-end gap-3">
+        <div className="min-w-56 flex-1">
+          <Label className="flex items-center gap-1"><Search className="h-3 w-3" />Pesquisar</Label>
+          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nome, tag, material, secção…" />
+        </div>
         <div className="flex-1 min-w-48">
           <Label>Receita</Label>
           <Select value={editId || ""} onValueChange={setEditId}>
             <SelectTrigger><SelectValue placeholder="Nenhuma" /></SelectTrigger>
-            <SelectContent>{receitasEditor.map((x) => <SelectItem key={x.id} value={x.id}>{x.nome}</SelectItem>)}</SelectContent>
+            <SelectContent>{filtered.map((x) => <SelectItem key={x.id} value={x.id}>{x.nome}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <Button onClick={novo} className="bg-violet-300 hover:bg-violet-400 text-violet-950"><Plus className="mr-1 h-4 w-4" />Novo Projeto</Button>
+        <input
+          ref={fileRef} type="file" accept="application/json,.json" className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) importarJSON(f); e.target.value = ""; }}
+        />
+        <Button variant="outline" onClick={() => fileRef.current?.click()}>
+          <Upload className="mr-1 h-4 w-4" />Importar JSON
+        </Button>
         {r && <Button variant="ghost" onClick={() => { remove("receitasEditor", r.id); setEditId(null); }}><Trash2 className="h-4 w-4" /></Button>}
       </div>
 
@@ -78,6 +178,34 @@ function Page() {
                       <SelectItem value="tricotin">Tricotin</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Tags</Label>
+                  <div className="flex flex-wrap items-center gap-2 rounded-md border border-input p-2">
+                    {(r.tags ?? []).map((t) => (
+                      <Badge key={t} variant="secondary" className="gap-1">
+                        {t}
+                        <button onClick={() => removeTag(t)} className="ml-1 hover:text-destructive" aria-label="Remover tag">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    <Input
+                      value={tagInput} onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                      placeholder="Nova tag + Enter"
+                      className="h-7 min-w-32 flex-1 border-0 focus-visible:ring-0"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Horas estimadas</Label>
+                  <Input
+                    type="number" min={0} step={0.5}
+                    value={r.horasEstimadas ?? ""}
+                    onChange={(e) => patch({ horasEstimadas: e.target.value ? +e.target.value : undefined })}
+                    placeholder="Ex.: 6"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -119,10 +247,38 @@ function Page() {
             <Button variant="outline" onClick={() => patch({ seccoes: [...r.seccoes, { id: uid(), nome: "Nova secção", carreiras: [] }] })}><Plus className="mr-1 h-4 w-4" />Adicionar Secção</Button>
 
             <Textarea placeholder="Notas gerais" value={r.notas || ""} onChange={(e) => patch({ notas: e.target.value })} />
-            <div className="flex gap-2">
-              <Button onClick={() => toast.success("Receita guardada")}><Save className="mr-1 h-4 w-4" />Guardar</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={guardar}><Save className="mr-1 h-4 w-4" />Guardar (versão)</Button>
+              <Button variant="outline" onClick={exportarJSON}><Download className="mr-1 h-4 w-4" />Exportar JSON</Button>
               <Button variant="outline" onClick={() => window.print()}><FileDown className="mr-1 h-4 w-4" />Exportar PDF (imprimir)</Button>
             </div>
+
+            {(r.historico?.length ?? 0) > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="font-display flex items-center gap-2 text-sm">
+                    <HistoryIcon className="h-4 w-4" />Histórico de versões
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 max-h-64 overflow-auto">
+                  {(r.historico ?? []).map((h) => (
+                    <div key={h.id} className="flex items-center justify-between rounded-md border border-border p-2 text-xs">
+                      <div>
+                        <div className="font-medium">{h.label || "Versão"}</div>
+                        <div className="text-muted-foreground">{new Date(h.data).toLocaleString()}</div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => restaurar(h)}>Restaurar</Button>
+                        <Button size="sm" variant="ghost"
+                          onClick={() => patch({ historico: (r.historico ?? []).filter((x) => x.id !== h.id) })}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Preview */}
