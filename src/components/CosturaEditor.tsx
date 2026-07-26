@@ -533,9 +533,11 @@ export function CosturaEditor() {
           <ToolBtn label="Snap ⇔" icon={<Compass className="h-3 w-3" />} active={snapIntersect} onClick={() => setSnapIntersect((v) => !v)} />
           <ToolBtn label="Grelha" icon={<Compass className="h-3 w-3" />} active={gridOn} onClick={() => setGridOn((v) => !v)} />
           <ToolBtn label="Desfazer" icon={<Undo2 className="h-3 w-3" />} onClick={undo} />
+          <ToolBtn label="Refazer" icon={<Redo2 className="h-3 w-3" />} onClick={redo} />
           <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
         </div>
         <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
+        <Card className="bg-background opacity-100"><CardContent className="p-3">
         <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
           {underlay && (
             <img
@@ -559,8 +561,8 @@ export function CosturaEditor() {
             {gridOn && (
               <>
                 <defs>
-                  <pattern id="gridc" width={PX_PER_CM} height={PX_PER_CM} patternUnits="userSpaceOnUse">
-                    <path d={`M ${PX_PER_CM} 0 L 0 0 0 ${PX_PER_CM}`} fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                  <pattern id="gridc" width={cmToPx(gridCm)} height={cmToPx(gridCm)} patternUnits="userSpaceOnUse">
+                    <path d={`M ${cmToPx(gridCm)} 0 L 0 0 0 ${cmToPx(gridCm)}`} fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
                   </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#gridc)" />
@@ -585,6 +587,27 @@ export function CosturaEditor() {
                   {pl.label && pl.pts[0] && (
                     <text x={pl.pts[0].x + 4} y={pl.pts[0].y - 4} fontSize="9" fill="#6b7280">{pl.label} · {cm}cm</text>
                   )}
+                  {annotate && pl.pts.length >= 2 && pl.pts.slice(1).map((p, i) => {
+                    const a = pl.pts[i]; const mx = (a.x + p.x) / 2; const my = (a.y + p.y) / 2;
+                    const len = pxToCm(dist(a, p)) * fator;
+                    if (len < 0.6) return null;
+                    return (
+                      <text key={"seg" + i} x={mx} y={my - 3} fontSize="7" fill="#64748b" textAnchor="middle">
+                        {len.toFixed(1)}
+                      </text>
+                    );
+                  })}
+                  {annotate && pl.pts.length >= 3 && pl.pts.slice(1, -1).map((p, i) => {
+                    const a = pl.pts[i], c = pl.pts[i + 2];
+                    const v1x = a.x - p.x, v1y = a.y - p.y;
+                    const v2x = c.x - p.x, v2y = c.y - p.y;
+                    const cos = (v1x * v2x + v1y * v2y) / ((Math.hypot(v1x, v1y) || 1) * (Math.hypot(v2x, v2y) || 1));
+                    const ang = Math.round(Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI);
+                    if (ang >= 175) return null;
+                    return (
+                      <text key={"ang" + i} x={p.x + 4} y={p.y + 8} fontSize="7" fill="#94a3b8">{ang}°</text>
+                    );
+                  })}
                 </g>
               );
             })}
@@ -619,10 +642,58 @@ export function CosturaEditor() {
             ))}
           </svg>
         </A4Stage>
+        </CardContent></Card>
       </div>
 
       <div className="space-y-3">
         <SheetControls {...sheet} />
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Grelha & Snap</div>
+          <Label className="text-[11px]">Grelha ({gridCm} cm)</Label>
+          <div className="flex gap-1">
+            {[0.5, 1, 2, 5].map((g) => (
+              <Button key={g} size="sm" variant={gridCm === g ? "default" : "outline"} onClick={() => setGridCm(g)}>{g}</Button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-1 pt-1">
+            <Button size="sm" variant={snapEndpoints ? "default" : "outline"} onClick={() => setSnapEndpoints((v) => !v)}>Snap extremos</Button>
+            <Button size="sm" variant={snapAlign ? "default" : "outline"} onClick={() => setSnapAlign((v) => !v)}>Alinhar H/V</Button>
+            <Button size="sm" variant={snapIntersect ? "default" : "outline"} onClick={() => setSnapIntersect((v) => !v)}>Interseções</Button>
+            <Button size="sm" variant={annotate ? "default" : "outline"} onClick={() => setAnnotate((v) => !v)}>Cotas auto</Button>
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium">Versões do molde</div>
+            <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+          </div>
+          {versions.length === 0 && <p className="text-[10px] text-muted-foreground">Autosave ativo. Cria um ponto de restauro sempre que quiseres.</p>}
+          <div className="max-h-40 space-y-1 overflow-auto">
+            {versions.map((v, i) => (
+              <div key={v.ts} className="flex items-center justify-between rounded bg-muted/40 px-2 py-1 text-[10px]">
+                <span>#{versions.length - i} · {new Date(v.ts).toLocaleString()}</span>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => restoreVersion(i)}><History className="mr-1 h-3 w-3" />Restaurar</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Exportar CAD</div>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVG(polys, A4_W, A4_H), "image/svg+xml")}>
+              <FileDown className="mr-1 h-3 w-3" />SVG
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXF(polys), "application/dxf")}>
+              <FileDown className="mr-1 h-3 w-3" />DXF
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">SVG para impressão profissional / vinil; DXF para AutoCAD, plotters e mesas de corte.</p>
+        </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 gap-2">
