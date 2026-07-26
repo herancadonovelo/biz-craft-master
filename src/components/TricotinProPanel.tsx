@@ -94,14 +94,14 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
 
   return (
     <div data-testid="tricotin-pro" className="rounded-md border bg-card p-3 text-xs space-y-3">
-      <div className="font-medium text-sm">Toolbox Pro — Fases 3 a 12</div>
+      <div className="font-medium text-sm">Ferramentas Avançadas</div>
 
       <details>
-        <summary className="cursor-pointer font-medium">Presets & histórico de sessão</summary>
+        <summary className="cursor-pointer font-medium">Folha De Molde & Histórico de Sessão</summary>
         <div className="mt-2 space-y-2">
           <div className="flex flex-wrap gap-2">
-            <button data-testid="save-preset" className="rounded border px-2 py-1" onClick={savePreset}>Guardar preset atual</button>
-            <button className="rounded border px-2 py-1" onClick={() => { setPresets([]); writeLS(PRESETS_KEY, []); toast.success("Presets limpos."); }}>Limpar presets</button>
+            <button data-testid="save-preset" className="rounded border px-2 py-1" onClick={savePreset}>Guardar Folha De Molde Atual</button>
+            <button className="rounded border px-2 py-1" onClick={() => { setPresets([]); writeLS(PRESETS_KEY, []); toast.success("Folhas de moldes limpas."); }}>Limpar Folhas De Moldes</button>
           </div>
           {presets.length > 0 && (
             <div className="space-y-1">
