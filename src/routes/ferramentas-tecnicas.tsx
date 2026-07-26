@@ -1104,7 +1104,93 @@ function TricotinTab() {
             </p>
           </TabsContent>
           <TabsContent value="watermark" className="mt-3">
-            <WatermarkControls w={w} set={setW} />
+            <div className="space-y-3">
+              <WatermarkControls w={w} set={setW} />
+              <div className="rounded-md border bg-muted/30 p-3 space-y-3 text-xs" data-testid="tricotin-wm-position">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.locked}
+                      onChange={(e) => setWm({ locked: e.target.checked })}
+                    />
+                    Travar marca d&apos;água
+                  </label>
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.snap}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ snap: e.target.checked })}
+                    />
+                    Alinhar ao grid (snap)
+                  </label>
+                  <select
+                    value={wmPos.snapPct}
+                    disabled={!wmPos.snap || wmPos.locked}
+                    onChange={(e) => setWm({ snapPct: Number(e.target.value) as WmPos["snapPct"] })}
+                    className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+                  >
+                    <option value={1}>1%</option>
+                    <option value={2}>2%</option>
+                    <option value={5}>5%</option>
+                    <option value={10}>10%</option>
+                  </select>
+                  <select
+                    value={wmPos.snapDeg}
+                    disabled={!wmPos.snap || wmPos.locked}
+                    onChange={(e) => setWm({ snapDeg: Number(e.target.value) as WmPos["snapDeg"] })}
+                    className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+                  >
+                    <option value={5}>5°</option>
+                    <option value={15}>15°</option>
+                    <option value={45}>45°</option>
+                    <option value={90}>90°</option>
+                  </select>
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.clamp}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ clamp: e.target.checked })}
+                    />
+                    Manter dentro do canvas
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Posição X ({wmPos.xPct.toFixed(0)}%)</span>
+                    <input
+                      type="range" min={0} max={100} step={wmPos.snap ? wmPos.snapPct : 1}
+                      value={wmPos.xPct}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ xPct: Number(e.target.value) })}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Posição Y ({wmPos.yPct.toFixed(0)}%)</span>
+                    <input
+                      type="range" min={0} max={100} step={wmPos.snap ? wmPos.snapPct : 1}
+                      value={wmPos.yPct}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ yPct: Number(e.target.value) })}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Rotação ({wmPos.rot.toFixed(0)}°)</span>
+                    <input
+                      type="range" min={-180} max={180} step={wmPos.snap ? wmPos.snapDeg : 1}
+                      value={wmPos.rot}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ rot: Number(e.target.value) })}
+                    />
+                  </label>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Travar bloqueia posição/rotação. Snap alinha em passos %/°. Clamp mantém sempre dentro do canvas.
+                </p>
+              </div>
+            </div>
           </TabsContent>
           <TabsContent value="trace" className="mt-3">
             <TracePanel
