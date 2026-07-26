@@ -60,10 +60,23 @@ function Verify2FAPage() {
     await logAttempt({ data: { kind: enrollMode ? "enroll" : "send", phone, success: !error } });
     if (error) {
       const msg = error.message || "";
-      if (/rate/i.test(msg)) toast.error("Muitas tentativas. Aguarda um minuto antes de tentar novamente.");
-      else if (/format|invalid/i.test(msg)) toast.error("Formato de telemóvel inválido. Usa formato internacional (+351…).");
-      else if (/provider|sms/i.test(msg)) toast.error("Serviço de SMS temporariamente indisponível. Tenta mais tarde.");
-      else toast.error("Não foi possível enviar o código: " + msg);
+      const low = msg.toLowerCase();
+      if (/rate|too many/.test(low)) {
+        toast.error("Muitas tentativas. Aguarda 60 s e tenta de novo.");
+      } else if (/format|invalid.*phone|not.*valid/.test(low)) {
+        toast.error("Formato inválido. Usa +[código do país][número], ex: +351912345678.");
+      } else if (/provider|not configured|unsupported|disabled/.test(low)) {
+        toast.error(
+          "Serviço de SMS não está configurado. Contacta o suporte (o administrador precisa de ligar o provider SMS/WhatsApp).",
+          { duration: 8000 },
+        );
+      } else if (/sms|twilio|messagebird/.test(low)) {
+        toast.error("Serviço de SMS temporariamente indisponível. Tenta em alguns minutos.");
+      } else if (/already|taken/.test(low)) {
+        toast.error("Este número já está associado a outra conta.");
+      } else {
+        toast.error("Não foi possível enviar o código: " + msg);
+      }
       return;
     }
     setSent(true);

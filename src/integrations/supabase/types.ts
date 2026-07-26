@@ -274,6 +274,7 @@ export type Database = {
       mark_2fa_completed: { Args: never; Returns: Json }
       mark_phone_verified: { Args: { _phone: string }; Returns: Json }
       redeem_promo_code: { Args: { _code: string }; Returns: Json }
+      reset_phone_verification: { Args: never; Returns: Json }
       start_subscription_trial: {
         Args: { _cycle?: string; _plan: string }
         Returns: Json
