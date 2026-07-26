@@ -387,6 +387,38 @@ function TricotinTab() {
   // ---------- Lettering (Auto-script + Kerning + Text on Path) ----------
   // Marca de agua da folha de desenho
   const [w, setW] = useMarcaDAgua();
+  // Watermark positioning (lock / snap / clamp) — tricotin canvas overlay.
+  // xPct/yPct sao percentagens do canvas (0-100). rot em graus.
+  type WmPos = {
+    xPct: number; yPct: number; rot: number;
+    locked: boolean; snap: boolean; clamp: boolean;
+    snapPct: 1 | 2 | 5 | 10; snapDeg: 5 | 15 | 45 | 90;
+  };
+  const WM_POS_KEY = "tricotin-wm-pos-v1";
+  const [wmPos, setWmPos] = React.useState<WmPos>(() => {
+    if (typeof window === "undefined")
+      return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15 };
+    try {
+      const raw = window.localStorage.getItem(WM_POS_KEY);
+      if (raw) return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15, ...JSON.parse(raw) };
+    } catch { /* noop */ }
+    return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15 };
+  });
+  const setWm = (p: Partial<WmPos>) => setWmPos((s) => {
+    const next = { ...s, ...p };
+    if (next.snap) {
+      if (p.xPct !== undefined) next.xPct = Math.round(next.xPct / next.snapPct) * next.snapPct;
+      if (p.yPct !== undefined) next.yPct = Math.round(next.yPct / next.snapPct) * next.snapPct;
+      if (p.rot !== undefined) next.rot = Math.round(next.rot / next.snapDeg) * next.snapDeg;
+    }
+    if (next.clamp) {
+      const half = (next.locked ? 60 : w.tamanho) / 2;
+      next.xPct = Math.max(half, Math.min(100 - half, next.xPct));
+      next.yPct = Math.max(half, Math.min(100 - half, next.yPct));
+    }
+    try { window.localStorage.setItem(WM_POS_KEY, JSON.stringify(next)); } catch { /* noop */ }
+    return next;
+  });
   const [lettering, setLettering] = React.useState<Lettering>({
     ativa: false,
     text: "Sara",
