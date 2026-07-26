@@ -2062,6 +2062,10 @@ function BordadoTab() {
   // Fase 13 — mapa de densidade + relatório de qualidade
   const [heatOn, setHeatOn] = useState(false);
   const [heatCellMm, setHeatCellMm] = useState(2);
+  // Fase 14 — bundle de exportação (.zip)
+  const [bundleBusy, setBundleBusy] = useState(false);
+  const [bundleIncludePdf, setBundleIncludePdf] = useState(true);
+  const [bundleSlug, setBundleSlug] = useState("bordado");
 
   const fillOpts: FillOptions = {
     mode: fillMode,
