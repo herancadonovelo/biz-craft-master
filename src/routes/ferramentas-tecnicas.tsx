@@ -34,6 +34,9 @@ import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
+  splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
+} from "@/lib/dst";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
@@ -1981,6 +1984,15 @@ function BordadoTab() {
   const [nCores, setNCores] = useState(12);
   const [convertendo, setConvertendo] = useState(false);
   const [carrinhoOpen, setCarrinhoOpen] = useState(false);
+  // Fase 5 — estado UI declarado cedo (usado no return); a lógica que depende
+  // de chartArea/chartCells está mais abaixo após essas variáveis existirem.
+  const [stitchLenMm, setStitchLenMm] = useState(3);
+  const [orderByNearest, setOrderByNearest] = useState(true);
+  const [dstBusy, setDstBusy] = useState(false);
+  const [circText, setCircText] = useState("Craft Business Master");
+  const [circRadius, setCircRadius] = useState(60);
+  const [circFontPx, setCircFontPx] = useState(20);
+  const [circClockwise, setCircClockwise] = useState(true);
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
@@ -2109,6 +2121,119 @@ function BordadoTab() {
     URL.revokeObjectURL(url);
     toast.success("Lista exportada em CSV.");
   };
+
+  // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
+  /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
+  const buildStitchBlocks = (): StitchBlock[] => {
+    const stepPx = stitchLenMm * PX_PER_MM;
+    const blocks: StitchBlock[] = [];
+    for (const l of layers) {
+      if (!l.visible || l.strokes.length === 0) continue;
+      const subs: { x: number; y: number }[][] = [];
+      for (const d of l.strokes) {
+        for (const sub of splitSubpaths(d)) {
+          if (sub.length < 2) continue;
+          subs.push(resample(sub, stepPx));
+        }
+      }
+      if (subs.length === 0) continue;
+      const ordered = orderByNearest ? orderNearest(subs) : subs;
+      const points: { x: number; y: number }[] = [];
+      for (const sub of ordered) for (const p of sub) points.push(p);
+      blocks.push({ color: l.color, label: `${l.nome}${l.dmc ? ` (DMC ${l.dmc})` : ""}`, points });
+    }
+    if (chartArea && chartCells.length > 0) {
+      const porCor = new Map<string, { x: number; y: number }[]>();
+      for (const c of chartCells) {
+        const x = chartArea.x0 + (c.gx + 0.5) * chartArea.cellPx;
+        const y = chartArea.y0 + (c.gy + 0.5) * chartArea.cellPx;
+        const r = chartArea.cellPx / 2;
+        const arr = porCor.get(c.dmc) ?? [];
+        arr.push({ x: x - r, y: y - r }, { x: x + r, y: y + r });
+        arr.push({ x: x - r, y: y + r }, { x: x + r, y: y - r });
+        porCor.set(c.dmc, arr);
+      }
+      for (const [dmc, pts] of porCor.entries()) {
+        const dmcC = DMC_PALETTE.find((d) => d.code === dmc);
+        blocks.push({ color: dmcC?.hex ?? "#000000", label: `Cruzes DMC ${dmc}`, points: pts });
+      }
+    }
+    return blocks;
+  };
+
+  const exportarDst = async () => {
+    const blocks = buildStitchBlocks();
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
+    setDstBusy(true);
+    try {
+      const blob = encodeDst(blocks, PX_PER_MM, "CBM_BORDADO");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `bordado-${Date.now()}.dst`; a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`DST gerado com ${blocks.length} cor(es). Pronto para a máquina.`);
+    } catch (e) {
+      toast.error("Falha ao gerar DST: " + (e as Error).message);
+    } finally { setDstBusy(false); }
+  };
+
+  const inserirTextoCircular = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const txt = circText.trim();
+    if (!txt) { toast.error("Escreve o texto primeiro."); return; }
+    const rPx = circRadius * PX_PER_MM;
+    const cxg = A4_W / 2, cyg = A4_H / 2;
+    const advance = circFontPx * 0.55;
+    const angStep = (advance / rPx) * (circClockwise ? 1 : -1);
+    const novos: string[] = [];
+    let ang = -Math.PI / 2;
+    for (let i = 0; i < txt.length; i++) {
+      const ch = txt[i];
+      if (ch === " ") { ang += angStep; continue; }
+      const x0 = cxg + rPx * Math.cos(ang);
+      const y0 = cyg + rPx * Math.sin(ang);
+      const tx = -Math.sin(ang), ty = Math.cos(ang);
+      const half = circFontPx / 2;
+      const ax = x0 + tx * (advance * 0.15) - tx * half * 0.15;
+      const ay = y0 + ty * (advance * 0.15) - ty * half * 0.15;
+      const bx = x0 - tx * (advance * 0.15) + tx * half * 0.15;
+      const by = y0 - ty * (advance * 0.15) + ty * half * 0.15;
+      novos.push(`M ${ax.toFixed(1)} ${ay.toFixed(1)} L ${bx.toFixed(1)} ${by.toFixed(1)}`);
+      const nx = x0 - Math.cos(ang) * (circFontPx * 0.3);
+      const ny = y0 - Math.sin(ang) * (circFontPx * 0.3);
+      novos.push(`M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${nx.toFixed(1)} ${ny.toFixed(1)}`);
+      ang += angStep;
+    }
+    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...novos] } : l));
+    toast.success(`Texto circular inserido (${txt.length} caracteres).`);
+  };
+
+  const machineStats = useMemo(() => {
+    const stepPx = stitchLenMm * PX_PER_MM;
+    let pontos = 0, comprimentoMm = 0;
+    const coresSet = new Set<string>();
+    for (const l of layers) {
+      if (!l.visible || l.strokes.length === 0) continue;
+      coresSet.add(l.color);
+      for (const d of l.strokes) {
+        for (const sub of splitSubpaths(d)) {
+          if (sub.length < 2) continue;
+          const rs = resample(sub, stepPx);
+          pontos += Math.max(0, rs.length - 1);
+          for (let i = 1; i < rs.length; i++) {
+            comprimentoMm += Math.hypot(rs[i].x - rs[i - 1].x, rs[i].y - rs[i - 1].y) / PX_PER_MM;
+          }
+        }
+      }
+    }
+    if (chartArea && chartCells.length > 0) {
+      const cellMm = chartArea.cellPx / PX_PER_MM;
+      pontos += chartCells.length * 4;
+      comprimentoMm += chartCells.length * 2 * Math.SQRT2 * cellMm;
+      for (const c of chartCells) coresSet.add(c.dmc);
+    }
+    return { pontos, comprimentoMm, cores: coresSet.size };
+  }, [layers, chartCells, chartArea, stitchLenMm]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -2527,6 +2652,54 @@ function BordadoTab() {
           </Button>
           <Button size="sm" variant="ghost" onClick={() => patchLayer(active.id, { strokes: [] })}>
             <Eraser className="mr-1 h-3 w-3" />Limpar camada ativa
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Bordado à máquina (DST)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Converte as camadas visíveis em pontos com espaçamento fixo e exporta um ficheiro Tajima .DST compatível com máquinas Brother, Janome, Bernina, Tajima e Ricoma.
+          </p>
+          <div>
+            <Label className="text-xs">Comprimento do ponto ({stitchLenMm.toFixed(1)} mm)</Label>
+            <Slider value={[stitchLenMm]} min={1} max={6} step={0.1} onValueChange={(v) => setStitchLenMm(v[0])} />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Recomendado 2–4 mm para bordado padrão; abaixo de 1.5 mm para detalhe fino.
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Otimizar ordem (menor salto)</Label>
+            <Button size="sm" variant={orderByNearest ? "default" : "outline"} onClick={() => setOrderByNearest((v) => !v)}>
+              {orderByNearest ? "Sim" : "Não"}
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 rounded border bg-muted/30 p-2 text-[11px]">
+            <div><span className="text-muted-foreground block">Pontos</span><span className="tabular-nums font-medium">{machineStats.pontos.toLocaleString()}</span></div>
+            <div><span className="text-muted-foreground block">Cores</span><span className="tabular-nums font-medium">{machineStats.cores}</span></div>
+            <div><span className="text-muted-foreground block">Linha</span><span className="tabular-nums font-medium">{(machineStats.comprimentoMm / 10).toFixed(1)} cm</span></div>
+          </div>
+          <Button size="sm" className="w-full" onClick={exportarDst} disabled={dstBusy || machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />{dstBusy ? "A gerar…" : "Exportar .DST"}
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Texto circular</Label>
+          <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
+          <div>
+            <Label className="text-xs">Raio ({circRadius} mm)</Label>
+            <Slider value={[circRadius]} min={20} max={100} step={2} onValueChange={(v) => setCircRadius(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Tamanho ({circFontPx} px)</Label>
+            <Slider value={[circFontPx]} min={10} max={48} step={1} onValueChange={(v) => setCircFontPx(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Sentido horário</Label>
+            <Button size="sm" variant={circClockwise ? "default" : "outline"} onClick={() => setCircClockwise((v) => !v)}>
+              {circClockwise ? "→" : "←"}
+            </Button>
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirTextoCircular}>
+            <Type className="mr-1 h-3 w-3" />Inserir na camada ativa
           </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
