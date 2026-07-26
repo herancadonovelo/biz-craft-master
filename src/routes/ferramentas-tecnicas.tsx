@@ -32,6 +32,7 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
+import { KnitEditor } from "@/components/knit-editor/KnitEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
 import { buildEmbroideryBundle, downloadBundle } from "@/lib/embroidery-bundle";
@@ -102,6 +103,7 @@ function FerramentasPage() {
           <TabsTrigger value="amigurumi">Editor de Receitas: Amigurumis & Crochê</TabsTrigger>
           <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
           <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
+          <TabsTrigger value="tricot">Editor de Gráficos: Tricô</TabsTrigger>
           <TabsTrigger value="bordado">Editor de Padrões: Bordado</TabsTrigger>
           <TabsTrigger value="editor-moodboards">Editor De Moodboards</TabsTrigger>
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
@@ -114,6 +116,7 @@ function FerramentasPage() {
         <TabsContent forceMount value="amigurumi" className="mt-24 data-[state=inactive]:hidden"><AmigurumiTab /></TabsContent>
         <TabsContent forceMount value="costura" className="mt-24 data-[state=inactive]:hidden"><CosturaTab /></TabsContent>
         <TabsContent forceMount value="ponto-cruz" className="mt-24 data-[state=inactive]:hidden"><PontoCruzTab /></TabsContent>
+        <TabsContent forceMount value="tricot" className="mt-24 data-[state=inactive]:hidden"><KnitEditor /></TabsContent>
         <TabsContent forceMount value="bordado" className="mt-24 data-[state=inactive]:hidden"><BordadoTab /></TabsContent>
         <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
         <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
