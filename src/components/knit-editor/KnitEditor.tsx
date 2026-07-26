@@ -30,6 +30,7 @@ import {
 import { GradingPanel } from "@/components/knit-editor/GradingPanel";
 import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
 import { ConstructionPanel } from "@/components/knit-editor/ConstructionPanel";
+import { WritingPanel } from "@/components/knit-editor/WritingPanel";
 import type { Marcador } from "@/lib/knit/construction";
 import { useStore, formatCurrency } from "@/lib/store";
 
