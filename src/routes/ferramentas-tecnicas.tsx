@@ -902,166 +902,249 @@ function TricotinTab() {
 
   return (
     <div className="space-y-3">
-      {/* Lettering — Auto-script + Kerning + Text on Path */}
-      <div className="space-y-3 rounded-lg border bg-card p-3 tricotin-no-print">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-sm font-semibold">Lettering (texto no molde)</div>
-            <div className="text-[11px] text-muted-foreground">
-              Auto-script liga letras cursivas · Kerning ajusta o espaçamento · Text on Path curva o texto ao longo de reta, arco ou círculo.
+      {/* Ferramentas Avançadas — abas com Lettering, Marca d'água, Vetorização e Calibrações */}
+      <div className="rounded-lg border bg-card p-3 tricotin-no-print" data-testid="tricotin-ferramentas-avancadas">
+        <div className="mb-2 text-sm font-semibold">Ferramentas Avançadas</div>
+        <Tabs defaultValue="lettering" className="w-full">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+            <TabsTrigger value="lettering">Lettering (texto no molde)</TabsTrigger>
+            <TabsTrigger value="watermark">Marca d'água da folha de desenho</TabsTrigger>
+            <TabsTrigger value="trace">Vetorização (Trace)</TabsTrigger>
+            <TabsTrigger value="calibracao">Calibração de escala</TabsTrigger>
+            <TabsTrigger value="calibracao-auto">Calibração automática</TabsTrigger>
+          </TabsList>
+          <TabsContent value="lettering" className="mt-3 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-[11px] text-muted-foreground">
+                Auto-script liga letras cursivas · Kerning ajusta o espaçamento · Text on Path curva o texto ao longo de reta, arco ou círculo.
+              </div>
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={lettering.ativa}
+                  onChange={(e) => setL({ ativa: e.target.checked })}
+                />
+                Ativar
+              </label>
             </div>
-          </div>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={lettering.ativa}
-              onChange={(e) => setL({ ativa: e.target.checked })}
-            />
-            Ativar
-          </label>
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Texto</span>
-            <input
-              type="text"
-              value={lettering.text}
-              onChange={(e) => setL({ text: e.target.value })}
-              className="rounded border bg-background px-2 py-1"
-              placeholder="Nome ou frase"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Fonte</span>
-            <select
-              value={lettering.font}
-              onChange={(e) => setL({ font: e.target.value })}
-              className="rounded border bg-background px-2 py-1"
-            >
-              <optgroup label="Cursivas (recomendadas para Auto-script)">
-                {FONTES_CURSIVAS.map((f) => <option key={f} value={f}>{f}</option>)}
-              </optgroup>
-              <optgroup label="Todas">
-                {FONTES_50.map((f) => <option key={f} value={f}>{f}</option>)}
-              </optgroup>
-            </select>
-          </label>
-        </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Tamanho ({lettering.size}px)</span>
-            <input
-              type="range" min={20} max={220} step={1}
-              value={lettering.size}
-              onChange={(e) => setL({ size: Number(e.target.value) })}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Kerning ({lettering.kerning > 0 ? "+" : ""}{lettering.kerning}px)</span>
-            <input
-              type="range" min={-30} max={40} step={1}
-              value={lettering.kerning}
-              onChange={(e) => setL({ kerning: Number(e.target.value) })}
-            />
-          </label>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={lettering.autoScript}
-              onChange={(e) => setL({ autoScript: e.target.checked })}
-            />
-            Auto-script (ligar letras)
-          </label>
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Cor</span>
-            <input
-              type="color"
-              value={lettering.color}
-              onChange={(e) => setL({ color: e.target.value })}
-              className="h-8 w-16 rounded border bg-background"
-            />
-          </label>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Text on Path:</span>
-          {(["straight", "arc", "circle"] as LetteringPath[]).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setL({ pathType: p })}
-              className={`rounded border px-2 py-1 ${lettering.pathType === p ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-            >
-              {p === "straight" ? "Linha reta" : p === "arc" ? "Arco" : "Círculo"}
-            </button>
-          ))}
-        </div>
-        {lettering.pathType === "straight" && (
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">
-              Ângulo da linha ({Math.round((lettering.straightAngle * 180) / Math.PI)}°)
-            </span>
-            <input
-              type="range" min={-180} max={180} step={1}
-              value={Math.round((lettering.straightAngle * 180) / Math.PI)}
-              onChange={(e) => setL({ straightAngle: (Number(e.target.value) * Math.PI) / 180 })}
-            />
-          </label>
-        )}
-        {lettering.pathType !== "straight" && (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <label className="flex flex-col gap-1 text-xs">
-              <span className="text-muted-foreground">Raio ({lettering.radius}px ≈ {(lettering.radius / PX_PER_CM).toFixed(1)} cm)</span>
-              <input
-                type="range" min={40} max={380} step={1}
-                value={lettering.radius}
-                onChange={(e) => setL({ radius: Number(e.target.value) })}
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs">
-              <span className="text-muted-foreground">
-                Início do arco ({Math.round((lettering.angleStart * 180) / Math.PI)}°)
-              </span>
-              <input
-                type="range" min={-180} max={180} step={1}
-                value={Math.round((lettering.angleStart * 180) / Math.PI)}
-                onChange={(e) => setL({ angleStart: (Number(e.target.value) * Math.PI) / 180 })}
-              />
-            </label>
-            {lettering.pathType === "arc" && (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">Texto</span>
+                <input
+                  type="text"
+                  value={lettering.text}
+                  onChange={(e) => setL({ text: e.target.value })}
+                  className="rounded border bg-background px-2 py-1"
+                  placeholder="Nome ou frase"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">Fonte</span>
+                <select
+                  value={lettering.font}
+                  onChange={(e) => setL({ font: e.target.value })}
+                  className="rounded border bg-background px-2 py-1"
+                >
+                  <optgroup label="Cursivas (recomendadas para Auto-script)">
+                    {FONTES_CURSIVAS.map((f) => <option key={f} value={f}>{f}</option>)}
+                  </optgroup>
+                  <optgroup label="Todas">
+                    {FONTES_50.map((f) => <option key={f} value={f}>{f}</option>)}
+                  </optgroup>
+                </select>
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">Tamanho ({lettering.size}px)</span>
+                <input
+                  type="range" min={20} max={220} step={1}
+                  value={lettering.size}
+                  onChange={(e) => setL({ size: Number(e.target.value) })}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">Kerning ({lettering.kerning > 0 ? "+" : ""}{lettering.kerning}px)</span>
+                <input
+                  type="range" min={-30} max={40} step={1}
+                  value={lettering.kerning}
+                  onChange={(e) => setL({ kerning: Number(e.target.value) })}
+                />
+              </label>
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={lettering.autoScript}
+                  onChange={(e) => setL({ autoScript: e.target.checked })}
+                />
+                Auto-script (ligar letras)
+              </label>
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">Cor</span>
+                <input
+                  type="color"
+                  value={lettering.color}
+                  onChange={(e) => setL({ color: e.target.value })}
+                  className="h-8 w-16 rounded border bg-background"
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Text on Path:</span>
+              {(["straight", "arc", "circle"] as LetteringPath[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setL({ pathType: p })}
+                  className={`rounded border px-2 py-1 ${lettering.pathType === p ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                >
+                  {p === "straight" ? "Linha reta" : p === "arc" ? "Arco" : "Círculo"}
+                </button>
+              ))}
+            </div>
+            {lettering.pathType === "straight" && (
               <label className="flex flex-col gap-1 text-xs">
                 <span className="text-muted-foreground">
-                  Abertura do arco ({Math.round((lettering.arcSweep * 180) / Math.PI)}°)
+                  Ângulo da linha ({Math.round((lettering.straightAngle * 180) / Math.PI)}°)
                 </span>
                 <input
-                  type="range" min={-360} max={360} step={1}
-                  value={Math.round((lettering.arcSweep * 180) / Math.PI)}
-                  onChange={(e) => setL({ arcSweep: (Number(e.target.value) * Math.PI) / 180 })}
+                  type="range" min={-180} max={180} step={1}
+                  value={Math.round((lettering.straightAngle * 180) / Math.PI)}
+                  onChange={(e) => setL({ straightAngle: (Number(e.target.value) * Math.PI) / 180 })}
                 />
               </label>
             )}
-          </div>
-        )}
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <label className="flex flex-col gap-1">
-            <span className="text-muted-foreground">Centro X ({lettering.cx.toFixed(0)}px)</span>
-            <input
-              type="range" min={0} max={A4_W} step={1}
-              value={lettering.cx}
-              onChange={(e) => setL({ cx: Number(e.target.value) })}
+            {lettering.pathType !== "straight" && (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <label className="flex flex-col gap-1 text-xs">
+                  <span className="text-muted-foreground">Raio ({lettering.radius}px ≈ {(lettering.radius / PX_PER_CM).toFixed(1)} cm)</span>
+                  <input
+                    type="range" min={40} max={380} step={1}
+                    value={lettering.radius}
+                    onChange={(e) => setL({ radius: Number(e.target.value) })}
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs">
+                  <span className="text-muted-foreground">
+                    Início do arco ({Math.round((lettering.angleStart * 180) / Math.PI)}°)
+                  </span>
+                  <input
+                    type="range" min={-180} max={180} step={1}
+                    value={Math.round((lettering.angleStart * 180) / Math.PI)}
+                    onChange={(e) => setL({ angleStart: (Number(e.target.value) * Math.PI) / 180 })}
+                  />
+                </label>
+                {lettering.pathType === "arc" && (
+                  <label className="flex flex-col gap-1 text-xs">
+                    <span className="text-muted-foreground">
+                      Abertura do arco ({Math.round((lettering.arcSweep * 180) / Math.PI)}°)
+                    </span>
+                    <input
+                      type="range" min={-360} max={360} step={1}
+                      value={Math.round((lettering.arcSweep * 180) / Math.PI)}
+                      onChange={(e) => setL({ arcSweep: (Number(e.target.value) * Math.PI) / 180 })}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <label className="flex flex-col gap-1">
+                <span className="text-muted-foreground">Centro X ({lettering.cx.toFixed(0)}px)</span>
+                <input
+                  type="range" min={0} max={A4_W} step={1}
+                  value={lettering.cx}
+                  onChange={(e) => setL({ cx: Number(e.target.value) })}
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-muted-foreground">Centro Y ({lettering.cy.toFixed(0)}px)</span>
+                <input
+                  type="range" min={0} max={A4_H} step={1}
+                  value={lettering.cy}
+                  onChange={(e) => setL({ cy: Number(e.target.value) })}
+                />
+              </label>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
+            </p>
+          </TabsContent>
+          <TabsContent value="watermark" className="mt-3">
+            <WatermarkControls w={w} set={setW} />
+          </TabsContent>
+          <TabsContent value="trace" className="mt-3">
+            <TracePanel
+              onImport={(pts: TracePoint[]) => {
+                if (!pts.length) return;
+                pushHistory();
+                const imported: PtNode[] = pts.map((p: TracePoint, i: number) => ({
+                  id: `t${Date.now().toString(36)}${i}`,
+                  x: p.x,
+                  y: p.y,
+                  type: i === 0 ? "start" : "straight",
+                }));
+                setNodes(imported);
+                setIsClosedPath(false);
+              }}
+              fitW={W}
+              fitH={H}
             />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-muted-foreground">Centro Y ({lettering.cy.toFixed(0)}px)</span>
-            <input
-              type="range" min={0} max={A4_H} step={1}
-              value={lettering.cy}
-              onChange={(e) => setL({ cy: Number(e.target.value) })}
-            />
-          </label>
-        </div>
-        <p className="text-[11px] text-muted-foreground">
-          A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
-        </p>
+          </TabsContent>
+          <TabsContent value="calibracao" className="mt-3">
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <label className="flex items-center gap-1">
+                <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
+                Mostrar régua mm/cm no canvas
+              </label>
+              <label className="flex items-center gap-1">
+                <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
+                Incluir régua na impressão (verificação 1:1)
+              </label>
+              <span className="text-muted-foreground">
+                A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
+                Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
+              </span>
+            </div>
+          </TabsContent>
+          <TabsContent value="calibracao-auto" className="mt-3">
+            <div className="flex flex-wrap items-end gap-3 text-xs">
+              <div>
+                <div className="font-medium text-muted-foreground">Calibração automática</div>
+                <div className="text-muted-foreground">
+                  Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
+                </div>
+              </div>
+              <label className="flex flex-col gap-1">
+                <span className="text-muted-foreground">Medição obtida (mm)</span>
+                <input
+                  type="number" inputMode="decimal" step="0.1" min={50} max={150}
+                  value={measuredMm}
+                  onChange={(e) => setMeasuredMm(e.target.value)}
+                  placeholder="ex.: 99,4"
+                  className="w-28 rounded border bg-background px-2 py-1"
+                />
+              </label>
+              <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
+                Calcular &amp; aplicar
+              </button>
+              <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
+              <div className="ml-auto flex flex-col items-end gap-0.5">
+                <span>
+                  Erro atual:{" "}
+                  <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
+                    {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
+                  </strong>
+                  {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
+                </span>
+                <span className="text-muted-foreground">
+                  Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
+                  {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
+                </span>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
         <button onClick={() => setMode("select")} className={`rounded border px-3 py-1.5 text-xs ${mode === "select" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Modo Seleção</button>
@@ -1136,11 +1219,6 @@ function TricotinTab() {
           </div>
         </div>
       </div>
-      {/* Marca d'água da folha de desenho */}
-      <div className="rounded-lg border bg-card p-3 tricotin-no-print">
-        <div className="mb-2 text-xs font-medium text-muted-foreground">Marca d'água da folha de desenho</div>
-        <WatermarkControls w={w} set={setW} />
-      </div>
       {/* Gestão do Molde (abaixo da folha de desenho) */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
         <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
@@ -1184,22 +1262,6 @@ function TricotinTab() {
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
-      <TracePanel
-        onImport={(pts: TracePoint[]) => {
-          if (!pts.length) return;
-          pushHistory();
-          const imported: PtNode[] = pts.map((p: TracePoint, i: number) => ({
-            id: `t${Date.now().toString(36)}${i}`,
-            x: p.x,
-            y: p.y,
-            type: i === 0 ? "start" : "straight",
-          }));
-          setNodes(imported);
-          setIsClosedPath(false);
-        }}
-        fitW={W}
-        fitH={H}
-      />
       <TricotinProPanel
         getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
         setPoints={(pts) => {
@@ -1215,57 +1277,6 @@ function TricotinTab() {
         sheetW={W}
         sheetH={H}
       />
-      {/* ===== Calibração (movida para o fundo da página) ===== */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
-          Mostrar régua mm/cm no canvas
-        </label>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
-          Incluir régua na impressão (verificação 1:1)
-        </label>
-        <span className="text-muted-foreground">
-          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
-          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
-        </span>
-      </div>
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <div>
-          <div className="font-medium text-muted-foreground">Calibração automática</div>
-          <div className="text-muted-foreground">
-            Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
-          </div>
-        </div>
-        <label className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Medição obtida (mm)</span>
-          <input
-            type="number" inputMode="decimal" step="0.1" min={50} max={150}
-            value={measuredMm}
-            onChange={(e) => setMeasuredMm(e.target.value)}
-            placeholder="ex.: 99,4"
-            className="w-28 rounded border bg-background px-2 py-1"
-          />
-        </label>
-        <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
-          Calcular &amp; aplicar
-        </button>
-        <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
-        <div className="ml-auto flex flex-col items-end gap-0.5">
-          <span>
-            Erro atual:{" "}
-            <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
-              {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
-            </strong>
-            {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
-          </span>
-          <span className="text-muted-foreground">
-            Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
-            {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
-          </span>
-        </div>
-      </div>
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
