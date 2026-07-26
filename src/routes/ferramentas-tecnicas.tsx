@@ -2825,6 +2825,62 @@ function BordadoTab() {
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Texto circular</Label>
+          <span className="sr-only">Fase 7 abaixo</span>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Preenchimento automático (fill)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Gera pontos satin (zig-zag) ou tatami (stipple estruturado) dentro dos contornos fechados da camada ativa. Inclui underlay e compensação de puxão para bordado à máquina.
+          </p>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" variant={fillMode === "tatami" ? "default" : "outline"} onClick={() => setFillMode("tatami")}>Tatami</Button>
+            <Button size="sm" variant={fillMode === "satin" ? "default" : "outline"} onClick={() => setFillMode("satin")}>Satin</Button>
+          </div>
+          <div>
+            <Label className="text-xs">Ângulo ({fillAngle}°)</Label>
+            <Slider value={[fillAngle]} min={0} max={180} step={5} onValueChange={(v) => setFillAngle(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Espaçamento entre linhas ({fillSpacingPx.toFixed(1)} px)</Label>
+            <Slider value={[fillSpacingPx]} min={1} max={8} step={0.1} onValueChange={(v) => setFillSpacingPx(v[0])} />
+          </div>
+          {fillMode === "tatami" && (
+            <>
+              <div>
+                <Label className="text-xs">Comprimento do ponto ({fillStitchPx.toFixed(1)} px)</Label>
+                <Slider value={[fillStitchPx]} min={2} max={12} step={0.5} onValueChange={(v) => setFillStitchPx(v[0])} />
+              </div>
+              <div>
+                <Label className="text-xs">Stagger ({fillStagger.toFixed(2)})</Label>
+                <Slider value={[fillStagger]} min={0} max={0.9} step={0.05} onValueChange={(v) => setFillStagger(v[0])} />
+                <p className="text-[10px] text-muted-foreground mt-1">Deslocamento em fase entre linhas — evita "sulcos" visíveis no tecido.</p>
+              </div>
+            </>
+          )}
+          <div>
+            <Label className="text-xs">Compensação de puxão ({fillPullPx.toFixed(1)} px)</Label>
+            <Slider value={[fillPullPx]} min={-2} max={4} step={0.1} onValueChange={(v) => setFillPullPx(v[0])} />
+          </div>
+          <div className="border-t pt-2 space-y-1">
+            <Label className="text-xs font-semibold">Underlay</Label>
+            <div className="grid grid-cols-3 gap-1">
+              <Button size="sm" variant={fillUnderlay === 0 ? "default" : "outline"} onClick={() => setFillUnderlay(0)}>Nenhum</Button>
+              <Button size="sm" variant={fillUnderlay === 1 ? "default" : "outline"} onClick={() => setFillUnderlay(1)}>Contorno</Button>
+              <Button size="sm" variant={fillUnderlay === 2 ? "default" : "outline"} onClick={() => setFillUnderlay(2)}>Zig-zag</Button>
+            </div>
+            {fillUnderlay !== 0 && (
+              <div>
+                <Label className="text-xs">Inset ({fillUnderlayInsetPx.toFixed(1)} px)</Label>
+                <Slider value={[fillUnderlayInsetPx]} min={0.5} max={6} step={0.1} onValueChange={(v) => setFillUnderlayInsetPx(v[0])} />
+              </div>
+            )}
+          </div>
+          <Button size="sm" className="w-full" onClick={preencherCamadaAtiva}>
+            <Sparkles className="mr-1 h-3 w-3" />Aplicar preenchimento
+          </Button>
+          <p className="text-[10px] text-muted-foreground">
+            Dica: fecha o contorno com "Z" antes de preencher (ferramentas de desenho geram traços abertos por padrão).
+          </p>
           <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
           <div>
             <Label className="text-xs">Raio ({circRadius} mm)</Label>
