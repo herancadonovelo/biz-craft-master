@@ -34,6 +34,9 @@ import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
+  splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
+} from "@/lib/dst";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
