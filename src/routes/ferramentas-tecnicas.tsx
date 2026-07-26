@@ -2493,6 +2493,59 @@ function BordadoTab() {
     } finally { setPesBusy(false); }
   };
 
+  // ---------- Fase 12: exportador EXP (Melco) + save/load projeto ----------
+  const exportarExp = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
+    try {
+      const { encodeExp } = await import("@/lib/exp");
+      const blob = encodeExp(blocks, PX_PER_MM);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `bordado-${Date.now()}.exp`; a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`EXP gerado com ${blocks.length} cor(es).`);
+    } catch (e) {
+      toast.error("Falha ao gerar EXP: " + (e as Error).message);
+    }
+  };
+  const projectFileRef = useRef<HTMLInputElement>(null);
+  const salvarProjeto = () => {
+    const snap = {
+      version: 12,
+      kind: "cbm-bordado",
+      savedAt: new Date().toISOString(),
+      layers, chartArea, chartCells, hoopOn, hoopSize,
+      stitchLenMm, orderByNearest, colorOrder,
+      watermark: w,
+    };
+    const blob = new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `projeto-bordado-${Date.now()}.cbmbord.json`; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Projeto guardado.");
+  };
+  const carregarProjeto = async (file: File) => {
+    try {
+      const txt = await file.text();
+      const snap = JSON.parse(txt);
+      if (snap.kind !== "cbm-bordado") { toast.error("Ficheiro inválido."); return; }
+      if (Array.isArray(snap.layers)) setLayers(snap.layers);
+      if (snap.chartArea) setChartArea(snap.chartArea);
+      if (Array.isArray(snap.chartCells)) setChartCells(snap.chartCells);
+      if (typeof snap.hoopOn === "boolean") setHoopOn(snap.hoopOn);
+      if (snap.hoopSize) setHoopSize(snap.hoopSize);
+      if (typeof snap.stitchLenMm === "number") setStitchLenMm(snap.stitchLenMm);
+      if (typeof snap.orderByNearest === "boolean") setOrderByNearest(snap.orderByNearest);
+      if (Array.isArray(snap.colorOrder)) setColorOrder(snap.colorOrder);
+      if (snap.watermark) setW(snap.watermark);
+      toast.success("Projeto carregado.");
+    } catch (e) {
+      toast.error("Falha a carregar projeto: " + (e as Error).message);
+    }
+  };
+
   // Lista viva de cores (para o UI de reordenação)
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
