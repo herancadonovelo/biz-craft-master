@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1071,7 +1072,20 @@ export function CosturaEditor() {
       <div className="space-y-3">
         <SheetControls {...sheet} />
 
-        <Card><CardContent className="space-y-2 p-3">
+        <Tabs defaultValue="grelha">
+          <TabsList className="flex-wrap justify-start h-auto">
+            <TabsTrigger value="grelha">Grelha</TabsTrigger>
+            <TabsTrigger value="versoes">Versões</TabsTrigger>
+            <TabsTrigger value="cad">CAD</TabsTrigger>
+            <TabsTrigger value="presets">Presets</TabsTrigger>
+            <TabsTrigger value="tamanho">Tamanho</TabsTrigger>
+            <TabsTrigger value="ferramenta">Ferramenta</TabsTrigger>
+            <TabsTrigger value="decalque">Decalque</TabsTrigger>
+            <TabsTrigger value="custo">Custo</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="grelha" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="text-xs font-medium">Grelha & Snap</div>
           <Label className="text-[11px]">Grelha ({gridCm} cm)</Label>
           <div className="flex gap-1">
@@ -1088,8 +1102,10 @@ export function CosturaEditor() {
           <Label className="text-[11px] pt-1">Tolerância snap · {snapTolPx}px ({pxToCm(snapTolPx).toFixed(2)} cm)</Label>
           <Slider value={[snapTolPx]} min={2} max={30} step={1} onValueChange={(v) => setSnapTolPx(v[0])} />
         </CardContent></Card>
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="versoes" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="flex items-center justify-between">
             <div className="text-xs font-medium">Versões do molde</div>
             <div className="flex gap-1">
@@ -1130,8 +1146,10 @@ export function CosturaEditor() {
             );
           })()}
         </CardContent></Card>
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="cad" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="text-xs font-medium">Exportar / Importar CAD</div>
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <div>
@@ -1194,8 +1212,10 @@ export function CosturaEditor() {
             Export com camadas (Inkscape/AutoCAD) na unidade escolhida. Import lê `width` do SVG e `$INSUNITS` do DXF para converter para px automaticamente.
           </p>
         </CardContent></Card>
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="presets" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="text-xs font-medium">Presets de exportação (por projeto)</div>
           <div className="grid grid-cols-[1fr_auto] gap-1">
             <Input value={projectSlug} onChange={(e) => setProjectSlug(e.target.value || "default")} placeholder="Nome do projeto" className="h-8 text-[11px]" />
@@ -1220,8 +1240,10 @@ export function CosturaEditor() {
             ))}
           </div>
         </CardContent></Card>
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="tamanho" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs">Tamanho</Label>
@@ -1236,8 +1258,13 @@ export function CosturaEditor() {
             </div>
           </div>
         </CardContent></Card>
+          </TabsContent>
 
-        {(tool === "arc") && (
+          <TabsContent value="ferramenta" className="mt-2 space-y-2">
+          {tool !== "arc" && tool !== "spiral" && tool !== "offset" && tool !== "split" && (
+            <p className="text-[11px] text-muted-foreground">Seleciona uma ferramenta (Arco, Espiral, Offset ou Split) para configurar os parâmetros aqui.</p>
+          )}
+          {(tool === "arc") && (
           <Card><CardContent className="space-y-2 p-3">
             <div className="text-xs font-medium">Compasso (arco por raio)</div>
             <Label className="text-[11px]">Raio ({arcRadiusCm} cm)</Label>
@@ -1287,8 +1314,10 @@ export function CosturaEditor() {
             <Button size="sm" variant="outline" onClick={applySplit}><Plus className="mr-1 h-3 w-3" />Colocar marcadores</Button>
           </CardContent></Card>
         )}
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="decalque" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="text-xs font-medium">Decalque de imagem</div>
           <Input type="file" accept="image/*" onChange={(e) => {
             const f = e.target.files?.[0]; if (!f) return;
@@ -1305,8 +1334,10 @@ export function CosturaEditor() {
             Importa uma fotografia de um molde antigo ou esboço e decalca por cima com as ferramentas.
           </p>
         </CardContent></Card>
+          </TabsContent>
 
-        <Card><CardContent className="space-y-2 p-3">
+          <TabsContent value="custo" className="mt-2">
+          <Card><CardContent className="space-y-2 p-3">
           <div className="font-display font-semibold text-sm">Custo do Projeto</div>
           {usados.map((u, i) => {
             const m = materiais.find((x) => x.id === u.materialId);
@@ -1328,6 +1359,8 @@ export function CosturaEditor() {
           </Button>
           <div className="border-t pt-2 text-sm">Total: <span className="font-display font-bold">{formatEUR(custoTotal)}</span></div>
         </CardContent></Card>
+          </TabsContent>
+        </Tabs>
 
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Costura" defaultTitulo={`Molde ${tamanho}`} size={sheet.size} orientacao={sheet.orientacao} />
