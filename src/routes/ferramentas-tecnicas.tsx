@@ -39,6 +39,7 @@ import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
 import { encodePes, splitByHoop } from "@/lib/pes";
+import { buildDensityGrid, analyzeQuality, heatColor } from "@/lib/stitch-analysis";
 import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
   textToPaths,
@@ -2057,6 +2058,9 @@ function BordadoTab() {
   const [simProgress, setSimProgress] = useState(0); // 0..1
   const [simPlaying, setSimPlaying] = useState(false);
   const dstFileRef = useRef<HTMLInputElement>(null);
+  // Fase 13 — mapa de densidade + relatório de qualidade
+  const [heatOn, setHeatOn] = useState(false);
+  const [heatCellMm, setHeatCellMm] = useState(2);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2549,6 +2553,20 @@ function BordadoTab() {
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
 
+  // ---------- Fase 13: mapa de densidade + relatório de qualidade ----------
+  const densityGrid = useMemo(() => {
+    if (!heatOn || orderedColorBlocks.length === 0) return null;
+    const cellPx = Math.max(2, heatCellMm * PX_PER_MM);
+    // Import dinâmico evita colocar util no bundle inicial deste editor pesado.
+    // (síncrono via require-style — mas usamos import estático abaixo)
+    return buildDensityGrid(orderedColorBlocks,
+      { x0: 0, y0: 0, w: 595, h: 842 }, cellPx);
+  }, [heatOn, heatCellMm, orderedColorBlocks]);
+  const qualityReport = useMemo(() =>
+    analyzeQuality(orderedColorBlocks, PX_PER_MM,
+      { grid: densityGrid ?? undefined, hotspotThreshold: 25 }),
+    [orderedColorBlocks, densityGrid]);
+
   // ---------- Fase 11: simulador animado ----------
   const simFlat = useMemo(() => {
     const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
@@ -2792,6 +2810,20 @@ function BordadoTab() {
             </g>
           )}
           {/* Fase 11 — simulador animado (sobrepõe o desenho ao vivo). */}
+          {heatOn && densityGrid && densityGrid.max > 0 && (
+            <g pointerEvents="none" opacity="0.55">
+              {densityGrid.data.map((v, i) => {
+                if (v === 0) return null;
+                const gx = i % densityGrid.cols;
+                const gy = Math.floor(i / densityGrid.cols);
+                return <rect key={`h-${i}`}
+                  x={densityGrid.x0 + gx * densityGrid.cell}
+                  y={densityGrid.y0 + gy * densityGrid.cell}
+                  width={densityGrid.cell} height={densityGrid.cell}
+                  fill={heatColor(v / densityGrid.max)} />;
+              })}
+            </g>
+          )}
           {simOn && simFlat.length > 0 && (
             <g pointerEvents="none">
               <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(255,255,255,0.85)" />
@@ -3490,6 +3522,33 @@ function BordadoTab() {
             <Button size="sm" variant="outline" onClick={() => projectFileRef.current?.click()}>Carregar…</Button>
           </div>
           <p className="text-[10px] text-muted-foreground">Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.</p>
+        </CardContent></Card>
+        {/* Fase 13 — Mapa de densidade + Relatório de qualidade */}
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Densidade & Qualidade</Label>
+            <Button size="sm" variant={heatOn ? "default" : "outline"} onClick={() => setHeatOn((v) => !v)}>
+              {heatOn ? "Heatmap ligado" : "Heatmap"}
+            </Button>
+          </div>
+          {heatOn && (
+            <div>
+              <Label className="text-[10px]">Célula ({heatCellMm.toFixed(1)} mm)</Label>
+              <Slider value={[heatCellMm]} min={1} max={8} step={0.5} onValueChange={(v) => setHeatCellMm(v[0])} />
+            </div>
+          )}
+          <div className="grid grid-cols-3 gap-1 text-[10px]">
+            <div><span className="text-muted-foreground block">Curtos</span><span className="tabular-nums font-medium">{qualityReport.shortStitches}</span></div>
+            <div><span className="text-muted-foreground block">Longos</span><span className="tabular-nums font-medium">{qualityReport.longStitches}</span></div>
+            <div><span className="text-muted-foreground block">Saltos</span><span className="tabular-nums font-medium">{qualityReport.jumps.longestMm.toFixed(0)}mm</span></div>
+          </div>
+          {qualityReport.warnings.length === 0 ? (
+            <p className="text-[10px] text-emerald-600">Sem avisos — design saudável.</p>
+          ) : (
+            <ul className="text-[10px] text-amber-700 list-disc pl-4 space-y-0.5">
+              {qualityReport.warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          )}
         </CardContent></Card>
         {/* Fase 11 — Simulador animado */}
         <Card><CardContent className="space-y-2 p-3">
