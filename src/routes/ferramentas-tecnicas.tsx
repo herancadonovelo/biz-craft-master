@@ -2057,6 +2057,10 @@ function BordadoTab() {
   const [simProgress, setSimProgress] = useState(0); // 0..1
   const [simPlaying, setSimPlaying] = useState(false);
   const dstFileRef = useRef<HTMLInputElement>(null);
+  // Fase 13 — mapa de densidade + relatório de qualidade
+  const [heatOn, setHeatOn] = useState(false);
+  const [heatCellMm, setHeatCellMm] = useState(2);
+  const projectFileRef2Ignored: null = null; void projectFileRef2Ignored;
 
   const fillOpts: FillOptions = {
     mode: fillMode,
