@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useStore, type ProducaoPlano, type EtapaProducao } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -184,6 +184,12 @@ function PlaneadorProducaoPage() {
             <DialogContent>
               <DialogHeader><DialogTitle>Opções de exportação .ics</DialogTitle></DialogHeader>
               <div className="grid gap-3">
+                <div className="rounded-md border bg-muted/40 p-2 text-xs text-muted-foreground">
+                  Calendário: <b>{plano.nome}</b> · Timezone: <b>{icsOpts.timezone || "flutuante"}</b> ·
+                  Etapas: <b>{icsSummary.etapas}</b> · Tarefas: <b>{icsSummary.tarefas}</b> ·
+                  Eventos com data: <b>{icsSummary.comData}</b> ·
+                  Descrição: <b>{icsOpts.includeDescription ? "completa" : "resumida"}</b>
+                </div>
                 <div>
                   <Label>Fuso horário (TZID)</Label>
                   <Select
@@ -231,6 +237,9 @@ function PlaneadorProducaoPage() {
                 </div>
               </div>
               <DialogFooter>
+                <Button variant="outline" onClick={() => setIcsPreviewOpen(true)}>
+                  <Eye className="mr-1 h-4 w-4" />Pré-visualizar
+                </Button>
                 <Button
                   onClick={() => {
                     downloadICS(plano, icsOpts);
@@ -245,11 +254,48 @@ function PlaneadorProducaoPage() {
           </Dialog>
         )}
         {plano && (
+          <>
+            <input
+              ref={icsImportRef} type="file" accept=".ics,text/calendar" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) importarICS(f); e.target.value = ""; }}
+            />
+            <Button variant="outline" onClick={() => icsImportRef.current?.click()}>
+              <Upload className="mr-1 h-4 w-4" />Importar .ics
+            </Button>
+          </>
+        )}
+        {plano && (
           <Button variant="ghost" onClick={() => { remove("producaoPlanos", plano.id); setSelId(null); }}>
             <Trash2 className="h-4 w-4" />
           </Button>
         )}
       </div>
+
+      <Dialog open={icsPreviewOpen} onOpenChange={setIcsPreviewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Pré-visualização do .ics</DialogTitle></DialogHeader>
+          {plano && (
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                Calendário <b>{plano.nome}</b> · Timezone <b>{icsOpts.timezone || "flutuante"}</b> ·
+                {" "}{icsSummary.etapas} etapas, {icsSummary.tarefas} tarefas, {icsSummary.comData} eventos com data.
+                Descrição {icsOpts.includeDescription ? "completa" : "resumida"}.
+              </div>
+              <pre className="max-h-[50vh] overflow-auto rounded-md border bg-muted/30 p-2 text-[11px] leading-relaxed">
+{icsPreview}
+              </pre>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIcsPreviewOpen(false)}>Fechar</Button>
+            {plano && (
+              <Button onClick={() => { downloadICS(plano, icsOpts); setIcsPreviewOpen(false); setIcsOpen(false); toast.success("Calendário .ics exportado"); }}>
+                <Download className="mr-1 h-4 w-4" />Descarregar
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {!plano ? (
         <Card className="p-10 text-center text-muted-foreground">
