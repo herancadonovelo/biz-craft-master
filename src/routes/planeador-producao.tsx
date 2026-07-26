@@ -10,13 +10,30 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Trash2, Calendar as CalIcon, Download } from "lucide-react";
+import { Plus, Trash2, Calendar as CalIcon, Download, Filter } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { downloadICS } from "@/lib/ics";
+import { downloadICS, type IcsOptions } from "@/lib/ics";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 const ETAPAS_PADRAO = ["Materiais", "Corte / Preparação", "Produção", "Acabamento", "Embalagem", "Envio"];
+
+const TIMEZONES = [
+  "", "Europe/Lisbon", "Europe/Madrid", "Europe/London", "Europe/Paris",
+  "Europe/Berlin", "America/New_York", "America/Sao_Paulo", "America/Los_Angeles",
+  "UTC",
+];
+
+type StatusKey = "nao_iniciado" | "em_progresso" | "feito";
+const STATUS_LABEL: Record<StatusKey, string> = {
+  nao_iniciado: "Não iniciado",
+  em_progresso: "Em progresso",
+  feito: "Feito",
+};
 
 export const Route = createFileRoute("/planeador-producao")({
   head: () => ({
@@ -32,6 +49,18 @@ function PlaneadorProducaoPage() {
   const { producaoPlanos, projetos, add, update, remove } = useStore();
   const [selId, setSelId] = useState<string | null>(producaoPlanos[0]?.id ?? null);
   const plano = producaoPlanos.find((p) => p.id === selId);
+
+  const [respFilter, setRespFilter] = useState<string>("__all");
+  const [statusFilter, setStatusFilter] = useState<"__all" | StatusKey>("__all");
+  const [groupBy, setGroupBy] = useState<"etapa" | "responsavel" | "status">("etapa");
+
+  const [icsOpts, setIcsOpts] = useState<IcsOptions>({
+    timezone: "Europe/Lisbon",
+    includeDescription: true,
+    defaultDurationDays: 1,
+    taskDurationDays: 1,
+  });
+  const [icsOpen, setIcsOpen] = useState(false);
 
   const criarPlano = () => {
     const novo: Omit<ProducaoPlano, "id"> = {
@@ -64,6 +93,36 @@ function PlaneadorProducaoPage() {
     return Math.round((t.filter((x) => x.status === "feito" || x.feito).length / t.length) * 100);
   }, [plano]);
 
+  const responsaveis = useMemo(() => {
+    if (!plano) return [] as string[];
+    return Array.from(
+      new Set(plano.etapas.flatMap((e) => e.tarefas.map((t) => t.responsavel).filter((x): x is string => !!x))),
+    ).sort();
+  }, [plano]);
+
+  const matchesFilter = (t: EtapaProducao["tarefas"][number]) => {
+    const st = (t.status ?? (t.feito ? "feito" : "nao_iniciado")) as StatusKey;
+    if (statusFilter !== "__all" && st !== statusFilter) return false;
+    if (respFilter !== "__all" && (t.responsavel ?? "") !== respFilter) return false;
+    return true;
+  };
+
+  const grouped = useMemo(() => {
+    if (!plano) return [] as { label: string; items: { etapa: string; tarefa: EtapaProducao["tarefas"][number] }[] }[];
+    const flat = plano.etapas.flatMap((e) => e.tarefas.filter(matchesFilter).map((t) => ({ etapa: e.nome, tarefa: t })));
+    const buckets = new Map<string, typeof flat>();
+    for (const it of flat) {
+      const key =
+        groupBy === "etapa" ? it.etapa
+          : groupBy === "responsavel" ? (it.tarefa.responsavel || "— sem responsável")
+          : STATUS_LABEL[(it.tarefa.status ?? (it.tarefa.feito ? "feito" : "nao_iniciado")) as StatusKey];
+      const arr = buckets.get(key) ?? [];
+      arr.push(it);
+      buckets.set(key, arr);
+    }
+    return Array.from(buckets.entries()).map(([label, items]) => ({ label, items }));
+  }, [plano, groupBy, statusFilter, respFilter]);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -85,9 +144,74 @@ function PlaneadorProducaoPage() {
         </div>
         <Button onClick={criarPlano}><Plus className="mr-1 h-4 w-4" />Novo plano</Button>
         {plano && (
-          <Button variant="outline" onClick={() => { downloadICS(plano); toast.success("Calendário .ics exportado"); }}>
-            <Download className="mr-1 h-4 w-4" />Exportar .ics
-          </Button>
+          <Dialog open={icsOpen} onOpenChange={setIcsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Download className="mr-1 h-4 w-4" />Exportar .ics
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Opções de exportação .ics</DialogTitle></DialogHeader>
+              <div className="grid gap-3">
+                <div>
+                  <Label>Fuso horário (TZID)</Label>
+                  <Select
+                    value={icsOpts.timezone || "__floating"}
+                    onValueChange={(v) => setIcsOpts((o) => ({ ...o, timezone: v === "__floating" ? "" : v }))}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__floating">Sem TZID (flutuante)</SelectItem>
+                      {TIMEZONES.filter(Boolean).map((tz) => (
+                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between rounded-md border p-2">
+                  <div>
+                    <div className="text-sm font-medium">Descrição completa</div>
+                    <div className="text-xs text-muted-foreground">
+                      Inclui progresso, tarefas com estado, responsáveis e prazos.
+                    </div>
+                  </div>
+                  <Switch
+                    checked={!!icsOpts.includeDescription}
+                    onCheckedChange={(c) => setIcsOpts((o) => ({ ...o, includeDescription: c }))}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Duração etapa (dias) sem fim</Label>
+                    <Input
+                      type="number" min={1}
+                      value={icsOpts.defaultDurationDays ?? 1}
+                      onChange={(e) => setIcsOpts((o) => ({ ...o, defaultDurationDays: Math.max(1, +e.target.value || 1) }))}
+                    />
+                  </div>
+                  <div>
+                    <Label>Duração tarefa (dias)</Label>
+                    <Input
+                      type="number" min={1}
+                      value={icsOpts.taskDurationDays ?? 1}
+                      onChange={(e) => setIcsOpts((o) => ({ ...o, taskDurationDays: Math.max(1, +e.target.value || 1) }))}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={() => {
+                    downloadICS(plano, icsOpts);
+                    setIcsOpen(false);
+                    toast.success("Calendário .ics exportado");
+                  }}
+                >
+                  <Download className="mr-1 h-4 w-4" />Exportar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
         {plano && (
           <Button variant="ghost" onClick={() => { remove("producaoPlanos", plano.id); setSelId(null); }}>
@@ -126,6 +250,93 @@ function PlaneadorProducaoPage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-display flex items-center gap-2">
+                <Filter className="h-4 w-4" /> Filtros & vistas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <Label>Responsável</Label>
+                <Select value={respFilter} onValueChange={setRespFilter}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all">Todos</SelectItem>
+                    <SelectItem value="">— sem responsável</SelectItem>
+                    {responsaveis.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all">Todos</SelectItem>
+                    <SelectItem value="nao_iniciado">Não iniciado</SelectItem>
+                    <SelectItem value="em_progresso">Em progresso</SelectItem>
+                    <SelectItem value="feito">Feito</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Agrupar por</Label>
+                <Select value={groupBy} onValueChange={(v) => setGroupBy(v as any)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="etapa">Etapa</SelectItem>
+                    <SelectItem value="responsavel">Responsável</SelectItem>
+                    <SelectItem value="status">Status</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {(respFilter !== "__all" || statusFilter !== "__all" || groupBy !== "etapa") && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-display">Vista agrupada</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {grouped.length === 0 && (
+                  <div className="text-sm text-muted-foreground">Nenhuma tarefa corresponde aos filtros.</div>
+                )}
+                {grouped.map((g) => (
+                  <div key={g.label} className="rounded-md border p-2">
+                    <div className="mb-1 flex items-center justify-between">
+                      <div className="font-medium">{g.label}</div>
+                      <Badge variant="outline">{g.items.length}</Badge>
+                    </div>
+                    <ul className="space-y-1 text-sm">
+                      {g.items.map(({ etapa, tarefa }) => {
+                        const st = (tarefa.status ?? (tarefa.feito ? "feito" : "nao_iniciado")) as StatusKey;
+                        return (
+                          <li key={tarefa.id} className="flex flex-wrap items-center gap-2">
+                            <Badge variant="secondary" className="text-[10px]">{etapa}</Badge>
+                            <span className={st === "feito" ? "line-through text-muted-foreground" : ""}>
+                              {tarefa.texto || "(sem texto)"}
+                            </span>
+                            {tarefa.responsavel && (
+                              <Badge variant="outline" className="text-[10px]">{tarefa.responsavel}</Badge>
+                            )}
+                            {tarefa.prazo && (
+                              <span className="text-xs text-muted-foreground">· {tarefa.prazo}</span>
+                            )}
+                            <Badge className="ml-auto text-[10px]" variant={st === "feito" ? "default" : "outline"}>
+                              {STATUS_LABEL[st]}
+                            </Badge>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="space-y-3">
             {plano.etapas.map((etapa, i) => (
