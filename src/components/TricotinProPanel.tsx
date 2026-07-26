@@ -1,5 +1,6 @@
 import * as React from "react";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   chaikin, rdp, yarnEstimateMeters, materialCost, mirror, offsetPolyline,
   centroid, exportGCode, exportGCodeArcs, nestRectsRotational, textileMetadata, computeA4Tiles,
@@ -153,9 +154,19 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
     <div data-testid="tricotin-pro" className="rounded-md border bg-card p-3 text-xs space-y-3">
       <div className="font-medium text-sm">Ferramentas Avançadas</div>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Folha De Molde & Histórico de Sessão</summary>
-        <div className="mt-2 space-y-2">
+      <Tabs defaultValue="desenho">
+        <TabsList className="flex-wrap justify-start h-auto">
+          <TabsTrigger value="folha">Folha & Histórico</TabsTrigger>
+          <TabsTrigger value="desenho">Desenho</TabsTrigger>
+          <TabsTrigger value="calculos">Cálculos</TabsTrigger>
+          <TabsTrigger value="camadas">Camadas & Espelho</TabsTrigger>
+          <TabsTrigger value="tiling">Impressão A4</TabsTrigger>
+          <TabsTrigger value="exportacao">Exportação</TabsTrigger>
+          <TabsTrigger value="nuvem">Nuvem</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="folha" className="mt-2">
+        <div className="space-y-2">
           <label className="flex items-center gap-2 text-[11px]">
             <span className="text-muted-foreground">Projeto</span>
             <input
@@ -195,19 +206,17 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             </div>
           )}
         </div>
-      </details>
+        </TabsContent>
 
-      <details open>
-        <summary className="cursor-pointer font-medium">Desenho — suavização & esqueleto</summary>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <TabsContent value="desenho" className="mt-2">
+        <div className="flex flex-wrap gap-2">
           <button className="rounded border px-2 py-1" onClick={() => apply("Suavização Chaikin aplicada", (p) => chaikin(p, 2))}>Suavizar (Chaikin ×2)</button>
           <button className="rounded border px-2 py-1" onClick={() => apply("Simplificação RDP aplicada", (p) => rdp(p, 1.5))}>Simplificar (RDP ε=1.5)</button>
         </div>
-      </details>
+        </TabsContent>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Cálculos automáticos</summary>
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <TabsContent value="calculos" className="mt-2">
+        <div className="grid grid-cols-2 gap-2">
           <label>Diâm. cordão (mm) <input type="number" min={4} max={20} value={cordMm} onChange={(e) => setCordMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Preço /m <input type="number" step={0.1} value={pricePerM} onChange={(e) => setPricePerM(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <div className="col-span-2 rounded bg-muted p-2 text-[11px]">
@@ -219,21 +228,19 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             apply(`Redimensionado ×${scaleFactor}`, (p) => p.map((pt) => ({ x: c.x + (pt.x - c.x) * scaleFactor, y: c.y + (pt.y - c.y) * scaleFactor })));
           }}>Aplicar redimensionamento proporcional</button>
         </div>
-      </details>
+        </TabsContent>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Camadas, snap & espelho</summary>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <TabsContent value="camadas" className="mt-2">
+        <div className="flex flex-wrap gap-2">
           <button className="rounded border px-2 py-1" onClick={() => apply("Espelhado na vertical", (p) => mirror(p, "x", sheetW / 2))}>Espelhar Horizontal</button>
           <button className="rounded border px-2 py-1" onClick={() => apply("Espelhado na horizontal", (p) => mirror(p, "y", sheetH / 2))}>Espelhar Vertical</button>
           <label className="w-full">Offset dinâmico (mm) <input type="number" step={0.5} value={offsetMm} onChange={(e) => setOffsetMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <button className="rounded border px-2 py-1" onClick={() => apply(`Offset ${offsetMm}mm aplicado`, (p) => offsetPolyline(p, offsetMm * pxPerMm))}>Aplicar offset</button>
         </div>
-      </details>
+        </TabsContent>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Impressão avançada (tiling A4)</summary>
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <TabsContent value="tiling" className="mt-2">
+        <div className="grid grid-cols-2 gap-2">
           <label>Colunas <input type="number" min={1} max={4} value={tileCols} onChange={(e) => setTileCols(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Linhas <input type="number" min={1} max={4} value={tileRows} onChange={(e) => setTileRows(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <button data-testid="tile-preview" className="col-span-2 rounded border px-2 py-1" onClick={() => {
@@ -241,11 +248,10 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             toast.success(`${tiles.length} folhas A4 preparadas (${tileCols}×${tileRows}).`);
           }}>Gerar plano de tiling</button>
         </div>
-      </details>
+        </TabsContent>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Exportação industrial</summary>
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <TabsContent value="exportacao" className="mt-2">
+        <div className="grid grid-cols-2 gap-2">
           <label className="col-span-2">Nome do design <input value={designName} onChange={(e) => setDesignName(e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label className="col-span-2">Autor <input value={author} onChange={(e) => setAuthor(e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Tolerância arco (mm) <input type="number" step={0.05} min={0.02} max={1} value={arcTolMm} onChange={(e) => setArcTolMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
@@ -362,11 +368,10 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             downloadText("metadata.json", "application/json", JSON.stringify(meta, null, 2));
           }}>Metadados CMYK / rastreabilidade</button>
         </div>
-      </details>
+        </TabsContent>
 
-      <details>
-        <summary className="cursor-pointer font-medium">Nuvem — templates & paletas</summary>
-        <div className="mt-2 space-y-2">
+        <TabsContent value="nuvem" className="mt-2">
+        <div className="space-y-2">
           <div className="text-[11px] text-muted-foreground">Templates partilhados</div>
           <div className="flex flex-wrap gap-1">
             {SHARED_TEMPLATES.map((t) => (
@@ -391,7 +396,8 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             </div>
           ))}
         </div>
-      </details>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
