@@ -20,6 +20,7 @@ import {
   expandRepetition, collectAbreviaturasUsadas,
 } from "@/lib/amigurumi/math-engine";
 import { AmigurumiVisuais } from "./AmigurumiVisuais";
+import { AmigurumiIntegracao } from "./AmigurumiIntegracao";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -73,7 +74,7 @@ function loadInitial(): Estado {
 export function AmigurumiEditor() {
   const [s, setS] = useState<Estado>(loadInitial);
   const [activeTab, setActiveTab] = useState<string>(() => DEFAULT_STATE.pecas[0].id);
-  const [topTab, setTopTab] = useState<"padrao" | "visuais">("padrao");
+  const [topTab, setTopTab] = useState<"padrao" | "visuais" | "integracao">("padrao");
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
@@ -174,13 +175,17 @@ export function AmigurumiEditor() {
 
   return (
     <div className="space-y-3">
-      <Tabs value={topTab} onValueChange={(v) => setTopTab(v as "padrao" | "visuais")}>
+      <Tabs value={topTab} onValueChange={(v) => setTopTab(v as typeof topTab)}>
         <TabsList>
           <TabsTrigger value="padrao">Padrão & Escrita</TabsTrigger>
           <TabsTrigger value="visuais">Visuais</TabsTrigger>
+          <TabsTrigger value="integracao">CBM · Stock & Preço</TabsTrigger>
         </TabsList>
         <TabsContent value="visuais" className="mt-3">
           <AmigurumiVisuais />
+        </TabsContent>
+        <TabsContent value="integracao" className="mt-3">
+          <AmigurumiIntegracao />
         </TabsContent>
         <TabsContent value="padrao" className="mt-3">
           <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
