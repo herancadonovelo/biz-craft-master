@@ -23,6 +23,8 @@ import { AmigurumiVisuais } from "./AmigurumiVisuais";
 import { AmigurumiIntegracao } from "./AmigurumiIntegracao";
 import { AmigurumiTester } from "./AmigurumiTester";
 import { AmigurumiDesign } from "./AmigurumiDesign";
+import { AmigurumiExtras } from "./AmigurumiExtras";
+import { generateReceitaPdf } from "@/lib/amigurumi/pdf";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -76,7 +78,7 @@ function loadInitial(): Estado {
 export function AmigurumiEditor() {
   const [s, setS] = useState<Estado>(loadInitial);
   const [activeTab, setActiveTab] = useState<string>(() => DEFAULT_STATE.pecas[0].id);
-  const [topTab, setTopTab] = useState<"padrao" | "visuais" | "integracao" | "tester" | "design">("padrao");
+  const [topTab, setTopTab] = useState<"padrao" | "visuais" | "integracao" | "tester" | "design" | "extras">("padrao");
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
@@ -184,6 +186,7 @@ export function AmigurumiEditor() {
           <TabsTrigger value="integracao">CBM · Stock & Preço</TabsTrigger>
           <TabsTrigger value="tester">Modo Tester</TabsTrigger>
           <TabsTrigger value="design">Design & PDF</TabsTrigger>
+          <TabsTrigger value="extras">Extras</TabsTrigger>
         </TabsList>
         <TabsContent value="visuais" className="mt-3">
           <AmigurumiVisuais />
@@ -219,6 +222,49 @@ export function AmigurumiEditor() {
                 abrev: p.abrev[s.terminologia],
                 nome: p.nome[s.terminologia],
               })),
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="extras" className="mt-3">
+          <AmigurumiExtras
+            pecas={s.pecas.map((p) => ({
+              id: p.id, nome: p.nome,
+              carreiras: p.carreiras.map((c) => ({ texto: c.texto })),
+            }))}
+            exportZip={async () => {
+              const { default: JSZip } = await import("jszip");
+              const zip = new JSZip();
+              const receita = {
+                titulo: s.titulo, autor: s.autor, nivel: s.nivel,
+                intro: s.intro, terminologia: s.terminologia,
+                pecas: s.pecas.map((p) => ({
+                  id: p.id, nome: p.nome,
+                  carreiras: p.carreiras.map((c) => ({ texto: c.texto })),
+                })),
+                tensao: s.tensao, enchimento: s.enchimento,
+                arame: s.arame, olhos: s.olhos,
+                legenda: abreviaturas.map((p) => ({
+                  abrev: p.abrev[s.terminologia],
+                  nome: p.nome[s.terminologia],
+                })),
+              };
+              const pdfBytes = await generateReceitaPdf(receita, {
+                template: "romantico", incluirCapa: true, incluirIndice: true,
+                incluirAgradecimento: true, footerText: "© Craft Business Master",
+              });
+              zip.file(`${(s.titulo || "receita").replace(/[^\w-]+/g, "_")}.pdf`, pdfBytes);
+              zip.file("receita.json", JSON.stringify(receita, null, 2));
+              zip.file("README.txt",
+                `${s.titulo || "Receita"}\npor ${s.autor || "—"}\nNível: ${s.nivel}\n\n` +
+                `Pacote gerado em ${new Date().toISOString()} pelo Craft Business Master.\n` +
+                `Inclui: PDF final, receita.json estruturado e este README.\n` +
+                `Adiciona fotos do produto acabado antes de submeter em Ravelry/Etsy.\n`);
+              const blob = await zip.generateAsync({ type: "blob" });
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = `${(s.titulo || "receita").replace(/[^\w-]+/g, "_")}-pacote.zip`;
+              a.click();
+              toast.success("Pacote .zip gerado");
             }}
           />
         </TabsContent>
