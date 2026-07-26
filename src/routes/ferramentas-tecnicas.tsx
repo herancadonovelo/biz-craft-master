@@ -32,7 +32,9 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
-import { BordadoStudio } from "@/components/bordado/BordadoStudio";
+// BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
+// enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
+// texturas de tecido e gestor de camadas simples.
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -94,8 +96,7 @@ function InstrucoesTab() {
     { t: "Editor de Receitas: Amigurumis & Crochê", d: "Processador de texto e tabelas técnicas para escrever padrões, contar pontos linha-a-linha e adicionar notas de produção. Pensa em \"livro de receita\"." },
     { t: "Editor de Moldes: Costura", d: "Estúdio vetorial para moldes de vestuário, com linhas retas, curvas, introdução manual de medidas em cm e graduação por tamanhos (S, M, L, XL). Inclui cálculo financeiro." },
     { t: "Editor de Gráficos: Ponto Cruz", d: "Grelha pixel-art para criar gráficos quadriculados com cores DMC/Anchor. Permite alternar entre vista a cor e vista de símbolos a preto e branco para leitura em papel." },
-    { t: "Editor de Padrões: Bordado", d: "Canvas livre para importar imagens, traçar contornos e definir riscos para bordado à mão." },
-    { t: "Editor De Receitas", d: "Editor estruturado para criar e organizar receitas por secções e carreiras. Adiciona materiais, imagens de referência por secção, e o total de pontos é calculado automaticamente. Ideal para amigurumis, crochet e tricotin em formato \"livro\"." },
+    { t: "Editor de Padrões: Bordado", d: "Estúdio de bordado com bastidor virtual, camadas, grelha da regra dos terços, texturas de tecido, decalque de imagem, vetorização automática e exportação A4 pronta para transferir." },
     { t: "Editor De Moodboards", d: "Cria moodboards em tela A4 com imagens, texto, formas e paleta de cores. Arrasta, rodas e redimensiona elementos, associa a uma encomenda e exporta em PDF/imagem para partilhar com o cliente." },
     { t: "Conversor De Cores: DMC/ANCHOR", d: "Converte códigos de linhas entre marcas DMC ↔ Anchor. Pesquisa por código ou nome, vê equivalências aproximadas e adiciona diretamente ao stock ou à lista de compras." },
     { t: "Contador De Carreiras & Pontos", d: "Contadores digitais para acompanhar carreiras e pontos em tempo real durante o trabalho. Cria vários contadores por receita, incrementa/decrementa com um toque e guarda a última sessão automaticamente." },
