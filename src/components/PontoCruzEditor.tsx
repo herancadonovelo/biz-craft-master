@@ -414,28 +414,125 @@ export function PontoCruzEditor() {
   const exportPng = () => {
     canvasRef.current?.toBlob((b) => { if (b) triggerDownload(b, "grafico-ponto-cruz.png"); });
   };
+  /**
+   * Render the chart into an offscreen canvas at print-grade resolution
+   * (independent of on-screen zoom), then export to A4 PDF with a legible
+   * legend (colour swatch, symbol, DMC/Anchor codes, stitch counts, skeins)
+   * and optional diagonal watermark on every page.
+   */
   const exportPdf = () => {
-    if (!canvasRef.current) return;
+    const PRINT_CELL = 24; // px per stitch in the exported bitmap (≈300 DPI at A4)
+    const off = document.createElement("canvas");
+    off.width = chart.cols * PRINT_CELL;
+    off.height = chart.rows * PRINT_CELL;
+    const ctx = off.getContext("2d")!;
+    // Background
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, off.width, off.height);
+    // Cells (symbols always shown on printed chart for high legibility)
+    for (const [k, v] of Object.entries(chart.cells)) {
+      const [r, c] = k.split(",").map(Number);
+      const x = c * PRINT_CELL, y = r * PRINT_CELL;
+      const fillHex = v.hex2 ? blend(v.hex, v.hex2) : v.hex;
+      if (v.type === "full") {
+        ctx.fillStyle = fillHex; ctx.fillRect(x, y, PRINT_CELL, PRINT_CELL);
+        const s = stats.find((st) => st.hex === v.hex);
+        // Contrast symbol color based on luminance
+        const rgb = fillHex.replace("#", "");
+        const lum = 0.299 * parseInt(rgb.slice(0, 2), 16) + 0.587 * parseInt(rgb.slice(2, 4), 16) + 0.114 * parseInt(rgb.slice(4, 6), 16);
+        ctx.fillStyle = lum < 140 ? "#ffffff" : "#111111";
+        ctx.font = `${PRINT_CELL * 0.7}px system-ui`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(s?.symbol ?? "?", x + PRINT_CELL / 2, y + PRINT_CELL / 2 + 1);
+      } else {
+        ctx.fillStyle = fillHex;
+        ctx.beginPath();
+        if (v.type === "half-tl") { ctx.moveTo(x, y); ctx.lineTo(x + PRINT_CELL, y); ctx.lineTo(x, y + PRINT_CELL); }
+        else { ctx.moveTo(x + PRINT_CELL, y); ctx.lineTo(x + PRINT_CELL, y + PRINT_CELL); ctx.lineTo(x, y + PRINT_CELL); }
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // Grid
+    ctx.strokeStyle = "rgba(0,0,0,0.25)"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let c = 0; c <= chart.cols; c++) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
+    for (let r = 0; r <= chart.rows; r++) { ctx.moveTo(0, r * PRINT_CELL + 0.5); ctx.lineTo(off.width, r * PRINT_CELL + 0.5); }
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let c = 0; c <= chart.cols; c += 10) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
+    for (let r = 0; r <= chart.rows; r += 10) { ctx.moveTo(0, r * PRINT_CELL + 0.5); ctx.lineTo(off.width, r * PRINT_CELL + 0.5); }
+    ctx.stroke();
+    // Backstitch + knots (on top)
+    for (const b of chart.back) {
+      ctx.strokeStyle = b.hex; ctx.lineWidth = Math.max(2, PRINT_CELL * 0.14);
+      ctx.lineCap = "round"; ctx.beginPath();
+      ctx.moveTo(b.c1 * PRINT_CELL, b.r1 * PRINT_CELL);
+      ctx.lineTo(b.c2 * PRINT_CELL, b.r2 * PRINT_CELL); ctx.stroke();
+    }
+    for (const k of chart.knots) {
+      ctx.fillStyle = k.hex; ctx.beginPath();
+      ctx.arc(k.c * PRINT_CELL, k.r * PRINT_CELL, PRINT_CELL * 0.26, 0, Math.PI * 2);
+      ctx.fill(); ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+    }
+
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const imgData = canvasRef.current.toDataURL("image/png");
     const pageW = 210, pageH = 297, margin = 10;
-    const maxW = pageW - margin * 2, maxH = 160;
-    const ratio = canvasRef.current.width / canvasRef.current.height;
+    const drawWatermark = () => {
+      if (!watermark.trim()) return;
+      pdf.saveGraphicsState();
+      // @ts-expect-error jsPDF has setGState in the GState plugin
+      pdf.setGState(new (pdf as unknown as { GState: new (o: object) => unknown }).GState({ opacity: 0.15 }));
+      pdf.setFontSize(60); pdf.setTextColor(120, 120, 120);
+      pdf.text(watermark, pageW / 2, pageH / 2, { align: "center", angle: 30 });
+      pdf.restoreGraphicsState();
+      pdf.setTextColor(0, 0, 0);
+    };
+
+    // Header
+    pdf.setFontSize(16); pdf.text("Gráfico de Ponto Cruz", margin, 15);
+    pdf.setFontSize(10);
+    pdf.text(
+      `Grelha: ${chart.cols} × ${chart.rows}  ·  Aida ${chart.aidaCount} ct  ·  Tecido: ${cm.w.toFixed(1)} × ${cm.h.toFixed(1)} cm  ·  Cores: ${stats.length}`,
+      margin, 22,
+    );
+    // Chart image fitted to page width
+    const maxW = pageW - margin * 2, maxH = 230;
+    const ratio = off.width / off.height;
     let w = maxW, h = maxW / ratio;
     if (h > maxH) { h = maxH; w = maxH * ratio; }
-    pdf.setFontSize(14); pdf.text("Gráfico de Ponto Cruz", margin, 15);
+    pdf.addImage(off.toDataURL("image/png"), "PNG", (pageW - w) / 2, 28, w, h, undefined, "FAST");
+    drawWatermark();
+
+    // Legend page(s)
+    pdf.addPage();
+    drawWatermark();
+    pdf.setFontSize(14); pdf.text("Legenda de cores & meadas", margin, 15);
     pdf.setFontSize(9);
-    pdf.text(`Grelha: ${chart.cols} × ${chart.rows} | Aida: ${chart.aidaCount} ct | Tecido: ${cm.w.toFixed(1)} × ${cm.h.toFixed(1)} cm`, margin, 22);
-    pdf.addImage(imgData, "PNG", margin, 28, w, h);
-    let y = 28 + h + 8;
-    pdf.setFontSize(12); pdf.text("Legenda de cores", margin, y); y += 5;
-    pdf.setFontSize(9);
+    // Table header
+    let y = 24;
+    const cols = { swatch: margin, sym: margin + 10, dmc: margin + 20, anchor: margin + 68, stitches: margin + 108, meadas: margin + 168 };
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Cor", cols.swatch, y);
+    pdf.text("Símb.", cols.sym, y);
+    pdf.text("DMC", cols.dmc, y);
+    pdf.text("Anchor", cols.anchor, y);
+    pdf.text("Pontos (inteiros / ½ / nós)", cols.stitches, y);
+    pdf.text("Meadas", cols.meadas, y);
+    pdf.setFont("helvetica", "normal");
+    y += 3;
+    pdf.setDrawColor(180); pdf.line(margin, y, pageW - margin, y); y += 4;
     for (const s of stats) {
-      if (y > pageH - 10) { pdf.addPage(); y = 15; }
+      if (y > pageH - 12) { pdf.addPage(); drawWatermark(); y = 15; }
       pdf.setFillColor(s.hex);
-      pdf.rect(margin, y - 3, 4, 4, "F");
-      pdf.text(`${s.symbol}  DMC ${s.dmc.codigo} · ${s.dmc.nome ?? ""}  ↔  Anchor ${s.anchor.codigo}  —  ${s.full} pontos inteiros, ${s.half} meios, ${s.knots} nós  •  ~${s.meadas} meada(s)`, margin + 6, y);
-      y += 5;
+      pdf.rect(cols.swatch, y - 3.5, 6, 5, "F");
+      pdf.setDrawColor(120); pdf.rect(cols.swatch, y - 3.5, 6, 5, "S");
+      pdf.setFontSize(11); pdf.text(s.symbol, cols.sym, y);
+      pdf.setFontSize(9);
+      pdf.text(`${s.dmc.codigo}${s.dmc.nome ? "  " + s.dmc.nome : ""}`, cols.dmc, y);
+      pdf.text(String(s.anchor.codigo), cols.anchor, y);
+      pdf.text(`${s.full} / ${s.half} / ${s.knots}`, cols.stitches, y);
+      pdf.text(`~ ${s.meadas}`, cols.meadas, y);
+      y += 6;
     }
     pdf.save("grafico-ponto-cruz.pdf");
   };
