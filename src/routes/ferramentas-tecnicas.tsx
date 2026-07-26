@@ -37,6 +37,7 @@ import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
 import { encodePes, splitByHoop } from "@/lib/pes";
+import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -1999,6 +2000,41 @@ function BordadoTab() {
   const [tilingOn, setTilingOn] = useState(false);
   const [tileMarginMm, setTileMarginMm] = useState(5);
   const [colorOrder, setColorOrder] = useState<number[] | null>(null);
+  // Fase 7 — preenchimento (satin/tatami) + underlay + compensação de puxão
+  const [fillMode, setFillMode] = useState<"satin" | "tatami">("tatami");
+  const [fillAngle, setFillAngle] = useState(0);
+  const [fillSpacingPx, setFillSpacingPx] = useState(2.2);
+  const [fillStitchPx, setFillStitchPx] = useState(6);
+  const [fillStagger, setFillStagger] = useState(0.5);
+  const [fillPullPx, setFillPullPx] = useState(0.6);
+  const [fillUnderlay, setFillUnderlay] = useState<0 | 1 | 2>(1);
+  const [fillUnderlayInsetPx, setFillUnderlayInsetPx] = useState(1.6);
+
+  const fillOpts: FillOptions = {
+    mode: fillMode,
+    angleDeg: fillAngle,
+    spacingPx: fillSpacingPx,
+    stitchPx: fillStitchPx,
+    stagger: fillStagger,
+    pullCompensationPx: fillPullPx,
+    underlay: fillUnderlay,
+    underlayInsetPx: fillUnderlayInsetPx,
+  };
+
+  const preencherCamadaAtiva = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const fechados = active.strokes.filter((d) => /z/i.test(d));
+    if (fechados.length === 0) { toast.error("A camada ativa não tem contornos fechados (usa Z para fechar)."); return; }
+    let total = 0;
+    const novos: string[] = [];
+    for (const d of fechados) {
+      const fill = generateFill(d, fillOpts);
+      if (fill) { novos.push(fill); total += estimateFillStitches(d, fillOpts); }
+    }
+    if (novos.length === 0) { toast.error("Nenhum polígono válido para preencher."); return; }
+    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...novos] } : l));
+    toast.success(`Preenchimento gerado (~${total.toLocaleString()} pontos, ${fillMode}).`);
+  };
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
@@ -2807,6 +2843,61 @@ function BordadoTab() {
           <Button size="sm" className="w-full" onClick={inserirTextoCircular}>
             <Type className="mr-1 h-3 w-3" />Inserir na camada ativa
           </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Preenchimento automático (fill)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Gera pontos satin (zig-zag) ou tatami (stipple estruturado) dentro dos contornos fechados da camada ativa. Inclui underlay e compensação de puxão para bordado à máquina.
+          </p>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" variant={fillMode === "tatami" ? "default" : "outline"} onClick={() => setFillMode("tatami")}>Tatami</Button>
+            <Button size="sm" variant={fillMode === "satin" ? "default" : "outline"} onClick={() => setFillMode("satin")}>Satin</Button>
+          </div>
+          <div>
+            <Label className="text-xs">Ângulo ({fillAngle}°)</Label>
+            <Slider value={[fillAngle]} min={0} max={180} step={5} onValueChange={(v) => setFillAngle(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Espaçamento entre linhas ({fillSpacingPx.toFixed(1)} px)</Label>
+            <Slider value={[fillSpacingPx]} min={1} max={8} step={0.1} onValueChange={(v) => setFillSpacingPx(v[0])} />
+          </div>
+          {fillMode === "tatami" && (
+            <>
+              <div>
+                <Label className="text-xs">Comprimento do ponto ({fillStitchPx.toFixed(1)} px)</Label>
+                <Slider value={[fillStitchPx]} min={2} max={12} step={0.5} onValueChange={(v) => setFillStitchPx(v[0])} />
+              </div>
+              <div>
+                <Label className="text-xs">Stagger ({fillStagger.toFixed(2)})</Label>
+                <Slider value={[fillStagger]} min={0} max={0.9} step={0.05} onValueChange={(v) => setFillStagger(v[0])} />
+                <p className="text-[10px] text-muted-foreground mt-1">Deslocamento em fase entre linhas — evita "sulcos" visíveis no tecido.</p>
+              </div>
+            </>
+          )}
+          <div>
+            <Label className="text-xs">Compensação de puxão ({fillPullPx.toFixed(1)} px)</Label>
+            <Slider value={[fillPullPx]} min={-2} max={4} step={0.1} onValueChange={(v) => setFillPullPx(v[0])} />
+          </div>
+          <div className="border-t pt-2 space-y-1">
+            <Label className="text-xs font-semibold">Underlay</Label>
+            <div className="grid grid-cols-3 gap-1">
+              <Button size="sm" variant={fillUnderlay === 0 ? "default" : "outline"} onClick={() => setFillUnderlay(0)}>Nenhum</Button>
+              <Button size="sm" variant={fillUnderlay === 1 ? "default" : "outline"} onClick={() => setFillUnderlay(1)}>Contorno</Button>
+              <Button size="sm" variant={fillUnderlay === 2 ? "default" : "outline"} onClick={() => setFillUnderlay(2)}>Zig-zag</Button>
+            </div>
+            {fillUnderlay !== 0 && (
+              <div>
+                <Label className="text-xs">Inset ({fillUnderlayInsetPx.toFixed(1)} px)</Label>
+                <Slider value={[fillUnderlayInsetPx]} min={0.5} max={6} step={0.1} onValueChange={(v) => setFillUnderlayInsetPx(v[0])} />
+              </div>
+            )}
+          </div>
+          <Button size="sm" className="w-full" onClick={preencherCamadaAtiva}>
+            <Sparkles className="mr-1 h-3 w-3" />Aplicar preenchimento
+          </Button>
+          <p className="text-[10px] text-muted-foreground">
+            Dica: fecha o contorno com "Z" antes de preencher (ferramentas de desenho geram traços abertos por padrão).
+          </p>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
