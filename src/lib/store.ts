@@ -466,7 +466,7 @@ export interface ReceitaEditor {
   id: ID;
   nome: string;
   categoria: "amigurumi" | "crochet" | "tricotin";
-  materiais: { id: ID; nome: string; quantidade: string }[];
+  materiais: { id: ID; nome: string; quantidade: string; precoUnitario?: number }[];
   seccoes: {
     id: ID;
     nome: string;
