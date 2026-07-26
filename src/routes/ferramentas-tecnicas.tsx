@@ -3699,6 +3699,23 @@ function BordadoTab() {
           <p className="text-[10px] text-muted-foreground">{simFlat.length.toLocaleString()} pontos · {orderedColorBlocks.length} cores.</p>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
+        <Phase16Panel
+          projectId="bordado"
+          palette={orderedColorBlocks.map<LayerPaletteEntry>((b) => ({
+            hex: b.color, strands: 2,
+          }))}
+          onPaletteChange={() => { /* aplicado via presets/blend na próxima fase */ }}
+          studioSnapshot={{
+            hoop: sheet, watermark: w, bundleSlug,
+            heatOn, heatCellMm, colorOrder,
+          }}
+          currentPresetData={{
+            hoopMm: { w: sheet.size.wMm ?? 100, h: sheet.size.hMm ?? 100 },
+            aida: undefined,
+            watermark: typeof w?.texto === "string" ? w.texto : undefined,
+            strands: 2,
+          }}
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
