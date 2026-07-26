@@ -425,6 +425,34 @@ function Page() {
                 onChange={(e) => setAndSaveRules({ ...rules, anexarNotas: e.target.checked })} />
               Anexar notas importadas
             </label>
+            <div className="mt-2 rounded-md border p-2">
+              <div className="mb-1 text-xs font-medium">Presets guardados</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  placeholder="Nome do preset (ex.: Encomendas grandes)"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  className="h-8 flex-1 min-w-40"
+                />
+                <Button size="sm" variant="outline" onClick={gravarPreset}>Gravar preset</Button>
+              </div>
+              {presets.length === 0 ? (
+                <div className="mt-2 text-xs text-muted-foreground">Sem presets. Grava o conjunto atual para reutilizar depois.</div>
+              ) : (
+                <ul className="mt-2 space-y-1">
+                  {presets.map((p) => (
+                    <li key={p.id} className="flex items-center gap-2 text-sm">
+                      <Badge variant="outline" className="text-[10px]">{p.rules.horas}/{p.rules.margem}</Badge>
+                      <span className="truncate">{p.nome}</span>
+                      <Button size="sm" variant="ghost" className="ml-auto h-7" onClick={() => aplicarPreset(p.id)}>Aplicar</Button>
+                      <Button size="sm" variant="ghost" className="h-7" onClick={() => removerPreset(p.id)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAndSaveRules(DEFAULT_RULES)}>Repor padrão</Button>
