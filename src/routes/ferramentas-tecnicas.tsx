@@ -2742,6 +2742,52 @@ function BordadoTab() {
           </Button>
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Brother PES + multi-bastidor</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Gera ficheiros .PES v1 nativos para máquinas Brother/Babylock. Ativa o tiling para dividir automaticamente designs maiores que o bastidor em vários ficheiros posicionáveis.
+          </p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Dividir por bastidor</Label>
+            <Button size="sm" variant={tilingOn ? "default" : "outline"} onClick={() => setTilingOn((v) => !v)} disabled={!hoopOn}>
+              {tilingOn ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          {!hoopOn && <p className="text-[10px] text-amber-600">Ativa o bastidor para permitir tiling.</p>}
+          {tilingOn && (
+            <div>
+              <Label className="text-xs">Margem de sobreposição ({tileMarginMm} mm)</Label>
+              <Slider value={[tileMarginMm]} min={0} max={20} step={1} onValueChange={(v) => setTileMarginMm(v[0])} />
+            </div>
+          )}
+          <Button size="sm" className="w-full" onClick={exportarPes} disabled={pesBusy || machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />{pesBusy ? "A gerar…" : "Exportar .PES"}
+          </Button>
+          <div className="border-t pt-2">
+            <Label className="text-xs font-semibold">Sequência de cores</Label>
+            <p className="text-[10px] text-muted-foreground mb-1">
+              Reordena os blocos para reduzir trocas de agulha e otimizar a operação da máquina.
+            </p>
+            <div className="space-y-1 max-h-48 overflow-auto pr-1">
+              {orderedColorBlocks.length === 0 && (
+                <p className="text-[10px] text-muted-foreground">Ainda sem blocos visíveis.</p>
+              )}
+              {orderedColorBlocks.map((b, i) => (
+                <div key={`${b.label}-${i}`} className="flex items-center gap-1 rounded border bg-background/50 px-2 py-1">
+                  <span className="inline-block h-3 w-3 rounded-sm border" style={{ background: b.color }} />
+                  <span className="text-[11px] flex-1 truncate">{i + 1}. {b.label}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => moveColor(i, -1)} disabled={i === 0} aria-label="Subir">↑</Button>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => moveColor(i, +1)} disabled={i === orderedColorBlocks.length - 1} aria-label="Descer">↓</Button>
+                </div>
+              ))}
+            </div>
+            {colorOrder && (
+              <Button size="sm" variant="ghost" className="w-full mt-1" onClick={() => setColorOrder(null)}>
+                Restaurar ordem original
+              </Button>
+            )}
+          </div>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Texto circular</Label>
           <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
           <div>
