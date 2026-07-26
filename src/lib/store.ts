@@ -69,6 +69,7 @@ export interface Projeto {
   estado: "rascunho" | "em_curso" | "concluido";
   criadoEm: string;
   notas?: string;
+  receitaId?: ID;
 }
 
 export interface Encomenda {
