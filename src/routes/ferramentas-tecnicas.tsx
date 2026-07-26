@@ -34,6 +34,7 @@ import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
+import { decodeDst, blocksToPaths } from "@/lib/dst-import";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
@@ -2050,6 +2051,12 @@ function BordadoTab() {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfTitulo, setPdfTitulo] = useState("Padrão de Bordado");
   const [pdfAutor, setPdfAutor] = useState("");
+  // Fase 11 — importação DST + simulador animado
+  const [simOn, setSimOn] = useState(false);
+  const [simSpeed, setSimSpeed] = useState(400); // pontos/segundo
+  const [simProgress, setSimProgress] = useState(0); // 0..1
+  const [simPlaying, setSimPlaying] = useState(false);
+  const dstFileRef = useRef<HTMLInputElement>(null);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2354,6 +2361,33 @@ function BordadoTab() {
     } finally { setPdfBusy(false); }
   };
 
+  // ---------- Fase 11: importação DST ----------
+  const importarDst = async (file: File) => {
+    try {
+      const buf = await file.arrayBuffer();
+      const blocks = decodeDst(buf, PX_PER_MM);
+      if (blocks.length === 0) { toast.error("DST sem pontos válidos."); return; }
+      const paths = blocksToPaths(blocks, { cx: A4_W / 2, cy: A4_H / 2 });
+      const novosLayers: BordadoLayer[] = paths
+        .filter((p) => p.d)
+        .map((p, i) => ({
+          id: crypto.randomUUID(),
+          nome: `DST · ${p.label}`,
+          color: p.color,
+          width: 1.6,
+          stitch: "running",
+          visible: true,
+          locked: false,
+          strokes: [p.d],
+        }));
+      setLayers((ls) => [...ls, ...novosLayers]);
+      toast.success(`DST importado: ${novosLayers.length} camadas, ${blocks.reduce((s, b) => s + b.points.length, 0).toLocaleString()} pontos.`);
+    } catch (e) {
+      toast.error("Falha ao importar DST: " + (e as Error).message);
+    }
+  };
+
+
   // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
   /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
   const buildStitchBlocks = (): StitchBlock[] => {
@@ -2462,6 +2496,36 @@ function BordadoTab() {
   // Lista viva de cores (para o UI de reordenação)
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
+
+  // ---------- Fase 11: simulador animado ----------
+  const simFlat = useMemo(() => {
+    const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
+    orderedColorBlocks.forEach((b, bi) => {
+      b.points.forEach((p, pi) => arr.push({ x: p.x, y: p.y, blockIdx: bi, jump: pi === 0 && bi > 0 }));
+    });
+    return arr;
+  }, [orderedColorBlocks]);
+
+  useEffect(() => {
+    if (!simPlaying || !simOn || simFlat.length === 0) return;
+    let raf = 0;
+    let last = performance.now();
+    const tick = (t: number) => {
+      const dt = (t - last) / 1000;
+      last = t;
+      setSimProgress((p) => {
+        const stepFrac = (simSpeed * dt) / simFlat.length;
+        const next = p + stepFrac;
+        if (next >= 1) { setSimPlaying(false); return 1; }
+        return next;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [simPlaying, simOn, simFlat, simSpeed]);
+
+  const simVisibleCount = Math.round(simProgress * simFlat.length);
 
   const inserirTextoCircular = () => {
     if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
@@ -2673,6 +2737,42 @@ function BordadoTab() {
                 const dx = Math.cos(ang) * L, dy = Math.sin(ang) * L;
                 return <line key={k} x1={cxg - dx} y1={cyg - dy} x2={cxg + dx} y2={cyg + dy} />;
               })}
+            </g>
+          )}
+          {/* Fase 11 — simulador animado (sobrepõe o desenho ao vivo). */}
+          {simOn && simFlat.length > 0 && (
+            <g pointerEvents="none">
+              <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(255,255,255,0.85)" />
+              {(() => {
+                const parts: React.ReactElement[] = [];
+                let curBlock = -1;
+                let d = "";
+                let curColor = "#111";
+                const flush = (key: string) => {
+                  if (d) parts.push(<path key={key} d={d} stroke={curColor} strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />);
+                  d = "";
+                };
+                for (let i = 0; i < simVisibleCount; i++) {
+                  const p = simFlat[i];
+                  if (p.blockIdx !== curBlock) {
+                    flush(`s-${curBlock}-${i}`);
+                    curBlock = p.blockIdx;
+                    curColor = orderedColorBlocks[curBlock]?.color ?? "#111";
+                    d = `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+                  } else {
+                    d += ` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+                  }
+                }
+                flush("s-final");
+                const cur = simFlat[Math.max(0, simVisibleCount - 1)];
+                if (cur) parts.push(
+                  <g key="needle">
+                    <circle cx={cur.x} cy={cur.y} r="4" fill="none" stroke="#111" strokeWidth="1" />
+                    <circle cx={cur.x} cy={cur.y} r="1.6" fill="#e11d48" />
+                  </g>
+                );
+                return parts;
+              })()}
             </g>
           )}
         </svg>
@@ -3314,6 +3414,43 @@ function BordadoTab() {
           <Button size="sm" className="w-full" onClick={exportarPatternSheetPdf} disabled={pdfBusy}>
             {pdfBusy ? "A gerar…" : "Exportar folha PDF"}
           </Button>
+        </CardContent></Card>
+        {/* Fase 11 — Importar DST */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Importar DST</Label>
+          <input ref={dstFileRef} type="file" accept=".dst" className="hidden"
+                 onChange={(e) => { const f = e.target.files?.[0]; if (f) importarDst(f); e.currentTarget.value = ""; }} />
+          <Button size="sm" variant="outline" className="w-full" onClick={() => dstFileRef.current?.click()}>
+            Carregar ficheiro .DST
+          </Button>
+          <p className="text-[10px] text-muted-foreground">Cria uma camada por cor a partir dos registos Tajima. Centrado na folha.</p>
+        </CardContent></Card>
+        {/* Fase 11 — Simulador animado */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Simulador de bordado</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Ativar sobreposição</Label>
+            <Button size="sm" variant={simOn ? "default" : "outline"} onClick={() => { setSimOn((v) => !v); setSimProgress(0); setSimPlaying(false); }}>
+              {simOn ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          <div>
+            <Label className="text-xs">Velocidade ({simSpeed} pts/s)</Label>
+            <Slider value={[simSpeed]} min={50} max={4000} step={50} onValueChange={(v) => setSimSpeed(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Progresso ({Math.round(simProgress * 100)}%)</Label>
+            <Slider value={[simProgress * 1000]} min={0} max={1000} step={1}
+                    onValueChange={(v) => { setSimProgress(v[0] / 1000); setSimPlaying(false); }} />
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <Button size="sm" variant="outline" onClick={() => { setSimProgress(0); setSimPlaying(false); }}>⏮</Button>
+            <Button size="sm" onClick={() => setSimPlaying((p) => !p)} disabled={!simOn || simFlat.length === 0}>
+              {simPlaying ? "⏸" : "▶"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => { setSimProgress(1); setSimPlaying(false); }}>⏭</Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">{simFlat.length.toLocaleString()} pontos · {orderedColorBlocks.length} cores.</p>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
