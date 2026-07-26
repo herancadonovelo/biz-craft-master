@@ -13,7 +13,6 @@ import { ROUTE_ACCESS } from "@/lib/access-control";
 const PREMIUM_REQUIRED = [
   "/ferramentas-tecnicas",
   "/editor-moodboards",
-  "/editor-receita",
   "/conversor-cores",
   "/contador",
   "/atelier-sounds",

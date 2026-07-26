@@ -23,7 +23,6 @@ export const ROUTE_ACCESS: Record<string, Plan> = {
   // ----- Premium -----
   "/contador": "premium",
   "/editor-moodboards": "premium",
-  "/editor-receita": "premium",
   "/atelier-sounds": "premium",
   "/conversor-cores": "premium",
   "/ferramentas-tecnicas": "premium",
