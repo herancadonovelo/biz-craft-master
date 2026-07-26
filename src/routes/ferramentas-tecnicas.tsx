@@ -3739,6 +3739,14 @@ function BordadoTab() {
             stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
           }))}
         />
+        <Phase21Panel
+          projectId="bordado"
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+          hoopMm={{ w: 100, h: 100 }}
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
