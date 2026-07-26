@@ -32,7 +32,6 @@ import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards'
-import { Route as EditorReceitaRouteImport } from './routes/editor-receita'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
 import { Route as EtiquetasRouteImport } from './routes/etiquetas'
@@ -193,11 +192,6 @@ const DespesasRoute = DespesasRouteImport.update({
 const EditorMoodboardsRoute = EditorMoodboardsRouteImport.update({
   id: '/editor-moodboards',
   path: '/editor-moodboards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EditorReceitaRoute = EditorReceitaRouteImport.update({
-  id: '/editor-receita',
-  path: '/editor-receita',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncomendasRoute = EncomendasRouteImport.update({
@@ -457,7 +451,6 @@ export interface FileRoutesByFullPath {
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
-  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -529,7 +522,6 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
-  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -602,7 +594,6 @@ export interface FileRoutesById {
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
-  '/editor-receita': typeof EditorReceitaRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
   '/etiquetas': typeof EtiquetasRoute
@@ -676,7 +667,6 @@ export interface FileRouteTypes {
     | '/design'
     | '/despesas'
     | '/editor-moodboards'
-    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -748,7 +738,6 @@ export interface FileRouteTypes {
     | '/design'
     | '/despesas'
     | '/editor-moodboards'
-    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -820,7 +809,6 @@ export interface FileRouteTypes {
     | '/design'
     | '/despesas'
     | '/editor-moodboards'
-    | '/editor-receita'
     | '/encomendas'
     | '/estado-encomendas'
     | '/etiquetas'
@@ -893,7 +881,6 @@ export interface RootRouteChildren {
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
   EditorMoodboardsRoute: typeof EditorMoodboardsRoute
-  EditorReceitaRoute: typeof EditorReceitaRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
   EtiquetasRoute: typeof EtiquetasRoute
@@ -1101,13 +1088,6 @@ declare module '@tanstack/react-router' {
       path: '/editor-moodboards'
       fullPath: '/editor-moodboards'
       preLoaderRoute: typeof EditorMoodboardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/editor-receita': {
-      id: '/editor-receita'
-      path: '/editor-receita'
-      fullPath: '/editor-receita'
-      preLoaderRoute: typeof EditorReceitaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encomendas': {
@@ -1481,7 +1461,6 @@ const rootRouteChildren: RootRouteChildren = {
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
   EditorMoodboardsRoute: EditorMoodboardsRoute,
-  EditorReceitaRoute: EditorReceitaRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
   EtiquetasRoute: EtiquetasRoute,
