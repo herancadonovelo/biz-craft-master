@@ -28,6 +28,7 @@ import {
   type Chart, type Cell, type Gauge, type PaletaId,
 } from "@/lib/knit/engine";
 import { GradingPanel } from "@/components/knit-editor/GradingPanel";
+import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
 import { useStore, formatCurrency } from "@/lib/store";
 
 const STORAGE_KEY = "cbm:knit-editor:v1";
@@ -58,6 +59,10 @@ interface EditorState {
   decoteTipo: "V" | "redondo";
   decoteLarguraCm: number;
   decoteProfundidadeCm: number;
+  // Fase 3 — colorwork avançado
+  gramasPor100m: number;
+  metrosPorNovelo: number;
+  floatMultiplier: number;
 }
 
 function loadState(): EditorState {
@@ -94,6 +99,9 @@ function defaultState(): EditorState {
     decoteTipo: "redondo",
     decoteLarguraCm: 18,
     decoteProfundidadeCm: 8,
+    gramasPor100m: 50,
+    metrosPorNovelo: 200,
+    floatMultiplier: 1.8,
   };
 }
 
@@ -322,89 +330,18 @@ export function KnitEditor() {
 
         {/* ================= 3. COLORWORK ================= */}
         <TabsContent value="colorwork" className="mt-4 space-y-4">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Paleta de fios</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <Label>Marca</Label>
-                  <Select value={st.paletaId} onValueChange={(v) => patch({ paletaId: v as PaletaId })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="drops">Drops</SelectItem>
-                      <SelectItem value="rowan">Rowan</SelectItem>
-                      <SelectItem value="malabrigo">Malabrigo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Máx. float (malhas)</Label>
-                  <Input type="number" className="w-24" value={st.maxFloat}
-                    onChange={(e) => patch({ maxFloat: Number(e.target.value) })} />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {paleta.map((c) => (
-                  <button key={c.id} onClick={() => patch({ activeCor: c.hex })}
-                    className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm
-                      ${st.activeCor === c.hex ? "border-primary" : "border-border"}`}>
-                    <span className="inline-block h-4 w-4 rounded" style={{ background: c.hex }} />
-                    {c.nome}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="text-base">Consumo estimado</CardTitle></CardHeader>
-              <CardContent>
-                <table className="w-full text-sm">
-                  <thead><tr><th className="text-left">Cor</th><th>Malhas</th><th>Gramas</th></tr></thead>
-                  <tbody>
-                    {Object.entries(consumo).map(([cor, v]) => (
-                      <tr key={cor}>
-                        <td className="flex items-center gap-2">
-                          <span className="inline-block h-4 w-4 rounded border"
-                            style={{ background: cor === "default" ? "transparent" : cor }} />
-                          {cor}
-                        </td>
-                        <td className="text-center">{v.malhas}</td>
-                        <td className="text-right font-mono">{v.gramas}g</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Alertas de float</CardTitle></CardHeader>
-              <CardContent>
-                {floats.length === 0
-                  ? <p className="text-sm text-green-600">✓ Todos os floats abaixo de {st.maxFloat} malhas.</p>
-                  : <ul className="text-sm space-y-1 max-h-48 overflow-auto">
-                      {floats.slice(0, 20).map((f, i) => (
-                        <li key={i}>
-                          ⚠ C{f.row + 1}, col {f.col + 1}: {f.length} malhas seguidas
-                          <span className="inline-block h-3 w-3 ml-2 rounded border align-middle"
-                            style={{ background: f.cor === "default" ? "transparent" : f.cor }} />
-                        </li>
-                      ))}
-                    </ul>}
-                <Button size="sm" variant="outline" className="mt-3"
-                  onClick={() => {
-                    const cores = Object.keys(consumo).filter((k) => k !== "default").slice(0, 2);
-                    if (cores.length < 2) { toast.error("Precisas de 2 cores para inverter."); return; }
-                    patch({ chart: inverterCores(st.chart, cores[0], cores[1]) });
-                    toast.success("Cores invertidas.");
-                  }}>
-                  ↔ Inverter cores dominantes
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <ColorworkPanel
+            chart={st.chart}
+            gauge={st.gauge}
+            paletaId={st.paletaId}
+            activeCor={st.activeCor}
+            maxFloat={st.maxFloat}
+            gramasPor100m={st.gramasPor100m}
+            metrosPorNovelo={st.metrosPorNovelo}
+            floatMultiplier={st.floatMultiplier}
+            onChange={(partial) => patch(partial as Partial<EditorState>)}
+            onChartChange={(chart) => patch({ chart })}
+          />
         </TabsContent>
 
         {/* ================= 4. CONSTRUÇÃO ================= */}
