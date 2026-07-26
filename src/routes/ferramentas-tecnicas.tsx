@@ -3415,6 +3415,43 @@ function BordadoTab() {
             {pdfBusy ? "A gerar…" : "Exportar folha PDF"}
           </Button>
         </CardContent></Card>
+        {/* Fase 11 — Importar DST */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Importar DST</Label>
+          <input ref={dstFileRef} type="file" accept=".dst" className="hidden"
+                 onChange={(e) => { const f = e.target.files?.[0]; if (f) importarDst(f); e.currentTarget.value = ""; }} />
+          <Button size="sm" variant="outline" className="w-full" onClick={() => dstFileRef.current?.click()}>
+            Carregar ficheiro .DST
+          </Button>
+          <p className="text-[10px] text-muted-foreground">Cria uma camada por cor a partir dos registos Tajima. Centrado na folha.</p>
+        </CardContent></Card>
+        {/* Fase 11 — Simulador animado */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Simulador de bordado</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Ativar sobreposição</Label>
+            <Button size="sm" variant={simOn ? "default" : "outline"} onClick={() => { setSimOn((v) => !v); setSimProgress(0); setSimPlaying(false); }}>
+              {simOn ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          <div>
+            <Label className="text-xs">Velocidade ({simSpeed} pts/s)</Label>
+            <Slider value={[simSpeed]} min={50} max={4000} step={50} onValueChange={(v) => setSimSpeed(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Progresso ({Math.round(simProgress * 100)}%)</Label>
+            <Slider value={[simProgress * 1000]} min={0} max={1000} step={1}
+                    onValueChange={(v) => { setSimProgress(v[0] / 1000); setSimPlaying(false); }} />
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <Button size="sm" variant="outline" onClick={() => { setSimProgress(0); setSimPlaying(false); }}>⏮</Button>
+            <Button size="sm" onClick={() => setSimPlaying((p) => !p)} disabled={!simOn || simFlat.length === 0}>
+              {simPlaying ? "⏸" : "▶"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => { setSimProgress(1); setSimPlaying(false); }}>⏭</Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">{simFlat.length.toLocaleString()} pontos · {orderedColorBlocks.length} cores.</p>
+        </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
