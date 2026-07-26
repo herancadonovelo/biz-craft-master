@@ -377,11 +377,12 @@ function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement): Pt {
 /* ─────────────── Componente ─────────────── */
 
 type Tool =
-  | "select" | "line" | "spline" | "arc" | "spiral"
+  | "select" | "marquee" | "line" | "spline" | "arc" | "spiral"
   | "offset" | "split" | "trim" | "tangent" | "measure";
 
 const TOOL_HINTS: Record<Tool, string> = {
   select: "Clica numa peça para selecionar. Delete para apagar.",
+  marquee: "Arrasta para selecionar várias peças (marquee). Arrasta uma seleção para mover em bloco. Setas: nudge (Shift = 10px).",
   line: "Clica-arrasta para criar uma linha reta. Ativa Live Mirror para espelhar.",
   spline: "Clica em vários pontos; Enter/duplo-clique fecha a curva Catmull-Rom.",
   arc: "Define centro, raio (cm) e ângulos, depois clica para posicionar o centro (compasso).",
