@@ -11,11 +11,23 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
-  retries: 0,
-  reporter: [["list"]],
+  // Controlled retry policy: local runs stay strict (0 retries) to surface
+  // flakes immediately; CI retries twice to absorb transient network hiccups
+  // while still flagging repeat failures in the JSON summary.
+  retries: process.env.CI ? 2 : Number(process.env.PLAYWRIGHT_RETRIES ?? 0),
+  reporter: process.env.CI
+    ? [
+        ["list"],
+        ["json", { outputFile: "playwright-report/results.json" }],
+        ["html", { outputFolder: "playwright-report/html", open: "never" }],
+        ["github"],
+      ]
+    : [["list"]],
   use: {
     baseURL: BASE_URL,
     trace: "retain-on-failure",
+    video: process.env.CI ? "retain-on-failure" : "off",
+    screenshot: process.env.CI ? "only-on-failure" : "off",
     viewport: { width: 1280, height: 800 },
     launchOptions: CHROMIUM_EXECUTABLE ? { executablePath: CHROMIUM_EXECUTABLE } : undefined,
   },

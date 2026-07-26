@@ -14,9 +14,26 @@ type Props = {
   pxPerMm: number;
   sheetW: number;
   sheetH: number;
+  /** Optional scope so presets / tolerance persist per project. */
+  projectId?: string;
 };
 
-export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH }: Props) {
+export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH, projectId }: Props) {
+  // ---- Project scope (persisted). Every keyed value below is namespaced
+  // by this id so the user resumes the exact same config per project. ----
+  const ACTIVE_PROJECT_KEY = "tricotin-pro-active-project";
+  const [project, setProject] = React.useState<string>(
+    () => projectId || readLS<string>(ACTIVE_PROJECT_KEY, "default") || "default",
+  );
+  React.useEffect(() => {
+    if (projectId && projectId !== project) setProject(projectId);
+  }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
+  React.useEffect(() => { writeLS(ACTIVE_PROJECT_KEY, project); }, [project]);
+  const scope = (k: string) => `${k}:${project}`;
+
+  const TOL_KEY = "tricotin-pro-tol-v1";
+  const MAX_DISC_KEY = "tricotin-pro-max-disc-v1";
+
   const [cordMm, setCordMm] = React.useState(10);
   const [pricePerM, setPricePerM] = React.useState(0.8);
   const [scaleFactor, setScaleFactor] = React.useState(1);
@@ -25,7 +42,10 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
   const [tileRows, setTileRows] = React.useState(2);
   const [author, setAuthor] = React.useState("Art Fusion");
   const [designName, setDesignName] = React.useState("Novo Molde");
-  const [arcTolMm, setArcTolMm] = React.useState(0.1);
+  const [arcTolMm, setArcTolMm] = React.useState<number>(() => readLS<number>(scope(TOL_KEY), 0.1));
+  const [maxDiscontinuities, setMaxDiscontinuities] = React.useState<number>(
+    () => readLS<number>(scope(MAX_DISC_KEY), 20),
+  );
   const [nestMarginMm, setNestMarginMm] = React.useState(2);
   const [allowRotate, setAllowRotate] = React.useState(true);
 
@@ -38,8 +58,19 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
   };
   const PRESETS_KEY = "tricotin-pro-presets-v1";
   const HISTORY_KEY = "tricotin-pro-history-v1";
-  const [presets, setPresets] = React.useState<Preset[]>(() => readLS<Preset[]>(PRESETS_KEY, []));
-  const [history, setHistory] = React.useState<Preset[]>(() => readLS<Preset[]>(HISTORY_KEY, []));
+  const [presets, setPresets] = React.useState<Preset[]>(() => readLS<Preset[]>(scope(PRESETS_KEY), []));
+  const [history, setHistory] = React.useState<Preset[]>(() => readLS<Preset[]>(scope(HISTORY_KEY), []));
+  // Reload scoped values whenever the active project changes.
+  React.useEffect(() => {
+    setPresets(readLS<Preset[]>(scope(PRESETS_KEY), []));
+    setHistory(readLS<Preset[]>(scope(HISTORY_KEY), []));
+    setArcTolMm(readLS<number>(scope(TOL_KEY), 0.1));
+    setMaxDiscontinuities(readLS<number>(scope(MAX_DISC_KEY), 20));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project]);
+  // Persist tolerance / limit per project.
+  React.useEffect(() => { writeLS(scope(TOL_KEY), arcTolMm); }, [arcTolMm, project]); // eslint-disable-line react-hooks/exhaustive-deps
+  React.useEffect(() => { writeLS(scope(MAX_DISC_KEY), maxDiscontinuities); }, [maxDiscontinuities, project]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function snapshot(): Preset {
     return {
@@ -58,19 +89,19 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
   function savePreset() {
     const name = window.prompt("Nome do preset:", designName) || "Sem nome";
     const next = [{ ...snapshot(), name }, ...presets].slice(0, 20);
-    setPresets(next); writeLS(PRESETS_KEY, next);
+    setPresets(next); writeLS(scope(PRESETS_KEY), next);
     toast.success("Preset guardado.");
   }
   function deletePreset(id: string) {
     const next = presets.filter((p) => p.id !== id);
-    setPresets(next); writeLS(PRESETS_KEY, next);
+    setPresets(next); writeLS(scope(PRESETS_KEY), next);
   }
   // Push to history whenever the user changes a knob (debounced).
   React.useEffect(() => {
     const t = window.setTimeout(() => {
       const snap = snapshot();
       const next = [snap, ...history].slice(0, 10);
-      setHistory(next); writeLS(HISTORY_KEY, next);
+      setHistory(next); writeLS(scope(HISTORY_KEY), next);
     }, 800);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,6 +131,9 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
   }, [originalPts, arcStats]);
   const toPolyStr = (pts: P[]) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
 
+  // ------- Discontinuity gate: block arc export if noisy path -------
+  const arcExportBlocked = arcStats.discontinuities > maxDiscontinuities;
+
   function apply(name: string, fn: (pts: P[]) => P[]) {
     const pts = getPoints();
     if (!pts.length) return toast.error("Desenha algo primeiro.");
@@ -121,9 +155,19 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
       <details>
         <summary className="cursor-pointer font-medium">Folha De Molde & Histórico de Sessão</summary>
         <div className="mt-2 space-y-2">
+          <label className="flex items-center gap-2 text-[11px]">
+            <span className="text-muted-foreground">Projeto</span>
+            <input
+              data-testid="pro-project-id"
+              value={project}
+              onChange={(e) => setProject(e.target.value.trim() || "default")}
+              className="flex-1 rounded border px-2 py-1"
+              placeholder="default"
+            />
+          </label>
           <div className="flex flex-wrap gap-2">
             <button data-testid="save-preset" className="rounded border px-2 py-1" onClick={savePreset}>Guardar Folha De Molde Atual</button>
-            <button className="rounded border px-2 py-1" onClick={() => { setPresets([]); writeLS(PRESETS_KEY, []); toast.success("Folhas de moldes limpas."); }}>Limpar Folhas De Moldes</button>
+            <button className="rounded border px-2 py-1" onClick={() => { setPresets([]); writeLS(scope(PRESETS_KEY), []); toast.success("Folhas de moldes limpas."); }}>Limpar Folhas De Moldes</button>
           </div>
           {presets.length > 0 && (
             <div className="space-y-1">
@@ -205,6 +249,18 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
           <label className="col-span-2">Autor <input value={author} onChange={(e) => setAuthor(e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Tolerância arco (mm) <input type="number" step={0.05} min={0.02} max={1} value={arcTolMm} onChange={(e) => setArcTolMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Margem nesting (mm) <input type="number" step={0.5} min={0} max={20} value={nestMarginMm} onChange={(e) => setNestMarginMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
+          <label className="col-span-2">Máx. descontinuidades permitidas
+            <input
+              data-testid="max-discontinuities"
+              type="number" min={0} max={9999} step={1}
+              value={maxDiscontinuities}
+              onChange={(e) => setMaxDiscontinuities(Math.max(0, Math.floor(+e.target.value || 0)))}
+              className="w-full rounded border px-2 py-1"
+            />
+            <span className="mt-0.5 block text-[10.5px] text-muted-foreground">
+              Se a estimativa passar este limite, o export G-Code (arcos) é bloqueado para evitar CNC ruidoso.
+            </span>
+          </label>
           <p className="col-span-2 rounded bg-muted/60 p-2 text-[11px] leading-snug text-muted-foreground">
             <b>Efeito da tolerância no G-code com arcos:</b>{" "}
             {arcTolMm <= 0.05
@@ -247,6 +303,16 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
               <span className="inline-block h-1.5 w-4 bg-[#94a3b8]" /> original
               <span className="inline-block h-1.5 w-4 bg-[#2563eb] ml-2" /> arcos @ {arcTolMm} mm
             </div>
+            {arcExportBlocked && (
+              <div
+                data-testid="arc-export-blocked"
+                role="alert"
+                className="rounded border border-destructive/40 bg-destructive/10 px-2 py-1 text-[11px] text-destructive"
+              >
+                Exportação bloqueada: {arcStats.discontinuities} descontinuidades &gt; limite {maxDiscontinuities}.
+                Aumenta a tolerância ou suaviza o traçado antes de exportar.
+              </div>
+            )}
           </div>
           <button data-testid="export-gcode" className="rounded border px-2 py-1" onClick={() => {
             const pts = getPoints();
@@ -254,7 +320,15 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
             const g = exportGCode(pts, { pxPerMm });
             downloadText(`${slug(designName)}.gcode`, "text/plain", g);
           }}>Exportar G-Code (CNC)</button>
-          <button data-testid="export-gcode-arcs" className="rounded border px-2 py-1" onClick={() => {
+          <button data-testid="export-gcode-arcs"
+            disabled={arcExportBlocked}
+            title={arcExportBlocked ? `Bloqueado: ${arcStats.discontinuities} > ${maxDiscontinuities}` : undefined}
+            className="rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+            if (arcExportBlocked) {
+              toast.error(`Export bloqueado: ${arcStats.discontinuities} descontinuidades acima do limite (${maxDiscontinuities}).`);
+              return;
+            }
             const pts = getPoints();
             if (!pts.length) return toast.error("Desenha algo primeiro.");
             const g = exportGCodeArcs(pts, { pxPerMm, arcToleranceMm: arcTolMm });

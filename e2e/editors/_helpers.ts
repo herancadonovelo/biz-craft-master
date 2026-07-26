@@ -41,14 +41,28 @@ export async function openEditorTab(page: Page, tabName: RegExp) {
 /** Fails the test if any uncaught console error / pageerror occurred. */
 export function trackConsoleErrors(page: Page) {
   const errors: string[] = [];
-  page.on("pageerror", (err) => errors.push(`pageerror: ${err.message}`));
+  const verbose = !!process.env.CI || !!process.env.PW_VERBOSE;
+  page.on("pageerror", (err) => {
+    const msg = `pageerror: ${err.message}`;
+    errors.push(msg);
+    if (verbose) console.log(`[browser] ${msg}\n${err.stack ?? ""}`);
+  });
   page.on("console", (msg) => {
     if (msg.type() === "error") {
       const text = msg.text();
       // Ignore known noisy network 401s from unauthenticated background probes.
-      if (/401|Failed to load resource|net::ERR_/i.test(text)) return;
+      if (/401|Failed to load resource|net::ERR_/i.test(text)) {
+        if (verbose) console.log(`[browser:ignored] ${text}`);
+        return;
+      }
       errors.push(`console: ${text}`);
+      if (verbose) console.log(`[browser:error] ${text}`);
+    } else if (verbose && (msg.type() === "warning" || msg.type() === "log")) {
+      console.log(`[browser:${msg.type()}] ${msg.text()}`);
     }
+  });
+  page.on("requestfailed", (req) => {
+    if (verbose) console.log(`[browser:reqfail] ${req.method()} ${req.url()} — ${req.failure()?.errorText ?? ""}`);
   });
   return { errors };
 }
