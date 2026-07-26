@@ -257,7 +257,7 @@ function Page() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="font-display flex items-center gap-2 text-sm">
-                    <History className="h-4 w-4" />Histórico de versões
+                    <HistoryIcon className="h-4 w-4" />Histórico de versões
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 max-h-64 overflow-auto">
