@@ -2515,7 +2515,7 @@ function BordadoTab() {
       version: 12,
       kind: "cbm-bordado",
       savedAt: new Date().toISOString(),
-      layers, chartArea, chartCells, hoopOn, hoopSize,
+      layers, chartCells, hoopOn, hoop,
       stitchLenMm, orderByNearest, colorOrder,
       watermark: w,
     };
@@ -2532,10 +2532,9 @@ function BordadoTab() {
       const snap = JSON.parse(txt);
       if (snap.kind !== "cbm-bordado") { toast.error("Ficheiro inválido."); return; }
       if (Array.isArray(snap.layers)) setLayers(snap.layers);
-      if (snap.chartArea) setChartArea(snap.chartArea);
       if (Array.isArray(snap.chartCells)) setChartCells(snap.chartCells);
       if (typeof snap.hoopOn === "boolean") setHoopOn(snap.hoopOn);
-      if (snap.hoopSize) setHoopSize(snap.hoopSize);
+      if (snap.hoop) setHoop(snap.hoop);
       if (typeof snap.stitchLenMm === "number") setStitchLenMm(snap.stitchLenMm);
       if (typeof snap.orderByNearest === "boolean") setOrderByNearest(snap.orderByNearest);
       if (Array.isArray(snap.colorOrder)) setColorOrder(snap.colorOrder);
