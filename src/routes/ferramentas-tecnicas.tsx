@@ -2497,6 +2497,36 @@ function BordadoTab() {
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
 
+  // ---------- Fase 11: simulador animado ----------
+  const simFlat = useMemo(() => {
+    const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
+    orderedColorBlocks.forEach((b, bi) => {
+      b.points.forEach((p, pi) => arr.push({ x: p.x, y: p.y, blockIdx: bi, jump: pi === 0 && bi > 0 }));
+    });
+    return arr;
+  }, [orderedColorBlocks]);
+
+  useEffect(() => {
+    if (!simPlaying || !simOn || simFlat.length === 0) return;
+    let raf = 0;
+    let last = performance.now();
+    const tick = (t: number) => {
+      const dt = (t - last) / 1000;
+      last = t;
+      setSimProgress((p) => {
+        const stepFrac = (simSpeed * dt) / simFlat.length;
+        const next = p + stepFrac;
+        if (next >= 1) { setSimPlaying(false); return 1; }
+        return next;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [simPlaying, simOn, simFlat, simSpeed]);
+
+  const simVisibleCount = Math.round(simProgress * simFlat.length);
+
   const inserirTextoCircular = () => {
     if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
     const txt = circText.trim();
