@@ -15,6 +15,7 @@ import {
   estimateThread, buildConsumption, totalCost,
   type MaterialLite, type ThreadEstimate, type ScaleCalibration,
 } from "./embroidery-phase18";
+import { formatCurrency, getCurrencyOption } from "./store";
 
 // ─── Tipos e defaults ────────────────────────────────────────────────
 
@@ -106,12 +107,14 @@ export function buildInventoryCsv(
   report: ProductionReport,
   materials: MaterialLite[],
   cal: ScaleCalibration,
+  currencyCode?: string,
 ): string {
   const estimates: ThreadEstimate[] = report.perColor.map((c) => ({
     color: c.color, lengthMm: c.lengthMm, stitches: c.stitches, strands: 2,
   }));
   const rows = buildConsumption(estimates, materials);
-  const header = "cor_hex;material;codigo;unidade;quantidade;preco_unit_eur;custo_eur;stock_atual;falta";
+  const cc = getCurrencyOption(currencyCode).code.toLowerCase();
+  const header = `cor_hex;material;codigo;unidade;quantidade;preco_unit_${cc};custo_${cc};stock_atual;falta`;
   const lines = rows.map((r) => {
     const stock = r.material?.stock ?? 0;
     const falta = Math.max(0, r.units - stock);
@@ -168,6 +171,8 @@ export interface PdfExportInput {
     stitches: number; units: number; unidade: string; cost: number; stock: number;
   }[];
   checklist?: ChecklistItem[];
+  /** ISO-4217 currency to render on totals and shopping list. Defaults to store value. */
+  currencyCode?: string;
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -182,6 +187,7 @@ export async function buildConfigurablePdf(inp: PdfExportInput): Promise<Uint8Ar
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const currencyLabel = getCurrencyOption(inp.currencyCode).symbol;
 
   let [pw, ph] = pageSize(inp.layout.format);
   if (inp.layout.orientation === "landscape") [pw, ph] = [ph, pw];
@@ -296,7 +302,7 @@ export async function buildConfigurablePdf(inp: PdfExportInput): Promise<Uint8Ar
       x: margin, y: ph - margin - 16, size: 14, font: bold,
     });
     let y = ph - margin - 40;
-    p3.drawText("cor    código  material            unidade   qtd     custo €", {
+    p3.drawText(`cor    código  material            unidade   qtd     custo ${currencyLabel}`, {
       x: margin, y, size: 9, font: bold,
     });
     y -= 14;
@@ -313,7 +319,7 @@ export async function buildConfigurablePdf(inp: PdfExportInput): Promise<Uint8Ar
       total += r.cost;
       y -= 12;
     });
-    p3.drawText(`Total estimado: ${total.toFixed(2)} €`, {
+    p3.drawText(`Total estimado: ${formatCurrency(total, inp.currencyCode)}`, {
       x: margin, y: margin + 20, size: 11, font: bold,
     });
   }
