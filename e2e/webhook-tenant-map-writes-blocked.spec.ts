@@ -82,6 +82,58 @@ test.describe("webhook_tenant_map write access", () => {
     await api.dispose();
   });
 
+  // Malformed DELETE payloads (bare table, invalid filter, invalid UUID) must
+  // still be rejected by grants — PostgREST must not fall through to a
+  // permissive path when the request is oddly shaped.
+  test("anon DELETE without filter is rejected", async () => {
+    const api = await playwrightRequest.newContext();
+    const res = await api.delete(REST, { headers: anonHeaders() });
+    expectDeniedStatus(res.status());
+    await api.dispose();
+  });
+
+  test("anon DELETE with malformed filter is rejected", async () => {
+    const api = await playwrightRequest.newContext();
+    const res = await api.delete(`${REST}?id=not-a-uuid`, {
+      headers: anonHeaders(),
+    });
+    expectDeniedStatus(res.status());
+    await api.dispose();
+  });
+
+  test("anon DELETE with malformed body is rejected", async () => {
+    const api = await playwrightRequest.newContext();
+    const res = await api.delete(`${REST}?provider=eq.etsy`, {
+      headers: { ...anonHeaders(), "Content-Type": "application/json" },
+      data: "{not-valid-json",
+    });
+    expectDeniedStatus(res.status());
+    await api.dispose();
+  });
+
+  // Targeting rows that belong to other tenants (or a made-up user_id) must
+  // still be denied at the grant layer, regardless of RLS row visibility.
+  test("anon DELETE targeting another tenant's user_id is rejected", async () => {
+    const api = await playwrightRequest.newContext();
+    const otherUserId = "11111111-1111-1111-1111-111111111111";
+    const res = await api.delete(
+      `${REST}?user_id=eq.${otherUserId}&provider=eq.whatsapp`,
+      { headers: anonHeaders() },
+    );
+    expectDeniedStatus(res.status());
+    await api.dispose();
+  });
+
+  test("anon DELETE targeting a fabricated row id is rejected", async () => {
+    const api = await playwrightRequest.newContext();
+    const fakeRowId = "22222222-2222-2222-2222-222222222222";
+    const res = await api.delete(`${REST}?id=eq.${fakeRowId}`, {
+      headers: anonHeaders(),
+    });
+    expectDeniedStatus(res.status());
+    await api.dispose();
+  });
+
   // Service_role writes are exercised end-to-end by the signed webhook
   // handlers (see e2e/... and src/routes/api/public/webhooks/*.ts) which
   // insert through `supabaseAdmin` after HMAC verification. The service_role
