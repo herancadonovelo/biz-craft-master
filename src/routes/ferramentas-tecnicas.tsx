@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { EditorReceitaPage } from "./editor-receita";
 import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
+import { AmigurumiEditor } from "@/components/amigurumi-editor/AmigurumiEditor";
 import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
