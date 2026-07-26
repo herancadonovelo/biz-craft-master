@@ -335,6 +335,107 @@ export function exportGCode(points: P[], opts: { pxPerMm: number; feed?: number;
   return lines.join("\n");
 }
 
+/**
+ * Arc-aware G-Code exporter. Groups consecutive points that lie on a common
+ * circle (within `arcToleranceMm`) into a single G2/G3 command, and emits
+ * G1 for the remaining straight segments. Reduces controller decelerations
+ * on curved paths. Tolerance is in millimetres.
+ */
+export function exportGCodeArcs(
+  points: P[],
+  opts: {
+    pxPerMm: number;
+    feed?: number;
+    safeZ?: number;
+    workZ?: number;
+    /** Max deviation (mm) from the fitted circle to accept an arc. */
+    arcToleranceMm?: number;
+    /** Minimum consecutive points to attempt an arc fit. */
+    minArcPoints?: number;
+  },
+): string {
+  const { pxPerMm } = opts;
+  const feed = opts.feed ?? 1200;
+  const safeZ = opts.safeZ ?? 5;
+  const workZ = opts.workZ ?? 0;
+  const tolMm = opts.arcToleranceMm ?? 0.1;
+  const minPts = Math.max(3, opts.minArcPoints ?? 4);
+  const tolPx = tolMm * pxPerMm;
+
+  const out: string[] = [
+    "; G-Code (arcs) — Craft Business Master",
+    `; arc tolerance = ${tolMm} mm`,
+    "G21", "G90", `G0 Z${safeZ}`,
+  ];
+  if (points.length < 2) { out.push("M30"); return out.join("\n"); }
+  const toMm = (v: number) => (v / pxPerMm).toFixed(3);
+
+  out.push(`G0 X${toMm(points[0].x)} Y${toMm(points[0].y)}`);
+  out.push(`G1 Z${workZ} F${feed}`);
+
+  let i = 0;
+  while (i < points.length - 1) {
+    // Try to grow an arc starting at i using points [i..j].
+    let bestJ = -1;
+    let bestCircle: { cx: number; cy: number; r: number; cw: boolean } | null = null;
+    for (let j = i + minPts - 1; j < points.length; j++) {
+      const c = fitCircle(points, i, j);
+      if (!c) break;
+      let ok = true;
+      for (let k = i; k <= j; k++) {
+        const d = Math.abs(Math.hypot(points[k].x - c.cx, points[k].y - c.cy) - c.r);
+        if (d > tolPx) { ok = false; break; }
+      }
+      if (!ok) break;
+      bestJ = j;
+      bestCircle = c;
+    }
+    if (bestJ >= 0 && bestCircle) {
+      const end = points[bestJ];
+      const start = points[i];
+      const iCode = bestCircle.cw ? "G2" : "G3";
+      const iOff = (bestCircle.cx - start.x);
+      const jOff = (bestCircle.cy - start.y);
+      out.push(`${iCode} X${toMm(end.x)} Y${toMm(end.y)} I${toMm(iOff)} J${toMm(jOff)} F${feed}`);
+      i = bestJ;
+    } else {
+      const p = points[i + 1];
+      out.push(`G1 X${toMm(p.x)} Y${toMm(p.y)} F${feed}`);
+      i += 1;
+    }
+  }
+  out.push(`G0 Z${safeZ}`, "M30");
+  return out.join("\n");
+}
+
+/** Least-squares circle fit through points[i..j]. Returns null if degenerate. */
+function fitCircle(points: P[], i: number, j: number):
+  { cx: number; cy: number; r: number; cw: boolean } | null {
+  const n = j - i + 1;
+  if (n < 3) return null;
+  let sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0, sxxx = 0, syyy = 0, sxyy = 0, syxx = 0;
+  for (let k = i; k <= j; k++) {
+    const x = points[k].x, y = points[k].y;
+    sx += x; sy += y; sxx += x * x; syy += y * y; sxy += x * y;
+    sxxx += x * x * x; syyy += y * y * y; sxyy += x * y * y; syxx += y * x * x;
+  }
+  const C = n * sxx - sx * sx;
+  const D = n * sxy - sx * sy;
+  const E = n * sxxx + n * sxyy - (sxx + syy) * sx;
+  const G = n * syy - sy * sy;
+  const H = n * syyy + n * syxx - (sxx + syy) * sy;
+  const denom = 2 * (C * G - D * D);
+  if (Math.abs(denom) < 1e-9) return null;
+  const cx = (E * G - D * H) / denom;
+  const cy = (C * H - D * E) / denom;
+  const r = Math.hypot(points[i].x - cx, points[i].y - cy);
+  if (!Number.isFinite(r) || r < 1) return null;
+  // Direction: signed area of first three vertices
+  const a = points[i], b = points[i + 1], c = points[Math.min(j, i + 2)];
+  const cross = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  return { cx, cy, r, cw: cross < 0 };
+}
+
 /** Naive shelf-packing nesting of axis-aligned rects into a sheet. */
 export function nestRects(
   rects: { w: number; h: number; id: string }[],
@@ -353,6 +454,42 @@ export function nestRects(
     rowH = Math.max(rowH, r.h);
   }
   return placed;
+}
+
+/**
+ * Rotational nesting: for each piece, tries the supplied rotations (0°/90°
+ * by default) and picks the orientation that fits the current shelf with
+ * least wasted height. Applies a safety margin around every piece.
+ */
+export function nestRectsRotational(
+  rects: { w: number; h: number; id: string; allowRotate?: boolean }[],
+  sheetW: number,
+  sheetH: number,
+  opts: { marginMm?: number; rotations?: number[] } = {},
+) {
+  const margin = opts.marginMm ?? 2;
+  const rotations = opts.rotations ?? [0, 90];
+  const sorted = rects.slice().sort((a, b) => Math.max(b.w, b.h) - Math.max(a.w, a.h));
+  const placed: { id: string; x: number; y: number; w: number; h: number; rot: number }[] = [];
+  const skipped: string[] = [];
+  let x = 0, y = 0, rowH = 0;
+  for (const r of sorted) {
+    const options = (r.allowRotate === false ? [0] : rotations).map((rot) => {
+      const rad = (rot * Math.PI) / 180;
+      const s = Math.abs(Math.sin(rad)), c = Math.abs(Math.cos(rad));
+      return { rot, w: r.w * c + r.h * s + margin * 2, h: r.w * s + r.h * c + margin * 2 };
+    });
+    // Prefer the option that fits current shelf; else the smallest overall.
+    const fits = options.filter((o) => x + o.w <= sheetW && o.h <= rowH + 1e-6);
+    const chosen = fits[0] ?? options.slice().sort((a, b) => a.w * a.h - b.w * b.h)[0];
+    if (x + chosen.w > sheetW) { x = 0; y += rowH + margin; rowH = 0; }
+    if (y + chosen.h > sheetH) { skipped.push(r.id); continue; }
+    placed.push({ id: r.id, x: x + margin, y: y + margin, w: chosen.w - margin * 2, h: chosen.h - margin * 2, rot: chosen.rot });
+    x += chosen.w + margin;
+    rowH = Math.max(rowH, chosen.h);
+  }
+  const usedArea = placed.reduce((s, p) => s + p.w * p.h, 0);
+  return { placed, skipped, efficiency: usedArea / (sheetW * sheetH) };
 }
 
 export function textileMetadata(input: {

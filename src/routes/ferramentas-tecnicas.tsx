@@ -302,6 +302,8 @@ function TricotinTab() {
   const [measuredMm, setMeasuredMm] = React.useState<string>("");
 
   // ---------- Lettering (Auto-script + Kerning + Text on Path) ----------
+  // Marca d'água da folha de desenho
+  const [w, setW] = useMarcaDAgua();
   const [lettering, setLettering] = React.useState<Lettering>({
     ativa: false,
     text: "Sara",
@@ -867,8 +869,8 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
-        <div className="relative">
+      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
+        <div className="relative bg-white">
           <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
             Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
             <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
@@ -884,7 +886,16 @@ function TricotinTab() {
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
           />
+          {/* Watermark overlay (renderizada em cima da folha) */}
+          <div className="pointer-events-none absolute inset-0">
+            <Watermark w={w} />
+          </div>
         </div>
+      </div>
+      {/* Marca d'água da folha de desenho */}
+      <div className="rounded-lg border bg-card p-3 tricotin-no-print">
+        <div className="mb-2 text-xs font-medium text-muted-foreground">Marca d'água da folha de desenho</div>
+        <WatermarkControls w={w} set={setW} />
       </div>
       {/* Gestão do Molde (abaixo da folha de desenho) */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
@@ -925,58 +936,6 @@ function TricotinTab() {
             </select>
           </div>
         )}
-      </div>
-      {/* Calibração de escala mm/cm */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
-          Mostrar régua mm/cm no canvas
-        </label>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
-          Incluir régua na impressão (verificação 1:1)
-        </label>
-        <span className="text-muted-foreground">
-          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
-          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
-        </span>
-      </div>
-      {/* Calibração automática (sem fazer contas) */}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <div>
-          <div className="font-medium text-muted-foreground">Calibração automática</div>
-          <div className="text-muted-foreground">
-            Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
-          </div>
-        </div>
-        <label className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Medição obtida (mm)</span>
-          <input
-            type="number" inputMode="decimal" step="0.1" min={50} max={150}
-            value={measuredMm}
-            onChange={(e) => setMeasuredMm(e.target.value)}
-            placeholder="ex.: 99,4"
-            className="w-28 rounded border bg-background px-2 py-1"
-          />
-        </label>
-        <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
-          Calcular &amp; aplicar
-        </button>
-        <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
-        <div className="ml-auto flex flex-col items-end gap-0.5">
-          <span>
-            Erro atual:{" "}
-            <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
-              {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
-            </strong>
-            {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
-          </span>
-          <span className="text-muted-foreground">
-            Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
-            {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
-          </span>
-        </div>
       </div>
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
@@ -1173,6 +1132,57 @@ function TricotinTab() {
         sheetW={W}
         sheetH={H}
       />
+      {/* ===== Calibração (movida para o fundo da página) ===== */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
+        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
+          Mostrar régua mm/cm no canvas
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
+          Incluir régua na impressão (verificação 1:1)
+        </label>
+        <span className="text-muted-foreground">
+          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
+          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
+        </span>
+      </div>
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
+        <div>
+          <div className="font-medium text-muted-foreground">Calibração automática</div>
+          <div className="text-muted-foreground">
+            Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
+          </div>
+        </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">Medição obtida (mm)</span>
+          <input
+            type="number" inputMode="decimal" step="0.1" min={50} max={150}
+            value={measuredMm}
+            onChange={(e) => setMeasuredMm(e.target.value)}
+            placeholder="ex.: 99,4"
+            className="w-28 rounded border bg-background px-2 py-1"
+          />
+        </label>
+        <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
+          Calcular &amp; aplicar
+        </button>
+        <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
+        <div className="ml-auto flex flex-col items-end gap-0.5">
+          <span>
+            Erro atual:{" "}
+            <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
+              {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
+            </strong>
+            {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
+          </span>
+          <span className="text-muted-foreground">
+            Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
+            {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
+          </span>
+        </div>
+      </div>
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
