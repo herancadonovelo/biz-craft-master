@@ -302,7 +302,7 @@ function TricotinTab() {
   const [measuredMm, setMeasuredMm] = React.useState<string>("");
 
   // ---------- Lettering (Auto-script + Kerning + Text on Path) ----------
-  // Marca d'água da folha de desenho
+  // Marca de agua da folha de desenho
   const [w, setW] = useMarcaDAgua();
   const [lettering, setLettering] = React.useState<Lettering>({
     ativa: false,
