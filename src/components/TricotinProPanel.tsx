@@ -325,6 +325,15 @@ function slug(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "") || "molde";
 }
 
+function Metric({ label, value, testid, hint }: { label: string; value: React.ReactNode; testid?: string; hint?: string }) {
+  return (
+    <div className="rounded bg-muted/40 px-1.5 py-1" title={hint} data-testid={testid}>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[11px] font-semibold">{value}</div>
+    </div>
+  );
+}
+
 function readLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try { const v = window.localStorage.getItem(key); return v ? JSON.parse(v) as T : fallback; } catch { return fallback; }
