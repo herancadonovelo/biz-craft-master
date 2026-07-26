@@ -1974,6 +1974,142 @@ function BordadoTab() {
   }, [layers]);
   const totalCmMargem = linhaStats.reduce((s, x) => s + x.cmComMargem, 0);
 
+  // ---------- Fase 4: modo ponto cruz + grelha Aida + conversão foto→gráfico ----------
+  /** Contagem Aida (crosses por polegada). 0 desliga a grelha. */
+  const [aidaCount, setAidaCount] = useState<0 | 11 | 14 | 16 | 18>(0);
+  const [chartCells, setChartCells] = useState<{ gx: number; gy: number; dmc: string; hex: string }[]>([]);
+  const [nCores, setNCores] = useState(12);
+  const [convertendo, setConvertendo] = useState(false);
+  const [carrinhoOpen, setCarrinhoOpen] = useState(false);
+
+  /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
+  const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
+  /** Origem da grelha centrada na página. */
+  const chartArea = useMemo(() => {
+    if (!aidaCount) return null;
+    // Restringe ao bastidor quando visível, caso contrário ao A4 completo com 2 cm de margem.
+    const wCm = hoopOn ? hoopSpec.wCm : 21 - 4;
+    const hCm = hoopOn ? hoopSpec.hCm : 29.7 - 4;
+    const wPx = wCm * PX_PER_CM, hPx = hCm * PX_PER_CM;
+    const nx = Math.floor(wPx / cellPx), ny = Math.floor(hPx / cellPx);
+    const x0 = A4_W / 2 - (nx * cellPx) / 2;
+    const y0 = A4_H / 2 - (ny * cellPx) / 2;
+    return { x0, y0, nx, ny, cellPx };
+  }, [aidaCount, hoopOn, hoopSpec.wCm, hoopSpec.hCm, cellPx]);
+
+  /** Converte a imagem de decalque para um gráfico de ponto cruz na grelha Aida atual. */
+  const converterParaPontoCruz = async () => {
+    if (!chartArea) { toast.error("Ativa uma grelha Aida primeiro."); return; }
+    if (!imagemFundo) { toast.error("Importa uma imagem de decalque primeiro."); return; }
+    setConvertendo(true);
+    try {
+      const img = new Image();
+      img.src = imagemFundo;
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("img")); });
+      const { nx, ny } = chartArea;
+      // Downsample em canvas para uma cor média por célula.
+      const cvs = document.createElement("canvas");
+      cvs.width = nx; cvs.height = ny;
+      const ctx = cvs.getContext("2d")!;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(img, 0, 0, nx, ny);
+      const { data } = ctx.getImageData(0, 0, nx, ny);
+
+      // Selecionar as N cores mais representativas do universo DMC nesta imagem.
+      const contagem = new Map<string, number>();
+      for (let i = 0; i < nx * ny; i++) {
+        const a = data[i * 4 + 3];
+        if (a < 40) continue; // transparente
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        const hex = "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+        const near = nearestDmc(hex);
+        contagem.set(near.code, (contagem.get(near.code) ?? 0) + 1);
+      }
+      const topCodes = new Set(
+        [...contagem.entries()].sort((a, b) => b[1] - a[1]).slice(0, Math.max(2, nCores)).map(([k]) => k)
+      );
+      const paletaFiltrada = DMC_PALETTE.filter((c) => topCodes.has(c.code));
+
+      const cells: { gx: number; gy: number; dmc: string; hex: string }[] = [];
+      for (let y = 0; y < ny; y++) {
+        for (let x = 0; x < nx; x++) {
+          const i = (y * nx + x) * 4;
+          const a = data[i + 3];
+          if (a < 40) continue;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          // Mais próxima dentro da paleta reduzida (evita ruído colorido).
+          let best = paletaFiltrada[0], bd = Infinity;
+          for (const c of paletaFiltrada) {
+            const cr = parseInt(c.hex.slice(1, 3), 16);
+            const cg = parseInt(c.hex.slice(3, 5), 16);
+            const cb = parseInt(c.hex.slice(5, 7), 16);
+            const d = (r - cr) ** 2 + (g - cg) ** 2 + (b - cb) ** 2;
+            if (d < bd) { bd = d; best = c; }
+          }
+          cells.push({ gx: x, gy: y, dmc: best.code, hex: best.hex });
+        }
+      }
+      setChartCells(cells);
+      toast.success(`Gráfico gerado: ${cells.length} cruzes em ${paletaFiltrada.length} cores DMC.`);
+    } catch (e) {
+      toast.error("Falha na conversão: " + (e as Error).message);
+    } finally { setConvertendo(false); }
+  };
+
+  /** Lista de compras DMC agregada (gráfico ponto cruz + camadas com DMC). */
+  const materiais = useStore((s) => s.materiais);
+  const listaCompras = useMemo(() => {
+    // agregar cruzes por DMC (1 cruz ≈ ~2 × diagonal da célula × 2 passagens)
+    const contagem = new Map<string, { hex: string; stitches: number; cm: number }>();
+    for (const c of chartCells) {
+      const prev = contagem.get(c.dmc);
+      const cellCm = cellPx / PX_PER_CM || 0.15;
+      const cmPorCruz = cellCm * 2 * Math.SQRT2 * 1.15; // ida+volta em cada perna
+      const add = { hex: c.hex, stitches: 1, cm: cmPorCruz };
+      contagem.set(c.dmc, prev
+        ? { hex: c.hex, stitches: prev.stitches + 1, cm: prev.cm + add.cm }
+        : add);
+    }
+    // adicionar as camadas com DMC definido usando os cm estimados dos traços
+    for (const s of linhaStats) {
+      if (!s.dmc) continue;
+      const layer = layers.find((l) => l.id === s.id);
+      if (!layer) continue;
+      const hex = layer.color;
+      const prev = contagem.get(s.dmc);
+      contagem.set(s.dmc, prev
+        ? { hex, stitches: prev.stitches, cm: prev.cm + s.cmComMargem }
+        : { hex, stitches: 0, cm: s.cmComMargem });
+    }
+    const rows = [...contagem.entries()].map(([code, v]) => {
+      const dmc = DMC_PALETTE.find((d) => d.code === code);
+      const emStock = materiais.find(
+        (m) => (m.marca || "").toUpperCase() === "DMC" && (m.codigoCor || "") === code
+      );
+      return {
+        code, nome: dmc?.name ?? "—", anchor: dmc?.anchor,
+        hex: v.hex, stitches: v.stitches, cm: v.cm,
+        temStock: !!emStock, stock: emStock?.stock ?? 0, unidade: emStock?.unidade ?? "",
+      };
+    }).sort((a, b) => b.cm - a.cm);
+    return rows;
+  }, [chartCells, cellPx, linhaStats, layers, materiais]);
+
+  const exportarListaCsv = () => {
+    const linhas = [
+      "DMC;Nome;Anchor;Cruzes;Linha estimada (cm);Em stock;Quantidade em stock;Unidade",
+      ...listaCompras.map((r) =>
+        [r.code, r.nome.replace(/;/g, ","), r.anchor ?? "", r.stitches, r.cm.toFixed(1), r.temStock ? "sim" : "não", r.stock, r.unidade].join(";")
+      ),
+    ].join("\n");
+    const blob = new Blob([linhas], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "lista-linhas-dmc.csv"; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Lista exportada em CSV.");
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
@@ -2024,6 +2160,43 @@ function BordadoTab() {
               <line x1={(A4_W * 2) / 3} y1="0" x2={(A4_W * 2) / 3} y2={A4_H} />
               <line x1="0" y1={A4_H / 3} x2={A4_W} y2={A4_H / 3} />
               <line x1="0" y1={(A4_H * 2) / 3} x2={A4_W} y2={(A4_H * 2) / 3} />
+            </g>
+          )}
+          {/* Fase 4 — grelha Aida (opcional) */}
+          {chartArea && (
+            <g pointerEvents="none">
+              <g stroke="rgba(0,0,0,0.22)" strokeWidth="0.3">
+                {Array.from({ length: chartArea.nx + 1 }).map((_, i) => (
+                  <line key={`vx-${i}`} x1={chartArea.x0 + i * chartArea.cellPx} y1={chartArea.y0}
+                        x2={chartArea.x0 + i * chartArea.cellPx} y2={chartArea.y0 + chartArea.ny * chartArea.cellPx} />
+                ))}
+                {Array.from({ length: chartArea.ny + 1 }).map((_, i) => (
+                  <line key={`hz-${i}`} x1={chartArea.x0} y1={chartArea.y0 + i * chartArea.cellPx}
+                        x2={chartArea.x0 + chartArea.nx * chartArea.cellPx} y2={chartArea.y0 + i * chartArea.cellPx} />
+                ))}
+              </g>
+              {/* linhas de 10 em 10 mais escuras (referência de contagem) */}
+              <g stroke="rgba(0,0,0,0.55)" strokeWidth="0.6">
+                {Array.from({ length: Math.floor(chartArea.nx / 10) + 1 }).map((_, i) => (
+                  <line key={`v10-${i}`} x1={chartArea.x0 + i * 10 * chartArea.cellPx} y1={chartArea.y0}
+                        x2={chartArea.x0 + i * 10 * chartArea.cellPx} y2={chartArea.y0 + chartArea.ny * chartArea.cellPx} />
+                ))}
+                {Array.from({ length: Math.floor(chartArea.ny / 10) + 1 }).map((_, i) => (
+                  <line key={`h10-${i}`} x1={chartArea.x0} y1={chartArea.y0 + i * 10 * chartArea.cellPx}
+                        x2={chartArea.x0 + chartArea.nx * chartArea.cellPx} y2={chartArea.y0 + i * 10 * chartArea.cellPx} />
+                ))}
+              </g>
+            </g>
+          )}
+          {/* Fase 4 — células do gráfico de ponto cruz */}
+          {chartArea && chartCells.length > 0 && (
+            <g pointerEvents="none">
+              {chartCells.map((c, i) => (
+                <rect key={`cc-${i}`} x={chartArea.x0 + c.gx * chartArea.cellPx}
+                      y={chartArea.y0 + c.gy * chartArea.cellPx}
+                      width={chartArea.cellPx} height={chartArea.cellPx}
+                      fill={c.hex} opacity={0.85} />
+              ))}
             </g>
           )}
           {layers.map((layer) => {
@@ -2230,6 +2403,97 @@ function BordadoTab() {
             </div>
           )}
         </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Modo ponto cruz (Aida)</Label>
+            <Button size="sm" variant="outline" onClick={() => setCarrinhoOpen(true)}>
+              Lista de compras
+            </Button>
+          </div>
+          <Label className="text-xs">Contagem Aida</Label>
+          <Select value={String(aidaCount)} onValueChange={(v) => setAidaCount(Number(v) as 0 | 11 | 14 | 16 | 18)}>
+            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Desligada</SelectItem>
+              <SelectItem value="11">Aida 11 ct (≈2.31 mm)</SelectItem>
+              <SelectItem value="14">Aida 14 ct (≈1.81 mm)</SelectItem>
+              <SelectItem value="16">Aida 16 ct (≈1.59 mm)</SelectItem>
+              <SelectItem value="18">Aida 18 ct (≈1.41 mm)</SelectItem>
+            </SelectContent>
+          </Select>
+          {chartArea && (
+            <p className="text-[10px] text-muted-foreground">
+              Grelha: {chartArea.nx} × {chartArea.ny} cruzes · célula {(chartArea.cellPx / PX_PER_CM * 10).toFixed(1)} mm
+            </p>
+          )}
+          <div>
+            <Label className="text-xs">Cores DMC no gráfico ({nCores})</Label>
+            <Slider value={[nCores]} min={2} max={40} step={1} onValueChange={(v) => setNCores(v[0])} />
+          </div>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" onClick={converterParaPontoCruz} disabled={convertendo || !aidaCount || !imagemFundo}>
+              <Sparkles className="mr-1 h-3 w-3" />{convertendo ? "A converter…" : "Foto → Cruz"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setChartCells([])}>
+              <Eraser className="mr-1 h-3 w-3" />Limpar cruzes
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            Cria uma grelha Aida centrada e converte a imagem de decalque em cruzes DMC. Ajusta o número de cores para simplificar o gráfico.
+          </p>
+        </CardContent></Card>
+        <Dialog open={carrinhoOpen} onOpenChange={setCarrinhoOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader><DialogTitle>Lista de linhas DMC</DialogTitle></DialogHeader>
+            {listaCompras.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Sem linhas ainda. Atribui uma cor DMC a cada camada ou gera um gráfico de ponto cruz para veres a lista.
+              </p>
+            ) : (
+              <>
+                <div className="max-h-[420px] overflow-y-auto rounded border">
+                  <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-muted/70 text-left">
+                      <tr>
+                        <th className="p-2">DMC</th><th className="p-2">Nome</th>
+                        <th className="p-2 text-right">Cruzes</th>
+                        <th className="p-2 text-right">Linha (cm)</th>
+                        <th className="p-2">Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listaCompras.map((r) => (
+                        <tr key={r.code} className="border-t">
+                          <td className="p-2">
+                            <div className="flex items-center gap-2">
+                              <span className="h-4 w-4 rounded border" style={{ backgroundColor: r.hex }} />
+                              <span className="font-medium">{r.code}</span>
+                              {r.anchor && <span className="text-muted-foreground">A{r.anchor}</span>}
+                            </div>
+                          </td>
+                          <td className="p-2">{r.nome}</td>
+                          <td className="p-2 text-right tabular-nums">{r.stitches || "—"}</td>
+                          <td className="p-2 text-right tabular-nums">{r.cm.toFixed(1)}</td>
+                          <td className="p-2">
+                            {r.temStock
+                              ? <span className="text-emerald-600">✓ {r.stock} {r.unidade}</span>
+                              : <span className="text-destructive">Em falta</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={exportarListaCsv}>Exportar CSV</Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  O stock é procurado no Inventário por marca "DMC" + código de cor igual. Para ligar automaticamente, garante que os teus fios têm esses campos preenchidos.
+                </p>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Imagem de referência (decalque)</Label>
           <Input type="file" accept="image/*" onChange={(e) => {
