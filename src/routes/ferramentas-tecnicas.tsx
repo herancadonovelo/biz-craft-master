@@ -25,7 +25,6 @@ import {
   Pen, Link2, Move, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
-import { EditorReceitaPage } from "./editor-receita";
 import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { AmigurumiEditor } from "@/components/amigurumi-editor/AmigurumiEditor";
@@ -33,6 +32,7 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
+import { BordadoStudio } from "@/components/bordado/BordadoStudio";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -47,7 +47,11 @@ function FerramentasPage() {
   const TAB_KEY = "ferramentas-tecnicas-tab-v1";
   const [tab, setTab] = React.useState<string>(() => {
     if (typeof window === "undefined") return "instrucoes";
-    try { return window.localStorage.getItem(TAB_KEY) || "instrucoes"; } catch { return "instrucoes"; }
+    try {
+      const raw = window.localStorage.getItem(TAB_KEY) || "instrucoes";
+      // "editor-receita" tab was removed — migrate silently.
+      return raw === "editor-receita" ? "instrucoes" : raw;
+    } catch { return "instrucoes"; }
   });
   React.useEffect(() => {
     try { window.localStorage.setItem(TAB_KEY, tab); } catch { /* noop */ }
@@ -64,7 +68,6 @@ function FerramentasPage() {
           <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
           <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
           <TabsTrigger value="bordado">Editor de Padrões: Bordado</TabsTrigger>
-          <TabsTrigger value="editor-receita">Editor De Receitas</TabsTrigger>
           <TabsTrigger value="editor-moodboards">Editor De Moodboards</TabsTrigger>
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
           <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
@@ -77,7 +80,6 @@ function FerramentasPage() {
         <TabsContent forceMount value="costura" className="mt-24 data-[state=inactive]:hidden"><CosturaTab /></TabsContent>
         <TabsContent forceMount value="ponto-cruz" className="mt-24 data-[state=inactive]:hidden"><PontoCruzTab /></TabsContent>
         <TabsContent forceMount value="bordado" className="mt-24 data-[state=inactive]:hidden"><BordadoTab /></TabsContent>
-        <TabsContent forceMount value="editor-receita" className="mt-24 data-[state=inactive]:hidden"><EditorReceitaPage /></TabsContent>
         <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
         <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
         <TabsContent forceMount value="contador" className="mt-24 data-[state=inactive]:hidden"><ContadorPage /></TabsContent>
