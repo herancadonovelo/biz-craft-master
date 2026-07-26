@@ -479,6 +479,7 @@ export interface ReceitaEditor {
   horasEstimadas?: number;
   materiaisRef?: { materialId: ID; quantidade: number }[];
   historico?: { id: ID; data: string; label?: string; snapshot: string }[];
+  margemPercent?: number; // ex: 70
 }
 
 export interface EtapaProducao {
