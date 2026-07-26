@@ -298,6 +298,25 @@ function TricotinTab() {
     return Number.isFinite(v) && v > 0.5 && v < 2 ? v : 1;
   });
   const [measuredMm, setMeasuredMm] = React.useState<string>("");
+
+  // ---------- Lettering (Auto-script + Kerning + Text on Path) ----------
+  const [lettering, setLettering] = React.useState<Lettering>({
+    ativa: false,
+    text: "Sara",
+    font: "Pacifico",
+    size: 96,
+    kerning: 0,
+    autoScript: true,
+    pathType: "arc",
+    cx: A4_W / 2,
+    cy: A4_H / 2,
+    radius: 160,
+    angleStart: -Math.PI * 0.75, // canto superior esquerdo
+    arcSweep: Math.PI * 1.5,     // arco largo
+    straightAngle: 0,
+    color: "#111111",
+  });
+  const setL = (p: Partial<Lettering>) => setLettering((s) => ({ ...s, ...p }));
   const applyCalibration = () => {
     const m = parseFloat(measuredMm.replace(",", "."));
     if (!Number.isFinite(m) || m < 50 || m > 150) {
