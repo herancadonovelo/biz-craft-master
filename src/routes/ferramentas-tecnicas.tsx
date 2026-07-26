@@ -2017,6 +2017,16 @@ function BordadoTab() {
   const [fillPullPx, setFillPullPx] = useState(0.6);
   const [fillUnderlay, setFillUnderlay] = useState<0 | 1 | 2>(1);
   const [fillUnderlayInsetPx, setFillUnderlayInsetPx] = useState(1.6);
+  // Fase 8 — Lettering + Motivos + Apliques
+  const [letText, setLetText] = useState("Bordado");
+  const [letFontId, setLetFontId] = useState<string>(LETTERING_FONTS[0].id);
+  const [letSizeMm, setLetSizeMm] = useState(18);
+  const [letSpacingPx, setLetSpacingPx] = useState(0);
+  const [letSimplify, setLetSimplify] = useState(0.6);
+  const [motifId, setMotifId] = useState<MotifId>("heart");
+  const [motifSizeMm, setMotifSizeMm] = useState(30);
+  const [appliqueCover, setAppliqueCover] = useState("#111111");
+  const [appliqueWidth, setAppliqueWidth] = useState(3.5);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
