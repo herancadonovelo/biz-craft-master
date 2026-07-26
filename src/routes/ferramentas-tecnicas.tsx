@@ -2825,7 +2825,24 @@ function BordadoTab() {
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Texto circular</Label>
-          <span className="sr-only">Fase 7 abaixo</span>
+          <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
+          <div>
+            <Label className="text-xs">Raio ({circRadius} mm)</Label>
+            <Slider value={[circRadius]} min={20} max={100} step={2} onValueChange={(v) => setCircRadius(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Tamanho ({circFontPx} px)</Label>
+            <Slider value={[circFontPx]} min={10} max={48} step={1} onValueChange={(v) => setCircFontPx(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Sentido horário</Label>
+            <Button size="sm" variant={circClockwise ? "default" : "outline"} onClick={() => setCircClockwise((v) => !v)}>
+              {circClockwise ? "→" : "←"}
+            </Button>
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirTextoCircular}>
+            <Type className="mr-1 h-3 w-3" />Inserir na camada ativa
+          </Button>
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Preenchimento automático (fill)</Label>
@@ -2881,24 +2898,6 @@ function BordadoTab() {
           <p className="text-[10px] text-muted-foreground">
             Dica: fecha o contorno com "Z" antes de preencher (ferramentas de desenho geram traços abertos por padrão).
           </p>
-          <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
-          <div>
-            <Label className="text-xs">Raio ({circRadius} mm)</Label>
-            <Slider value={[circRadius]} min={20} max={100} step={2} onValueChange={(v) => setCircRadius(v[0])} />
-          </div>
-          <div>
-            <Label className="text-xs">Tamanho ({circFontPx} px)</Label>
-            <Slider value={[circFontPx]} min={10} max={48} step={1} onValueChange={(v) => setCircFontPx(v[0])} />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Sentido horário</Label>
-            <Button size="sm" variant={circClockwise ? "default" : "outline"} onClick={() => setCircClockwise((v) => !v)}>
-              {circClockwise ? "→" : "←"}
-            </Button>
-          </div>
-          <Button size="sm" className="w-full" onClick={inserirTextoCircular}>
-            <Type className="mr-1 h-3 w-3" />Inserir na camada ativa
-          </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
