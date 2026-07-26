@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/projeto-personalizado")({
@@ -16,12 +19,40 @@ export const Route = createFileRoute("/projeto-personalizado")({
 });
 
 export function ProjetoPersonalizadoContent() {
-    const { materiais, add } = useStore();
+    const { materiais, add, receitasEditor } = useStore();
     const [nome, setNome] = useState("Peça personalizada");
     const [selected, setSelected] = useState<Record<string, number>>({});
     const [horas, setHoras] = useState(8);
     const [precoHora, setPrecoHora] = useState(12);
     const [margem, setMargem] = useState(70);
+    const [receitaId, setReceitaId] = useState<string>("");
+
+    const importarReceita = (rid: string) => {
+      setReceitaId(rid);
+      const rec = receitasEditor.find((x) => x.id === rid);
+      if (!rec) return;
+      setNome(rec.nome || nome);
+      if (typeof rec.horasEstimadas === "number") setHoras(rec.horasEstimadas);
+      const next: Record<string, number> = {};
+      // 1) associação directa por materiaisRef
+      (rec.materiaisRef ?? []).forEach((mr) => { next[mr.materialId] = mr.quantidade; });
+      // 2) fallback: match por nome (case-insensitive), quantidade numérica se possível
+      rec.materiais.forEach((m) => {
+        const match = materiais.find((x) => x.nome.toLowerCase().trim() === m.nome.toLowerCase().trim());
+        if (match && next[match.id] === undefined) {
+          const num = parseFloat(String(m.quantidade).replace(",", "."));
+          next[match.id] = Number.isFinite(num) && num > 0 ? num : 1;
+        }
+      });
+      setSelected(next);
+      const encontrados = Object.keys(next).length;
+      const total = rec.materiais.length;
+      toast.success(
+        `Receita importada · ${encontrados}/${total} materiais reconhecidos${
+          encontrados < total ? " (ajusta os restantes manualmente)" : ""
+        }`,
+      );
+    };
 
     const itens = Object.entries(selected).filter(([, q]) => q > 0);
     const custoMat = useMemo(() =>
@@ -37,6 +68,7 @@ export function ProjetoPersonalizadoContent() {
       add("projetos", {
         nome, materiais: mats, horasTrabalhadas: horas, precoHora,
         margemProfit: margem / 100, estado: "rascunho", criadoEm: new Date().toISOString(),
+        receitaId: receitaId || undefined,
       });
       toast.success("Projeto personalizado guardado");
     };
@@ -49,6 +81,27 @@ export function ProjetoPersonalizadoContent() {
             <CardHeader><CardTitle className="font-display">Materiais</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <div><Label>Nome do projeto</Label><Input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
+              <div className="rounded-md border border-dashed border-violet-300 bg-violet-50/40 p-3">
+                <Label className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />Importar de receita</Label>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Select value={receitaId} onValueChange={importarReceita}>
+                    <SelectTrigger className="min-w-56 flex-1"><SelectValue placeholder="Escolher receita…" /></SelectTrigger>
+                    <SelectContent>
+                      {receitasEditor.length === 0 && (
+                        <div className="p-2 text-xs text-muted-foreground">Sem receitas guardadas.</div>
+                      )}
+                      {receitasEditor.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {r.nome} {r.tags?.length ? `· ${r.tags.slice(0, 2).join(", ")}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {receitaId && (
+                    <Badge variant="secondary">Vinculada · horas e materiais pré-preenchidos</Badge>
+                  )}
+                </div>
+              </div>
               <div className="space-y-2">
                 {materiais.map((m) => {
                   const q = selected[m.id] ?? 0;
