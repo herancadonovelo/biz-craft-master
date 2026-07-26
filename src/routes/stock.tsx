@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useStore, formatEUR } from "@/lib/store";
+import { useStore, formatEUR, formatCurrency } from "@/lib/store";
 import { useTT } from "@/lib/i18n";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -114,7 +114,7 @@ export const Route = createFileRoute("/stock")({
                           <span className="flex items-center gap-1.5 text-muted-foreground">
                             Desconto
                             <Badge variant="secondary" className="bg-[hsl(150_40%_88%)] text-[hsl(150_40%_25%)] text-[10px]">
-                              {f.codigoDesconto ?? "auto"} · -{f.valorDesconto}{f.tipoDesconto === "fixo" ? "€" : "%"}
+                              {f.codigoDesconto ?? "auto"} · -{f.tipoDesconto === "fixo" ? formatCurrency(f.valorDesconto) : `${f.valorDesconto}%`}
                             </Badge>
                           </span>
                           <span className="text-[hsl(150_40%_35%)]">−{formatEUR(desconto)}</span>
