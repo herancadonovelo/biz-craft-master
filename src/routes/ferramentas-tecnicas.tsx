@@ -32,6 +32,10 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
+import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
 // enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
 // texturas de tecido e gestor de camadas simples.
@@ -1521,6 +1525,48 @@ function PontoCruzTab() {
 }
 
 /* ============================ BORDADO ============================ */
+/** Botão + diálogo para escolher uma cor DMC da paleta ou pedir sugestão automática. */
+function DmcPickerButton({
+  current, onPick, onSuggest,
+}: { current?: string; onPick: (c: DmcColor) => void; onSuggest: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const filtered = DMC_PALETTE.filter((c) =>
+    !q ? true : c.code.toLowerCase().includes(q.toLowerCase()) || c.name.toLowerCase().includes(q.toLowerCase())
+  );
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="h-6 px-2 text-[10px]" title="Escolher DMC">
+          DMC{current ? ` ${current}` : ""}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Paleta DMC / Anchor</DialogTitle></DialogHeader>
+        <div className="flex items-center gap-2">
+          <Input placeholder="Pesquisar código ou nome…" value={q} onChange={(e) => setQ(e.target.value)} className="h-8 text-xs" />
+          <Button size="sm" variant="secondary" onClick={() => { onSuggest(); setOpen(false); }}>
+            Sugerir mais próxima
+          </Button>
+        </div>
+        <div className="grid max-h-[420px] grid-cols-2 gap-1 overflow-y-auto pr-1 sm:grid-cols-3">
+          {filtered.map((c) => (
+            <button key={c.code}
+              onClick={() => { onPick(c); setOpen(false); }}
+              className={`flex items-center gap-2 rounded border px-2 py-1 text-left text-[11px] hover:bg-accent ${current === c.code ? "border-primary" : "border-border"}`}>
+              <span className="h-5 w-5 shrink-0 rounded border" style={{ backgroundColor: c.hex }} />
+              <span className="min-w-0">
+                <span className="block font-medium">DMC {c.code}</span>
+                <span className="block truncate text-muted-foreground">{c.name}{c.anchor ? ` · A${c.anchor}` : ""}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /**
  * Estúdio de Bordado — Fase 1.
  * Sobre o desenho e vetorização originais adiciona:
@@ -1537,7 +1583,65 @@ function PontoCruzTab() {
 type BordadoLayer = {
   id: string; nome: string; visible: boolean; locked: boolean;
   color: string; width: number; strokes: string[];
+  /** Fase 3 — tipo de ponto simulado para esta camada. */
+  stitch: StitchType;
+  /** Fase 3 — código DMC associado (opcional). */
+  dmc?: string;
 };
+
+/** Fase 3 — tipos de ponto suportados na simulação visual. */
+type StitchType =
+  | "backstitch"   // ponto atrás — linha contínua
+  | "running"      // ponto alinhavo — tracejado curto
+  | "chain"        // ponto cadeia — tracejado longo com pontas redondas
+  | "couching"     // ponto acolchoado — traço + espaço amplo
+  | "satin"        // ponto cheio — traço mais grosso
+  | "stem"         // ponto haste — pequenos traços inclinados
+  | "cross"        // ponto cruz — marcador "×" ao longo
+  | "knot";        // nó francês — marcador circular ao longo
+
+const STITCH_LABELS: Record<StitchType, string> = {
+  backstitch: "Ponto atrás",
+  running: "Alinhavo",
+  chain: "Cadeia",
+  couching: "Acolchoado",
+  satin: "Cheio (satin)",
+  stem: "Haste",
+  cross: "Ponto cruz",
+  knot: "Nó francês",
+};
+
+/** Devolve o dasharray e multiplicador de espessura para cada ponto. */
+function stitchStyle(kind: StitchType, base: number): { dash?: string; widthMul: number; marker?: "cross" | "knot" } {
+  switch (kind) {
+    case "backstitch": return { widthMul: 1 };
+    case "running":    return { dash: "6 3", widthMul: 1 };
+    case "chain":      return { dash: "10 4", widthMul: 1.2 };
+    case "couching":   return { dash: "3 6", widthMul: 1 };
+    case "satin":      return { widthMul: 2.2 };
+    case "stem":       return { dash: "8 2", widthMul: 1.1 };
+    case "cross":      return { dash: `0.1 ${Math.max(6, base * 6)}`, widthMul: 0.4, marker: "cross" };
+    case "knot":       return { dash: `0.1 ${Math.max(8, base * 7)}`, widthMul: 0.4, marker: "knot" };
+  }
+}
+
+/** Comprimento total em px de um path "M x y L x y ..." (multi-subpath). */
+function pathLengthPx(d: string): number {
+  const toks = d.replace(/,/g, " ").split(/\s+/).filter(Boolean);
+  let total = 0;
+  let px = 0, py = 0, has = false;
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    if (t === "M" || t === "L") {
+      const x = parseFloat(toks[++i]);
+      const y = parseFloat(toks[++i]);
+      if (isNaN(x) || isNaN(y)) continue;
+      if (t === "L" && has) total += Math.hypot(x - px, y - py);
+      px = x; py = y; has = true;
+    }
+  }
+  return total;
+}
 type HoopShape = "round15" | "round20" | "round25" | "oval" | "square";
 type FabricKind = "none" | "algodao" | "linho" | "escuro";
 
@@ -1603,9 +1707,9 @@ function BordadoTab() {
 
   // Camadas
   const [layers, setLayers] = useState<BordadoLayer[]>(() => [
-    { id: "l-esboco",   nome: "Esboço",   visible: true, locked: false, color: "#9ca3af", width: 1.2, strokes: [] },
-    { id: "l-risco",    nome: "Risco",    visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] },
-    { id: "l-decalque", nome: "Decalque", visible: true, locked: true,  color: "#1e88e5", width: 0.8, strokes: [] },
+    { id: "l-esboco",   nome: "Esboço",   visible: true, locked: false, color: "#9ca3af", width: 1.2, strokes: [], stitch: "running" },
+    { id: "l-risco",    nome: "Risco",    visible: true, locked: false, color: "#111111", width: 1.5, strokes: [], stitch: "backstitch" },
+    { id: "l-decalque", nome: "Decalque", visible: true, locked: true,  color: "#1e88e5", width: 0.8, strokes: [], stitch: "backstitch" },
   ]);
   const [activeLayer, setActiveLayer] = useState("l-risco");
   const active = layers.find((l) => l.id === activeLayer) ?? layers[0];
@@ -1614,7 +1718,7 @@ function BordadoTab() {
     setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   const addLayer = () => {
     const id = `l-${Date.now()}`;
-    setLayers((ls) => [...ls, { id, nome: `Camada ${ls.length + 1}`, visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] }]);
+    setLayers((ls) => [...ls, { id, nome: `Camada ${ls.length + 1}`, visible: true, locked: false, color: "#111111", width: 1.5, strokes: [], stitch: "backstitch" }]);
     setActiveLayer(id);
   };
   const removeLayer = (id: string) => setLayers((ls) => {
@@ -1858,6 +1962,18 @@ function BordadoTab() {
   const cx = A4_W / 2, cy = A4_H / 2;
   const decalqueVisivel = layers.find((l) => l.id === "l-decalque")?.visible ?? true;
 
+  // Fase 3 — estatísticas de linha (comprimento total por camada em cm).
+  const linhaStats = useMemo(() => {
+    return layers.map((l) => {
+      const px = l.strokes.reduce((s, d) => s + pathLengthPx(d), 0);
+      const cm = px / PX_PER_CM;
+      // margem ~15% para nós, cruzamentos e sobra de agulha
+      const cmComMargem = cm * 1.15;
+      return { id: l.id, nome: l.nome, cm, cmComMargem, dmc: l.dmc };
+    });
+  }, [layers]);
+  const totalCmMargem = linhaStats.reduce((s, x) => s + x.cmComMargem, 0);
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
@@ -1869,6 +1985,21 @@ function BordadoTab() {
         )}
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full"
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
+          {/* Fase 3 — marcadores para ponto cruz e nó francês */}
+          <defs>
+            {layers.map((l) => (
+              <React.Fragment key={`m-${l.id}`}>
+                <marker id={`mk-cross-${l.id}`} viewBox="-5 -5 10 10" markerWidth="6" markerHeight="6"
+                        refX="0" refY="0" orient="auto">
+                  <path d="M-3 -3 L3 3 M-3 3 L3 -3" stroke={l.color} strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                </marker>
+                <marker id={`mk-knot-${l.id}`} viewBox="-3 -3 6 6" markerWidth="5" markerHeight="5"
+                        refX="0" refY="0" orient="auto">
+                  <circle cx="0" cy="0" r="1.6" fill={l.color} />
+                </marker>
+              </React.Fragment>
+            ))}
+          </defs>
           {hoopOn && (
             <>
               <defs>
@@ -1895,14 +2026,30 @@ function BordadoTab() {
               <line x1="0" y1={(A4_H * 2) / 3} x2={A4_W} y2={(A4_H * 2) / 3} />
             </g>
           )}
-          {layers.map((layer) => layer.visible && (
-            <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
-              {layer.strokes.map((d, i) => (
-                <path key={`${layer.id}-${i}`} d={d} stroke={layer.color} strokeWidth={layer.width}
-                      fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              ))}
-            </g>
-          ))}
+          {layers.map((layer) => {
+            if (!layer.visible) return null;
+            const st = stitchStyle(layer.stitch, layer.width);
+            const markerUrl = st.marker === "cross" ? `url(#mk-cross-${layer.id})`
+                            : st.marker === "knot"  ? `url(#mk-knot-${layer.id})`
+                            : undefined;
+            return (
+              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
+                {layer.stitch === "satin" && layer.strokes.map((d, i) => (
+                  // ponto cheio — 2ª passagem paralela ligeiramente deslocada para efeito de preenchimento
+                  <path key={`sat-${layer.id}-${i}`} d={d} stroke={layer.color}
+                        strokeWidth={layer.width * 1.6} strokeOpacity={0.55}
+                        fill="none" strokeLinecap="butt" strokeLinejoin="round" />
+                ))}
+                {layer.strokes.map((d, i) => (
+                  <path key={`${layer.id}-${i}`} d={d} stroke={layer.color}
+                        strokeWidth={Math.max(0.2, layer.width * st.widthMul)}
+                        fill="none" strokeLinecap="round" strokeLinejoin="round"
+                        strokeDasharray={st.dash}
+                        markerStart={markerUrl} markerMid={markerUrl} markerEnd={markerUrl} />
+                ))}
+              </g>
+            );
+          })}
           {/* Guias de simetria (Fase 2) */}
           {mirrorOn && (
             <g stroke="rgba(236,72,153,0.6)" strokeWidth="0.6" strokeDasharray="3 3" pointerEvents="none">
@@ -2003,22 +2150,46 @@ function BordadoTab() {
           <div className="space-y-1">
             {layers.slice().reverse().map((l) => (
               <div key={l.id}
-                   className={`flex items-center gap-1 rounded border px-2 py-1 ${activeLayer === l.id ? "border-primary bg-primary/5" : "border-border"}`}>
-                <button className="text-xs" onClick={() => patchLayer(l.id, { visible: !l.visible })} title="Visibilidade">
-                  {l.visible ? "👁" : "—"}
-                </button>
-                <button className="text-xs" onClick={() => patchLayer(l.id, { locked: !l.locked })} title="Bloquear">
-                  {l.locked ? "🔒" : "🔓"}
-                </button>
-                <Input value={l.nome} onChange={(e) => patchLayer(l.id, { nome: e.target.value })}
-                       className="h-6 flex-1 text-xs" onFocus={() => setActiveLayer(l.id)} />
-                <input type="color" value={l.color} onChange={(e) => patchLayer(l.id, { color: e.target.value })}
-                       className="h-6 w-6 cursor-pointer rounded border" />
-                <button className="text-xs" onClick={() => moveLayer(l.id, 1)} title="Subir">▲</button>
-                <button className="text-xs" onClick={() => moveLayer(l.id, -1)} title="Descer">▼</button>
-                <button className="text-xs text-destructive" onClick={() => removeLayer(l.id)} title="Apagar">
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                   className={`space-y-1 rounded border px-2 py-1 ${activeLayer === l.id ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-center gap-1">
+                  <button className="text-xs" onClick={() => patchLayer(l.id, { visible: !l.visible })} title="Visibilidade">
+                    {l.visible ? "👁" : "—"}
+                  </button>
+                  <button className="text-xs" onClick={() => patchLayer(l.id, { locked: !l.locked })} title="Bloquear">
+                    {l.locked ? "🔒" : "🔓"}
+                  </button>
+                  <Input value={l.nome} onChange={(e) => patchLayer(l.id, { nome: e.target.value })}
+                         className="h-6 flex-1 text-xs" onFocus={() => setActiveLayer(l.id)} />
+                  <input type="color" value={l.color} onChange={(e) => patchLayer(l.id, { color: e.target.value, dmc: undefined })}
+                         className="h-6 w-6 cursor-pointer rounded border" title="Cor personalizada" />
+                  <button className="text-xs" onClick={() => moveLayer(l.id, 1)} title="Subir">▲</button>
+                  <button className="text-xs" onClick={() => moveLayer(l.id, -1)} title="Descer">▼</button>
+                  <button className="text-xs text-destructive" onClick={() => removeLayer(l.id)} title="Apagar">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Select value={l.stitch} onValueChange={(v) => patchLayer(l.id, { stitch: v as StitchType })}>
+                    <SelectTrigger className="h-6 flex-1 text-[11px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STITCH_LABELS) as StitchType[]).map((k) => (
+                        <SelectItem key={k} value={k}>{STITCH_LABELS[k]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <DmcPickerButton
+                    current={l.dmc}
+                    onPick={(c) => patchLayer(l.id, { color: c.hex, dmc: c.code })}
+                    onSuggest={() => {
+                      const near = nearestDmc(l.color);
+                      patchLayer(l.id, { color: near.hex, dmc: near.code });
+                      toast.success(`DMC ${near.code} aplicado (${near.name}).`);
+                    }}
+                  />
+                </div>
+                {l.dmc && (
+                  <p className="text-[10px] text-muted-foreground">DMC {l.dmc}</p>
+                )}
               </div>
             ))}
           </div>
@@ -2028,6 +2199,36 @@ function BordadoTab() {
                     onValueChange={(v) => patchLayer(active.id, { width: v[0] })} />
             <p className="text-[10px] text-muted-foreground mt-1">Sugestão: 0.4 px ≈ 1 fio · 0.8 px ≈ 3 fios · 1.4 px ≈ 6 fios.</p>
           </div>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-1 p-3">
+          <Label className="text-xs font-semibold">Estimativa de linha</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Comprimento total das linhas por camada (com 15% de margem para nós e sobra de agulha).
+          </p>
+          {linhaStats.every((s) => s.cm < 0.05) ? (
+            <p className="text-[11px] italic text-muted-foreground pt-1">
+              Desenha ou vetoriza para veres a estimativa de consumo por camada.
+            </p>
+          ) : (
+            <div className="pt-1 space-y-0.5">
+              {linhaStats.map((s) => (
+                s.cm > 0 && (
+                  <div key={s.id} className="flex justify-between text-[11px]">
+                    <span className="truncate">
+                      {s.nome}{s.dmc ? ` · DMC ${s.dmc}` : ""}
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {s.cmComMargem.toFixed(1)} cm
+                    </span>
+                  </div>
+                )
+              ))}
+              <div className="flex justify-between border-t pt-1 text-[11px] font-medium">
+                <span>Total estimado</span>
+                <span className="tabular-nums">{totalCmMargem.toFixed(1)} cm</span>
+              </div>
+            </div>
+          )}
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Imagem de referência (decalque)</Label>
