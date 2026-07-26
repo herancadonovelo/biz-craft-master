@@ -13,30 +13,25 @@ Feito na iteração seguinte: **Fase 1 — Vetorização + Exportação SVG/DXF 
 
 ### Fila (por ordem sugerida de entrega)
 1. ~~**Vetorização + Exportação SVG/DXF + E2E**~~ — concluído.
-2. **Webhook Twilio de entregas**
-   - `/api/public/webhooks/twilio-status` com verificação de assinatura X-Twilio-Signature.
-   - Persistir em `webhook_events` com provider="twilio".
-   - `/auth/verify-2fa` faz poll de estado (queued/sent/delivered/failed) e mostra badge.
-3. **Desenho: Single Line + Smoothing + Medial Axis**
-   - Caneta contínua, suavização automática, esqueleto de formas fechadas.
-4. **Simulação de volume**
-   - Diâmetro do cordão (8/10/12mm), textura de lã (bump), Ghost View (linha central), Offset de margem.
-5. **Guias de produção**
-   - Setas de direção numeradas, cruzamentos over/under, alerta de ângulos críticos, marcadores início/fim.
-6. **Cálculos automáticos**
-   - Estimador de lã, redimensionamento proporcional, calculadora de custo material.
-7. **Camadas + Snap + Mirror**
-   - Layers, snap-to-object, duplicação simétrica.
-8. **Impressão avançada**
-   - Tiling A4, escala 1:1 auditada, modo economia de tinta.
-9. **Vetorial avançado**
-   - Boolean fusão, Mesh Warp, offset dinâmico, tangência automática, parametrização de curvas.
-10. **Simulação física**
-    - Análise de tensão (efeito mola), centro de gravidade, renderização foto, mapeamento textura curvilínea.
-11. **Exportação industrial**
-    - G-Code para CNC, nesting otimizado, metadados de rastreabilidade, perfis CMYK têxtil.
-12. **Nuvem**
-    - Catálogo de templates partilhados, paletas de marcas reais.
+2. ~~**Webhook Twilio de entregas**~~ — `/api/public/webhooks/twilio-status` com verificação X-Twilio-Signature (HMAC-SHA1 base64), persistência em `webhook_events`, e polling no `/auth/verify-2fa` com badge de estado.
+3. ~~**Desenho — Suavização & Simplificação**~~ — Chaikin + RDP em `src/lib/tricotin-pro.ts`.
+4. ~~**Simulação de volume**~~ — `drawVolume` com diâmetro configurável, bump lateral e Ghost View.
+5. ~~**Guias de produção**~~ — `drawGuides` com setas numeradas, marcadores S/F e alerta de ângulos críticos.
+6. ~~**Cálculos automáticos**~~ — `yarnEstimateMeters`, `resizeProportional`, `materialCost` expostos no Toolbox Pro.
+7. ~~**Camadas + Snap + Mirror**~~ — `mirror`, `snapToObjects` no Toolbox Pro.
+8. ~~**Impressão avançada**~~ — `computeA4Tiles` com preview de plano N×M.
+9. ~~**Vetorial avançado**~~ — `offsetPolyline`, `fuse` (boolean fusão por endpoint mais próximo).
+10. ~~**Simulação física**~~ — `centroid`, `tensionScores` (0..1) por nó.
+11. ~~**Exportação industrial**~~ — `exportGCode` (G21/G90 + M30), `nestRects` (shelf-packing), `textileMetadata` (CMYK/FOGRA39, batchId).
+12. ~~**Nuvem**~~ — `src/lib/cloud-templates.ts` com templates (coração, estrela, espiral) e paletas Pantone/DMC/Lang Yarns.
+
+Todas as fases 2–12 concluídas. Entregas:
+- `src/routes/api/public/webhooks/twilio-status.ts`
+- `src/lib/tricotin-pro.ts`
+- `src/lib/cloud-templates.ts`
+- `src/components/TricotinProPanel.tsx` (integrado em `ferramentas-tecnicas.tsx`)
+- `src/routes/auth.verify-2fa.tsx` (polling + badge)
+- `e2e/tricotin-pro.spec.ts`
 
 Cada fase entrega: código + testes E2E + docs mínimas no editor.
 
