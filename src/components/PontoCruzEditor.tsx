@@ -29,6 +29,27 @@ type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "t
 interface RectRegion { r1: number; c1: number; r2: number; c2: number }
 
 const STORAGE_KEY = "ponto-cruz-chart-v1";
+const HISTORY_KEY = "ponto-cruz-history-max-v1";
+const SUBS_KEY = (projectId: string) => `ponto-cruz-subs-v1:${projectId || "default"}`;
+
+type WmPos = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | "tiled";
+interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number }
+const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60 };
+
+function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number): Array<{ x: number; y: number }> {
+  switch (pos) {
+    case "top-left": return [{ x: margin + 30, y: margin + 20 }];
+    case "top-right": return [{ x: pageW - margin - 30, y: margin + 20 }];
+    case "bottom-left": return [{ x: margin + 30, y: pageH - margin }];
+    case "bottom-right": return [{ x: pageW - margin - 30, y: pageH - margin }];
+    case "tiled": {
+      const out: Array<{ x: number; y: number }> = [];
+      for (let y = margin + 30; y < pageH; y += 70) for (let x = margin + 30; x < pageW; x += 90) out.push({ x, y });
+      return out;
+    }
+    default: return [{ x: pageW / 2, y: pageH / 2 }];
+  }
+}
 
 function loadChart(): ChartDoc {
   if (typeof window === "undefined") return emptyChart();
@@ -69,18 +90,28 @@ export function PontoCruzEditor() {
   // History stacks for undo/redo — cap to avoid memory bloat.
   const past = useRef<ChartDoc[]>([]);
   const future = useRef<ChartDoc[]>([]);
+  const [historyMax, setHistoryMax] = useState<number>(() => {
+    if (typeof window === "undefined") return 80;
+    const raw = Number(window.localStorage.getItem(HISTORY_KEY));
+    return Number.isFinite(raw) && raw >= 5 ? raw : 80;
+  });
+  useEffect(() => { try { window.localStorage.setItem(HISTORY_KEY, String(historyMax)); } catch { /* noop */ } }, [historyMax]);
+  // Trim past stack when the cap shrinks.
+  useEffect(() => {
+    while (past.current.length > historyMax) past.current.shift();
+  }, [historyMax]);
   const [, forceTick] = useState(0);
   const commit = useCallback((next: ChartDoc | ((c: ChartDoc) => ChartDoc)) => {
     setChart((cur) => {
       const n = typeof next === "function" ? (next as (c: ChartDoc) => ChartDoc)(cur) : next;
       if (n === cur) return cur;
       past.current.push(cur);
-      if (past.current.length > 80) past.current.shift();
+      while (past.current.length > historyMax) past.current.shift();
       future.current = [];
       forceTick((x) => x + 1);
       return n;
     });
-  }, []);
+  }, [historyMax]);
   const undo = useCallback(() => {
     const prev = past.current.pop(); if (!prev) return;
     setChart((cur) => { future.current.push(cur); forceTick((x) => x + 1); return prev; });
@@ -117,7 +148,47 @@ export function PontoCruzEditor() {
   const [selection, setSelection] = useState<RectRegion | null>(null);
   const [preview, setPreview] = useState<Array<[number, number]> | null>(null);
   const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
-  const [watermark, setWatermark] = useState<string>("");
+  const [wm, setWm] = useState<WmCfg>(DEFAULT_WM);
+  const setWmField = <K extends keyof WmCfg>(k: K, v: WmCfg[K]) => setWm((s) => ({ ...s, [k]: v }));
+  const [projectId, setProjectId] = useState<string>("default");
+  // Saved color substitution presets per project: { presetName: { fromHex: toHex } }
+  const [subs, setSubs] = useState<Record<string, Record<string, string>>>({});
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(SUBS_KEY(projectId));
+      setSubs(raw ? JSON.parse(raw) : {});
+    } catch { setSubs({}); }
+  }, [projectId]);
+  const saveSubs = (next: Record<string, Record<string, string>>) => {
+    setSubs(next);
+    try { window.localStorage.setItem(SUBS_KEY(projectId), JSON.stringify(next)); } catch { /* noop */ }
+  };
+  const [subName, setSubName] = useState("Preset 1");
+  const saveCurrentSubSet = () => {
+    // Build map from current palette to snapped DMC/Anchor equivalents based on chart.paletteMarca.
+    const map: Record<string, string> = {};
+    for (const s of stats) map[s.hex.toLowerCase()] = closestThread(s.hex, chart.paletteMarca).hex;
+    saveSubs({ ...subs, [subName || "Preset"]: map });
+    toast.success(`Guardado "${subName}" (${Object.keys(map).length} cores).`);
+  };
+  const applySubSet = (name: string) => {
+    const map = subs[name]; if (!map) return;
+    commit((ch) => {
+      const cells: typeof ch.cells = {};
+      for (const [k, v] of Object.entries(ch.cells)) {
+        const rep = map[v.hex.toLowerCase()];
+        cells[k] = rep ? { ...v, hex: rep } : v;
+      }
+      // Keep paletteMax coherent with resulting palette
+      const uniques = new Set(Object.values(cells).map((c) => c.hex.toLowerCase())).size;
+      return { ...ch, cells, paletteMax: Math.max(ch.paletteMax, uniques) };
+    });
+    toast.success(`Aplicado "${name}".`);
+  };
+  const deleteSubSet = (name: string) => {
+    const next = { ...subs }; delete next[name]; saveSubs(next);
+  };
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
   const [palettePick, setPalettePick] = useState<Marca>("DMC");
@@ -412,23 +483,55 @@ export function PontoCruzEditor() {
     triggerDownload(blob, "grafico-ponto-cruz.oxs");
   };
   const exportPng = () => {
-    canvasRef.current?.toBlob((b) => { if (b) triggerDownload(b, "grafico-ponto-cruz.png"); });
+    // High-res PNG with legend + watermark (independent of on-screen zoom).
+    const bmp = renderPrintBitmap();
+    const legendH = 40 + stats.length * 22 + 20;
+    const out = document.createElement("canvas");
+    out.width = bmp.width;
+    out.height = bmp.height + legendH;
+    const ctx = out.getContext("2d")!;
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(bmp, 0, 0);
+    // Legend
+    ctx.fillStyle = "#111"; ctx.font = "bold 20px system-ui";
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("Legenda de cores & meadas", 16, bmp.height + 12);
+    ctx.font = "16px system-ui";
+    stats.forEach((s, i) => {
+      const y = bmp.height + 40 + i * 22;
+      ctx.fillStyle = s.hex; ctx.fillRect(16, y, 18, 16);
+      ctx.strokeStyle = "#333"; ctx.lineWidth = 1; ctx.strokeRect(16, y, 18, 16);
+      ctx.fillStyle = "#111";
+      ctx.fillText(`${s.symbol}   DMC ${s.dmc.codigo}   Anchor ${s.anchor.codigo}   ${s.full + s.half} pts · ~${s.meadas} meada(s)`, 42, y);
+    });
+    // Watermark overlay (canvas)
+    if (wm.text.trim()) {
+      ctx.save();
+      ctx.globalAlpha = wm.opacity / 100;
+      ctx.fillStyle = "#555";
+      const spots = wmCoords(wm.pos, out.width, out.height, 40);
+      for (const p of spots) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((wm.angle * Math.PI) / 180);
+        ctx.font = `bold ${wm.size}px system-ui`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(wm.text, 0, 0);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+    out.toBlob((b) => { if (b) triggerDownload(b, "grafico-ponto-cruz.png"); }, "image/png");
   };
-  /**
-   * Render the chart into an offscreen canvas at print-grade resolution
-   * (independent of on-screen zoom), then export to A4 PDF with a legible
-   * legend (colour swatch, symbol, DMC/Anchor codes, stitch counts, skeins)
-   * and optional diagonal watermark on every page.
-   */
-  const exportPdf = () => {
-    const PRINT_CELL = 24; // px per stitch in the exported bitmap (≈300 DPI at A4)
+
+  /** Renders the chart to an offscreen canvas at print resolution (shared by PDF/PNG). */
+  const renderPrintBitmap = (): HTMLCanvasElement => {
+    const PRINT_CELL = 24;
     const off = document.createElement("canvas");
     off.width = chart.cols * PRINT_CELL;
     off.height = chart.rows * PRINT_CELL;
     const ctx = off.getContext("2d")!;
-    // Background
     ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, off.width, off.height);
-    // Cells (symbols always shown on printed chart for high legibility)
     for (const [k, v] of Object.entries(chart.cells)) {
       const [r, c] = k.split(",").map(Number);
       const x = c * PRINT_CELL, y = r * PRINT_CELL;
@@ -436,7 +539,6 @@ export function PontoCruzEditor() {
       if (v.type === "full") {
         ctx.fillStyle = fillHex; ctx.fillRect(x, y, PRINT_CELL, PRINT_CELL);
         const s = stats.find((st) => st.hex === v.hex);
-        // Contrast symbol color based on luminance
         const rgb = fillHex.replace("#", "");
         const lum = 0.299 * parseInt(rgb.slice(0, 2), 16) + 0.587 * parseInt(rgb.slice(2, 4), 16) + 0.114 * parseInt(rgb.slice(4, 6), 16);
         ctx.fillStyle = lum < 140 ? "#ffffff" : "#111111";
@@ -444,14 +546,12 @@ export function PontoCruzEditor() {
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText(s?.symbol ?? "?", x + PRINT_CELL / 2, y + PRINT_CELL / 2 + 1);
       } else {
-        ctx.fillStyle = fillHex;
-        ctx.beginPath();
+        ctx.fillStyle = fillHex; ctx.beginPath();
         if (v.type === "half-tl") { ctx.moveTo(x, y); ctx.lineTo(x + PRINT_CELL, y); ctx.lineTo(x, y + PRINT_CELL); }
         else { ctx.moveTo(x + PRINT_CELL, y); ctx.lineTo(x + PRINT_CELL, y + PRINT_CELL); ctx.lineTo(x, y + PRINT_CELL); }
         ctx.closePath(); ctx.fill();
       }
     }
-    // Grid
     ctx.strokeStyle = "rgba(0,0,0,0.25)"; ctx.lineWidth = 1;
     ctx.beginPath();
     for (let c = 0; c <= chart.cols; c++) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
@@ -462,7 +562,6 @@ export function PontoCruzEditor() {
     for (let c = 0; c <= chart.cols; c += 10) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
     for (let r = 0; r <= chart.rows; r += 10) { ctx.moveTo(0, r * PRINT_CELL + 0.5); ctx.lineTo(off.width, r * PRINT_CELL + 0.5); }
     ctx.stroke();
-    // Backstitch + knots (on top)
     for (const b of chart.back) {
       ctx.strokeStyle = b.hex; ctx.lineWidth = Math.max(2, PRINT_CELL * 0.14);
       ctx.lineCap = "round"; ctx.beginPath();
@@ -474,16 +573,28 @@ export function PontoCruzEditor() {
       ctx.arc(k.c * PRINT_CELL, k.r * PRINT_CELL, PRINT_CELL * 0.26, 0, Math.PI * 2);
       ctx.fill(); ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 1; ctx.stroke();
     }
+    return off;
+  };
+  /**
+   * Render the chart into an offscreen canvas at print-grade resolution
+   * (independent of on-screen zoom), then export to A4 PDF with a legible
+   * legend (colour swatch, symbol, DMC/Anchor codes, stitch counts, skeins)
+   * and optional diagonal watermark on every page.
+   */
+  const exportPdf = () => {
+    const off = renderPrintBitmap();
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageW = 210, pageH = 297, margin = 10;
     const drawWatermark = () => {
-      if (!watermark.trim()) return;
+      if (!wm.text.trim()) return;
       pdf.saveGraphicsState();
       const anyPdf = pdf as unknown as { setGState: (g: unknown) => void; GState: new (o: object) => unknown };
-      anyPdf.setGState(new anyPdf.GState({ opacity: 0.15 }));
-      pdf.setFontSize(60); pdf.setTextColor(120, 120, 120);
-      pdf.text(watermark, pageW / 2, pageH / 2, { align: "center", angle: 30 });
+      anyPdf.setGState(new anyPdf.GState({ opacity: wm.opacity / 100 }));
+      pdf.setFontSize(wm.size); pdf.setTextColor(120, 120, 120);
+      for (const p of wmCoords(wm.pos, pageW, pageH, margin)) {
+        pdf.text(wm.text, p.x, p.y, { align: "center", angle: wm.angle });
+      }
       pdf.restoreGraphicsState();
       pdf.setTextColor(0, 0, 0);
     };
