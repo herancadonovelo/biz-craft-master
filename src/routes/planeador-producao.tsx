@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Trash2, Calendar as CalIcon } from "lucide-react";
+import { Plus, Trash2, Calendar as CalIcon, CalendarDown, Download } from "lucide-react";
 import { toast } from "sonner";
+import { downloadICS } from "@/lib/ics";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -60,7 +61,7 @@ function PlaneadorProducaoPage() {
       const feitas = plano.etapas.filter((e) => e.concluida).length;
       return plano.etapas.length ? Math.round((feitas / plano.etapas.length) * 100) : 0;
     }
-    return Math.round((t.filter((x) => x.feito).length / t.length) * 100);
+    return Math.round((t.filter((x) => x.status === "feito" || x.feito).length / t.length) * 100);
   }, [plano]);
 
   return (
@@ -83,6 +84,11 @@ function PlaneadorProducaoPage() {
           </Select>
         </div>
         <Button onClick={criarPlano}><Plus className="mr-1 h-4 w-4" />Novo plano</Button>
+        {plano && (
+          <Button variant="outline" onClick={() => { downloadICS(plano); toast.success("Calendário .ics exportado"); }}>
+            <Download className="mr-1 h-4 w-4" />Exportar .ics
+          </Button>
+        )}
         {plano && (
           <Button variant="ghost" onClick={() => { remove("producaoPlanos", plano.id); setSelId(null); }}>
             <Trash2 className="h-4 w-4" />
