@@ -2654,6 +2654,54 @@ function BordadoTab() {
             <Eraser className="mr-1 h-3 w-3" />Limpar camada ativa
           </Button>
         </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Bordado à máquina (DST)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Converte as camadas visíveis em pontos com espaçamento fixo e exporta um ficheiro Tajima .DST compatível com máquinas Brother, Janome, Bernina, Tajima e Ricoma.
+          </p>
+          <div>
+            <Label className="text-xs">Comprimento do ponto ({stitchLenMm.toFixed(1)} mm)</Label>
+            <Slider value={[stitchLenMm]} min={1} max={6} step={0.1} onValueChange={(v) => setStitchLenMm(v[0])} />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Recomendado 2–4 mm para bordado padrão; abaixo de 1.5 mm para detalhe fino.
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Otimizar ordem (menor salto)</Label>
+            <Button size="sm" variant={orderByNearest ? "default" : "outline"} onClick={() => setOrderByNearest((v) => !v)}>
+              {orderByNearest ? "Sim" : "Não"}
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 rounded border bg-muted/30 p-2 text-[11px]">
+            <div><span className="text-muted-foreground block">Pontos</span><span className="tabular-nums font-medium">{machineStats.pontos.toLocaleString()}</span></div>
+            <div><span className="text-muted-foreground block">Cores</span><span className="tabular-nums font-medium">{machineStats.cores}</span></div>
+            <div><span className="text-muted-foreground block">Linha</span><span className="tabular-nums font-medium">{(machineStats.comprimentoMm / 10).toFixed(1)} cm</span></div>
+          </div>
+          <Button size="sm" className="w-full" onClick={exportarDst} disabled={dstBusy || machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />{dstBusy ? "A gerar…" : "Exportar .DST"}
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Texto circular</Label>
+          <Input value={circText} onChange={(e) => setCircText(e.target.value)} placeholder="Texto a bordar em círculo" className="h-8 text-xs" />
+          <div>
+            <Label className="text-xs">Raio ({circRadius} mm)</Label>
+            <Slider value={[circRadius]} min={20} max={100} step={2} onValueChange={(v) => setCircRadius(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Tamanho ({circFontPx} px)</Label>
+            <Slider value={[circFontPx]} min={10} max={48} step={1} onValueChange={(v) => setCircFontPx(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Sentido horário</Label>
+            <Button size="sm" variant={circClockwise ? "default" : "outline"} onClick={() => setCircClockwise((v) => !v)}>
+              {circClockwise ? "→" : "←"}
+            </Button>
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirTextoCircular}>
+            <Type className="mr-1 h-3 w-3" />Inserir na camada ativa
+          </Button>
+        </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
