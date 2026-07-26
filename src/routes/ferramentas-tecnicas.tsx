@@ -2544,6 +2544,10 @@ function BordadoTab() {
               </React.Fragment>
             ))}
           </defs>
+          {preview3D && (
+            <rect x="0" y="0" width={A4_W} height={A4_H}
+                  fill={`url(#fx-fabric-${fabric3D})`} pointerEvents="none" />
+          )}
           {hoopOn && (
             <>
               <defs>
