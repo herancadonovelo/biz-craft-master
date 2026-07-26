@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import {
   MousePointer2, Minus, Spline, Compass, Scissors, Split, Waves,
   GitCommitHorizontal, ImagePlus, Ruler, Trash2, Undo2, Plus, FlipHorizontal2,
+  Redo2, History, FileDown, Save,
 } from "lucide-react";
 
 /* ─────────────── Geometria ─────────────── */
@@ -152,6 +153,38 @@ function allIntersections(polys: Poly[]): Pt[] {
     }
   }
   return out;
+}
+
+/* ─────────────── Export helpers (SVG/DXF) ─────────────── */
+
+function polysToSVG(polys: Poly[], w: number, h: number): string {
+  const paths = polys.map((pl) => {
+    const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+    return `<path d="${d}" fill="none" stroke="${pl.color ?? "#000"}" stroke-width="1"/>`;
+  }).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${paths}</svg>`;
+}
+
+function polysToDXF(polys: Poly[]): string {
+  const lines: string[] = ["0", "SECTION", "2", "ENTITIES"];
+  for (const pl of polys) {
+    for (let i = 1; i < pl.pts.length; i++) {
+      const a = pl.pts[i - 1], b = pl.pts[i];
+      lines.push("0", "LINE", "8", "0",
+        "10", a.x.toFixed(3), "20", (-a.y).toFixed(3), "30", "0",
+        "11", b.x.toFixed(3), "21", (-b.y).toFixed(3), "31", "0");
+    }
+  }
+  lines.push("0", "ENDSEC", "0", "EOF");
+  return lines.join("\n");
+}
+
+function downloadFile(name: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
 function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement): Pt {
