@@ -1315,7 +1315,8 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Folha do Editor</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
+      <div className="rounded-lg border bg-card tricotin-no-print" data-testid="tricotin-sheet-card">
+        <div className="overflow-auto bg-white">
         <div className="relative bg-white">
           <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
             Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
@@ -1332,10 +1333,49 @@ function TricotinTab() {
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
           />
-          {/* Watermark overlay (renderizada em cima da folha) */}
-          <div className="pointer-events-none absolute inset-0">
-            <Watermark w={w} />
-          </div>
+          {/* Watermark overlay (posicionada, com lock/snap/clamp) */}
+          {w.ativa && (
+            <div
+              className="pointer-events-none absolute select-none"
+              style={{
+                left: `${wmPos.xPct}%`,
+                top: `${wmPos.yPct}%`,
+                transform: `translate(-50%, -50%) rotate(${wmPos.rot}deg)`,
+                opacity: w.opacidade / 100,
+                width: `${(w.bloqueada ? 60 : w.tamanho)}%`,
+                textAlign: "center",
+              }}
+            >
+              {perfilNegocio.logo ? (
+                <img src={perfilNegocio.logo} alt="" style={{ width: "100%" }} />
+              ) : (
+                <div
+                  className="font-display font-bold"
+                  style={{ fontSize: `${(w.bloqueada ? 60 : w.tamanho) * 0.6}px`, color: "#111" }}
+                >
+                  {w.texto}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        </div>
+        <div className="border-t p-3">
+          <TricotinProPanel
+            getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
+            setPoints={(pts) => {
+              pushHistory();
+              setNodes(pts.map((p, i) => ({
+                id: `p${Date.now().toString(36)}${i}`,
+                x: p.x,
+                y: p.y,
+                type: i === 0 ? "start" : "straight",
+              })));
+            }}
+            pxPerMm={PX_PER_MM}
+            sheetW={W}
+            sheetH={H}
+          />
         </div>
       </div>
       {/* Gestão do Molde (abaixo da folha de desenho) */}
@@ -1381,21 +1421,6 @@ function TricotinTab() {
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
-      <TricotinProPanel
-        getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
-        setPoints={(pts) => {
-          pushHistory();
-          setNodes(pts.map((p, i) => ({
-            id: `p${Date.now().toString(36)}${i}`,
-            x: p.x,
-            y: p.y,
-            type: i === 0 ? "start" : "straight",
-          })));
-        }}
-        pxPerMm={PX_PER_MM}
-        sheetW={W}
-        sheetH={H}
-      />
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
