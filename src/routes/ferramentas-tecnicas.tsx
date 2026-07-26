@@ -2810,6 +2810,20 @@ function BordadoTab() {
             </g>
           )}
           {/* Fase 11 — simulador animado (sobrepõe o desenho ao vivo). */}
+          {heatOn && densityGrid && densityGrid.max > 0 && (
+            <g pointerEvents="none" opacity="0.55">
+              {densityGrid.data.map((v, i) => {
+                if (v === 0) return null;
+                const gx = i % densityGrid.cols;
+                const gy = Math.floor(i / densityGrid.cols);
+                return <rect key={`h-${i}`}
+                  x={densityGrid.x0 + gx * densityGrid.cell}
+                  y={densityGrid.y0 + gy * densityGrid.cell}
+                  width={densityGrid.cell} height={densityGrid.cell}
+                  fill={heatColor(v / densityGrid.max)} />;
+              })}
+            </g>
+          )}
           {simOn && simFlat.length > 0 && (
             <g pointerEvents="none">
               <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(255,255,255,0.85)" />
