@@ -1920,6 +1920,18 @@ function BordadoTab() {
   const cx = A4_W / 2, cy = A4_H / 2;
   const decalqueVisivel = layers.find((l) => l.id === "l-decalque")?.visible ?? true;
 
+  // Fase 3 — estatísticas de linha (comprimento total por camada em cm).
+  const linhaStats = useMemo(() => {
+    return layers.map((l) => {
+      const px = l.strokes.reduce((s, d) => s + pathLengthPx(d), 0);
+      const cm = px / PX_PER_CM;
+      // margem ~15% para nós, cruzamentos e sobra de agulha
+      const cmComMargem = cm * 1.15;
+      return { id: l.id, nome: l.nome, cm, cmComMargem, dmc: l.dmc };
+    });
+  }, [layers]);
+  const totalCmMargem = linhaStats.reduce((s, x) => s + x.cmComMargem, 0);
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
@@ -1931,6 +1943,21 @@ function BordadoTab() {
         )}
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full"
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
+          {/* Fase 3 — marcadores para ponto cruz e nó francês */}
+          <defs>
+            {layers.map((l) => (
+              <React.Fragment key={`m-${l.id}`}>
+                <marker id={`mk-cross-${l.id}`} viewBox="-5 -5 10 10" markerWidth="6" markerHeight="6"
+                        refX="0" refY="0" orient="auto">
+                  <path d="M-3 -3 L3 3 M-3 3 L3 -3" stroke={l.color} strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                </marker>
+                <marker id={`mk-knot-${l.id}`} viewBox="-3 -3 6 6" markerWidth="5" markerHeight="5"
+                        refX="0" refY="0" orient="auto">
+                  <circle cx="0" cy="0" r="1.6" fill={l.color} />
+                </marker>
+              </React.Fragment>
+            ))}
+          </defs>
           {hoopOn && (
             <>
               <defs>
@@ -1957,14 +1984,30 @@ function BordadoTab() {
               <line x1="0" y1={(A4_H * 2) / 3} x2={A4_W} y2={(A4_H * 2) / 3} />
             </g>
           )}
-          {layers.map((layer) => layer.visible && (
-            <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
-              {layer.strokes.map((d, i) => (
-                <path key={`${layer.id}-${i}`} d={d} stroke={layer.color} strokeWidth={layer.width}
-                      fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              ))}
-            </g>
-          ))}
+          {layers.map((layer) => {
+            if (!layer.visible) return null;
+            const st = stitchStyle(layer.stitch, layer.width);
+            const markerUrl = st.marker === "cross" ? `url(#mk-cross-${layer.id})`
+                            : st.marker === "knot"  ? `url(#mk-knot-${layer.id})`
+                            : undefined;
+            return (
+              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
+                {layer.stitch === "satin" && layer.strokes.map((d, i) => (
+                  // ponto cheio — 2ª passagem paralela ligeiramente deslocada para efeito de preenchimento
+                  <path key={`sat-${layer.id}-${i}`} d={d} stroke={layer.color}
+                        strokeWidth={layer.width * 1.6} strokeOpacity={0.55}
+                        fill="none" strokeLinecap="butt" strokeLinejoin="round" />
+                ))}
+                {layer.strokes.map((d, i) => (
+                  <path key={`${layer.id}-${i}`} d={d} stroke={layer.color}
+                        strokeWidth={Math.max(0.2, layer.width * st.widthMul)}
+                        fill="none" strokeLinecap="round" strokeLinejoin="round"
+                        strokeDasharray={st.dash}
+                        markerStart={markerUrl} markerMid={markerUrl} markerEnd={markerUrl} />
+                ))}
+              </g>
+            );
+          })}
           {/* Guias de simetria (Fase 2) */}
           {mirrorOn && (
             <g stroke="rgba(236,72,153,0.6)" strokeWidth="0.6" strokeDasharray="3 3" pointerEvents="none">
