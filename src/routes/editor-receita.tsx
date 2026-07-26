@@ -42,6 +42,9 @@ const DEFAULT_RULES: MergeRules = {
   anexarNotas: true,
 };
 const RULES_KEY = "editor-receita-merge-rules";
+const RULES_PRESETS_KEY = "editor-receita-merge-rules-presets";
+
+interface MergePreset { id: string; nome: string; rules: MergeRules }
 
 export const Route = createFileRoute("/editor-receita")({
   head: () => ({ meta: [{ title: "Editor De Receitas" }] }),
@@ -67,6 +70,38 @@ function Page() {
     } catch { return DEFAULT_RULES; }
   });
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [presets, setPresets] = useState<MergePreset[]>(() => {
+    try {
+      const raw = typeof window !== "undefined" && window.localStorage.getItem(RULES_PRESETS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+  const [presetName, setPresetName] = useState("");
+  const savePresets = (list: MergePreset[]) => {
+    setPresets(list);
+    try { window.localStorage.setItem(RULES_PRESETS_KEY, JSON.stringify(list)); } catch {}
+  };
+  const gravarPreset = () => {
+    const nome = presetName.trim();
+    if (!nome) { toast.error("Dá um nome ao preset"); return; }
+    const existente = presets.find((p) => p.nome.toLowerCase() === nome.toLowerCase());
+    const entry: MergePreset = { id: existente?.id ?? uid(), nome, rules };
+    const next = existente
+      ? presets.map((p) => (p.id === existente.id ? entry : p))
+      : [...presets, entry];
+    savePresets(next);
+    setPresetName("");
+    toast.success(existente ? `Preset "${nome}" atualizado` : `Preset "${nome}" gravado`);
+  };
+  const aplicarPreset = (id: string) => {
+    const p = presets.find((x) => x.id === id);
+    if (!p) return;
+    setAndSaveRules(p.rules);
+    toast.success(`Preset "${p.nome}" aplicado`);
+  };
+  const removerPreset = (id: string) => {
+    savePresets(presets.filter((p) => p.id !== id));
+  };
   const setAndSaveRules = (r: MergeRules) => {
     setRules(r);
     try { window.localStorage.setItem(RULES_KEY, JSON.stringify(r)); } catch {}
@@ -390,6 +425,34 @@ function Page() {
                 onChange={(e) => setAndSaveRules({ ...rules, anexarNotas: e.target.checked })} />
               Anexar notas importadas
             </label>
+            <div className="mt-2 rounded-md border p-2">
+              <div className="mb-1 text-xs font-medium">Presets guardados</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  placeholder="Nome do preset (ex.: Encomendas grandes)"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  className="h-8 flex-1 min-w-40"
+                />
+                <Button size="sm" variant="outline" onClick={gravarPreset}>Gravar preset</Button>
+              </div>
+              {presets.length === 0 ? (
+                <div className="mt-2 text-xs text-muted-foreground">Sem presets. Grava o conjunto atual para reutilizar depois.</div>
+              ) : (
+                <ul className="mt-2 space-y-1">
+                  {presets.map((p) => (
+                    <li key={p.id} className="flex items-center gap-2 text-sm">
+                      <Badge variant="outline" className="text-[10px]">{p.rules.horas}/{p.rules.margem}</Badge>
+                      <span className="truncate">{p.nome}</span>
+                      <Button size="sm" variant="ghost" className="ml-auto h-7" onClick={() => aplicarPreset(p.id)}>Aplicar</Button>
+                      <Button size="sm" variant="ghost" className="h-7" onClick={() => removerPreset(p.id)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAndSaveRules(DEFAULT_RULES)}>Repor padrão</Button>
