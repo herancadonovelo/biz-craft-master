@@ -36,7 +36,6 @@ import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { useStore } from "@/lib/store";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
 // enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
 // texturas de tecido e gestor de camadas simples.
