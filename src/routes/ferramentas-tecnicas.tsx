@@ -1506,51 +1506,7 @@ function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement) {
 
 /* ============================ AMIGURUMI / CROCHÊ ============================ */
 function AmigurumiTab() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [w, setW] = useMarcaDAgua();
-  const sheet = useSheet();
-  const [titulo, setTitulo] = useState("");
-  const [intro, setIntro] = useState("");
-  const [carreiras, setCarreiras] = useState<{ texto: string; pontos: number }[]>([
-    { texto: "Anel mágico com 6pb", pontos: 6 },
-  ]);
-  return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
-        <div className="absolute inset-0 overflow-auto p-8 text-sm leading-relaxed">
-          <h2 className="font-display text-2xl font-bold">{titulo || "Sem título"}</h2>
-          <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{intro}</p>
-          <table className="mt-4 w-full text-left">
-            <thead><tr className="border-b"><th className="py-1 pr-2">#</th><th>Instruções</th><th className="w-20 text-right">Pontos</th></tr></thead>
-            <tbody>
-              {carreiras.map((c, i) => (
-                <tr key={i} className="border-b"><td className="py-1 pr-2 font-mono">{i + 1}</td><td>{c.texto}</td><td className="text-right">{c.pontos}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </A4Stage>
-      <div className="space-y-3">
-        <SheetControls {...sheet} />
-        <Card><CardContent className="space-y-2 p-3">
-          <Input placeholder="Título da receita" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-          <Textarea placeholder="Materiais, agulha, nível..." value={intro} onChange={(e) => setIntro(e.target.value)} />
-          {carreiras.map((c, i) => (
-            <div key={i} className="grid grid-cols-[1fr_60px_auto] gap-1">
-              <Input value={c.texto} onChange={(e) => setCarreiras((s) => s.map((x, j) => j === i ? { ...x, texto: e.target.value } : x))} />
-              <Input type="number" value={c.pontos} onChange={(e) => setCarreiras((s) => s.map((x, j) => j === i ? { ...x, pontos: +e.target.value } : x))} />
-              <Button size="icon" variant="ghost" onClick={() => setCarreiras((s) => s.filter((_, j) => j !== i))}><Trash2 className="h-3.5 w-3.5" /></Button>
-            </div>
-          ))}
-          <Button size="sm" variant="outline" onClick={() => setCarreiras((s) => [...s, { texto: "", pontos: 0 }])}>
-            <Plus className="mr-1 h-3.5 w-3.5" />Carreira
-          </Button>
-        </CardContent></Card>
-        <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Amigurumi" defaultTitulo={titulo || "Receita"} size={sheet.size} orientacao={sheet.orientacao} />
-      </div>
-    </div>
-  );
+  return <AmigurumiEditor />;
 }
 
 /* ============================ COSTURA ============================ */
