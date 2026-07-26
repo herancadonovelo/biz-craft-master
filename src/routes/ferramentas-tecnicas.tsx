@@ -3710,8 +3710,7 @@ function BordadoTab() {
             heatOn, heatCellMm, colorOrder,
           }}
           currentPresetData={{
-            hoopMm: { w: sheet.size.wMm ?? 100, h: sheet.size.hMm ?? 100 },
-            aida: undefined,
+            hoopMm: { w: 100, h: 100 },
             watermark: typeof w?.texto === "string" ? w.texto : undefined,
             strands: 2,
           }}
