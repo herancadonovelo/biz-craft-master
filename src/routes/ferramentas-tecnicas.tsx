@@ -54,6 +54,7 @@ import {
 import { autoDigitize, type DigitizedLayer } from "@/lib/auto-digitize";
 import { Phase16Panel } from "@/components/embroidery/Phase16Panel";
 import type { LayerPaletteEntry } from "@/lib/embroidery-phase16";
+import { Phase17Panel } from "@/components/embroidery/Phase17Panel";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -3715,6 +3716,7 @@ function BordadoTab() {
             strands: 2,
           }}
         />
+        <Phase17Panel blocks={orderedColorBlocks} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
