@@ -115,7 +115,7 @@ const getGroups = (t: (k: string) => string) => [
     label: t("nav.inventory"),
     items: [
       { title: t("nav.stock"), url: "/stock", icon: Package },
-      { title: t("nav.suppliers"), url: "/fornecedores", icon: Truck },
+      { title: t("nav.suppliers"), url: "/gestao-fornecedores", icon: Truck },
       { title: t("nav.shopping"), url: "/lista-compras", icon: ShoppingCart },
     ],
   },
@@ -144,7 +144,6 @@ const getGroups = (t: (k: string) => string) => [
     label: t("nav.system"),
     items: [
       { title: t("nav.settingsAlias"), url: "/design", icon: Palette },
-      { title: t("nav.supplierMgmt"), url: "/gestao-fornecedores", icon: Building2 },
       { title: t("nav.accounts"), url: "/contas", icon: Lock },
       { title: t("nav.language"), url: "/idioma", icon: Languages },
       { title: t("nav.profile"), url: "/perfil-negocio", icon: Building },
