@@ -3752,7 +3752,20 @@ function BordadoTab() {
           }))}
           hoopMm={{ w: 100, h: 100 }}
         />
-        <Phase22Panel projectId="bordado" />
+        <Phase22Panel
+          projectId="bordado"
+          onDigitized={(_layers, rules) => setDigiRules(rules)}
+        />
+        <Phase23Panel
+          projectId="bordado"
+          rules={digiRules}
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+          stitchBlocks={orderedColorBlocks}
+          label="Bordado"
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
