@@ -2493,6 +2493,58 @@ function BordadoTab() {
     } finally { setPesBusy(false); }
   };
 
+  // ---------- Fase 12: exportador EXP (Melco) + save/load projeto ----------
+  const exportarExp = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
+    try {
+      const { encodeExp } = await import("@/lib/exp");
+      const blob = encodeExp(blocks, PX_PER_MM);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `bordado-${Date.now()}.exp`; a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`EXP gerado com ${blocks.length} cor(es).`);
+    } catch (e) {
+      toast.error("Falha ao gerar EXP: " + (e as Error).message);
+    }
+  };
+  const projectFileRef = useRef<HTMLInputElement>(null);
+  const salvarProjeto = () => {
+    const snap = {
+      version: 12,
+      kind: "cbm-bordado",
+      savedAt: new Date().toISOString(),
+      layers, chartCells, hoopOn, hoop,
+      stitchLenMm, orderByNearest, colorOrder,
+      watermark: w,
+    };
+    const blob = new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `projeto-bordado-${Date.now()}.cbmbord.json`; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Projeto guardado.");
+  };
+  const carregarProjeto = async (file: File) => {
+    try {
+      const txt = await file.text();
+      const snap = JSON.parse(txt);
+      if (snap.kind !== "cbm-bordado") { toast.error("Ficheiro inválido."); return; }
+      if (Array.isArray(snap.layers)) setLayers(snap.layers);
+      if (Array.isArray(snap.chartCells)) setChartCells(snap.chartCells);
+      if (typeof snap.hoopOn === "boolean") setHoopOn(snap.hoopOn);
+      if (snap.hoop) setHoop(snap.hoop);
+      if (typeof snap.stitchLenMm === "number") setStitchLenMm(snap.stitchLenMm);
+      if (typeof snap.orderByNearest === "boolean") setOrderByNearest(snap.orderByNearest);
+      if (Array.isArray(snap.colorOrder)) setColorOrder(snap.colorOrder);
+      if (snap.watermark) setW(snap.watermark);
+      toast.success("Projeto carregado.");
+    } catch (e) {
+      toast.error("Falha a carregar projeto: " + (e as Error).message);
+    }
+  };
+
   // Lista viva de cores (para o UI de reordenação)
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
@@ -3095,6 +3147,9 @@ function BordadoTab() {
           <Button size="sm" className="w-full" onClick={exportarDst} disabled={dstBusy || machineStats.pontos === 0}>
             <Sparkles className="mr-1 h-3 w-3" />{dstBusy ? "A gerar…" : "Exportar .DST"}
           </Button>
+          <Button size="sm" variant="outline" className="w-full" onClick={exportarExp} disabled={machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />Exportar .EXP (Melco)
+          </Button>
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Brother PES + multi-bastidor</Label>
@@ -3424,6 +3479,17 @@ function BordadoTab() {
             Carregar ficheiro .DST
           </Button>
           <p className="text-[10px] text-muted-foreground">Cria uma camada por cor a partir dos registos Tajima. Centrado na folha.</p>
+        </CardContent></Card>
+        {/* Fase 12 — Projeto (Save/Load) */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Projeto do estúdio</Label>
+          <input ref={projectFileRef} type="file" accept="application/json,.json" className="hidden"
+                 onChange={(e) => { const f = e.target.files?.[0]; if (f) carregarProjeto(f); e.currentTarget.value = ""; }} />
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" onClick={salvarProjeto}>Guardar .json</Button>
+            <Button size="sm" variant="outline" onClick={() => projectFileRef.current?.click()}>Carregar…</Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.</p>
         </CardContent></Card>
         {/* Fase 11 — Simulador animado */}
         <Card><CardContent className="space-y-2 p-3">
