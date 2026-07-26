@@ -183,6 +183,15 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
           <label className="col-span-2">Autor <input value={author} onChange={(e) => setAuthor(e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Tolerância arco (mm) <input type="number" step={0.05} min={0.02} max={1} value={arcTolMm} onChange={(e) => setArcTolMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <label>Margem nesting (mm) <input type="number" step={0.5} min={0} max={20} value={nestMarginMm} onChange={(e) => setNestMarginMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
+          <p className="col-span-2 rounded bg-muted/60 p-2 text-[11px] leading-snug text-muted-foreground">
+            <b>Efeito da tolerância no G-code com arcos:</b>{" "}
+            {arcTolMm <= 0.05
+              ? "Muito fina — arcos quase perfeitos, mas mais G2/G3 curtos → CNC pode acelerar/desacelerar mais vezes."
+              : arcTolMm <= 0.2
+              ? "Equilibrada — boa fidelidade ao traço e movimento contínuo (recomendada para peças médias)."
+              : "Grosseira — poucos arcos longos, movimento muito suave, mas desvio visível do desenho original."}
+            {" "}Menor tolerância = mais precisão + mais descontinuidades; maior tolerância = movimento mais fluido + menos aceleração.
+          </p>
           <button data-testid="export-gcode" className="rounded border px-2 py-1" onClick={() => {
             const pts = getPoints();
             if (!pts.length) return toast.error("Desenha algo primeiro.");
