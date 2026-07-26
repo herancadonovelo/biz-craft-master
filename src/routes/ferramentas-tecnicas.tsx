@@ -2067,6 +2067,10 @@ function BordadoTab() {
   const [bundleBusy, setBundleBusy] = useState(false);
   const [bundleIncludePdf, setBundleIncludePdf] = useState(true);
   const [bundleSlug, setBundleSlug] = useState("bordado");
+  // Fase 15 — divisão multi-bastidor com marcas de registo
+  const [rehoopOverlapMm, setRehoopOverlapMm] = useState(20);
+  const [rehoopMarginMm, setRehoopMarginMm] = useState(5);
+  const [rehoopBusy, setRehoopBusy] = useState(false);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2590,6 +2594,42 @@ function BordadoTab() {
     } catch (e) {
       toast.error("Falha ao gerar bundle: " + (e as Error).message);
     } finally { setBundleBusy(false); }
+  };
+
+  // ---------- Fase 15: split multi-bastidor com marcas de registo ----------
+  const exportarRehoop = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para dividir."); return; }
+    setRehoopBusy(true);
+    try {
+      const tiles = splitByHoopWithRegistration(blocks, {
+        hoopWpx, hoopHpx,
+        overlapPx: rehoopOverlapMm * PX_PER_MM,
+        marginPx: rehoopMarginMm * PX_PER_MM,
+      });
+      if (tiles.length === 0) { toast.error("Nada a exportar."); return; }
+      const { default: JSZip } = await import("jszip");
+      const zip = new JSZip();
+      for (const t of tiles) {
+        const pes = encodePes(t.blocks, PX_PER_MM, `TILE_${t.index + 1}`);
+        const dst = encodeDst(t.blocks, PX_PER_MM, `TILE_${t.index + 1}`);
+        zip.file(`tile-${String(t.index + 1).padStart(2, "0")}.pes`, await pes.arrayBuffer());
+        zip.file(`tile-${String(t.index + 1).padStart(2, "0")}.dst`, await dst.arrayBuffer());
+      }
+      const guideSvg = buildRehoopGuideSvg(tiles, {
+        hoopWpx, hoopHpx,
+        overlapPx: rehoopOverlapMm * PX_PER_MM,
+        marginPx: rehoopMarginMm * PX_PER_MM,
+        pageWpx: A4_W, pageHpx: A4_H,
+      });
+      zip.file("guia-rehoop.svg", guideSvg);
+      zip.file("README.md", `# Multi-bastidor — ${tiles.length} tiles\nOverlap: ${rehoopOverlapMm} mm\nAlinhe as cruzes vermelhas ao re-enfronhar o tecido.`);
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      downloadBundle(blob, `rehoop-${Date.now()}.zip`);
+      toast.success(`Dividido em ${tiles.length} bastidor(es) com marcas de registo.`);
+    } catch (e) {
+      toast.error("Falha no split: " + (e as Error).message);
+    } finally { setRehoopBusy(false); }
   };
 
   // Lista viva de cores (para o UI de reordenação)
