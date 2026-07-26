@@ -82,7 +82,33 @@ function Verify2FAPage() {
     setSent(true);
     setCooldown(60);
     toast.success("Enviámos um código de 6 dígitos por SMS.");
+    setDeliveryStatus("queued");
   }
+
+  // Twilio delivery status polling — reads webhook_events populated by
+  // /api/public/webhooks/twilio-status.
+  const [deliveryStatus, setDeliveryStatus] = useState<null | "queued" | "sent" | "delivered" | "failed" | "undelivered">(null);
+  useEffect(() => {
+    if (!sent) return;
+    let cancelled = false;
+    const poll = async () => {
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const { data } = await supabase
+        .from("webhook_events")
+        .select("payload, received_at")
+        .eq("provider", "twilio")
+        .gte("received_at", since)
+        .order("received_at", { ascending: false })
+        .limit(5);
+      if (cancelled || !data) return;
+      const forMe = data.find((r: any) => r?.payload?.to === phone);
+      const s = (forMe?.payload as any)?.status as typeof deliveryStatus;
+      if (s) setDeliveryStatus(s);
+    };
+    poll();
+    const id = window.setInterval(poll, 4000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [sent, phone]);
 
   async function verify() {
     if (code.length !== 6) return toast.error("Introduz os 6 dígitos do código.");
@@ -181,6 +207,11 @@ function Verify2FAPage() {
                   Trocar de número
                 </button>
               </div>
+              {deliveryStatus && (
+                <div data-testid="twilio-delivery-status" className="text-[11px] text-muted-foreground">
+                  Estado do envio: <b>{deliveryStatus}</b>
+                </div>
+              )}
             </>
           )}
 

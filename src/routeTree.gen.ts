@@ -74,6 +74,7 @@ import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as AuthVerify2faRouteImport } from './routes/auth.verify-2fa'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
+import { Route as ApiPublicWebhooksTwilioStatusRouteImport } from './routes/api/public/webhooks/twilio-status'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 
 const IndexRoute = IndexRouteImport.update({
@@ -401,6 +402,12 @@ const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
   path: '/api/public/webhooks/etsy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksTwilioStatusRoute =
+  ApiPublicWebhooksTwilioStatusRouteImport.update({
+    id: '/api/public/webhooks/twilio-status',
+    path: '/api/public/webhooks/twilio-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksWhatsappRoute =
   ApiPublicWebhooksWhatsappRouteImport.update({
     id: '/api/public/webhooks/whatsapp',
@@ -474,6 +481,7 @@ export interface FileRoutesByFullPath {
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesByTo {
@@ -542,6 +550,7 @@ export interface FileRoutesByTo {
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesById {
@@ -611,6 +620,7 @@ export interface FileRoutesById {
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
+  '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRouteTypes {
@@ -681,6 +691,7 @@ export interface FileRouteTypes {
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
   id:
     | '__root__'
@@ -817,6 +829,7 @@ export interface FileRouteTypes {
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/api/public/webhooks/etsy'
+    | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
   fileRoutesById: FileRoutesById
 }
@@ -884,6 +897,7 @@ export interface RootRouteChildren {
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
+  ApiPublicWebhooksTwilioStatusRoute: typeof ApiPublicWebhooksTwilioStatusRoute
   ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
 }
 
@@ -1344,6 +1358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksEtsyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/twilio-status': {
+      id: '/api/public/webhooks/twilio-status'
+      path: '/api/public/webhooks/twilio-status'
+      fullPath: '/api/public/webhooks/twilio-status'
+      preLoaderRoute: typeof ApiPublicWebhooksTwilioStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/whatsapp': {
       id: '/api/public/webhooks/whatsapp'
       path: '/api/public/webhooks/whatsapp'
@@ -1440,6 +1461,7 @@ const rootRouteChildren: RootRouteChildren = {
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
+  ApiPublicWebhooksTwilioStatusRoute: ApiPublicWebhooksTwilioStatusRoute,
   ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
 }
 export const routeTree = rootRouteImport

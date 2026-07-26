@@ -18,6 +18,7 @@ import {
   A4Stage, ExportPanel, Watermark, WatermarkControls, useMarcaDAgua,
   SheetControls, useSheet,
 } from "@/components/A4Export";
+import { TricotinProPanel } from "@/components/TricotinProPanel";
 import {
   Plus, Trash2, Eraser, MousePointer2, Minus, Spline, Type, Ruler,
   Combine, Sparkles, Grid3x3, Magnet, RotateCw, ArrowRightCircle, Hash, Tag,
@@ -1156,6 +1157,21 @@ function TricotinTab() {
         }}
         fitW={W}
         fitH={H}
+      />
+      <TricotinProPanel
+        getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
+        setPoints={(pts) => {
+          pushHistory();
+          setNodes(pts.map((p, i) => ({
+            id: `p${Date.now().toString(36)}${i}`,
+            x: p.x,
+            y: p.y,
+            type: i === 0 ? "start" : "straight",
+          })));
+        }}
+        pxPerMm={PX_PER_MM}
+        sheetW={W}
+        sheetH={H}
       />
       <style>{`
         @media print {
