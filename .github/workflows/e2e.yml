@@ -25,6 +25,21 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Install Playwright browser
@@ -34,6 +49,12 @@ jobs:
       - name: Build report summary
         if: always()
         run: node scripts/e2e-report-summary.mjs playwright-report/results.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Scan artifacts for secret leaks / service_role misuse
+        if: always()
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: bash scripts/ci-secret-leak-scan.sh playwright-report test-results
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,15 +90,41 @@ jobs:
       VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
+      - name: Require Supabase env for security test
+        run: |
+          missing=0
+          if [ -z "${VITE_SUPABASE_URL}" ]; then echo "::error::VITE_SUPABASE_URL secret is not set"; missing=1; fi
+          if [ -z "${VITE_SUPABASE_PUBLISHABLE_KEY}" ]; then echo "::error::VITE_SUPABASE_PUBLISHABLE_KEY secret is not set"; missing=1; fi
+          if [ "$missing" != "0" ]; then
+            echo "::error::This job protects webhook_tenant_map from anon writes and MUST run on every PR / main merge. Configure the missing repository secrets."
+            exit 1
+          fi
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Install Playwright browser
         run: bunx playwright install --with-deps chromium
       - name: Run webhook_tenant_map write-access spec
         run: bunx playwright test e2e/webhook-tenant-map-writes-blocked.spec.ts
+      - name: Scan artifacts for secret leaks / service_role misuse
+        if: always()
+        run: bash scripts/ci-secret-leak-scan.sh playwright-report test-results
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
