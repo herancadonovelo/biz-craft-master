@@ -63,8 +63,9 @@ export function AuthGate() {
     nav({ to: "/auth" });
   }, [user, loading, pathname, search, nav]);
 
-  // 2FA enforcement: once signed in, check profile.phone_verified /
-  // last_2fa_at and redirect to /auth/verify-2fa when required.
+  // 2FA re-challenge: only enforced for users who have ALREADY enrolled a
+  // verified phone and whose last challenge is stale (>24h). Enrollment is
+  // opt-in from Settings — we never force new users through SMS setup.
   useEffect(() => {
     if (loading || !user) return;
     if (pathname === "/auth/verify-2fa") return;
@@ -78,13 +79,9 @@ export function AuthGate() {
         .select("phone_verified, last_2fa_at")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (!data) return;
+      if (!data || !data.phone_verified) return; // opt-in: no forced enrollment
       const fresh = data.last_2fa_at && new Date(data.last_2fa_at).getTime() > Date.now() - 24 * 60 * 60 * 1000;
-      if (!data.phone_verified) {
-        nav({ to: "/auth/verify-2fa", search: { enroll: 1 } as any });
-      } else if (!fresh) {
-        nav({ to: "/auth/verify-2fa" });
-      }
+      if (!fresh) nav({ to: "/auth/verify-2fa" });
     })();
   }, [user, loading, pathname, nav]);
 

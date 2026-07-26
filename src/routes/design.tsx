@@ -104,9 +104,25 @@ export function DesignContent() {
     const { design, setDesign } = useStore();
     const personalDefault = useStore((s) => (s as any).personalDesignDefault) as any;
     const hasPersonalDefault = !!personalDefault;
+    // One-time migration: earlier versions saved the personal default under
+    // localStorage "cbm:personalDesignDefault". If the store slot is empty
+    // but the legacy value exists, adopt it so users don't lose their preset.
+    useEffect(() => {
+      if (personalDefault) return;
+      if (typeof window === "undefined") return;
+      try {
+        const raw = window.localStorage.getItem("cbm:personalDesignDefault");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          useStore.setState({ personalDesignDefault: parsed } as any);
+        }
+      } catch {}
+    }, [personalDefault]);
     const saveCurrentAsDefault = () => {
       try {
         useStore.setState({ personalDesignDefault: { ...design } } as any);
+        try { window.localStorage.setItem("cbm:personalDesignDefault", JSON.stringify(design)); } catch {}
         toast.success("Design guardado como padrão pessoal (sincroniza em todos os dispositivos).");
       } catch {
         toast.error("Não foi possível guardar o padrão pessoal.");

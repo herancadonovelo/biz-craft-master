@@ -38,16 +38,41 @@ function Verify2FAPage() {
   }, [cooldown]);
 
   useEffect(() => {
-    // If user already has verified phone and we're in enroll mode, drop the flag.
+    // Prefill the registered phone from the current auth user in BOTH flows.
+    // In challenge (non-enroll) mode, auto-send the OTP so the copy that says
+    // "we've sent a 6-digit code" is truthful.
     (async () => {
       const { data } = await supabase.auth.getUser();
-      const p = (data.user?.phone as string | undefined) ?? "";
-      if (p && enrollMode) {
-        setPhone(p.startsWith("+") ? p : "+" + p);
-        setSent(false);
+      const raw = (data.user?.phone as string | undefined) ?? "";
+      if (!raw) return;
+      const p = raw.startsWith("+") ? raw : "+" + raw;
+      setPhone(p);
+      if (!enrollMode) {
+        // Trigger send on mount (uses the state value we just set).
+        setTimeout(() => {
+          setPhone((prev) => {
+            if (E164.test(prev)) void autoSend(prev);
+            return prev;
+          });
+        }, 0);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enrollMode]);
+
+  async function autoSend(p: string) {
+    setBusy("send");
+    const { error } = await supabase.auth.updateUser({ phone: p });
+    setBusy(null);
+    await logAttempt({ data: { kind: "send", phone: p, success: !error } });
+    if (error) {
+      toast.error("Não foi possível enviar o código automaticamente. Toca em Reenviar.");
+      return;
+    }
+    setSent(true);
+    setCooldown(60);
+    setDeliveryStatus("queued");
+  }
 
   const canSend = useMemo(() => E164.test(phone) && cooldown === 0 && busy !== "send", [phone, cooldown, busy]);
 
