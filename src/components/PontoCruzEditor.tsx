@@ -36,8 +36,8 @@ const PROJ_CFG_KEY = (projectId: string) => `ponto-cruz-cfg-v1:${projectId || "d
 interface ProjectCfg { wm: WmCfg; historyMax: number; pngCellPx: number; pngLegendScale: number }
 
 type WmPos = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | "tiled";
-interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number }
-const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60 };
+interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number; offsetX: number; offsetY: number }
+const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60, offsetX: 0, offsetY: 0 };
 
 function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number): Array<{ x: number; y: number }> {
   switch (pos) {
