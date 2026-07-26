@@ -36,22 +36,24 @@ const PROJ_CFG_KEY = (projectId: string) => `ponto-cruz-cfg-v1:${projectId || "d
 interface ProjectCfg { wm: WmCfg; historyMax: number; pngCellPx: number; pngLegendScale: number }
 
 type WmPos = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | "tiled";
-interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number }
-const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60 };
+interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number; offsetX: number; offsetY: number }
+const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60, offsetX: 0, offsetY: 0 };
 
-function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number): Array<{ x: number; y: number }> {
+function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number, offsetX = 0, offsetY = 0): Array<{ x: number; y: number }> {
+  let base: Array<{ x: number; y: number }>;
   switch (pos) {
-    case "top-left": return [{ x: margin + 30, y: margin + 20 }];
-    case "top-right": return [{ x: pageW - margin - 30, y: margin + 20 }];
-    case "bottom-left": return [{ x: margin + 30, y: pageH - margin }];
-    case "bottom-right": return [{ x: pageW - margin - 30, y: pageH - margin }];
+    case "top-left": base = [{ x: margin + 30, y: margin + 20 }]; break;
+    case "top-right": base = [{ x: pageW - margin - 30, y: margin + 20 }]; break;
+    case "bottom-left": base = [{ x: margin + 30, y: pageH - margin }]; break;
+    case "bottom-right": base = [{ x: pageW - margin - 30, y: pageH - margin }]; break;
     case "tiled": {
       const out: Array<{ x: number; y: number }> = [];
       for (let y = margin + 30; y < pageH; y += 70) for (let x = margin + 30; x < pageW; x += 90) out.push({ x, y });
-      return out;
+      base = out; break;
     }
-    default: return [{ x: pageW / 2, y: pageH / 2 }];
+    default: base = [{ x: pageW / 2, y: pageH / 2 }];
   }
+  return base.map((p) => ({ x: p.x + offsetX, y: p.y + offsetY }));
 }
 
 function loadChart(): ChartDoc {
@@ -155,6 +157,7 @@ export function PontoCruzEditor() {
   const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
   const [wm, setWm] = useState<WmCfg>(DEFAULT_WM);
   const setWmField = <K extends keyof WmCfg>(k: K, v: WmCfg[K]) => setWm((s) => ({ ...s, [k]: v }));
+  const [wmPreviewZoom, setWmPreviewZoom] = useState<number>(1);
   // Deferred copy so the SVG live-preview re-renders less frequently than sliders.
   const wmPreview = useDeferredValue(wm);
   const [projectId, setProjectId] = useState<string>(chartProjectId || "default");
@@ -553,7 +556,7 @@ export function PontoCruzEditor() {
       ctx.globalAlpha = wm.opacity / 100;
       ctx.fillStyle = "#555";
       const wmScale = Math.max(1, pngCellPx / 24);
-      const spots = wmCoords(wm.pos, out.width, out.height, 40);
+      const spots = wmCoords(wm.pos, out.width, out.height, 40, wm.offsetX, wm.offsetY);
       for (const p of spots) {
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -636,7 +639,7 @@ export function PontoCruzEditor() {
       const anyPdf = pdf as unknown as { setGState: (g: unknown) => void; GState: new (o: object) => unknown };
       anyPdf.setGState(new anyPdf.GState({ opacity: wm.opacity / 100 }));
       pdf.setFontSize(wm.size); pdf.setTextColor(120, 120, 120);
-      for (const p of wmCoords(wm.pos, pageW, pageH, margin)) {
+      for (const p of wmCoords(wm.pos, pageW, pageH, margin, wm.offsetX * 0.5, wm.offsetY * 0.5)) {
         pdf.text(wm.text, p.x, p.y, { align: "center", angle: wm.angle });
       }
       pdf.restoreGraphicsState();
@@ -708,7 +711,331 @@ export function PontoCruzEditor() {
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+    <div className="space-y-4">
+      {/* Tabs above the canvas */}
+      <Tabs defaultValue="grelha">
+        <TabsList className="w-full flex-wrap">
+          <TabsTrigger value="grelha">Grelha</TabsTrigger>
+          <TabsTrigger value="cor">Cor</TabsTrigger>
+          <TabsTrigger value="imagem">Imagem</TabsTrigger>
+          <TabsTrigger value="texto">Texto</TabsTrigger>
+          <TabsTrigger value="camadas">Camadas</TabsTrigger>
+          <TabsTrigger value="marca">Marca de água</TabsTrigger>
+          <TabsTrigger value="tecido">Tecido &amp; Legenda</TabsTrigger>
+          <TabsTrigger value="io">Importar/Exportar</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="grelha">
+          <Card><CardContent className="space-y-3 p-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label className="text-xs">Colunas ({chart.cols})</Label>
+                <Slider value={[chart.cols]} min={10} max={200} onValueChange={(v) => setSize(v[0], chart.rows)} /></div>
+              <div><Label className="text-xs">Linhas ({chart.rows})</Label>
+                <Slider value={[chart.rows]} min={10} max={200} onValueChange={(v) => setSize(chart.cols, v[0])} /></div>
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <label className="flex items-center gap-2"><Switch checked={showSymbols} onCheckedChange={setShowSymbols} />Vista de símbolos</label>
+              <label className="flex items-center gap-2"><Switch checked={realistic} onCheckedChange={setRealistic} />Vista realista</label>
+            </div>
+            <Button size="sm" variant="destructive" onClick={clearAll}>Limpar tudo</Button>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="cor">
+          <Card><CardContent className="space-y-3 p-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-xs">Cor</Label>
+              <input aria-label="Cor" type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-9 w-14 rounded border" />
+              <span className="text-xs font-mono">{closestThread(cor, "DMC").codigo} DMC · {closestThread(cor, "Anchor").codigo} Anchor</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-xs"><Blend className="mr-1 inline h-3 w-3" />Mesclar</Label>
+              <input type="color" value={cor2 ?? "#ffffff"} onChange={(e) => setCor2(e.target.value)} className="h-9 w-14 rounded border" disabled={!cor2} />
+              <Button size="sm" variant={cor2 ? "default" : "outline"} onClick={() => setCor2(cor2 ? null : cor)}>{cor2 ? "Desativar" : "Ativar"}</Button>
+              {cor2 && <span className="inline-block h-5 w-5 rounded border" style={{ background: blend(cor, cor2) }} />}
+            </div>
+            <div>
+              <Label className="text-xs">Marca da paleta</Label>
+              <Select value={chart.paletteMarca} onValueChange={(v: string) => setChart((ch) => ({ ...ch, paletteMarca: v as Marca }))}>
+                <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DMC">DMC</SelectItem>
+                  <SelectItem value="Anchor">Anchor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Máx. de cores ({chart.paletteMax})</Label>
+              <Slider value={[chart.paletteMax]} min={2} max={64} onValueChange={(v) => setChart((ch) => ({ ...ch, paletteMax: v[0] }))} />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => doMirror("h")}><FlipHorizontal2 className="mr-1 h-3 w-3" />Espelhar horizontal</Button>
+              <Button size="sm" variant="outline" onClick={() => doMirror("v")}><FlipVertical2 className="mr-1 h-3 w-3" />vertical</Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-xs">Substituir</Label>
+              <input type="color" value={replaceFrom} onChange={(e) => setReplaceFrom(e.target.value)} className="h-8 w-10 rounded border" />
+              <span className="text-xs">→</span>
+              <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-8 w-10 rounded border" />
+              <Button size="sm" onClick={() => doReplace(cor)}>Aplicar</Button>
+            </div>
+            <Dialog open={paletteOpen} onOpenChange={setPaletteOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="secondary"><Palette className="mr-1 h-3 w-3" />Gerir paleta</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader>
+                  <DialogTitle>Paleta de linhas</DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center gap-2">
+                  <Select value={palettePick} onValueChange={(v: string) => setPalettePick(v as Marca)}>
+                    <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DMC">DMC</SelectItem>
+                      <SelectItem value="Anchor">Anchor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input placeholder="Procurar por código ou nome…" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} className="h-8" />
+                </div>
+                <div className="max-h-80 overflow-auto rounded border">
+                  {(palettePick === "DMC" ? getDMC() : getAnchor())
+                    .filter((c: Cor) => {
+                      const q = paletteQuery.trim().toLowerCase();
+                      if (!q) return true;
+                      return c.codigo.toLowerCase().includes(q) || (c.nome ?? "").toLowerCase().includes(q);
+                    })
+                    .slice(0, 200)
+                    .map((c: Cor) => (
+                      <button
+                        key={`${c.marca}-${c.codigo}`}
+                        type="button"
+                        onClick={() => { setCor(c.hex); setPaletteOpen(false); }}
+                        className="flex w-full items-center gap-2 border-b px-2 py-1 text-left text-xs hover:bg-accent"
+                      >
+                        <span className="inline-block h-4 w-4 rounded border" style={{ background: c.hex }} />
+                        <span className="font-mono">{c.marca} {c.codigo}</span>
+                        <span className="text-muted-foreground">{c.nome ?? ""}</span>
+                        <span className="ml-auto text-muted-foreground">{c.hex}</span>
+                      </button>
+                    ))}
+                </div>
+                <DialogFooter>
+                  <Button size="sm" variant="outline" onClick={() => { setChart((ch) => ({ ...ch, paletteMax: Math.max(ch.paletteMax, stats.length) })); toast.success("Máx. de cores atualizado."); }}>
+                    Atualizar máx. de cores ({stats.length})
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="imagem">
+          <Card><CardContent className="space-y-3 p-3">
+            <div>
+              <Label className="text-xs">Máx. de cores ({imgMaxColors})</Label>
+              <Slider value={[imgMaxColors]} min={2} max={48} onValueChange={(v) => setImgMaxColors(v[0])} />
+            </div>
+            <input ref={fileInput} type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) importImage(f); e.currentTarget.value = ""; }} />
+            <Button size="sm" onClick={() => fileInput.current?.click()}>
+              <ImageIcon className="mr-1 h-3 w-3" />Carregar fotografia
+            </Button>
+            <p className="text-xs text-muted-foreground">A foto é ajustada à grelha atual ({chart.cols}×{chart.rows}) e as cores são mapeadas para {chart.paletteMarca}.</p>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="texto">
+          <Card><CardContent className="space-y-2 p-3">
+            <div><Label className="text-xs">Texto</Label>
+              <Input value={textInput} onChange={(e) => setTextInput(e.target.value)} className="h-8" /></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label className="text-xs">Fonte</Label>
+                <Select value={textFont} onValueChange={setTextFont}>
+                  <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["Courier New", "monospace", "Georgia", "Arial", "Impact", "Verdana", "Times New Roman"].map((f) => (
+                      <SelectItem key={f} value={f}>{f}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select></div>
+              <div><Label className="text-xs">Tamanho ({textSize}px)</Label>
+                <Slider value={[textSize]} min={6} max={40} onValueChange={(v) => setTextSize(v[0])} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label className="text-xs">Linha inicial</Label>
+                <Input type="number" min={0} value={textRow} onChange={(e) => setTextRow(Number(e.target.value))} className="h-8" /></div>
+              <div><Label className="text-xs">Coluna inicial</Label>
+                <Input type="number" min={0} value={textCol} onChange={(e) => setTextCol(Number(e.target.value))} className="h-8" /></div>
+            </div>
+            <Button size="sm" onClick={applyText}><TypeIcon className="mr-1 h-3 w-3" />Converter em ponto cruz</Button>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="camadas">
+          <Card><CardContent className="space-y-2 p-3">
+            <label className="flex items-center gap-2 text-xs"><Switch checked={showBackLayer} onCheckedChange={setShowBackLayer} /><Layers className="h-3 w-3" />Mostrar camada de ponto atrás</label>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={removeLastBack}>Desfazer último</Button>
+              <Button size="sm" variant="outline" onClick={clearBack}>Limpar ponto atrás</Button>
+              <Button size="sm" variant="outline" onClick={clearKnots}>Limpar nós</Button>
+            </div>
+            <p className="text-xs text-muted-foreground">O ponto atrás é desenhado entre vértices da grelha (arrasta na diagonal ou reta). Os nós franceses ficam nos cruzamentos.</p>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="marca">
+          <Card><CardContent className="space-y-3 p-3">
+            <Input value={wm.text} onChange={(e) => setWmField("text", e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-[10px]">Posição base</Label>
+                <Select value={wm.pos} onValueChange={(v: string) => setWmField("pos", v as WmPos)}>
+                  <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="center">Centro</SelectItem>
+                    <SelectItem value="top-left">Topo esquerdo</SelectItem>
+                    <SelectItem value="top-right">Topo direito</SelectItem>
+                    <SelectItem value="bottom-left">Rodapé esquerdo</SelectItem>
+                    <SelectItem value="bottom-right">Rodapé direito</SelectItem>
+                    <SelectItem value="tiled">Mosaico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-[10px]">Tamanho ({wm.size}pt)</Label>
+                <Slider value={[wm.size]} min={10} max={120} step={2} onValueChange={(v) => setWmField("size", v[0])} />
+              </div>
+              <div>
+                <Label className="text-[10px]">Rotação ({wm.angle}°)</Label>
+                <Slider value={[wm.angle]} min={-180} max={180} step={1} onValueChange={(v) => setWmField("angle", v[0])} />
+              </div>
+              <div>
+                <Label className="text-[10px]">Opacidade ({wm.opacity}%)</Label>
+                <Slider value={[wm.opacity]} min={0} max={100} step={1} onValueChange={(v) => setWmField("opacity", v[0])} />
+              </div>
+              <div>
+                <Label className="text-[10px]">Deslocar X ({wm.offsetX})</Label>
+                <Slider value={[wm.offsetX]} min={-100} max={100} step={1} onValueChange={(v) => setWmField("offsetX", v[0])} />
+              </div>
+              <div>
+                <Label className="text-[10px]">Deslocar Y ({wm.offsetY})</Label>
+                <Slider value={[wm.offsetY]} min={-140} max={140} step={1} onValueChange={(v) => setWmField("offsetY", v[0])} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-[10px]">Zoom pré-visualização ({wmPreviewZoom.toFixed(2)}×)</Label>
+              <Button size="sm" variant="outline" onClick={() => setWmPreviewZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}>−</Button>
+              <Button size="sm" variant="outline" onClick={() => setWmPreviewZoom((z) => Math.min(4, +(z + 0.25).toFixed(2)))}>+</Button>
+              <Button size="sm" variant="ghost" onClick={() => setWmPreviewZoom(1)}>Repor</Button>
+              <Button size="sm" variant="ghost" onClick={() => setWm((s) => ({ ...s, offsetX: 0, offsetY: 0, angle: 30 }))}>Centrar</Button>
+            </div>
+            <div className="overflow-auto rounded border bg-white" style={{ maxHeight: 320 }}>
+              <svg viewBox="0 0 210 297" style={{ width: 210 * wmPreviewZoom, height: 297 * wmPreviewZoom, display: "block" }}>
+                <rect x="0" y="0" width="210" height="297" fill="#fff" />
+                <rect x="10" y="10" width="190" height="120" fill="#f4f4f5" stroke="#ddd" />
+                {wmPreview.text.trim() && wmCoords(wmPreview.pos, 210, 297, 10, wmPreview.offsetX * 0.5, wmPreview.offsetY * 0.5).map((p, i) => (
+                  <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
+                    transform={`rotate(${wmPreview.angle} ${p.x} ${p.y})`}
+                    fill="#555" opacity={wmPreview.opacity / 100}
+                    style={{ font: `bold ${Math.max(6, wmPreview.size * 0.35)}px system-ui` }}>
+                    {wmPreview.text}
+                  </text>
+                ))}
+              </svg>
+            </div>
+            <p className="text-[10px] text-muted-foreground">A marca de água aparece nas exportações PNG e PDF com estas definições.</p>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="tecido">
+          <Card><CardContent className="space-y-3 p-3">
+            <div>
+              <Label className="text-xs">Contagem de tecido (Aida)</Label>
+              <Select value={String(chart.aidaCount)} onValueChange={(v) => setChart((ch) => ({ ...ch, aidaCount: Number(v) }))}>
+                <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[11, 14, 16, 18, 20, 22, 25, 28].map((n) => (
+                    <SelectItem key={n} value={String(n)}>Aida {n} ct</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-[10px] text-muted-foreground">Tecido estimado: {cm.w.toFixed(1)} × {cm.h.toFixed(1)} cm</p>
+            </div>
+            <div>
+              <div className="font-display text-sm font-semibold">Legenda &amp; estimativa de linhas</div>
+              {stats.length === 0 && <p className="text-xs text-muted-foreground">Começa a pintar para ver a legenda.</p>}
+              <div className="max-h-80 space-y-1 overflow-auto pr-1">
+                {stats.map((s) => (
+                  <div key={s.hex} className="flex items-center gap-2 text-xs">
+                    <span className="inline-block h-4 w-4 rounded border" style={{ background: s.hex }} />
+                    <span className="w-6 text-center font-mono">{s.symbol}</span>
+                    <span className="font-mono">DMC {s.dmc.codigo}</span>
+                    <span className="text-muted-foreground">↔ Anchor {s.anchor.codigo}</span>
+                    <span className="ml-auto">{s.full + s.half} pts · ~{s.meadas} meada(s)</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="io">
+          <Card><CardContent className="space-y-2 p-3">
+            <div>
+              <Label className="text-xs">Projeto</Label>
+              <Input value={projectId} onChange={(e) => setProjectId(e.target.value)} placeholder="ID do projeto" className="h-8" />
+              <p className="mt-1 text-[10px] text-muted-foreground">Presets de substituição de cores ficam guardados por projeto.</p>
+            </div>
+            <div>
+              <Label className="text-xs">Limite do histórico (undo/redo): {historyMax}</Label>
+              <Slider value={[historyMax]} min={10} max={300} step={5} onValueChange={(v) => setHistoryMax(v[0])} />
+            </div>
+            <div className="rounded border p-2 space-y-2">
+              <div className="text-xs font-semibold">Resolução PNG</div>
+              <div>
+                <Label className="text-[10px]">
+                  Célula ({pngCellPx}px) · ~{Math.round(pngCellPx * 25.4 / (2.54 * (chart.aidaCount / 14 * 5)))} DPI aprox.
+                </Label>
+                <Slider value={[pngCellPx]} min={12} max={64} step={2} onValueChange={(v) => setPngCellPx(v[0])} />
+              </div>
+              <div>
+                <Label className="text-[10px]">Escala da legenda ({pngLegendScale.toFixed(2)}×)</Label>
+                <Slider value={[Math.round(pngLegendScale * 100)]} min={50} max={300} step={10}
+                  onValueChange={(v) => setPngLegendScale(v[0] / 100)} />
+              </div>
+            </div>
+            <div className="rounded border p-2 space-y-2">
+              <div className="text-xs font-semibold">Substituições de cores (por projeto)</div>
+              <div className="flex items-center gap-2">
+                <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder="Nome do preset" className="h-8" />
+                <Button size="sm" onClick={saveCurrentSubSet}>Guardar</Button>
+              </div>
+              {Object.keys(subs).length === 0 && <p className="text-[10px] text-muted-foreground">Sem presets guardados neste projeto.</p>}
+              <div className="space-y-1">
+                {Object.entries(subs).map(([name, map]) => (
+                  <div key={name} className="flex items-center gap-2 text-xs">
+                    <span className="flex-1 truncate">{name} <span className="text-muted-foreground">({Object.keys(map).length})</span></span>
+                    <Button size="sm" variant="outline" onClick={() => applySubSet(name)}>Aplicar</Button>
+                    <Button size="sm" variant="ghost" onClick={() => deleteSubSet(name)}>×</Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG + Legenda</Button>
+              <Button size="sm" variant="outline" onClick={exportPdf}><FileDown className="mr-1 h-3 w-3" />PDF + Legenda</Button>
+              <Button size="sm" variant="outline" onClick={exportJson}>JSON</Button>
+              <Button size="sm" variant="outline" onClick={exportOxs}>OXS (Pattern Keeper)</Button>
+            </div>
+            <input ref={importInput} type="file" accept=".json,application/json" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) importChart(f); e.currentTarget.value = ""; }} />
+            <Button size="sm" onClick={() => importInput.current?.click()}>
+              <Upload className="mr-1 h-3 w-3" />Importar gráfico (JSON)
+            </Button>
+          </CardContent></Card>
+        </TabsContent>
+      </Tabs>
+
       {/* Canvas card (opaque) */}
       <Card className="!bg-white opacity-100" style={{ backgroundColor: "#ffffff", opacity: 1 }}>
         <CardContent className="p-3">
@@ -767,310 +1094,6 @@ export function PontoCruzEditor() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Right side controls */}
-      <div className="space-y-3">
-        <Tabs defaultValue="grelha">
-          <TabsList className="w-full flex-wrap">
-            <TabsTrigger value="grelha">Grelha</TabsTrigger>
-            <TabsTrigger value="cor">Cor</TabsTrigger>
-            <TabsTrigger value="imagem">Imagem</TabsTrigger>
-            <TabsTrigger value="texto">Texto</TabsTrigger>
-            <TabsTrigger value="camadas">Camadas</TabsTrigger>
-            <TabsTrigger value="io">Importar/Exportar</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="grelha">
-            <Card><CardContent className="space-y-3 p-3">
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Colunas ({chart.cols})</Label>
-                  <Slider value={[chart.cols]} min={10} max={200} onValueChange={(v) => setSize(v[0], chart.rows)} /></div>
-                <div><Label className="text-xs">Linhas ({chart.rows})</Label>
-                  <Slider value={[chart.rows]} min={10} max={200} onValueChange={(v) => setSize(chart.cols, v[0])} /></div>
-              </div>
-              <div>
-                <Label className="text-xs">Contagem de tecido (Aida)</Label>
-                <Select value={String(chart.aidaCount)} onValueChange={(v) => setChart((ch) => ({ ...ch, aidaCount: Number(v) }))}>
-                  <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {[11, 14, 16, 18, 20, 22, 25, 28].map((n) => (
-                      <SelectItem key={n} value={String(n)}>Aida {n} ct</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-3 text-xs">
-                <label className="flex items-center gap-2"><Switch checked={showSymbols} onCheckedChange={setShowSymbols} />Vista de símbolos</label>
-                <label className="flex items-center gap-2"><Switch checked={realistic} onCheckedChange={setRealistic} />Vista realista</label>
-              </div>
-              <Button size="sm" variant="destructive" onClick={clearAll}>Limpar tudo</Button>
-            </CardContent></Card>
-          </TabsContent>
-
-          <TabsContent value="cor">
-            <Card><CardContent className="space-y-3 p-3">
-              <div className="flex items-center gap-2">
-                <Label className="text-xs">Cor</Label>
-                <input aria-label="Cor" type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-9 w-14 rounded border" />
-                <span className="text-xs font-mono">{closestThread(cor, "DMC").codigo} DMC · {closestThread(cor, "Anchor").codigo} Anchor</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label className="text-xs"><Blend className="mr-1 inline h-3 w-3" />Mesclar</Label>
-                <input type="color" value={cor2 ?? "#ffffff"} onChange={(e) => setCor2(e.target.value)} className="h-9 w-14 rounded border" disabled={!cor2} />
-                <Button size="sm" variant={cor2 ? "default" : "outline"} onClick={() => setCor2(cor2 ? null : cor)}>{cor2 ? "Desativar" : "Ativar"}</Button>
-                {cor2 && <span className="inline-block h-5 w-5 rounded border" style={{ background: blend(cor, cor2) }} />}
-              </div>
-              <div>
-                <Label className="text-xs">Marca da paleta</Label>
-                <Select value={chart.paletteMarca} onValueChange={(v: string) => setChart((ch) => ({ ...ch, paletteMarca: v as Marca }))}>
-                  <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DMC">DMC</SelectItem>
-                    <SelectItem value="Anchor">Anchor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs">Máx. de cores ({chart.paletteMax})</Label>
-                <Slider value={[chart.paletteMax]} min={2} max={64} onValueChange={(v) => setChart((ch) => ({ ...ch, paletteMax: v[0] }))} />
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => doMirror("h")}><FlipHorizontal2 className="mr-1 h-3 w-3" />Espelhar horizontal</Button>
-                <Button size="sm" variant="outline" onClick={() => doMirror("v")}><FlipVertical2 className="mr-1 h-3 w-3" />vertical</Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label className="text-xs">Substituir</Label>
-                <input type="color" value={replaceFrom} onChange={(e) => setReplaceFrom(e.target.value)} className="h-8 w-10 rounded border" />
-                <span className="text-xs">→</span>
-                <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-8 w-10 rounded border" />
-                <Button size="sm" onClick={() => doReplace(cor)}>Aplicar</Button>
-              </div>
-              <Dialog open={paletteOpen} onOpenChange={setPaletteOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm" variant="secondary"><Palette className="mr-1 h-3 w-3" />Gerir paleta</Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-xl">
-                  <DialogHeader>
-                    <DialogTitle>Paleta de linhas</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex items-center gap-2">
-                    <Select value={palettePick} onValueChange={(v: string) => setPalettePick(v as Marca)}>
-                      <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DMC">DMC</SelectItem>
-                        <SelectItem value="Anchor">Anchor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input placeholder="Procurar por código ou nome…" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} className="h-8" />
-                  </div>
-                  <div className="max-h-80 overflow-auto rounded border">
-                    {(palettePick === "DMC" ? getDMC() : getAnchor())
-                      .filter((c: Cor) => {
-                        const q = paletteQuery.trim().toLowerCase();
-                        if (!q) return true;
-                        return c.codigo.toLowerCase().includes(q) || (c.nome ?? "").toLowerCase().includes(q);
-                      })
-                      .slice(0, 200)
-                      .map((c: Cor) => (
-                        <button
-                          key={`${c.marca}-${c.codigo}`}
-                          type="button"
-                          onClick={() => { setCor(c.hex); setPaletteOpen(false); }}
-                          className="flex w-full items-center gap-2 border-b px-2 py-1 text-left text-xs hover:bg-accent"
-                        >
-                          <span className="inline-block h-4 w-4 rounded border" style={{ background: c.hex }} />
-                          <span className="font-mono">{c.marca} {c.codigo}</span>
-                          <span className="text-muted-foreground">{c.nome ?? ""}</span>
-                          <span className="ml-auto text-muted-foreground">{c.hex}</span>
-                        </button>
-                      ))}
-                  </div>
-                  <DialogFooter>
-                    <Button size="sm" variant="outline" onClick={() => { setChart((ch) => ({ ...ch, paletteMax: Math.max(ch.paletteMax, stats.length) })); toast.success("Máx. de cores atualizado."); }}>
-                      Atualizar máx. de cores ({stats.length})
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent></Card>
-          </TabsContent>
-
-          <TabsContent value="imagem">
-            <Card><CardContent className="space-y-3 p-3">
-              <div>
-                <Label className="text-xs">Máx. de cores ({imgMaxColors})</Label>
-                <Slider value={[imgMaxColors]} min={2} max={48} onValueChange={(v) => setImgMaxColors(v[0])} />
-              </div>
-              <input ref={fileInput} type="file" accept="image/*" className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) importImage(f); e.currentTarget.value = ""; }} />
-              <Button size="sm" onClick={() => fileInput.current?.click()}>
-                <ImageIcon className="mr-1 h-3 w-3" />Carregar fotografia
-              </Button>
-              <p className="text-xs text-muted-foreground">A foto é ajustada à grelha atual ({chart.cols}×{chart.rows}) e as cores são mapeadas para {chart.paletteMarca}.</p>
-            </CardContent></Card>
-          </TabsContent>
-
-          <TabsContent value="texto">
-            <Card><CardContent className="space-y-2 p-3">
-              <div><Label className="text-xs">Texto</Label>
-                <Input value={textInput} onChange={(e) => setTextInput(e.target.value)} className="h-8" /></div>
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Fonte</Label>
-                  <Select value={textFont} onValueChange={setTextFont}>
-                    <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {["Courier New", "monospace", "Georgia", "Arial", "Impact", "Verdana", "Times New Roman"].map((f) => (
-                        <SelectItem key={f} value={f}>{f}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select></div>
-                <div><Label className="text-xs">Tamanho ({textSize}px)</Label>
-                  <Slider value={[textSize]} min={6} max={40} onValueChange={(v) => setTextSize(v[0])} /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Linha inicial</Label>
-                  <Input type="number" min={0} value={textRow} onChange={(e) => setTextRow(Number(e.target.value))} className="h-8" /></div>
-                <div><Label className="text-xs">Coluna inicial</Label>
-                  <Input type="number" min={0} value={textCol} onChange={(e) => setTextCol(Number(e.target.value))} className="h-8" /></div>
-              </div>
-              <Button size="sm" onClick={applyText}><TypeIcon className="mr-1 h-3 w-3" />Converter em ponto cruz</Button>
-            </CardContent></Card>
-          </TabsContent>
-
-          <TabsContent value="camadas">
-            <Card><CardContent className="space-y-2 p-3">
-              <label className="flex items-center gap-2 text-xs"><Switch checked={showBackLayer} onCheckedChange={setShowBackLayer} /><Layers className="h-3 w-3" />Mostrar camada de ponto atrás</label>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={removeLastBack}>Desfazer último</Button>
-                <Button size="sm" variant="outline" onClick={clearBack}>Limpar ponto atrás</Button>
-                <Button size="sm" variant="outline" onClick={clearKnots}>Limpar nós</Button>
-              </div>
-              <p className="text-xs text-muted-foreground">O ponto atrás é desenhado entre vértices da grelha (arrasta na diagonal ou reta). Os nós franceses ficam nos cruzamentos.</p>
-            </CardContent></Card>
-          </TabsContent>
-
-          <TabsContent value="io">
-            <Card><CardContent className="space-y-2 p-3">
-              <div>
-                <Label className="text-xs">Projeto</Label>
-                <Input value={projectId} onChange={(e) => setProjectId(e.target.value)} placeholder="ID do projeto" className="h-8" />
-                <p className="mt-1 text-[10px] text-muted-foreground">Presets de substituição de cores ficam guardados por projeto.</p>
-              </div>
-              <div>
-                <Label className="text-xs">Limite do histórico (undo/redo): {historyMax}</Label>
-                <Slider value={[historyMax]} min={10} max={300} step={5} onValueChange={(v) => setHistoryMax(v[0])} />
-              </div>
-              <div className="rounded border p-2 space-y-2">
-                <div className="text-xs font-semibold">Marca de água</div>
-                <Input value={wm.text} onChange={(e) => setWmField("text", e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-[10px]">Posição</Label>
-                    <Select value={wm.pos} onValueChange={(v: string) => setWmField("pos", v as WmPos)}>
-                      <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="center">Centro</SelectItem>
-                        <SelectItem value="top-left">Topo esquerdo</SelectItem>
-                        <SelectItem value="top-right">Topo direito</SelectItem>
-                        <SelectItem value="bottom-left">Rodapé esquerdo</SelectItem>
-                        <SelectItem value="bottom-right">Rodapé direito</SelectItem>
-                        <SelectItem value="tiled">Mosaico</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-[10px]">Tamanho ({wm.size}pt)</Label>
-                    <Slider value={[wm.size]} min={10} max={120} step={2} onValueChange={(v) => setWmField("size", v[0])} />
-                  </div>
-                  <div>
-                    <Label className="text-[10px]">Rotação ({wm.angle}°)</Label>
-                    <Slider value={[wm.angle]} min={-90} max={90} step={1} onValueChange={(v) => setWmField("angle", v[0])} />
-                  </div>
-                  <div>
-                    <Label className="text-[10px]">Opacidade ({wm.opacity}%)</Label>
-                    <Slider value={[wm.opacity]} min={0} max={100} step={1} onValueChange={(v) => setWmField("opacity", v[0])} />
-                  </div>
-                </div>
-                {/* Live preview (deferred to avoid jank while sliding) */}
-                <svg viewBox="0 0 210 297" className="mt-1 h-40 w-full rounded border bg-white">
-                  <rect x="0" y="0" width="210" height="297" fill="#fff" />
-                  <rect x="10" y="10" width="190" height="120" fill="#f4f4f5" stroke="#ddd" />
-                  {wmPreview.text.trim() && wmCoords(wmPreview.pos, 210, 297, 10).map((p, i) => (
-                    <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-                      transform={`rotate(${wmPreview.angle} ${p.x} ${p.y})`}
-                      fill="#555" opacity={wmPreview.opacity / 100}
-                      style={{ font: `bold ${Math.max(6, wmPreview.size * 0.35)}px system-ui` }}>
-                      {wmPreview.text}
-                    </text>
-                  ))}
-                </svg>
-              </div>
-              <div className="rounded border p-2 space-y-2">
-                <div className="text-xs font-semibold">Resolução PNG</div>
-                <div>
-                  <Label className="text-[10px]">
-                    Célula ({pngCellPx}px) · ~{Math.round(pngCellPx * 25.4 / (2.54 * (chart.aidaCount / 14 * 5)))} DPI aprox.
-                  </Label>
-                  <Slider value={[pngCellPx]} min={12} max={64} step={2} onValueChange={(v) => setPngCellPx(v[0])} />
-                </div>
-                <div>
-                  <Label className="text-[10px]">Escala da legenda ({pngLegendScale.toFixed(2)}×)</Label>
-                  <Slider value={[Math.round(pngLegendScale * 100)]} min={50} max={300} step={10}
-                    onValueChange={(v) => setPngLegendScale(v[0] / 100)} />
-                </div>
-                <p className="text-[10px] text-muted-foreground">
-                  Aumenta a célula para impressão em maior formato. A legenda e a marca de água escalam para se manterem legíveis.
-                </p>
-              </div>
-              <div className="rounded border p-2 space-y-2">
-                <div className="text-xs font-semibold">Substituições de cores (por projeto)</div>
-                <div className="flex items-center gap-2">
-                  <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder="Nome do preset" className="h-8" />
-                  <Button size="sm" onClick={saveCurrentSubSet}>Guardar</Button>
-                </div>
-                {Object.keys(subs).length === 0 && <p className="text-[10px] text-muted-foreground">Sem presets guardados neste projeto.</p>}
-                <div className="space-y-1">
-                  {Object.entries(subs).map(([name, map]) => (
-                    <div key={name} className="flex items-center gap-2 text-xs">
-                      <span className="flex-1 truncate">{name} <span className="text-muted-foreground">({Object.keys(map).length})</span></span>
-                      <Button size="sm" variant="outline" onClick={() => applySubSet(name)}>Aplicar</Button>
-                      <Button size="sm" variant="ghost" onClick={() => deleteSubSet(name)}>×</Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG + Legenda</Button>
-                <Button size="sm" variant="outline" onClick={exportPdf}><FileDown className="mr-1 h-3 w-3" />PDF + Legenda</Button>
-                <Button size="sm" variant="outline" onClick={exportJson}>JSON</Button>
-                <Button size="sm" variant="outline" onClick={exportOxs}>OXS (Pattern Keeper)</Button>
-              </div>
-              <input ref={importInput} type="file" accept=".json,application/json" className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) importChart(f); e.currentTarget.value = ""; }} />
-              <Button size="sm" onClick={() => importInput.current?.click()}>
-                <Upload className="mr-1 h-3 w-3" />Importar gráfico (JSON)
-              </Button>
-            </CardContent></Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Legend / thread estimate */}
-        <Card><CardContent className="space-y-2 p-3">
-          <div className="font-display text-sm font-semibold">Legenda &amp; estimativa de linhas</div>
-          {stats.length === 0 && <p className="text-xs text-muted-foreground">Começa a pintar para ver a legenda.</p>}
-          <div className="max-h-64 space-y-1 overflow-auto pr-1">
-            {stats.map((s) => (
-              <div key={s.hex} className="flex items-center gap-2 text-xs">
-                <span className="inline-block h-4 w-4 rounded border" style={{ background: s.hex }} />
-                <span className="w-6 text-center font-mono">{s.symbol}</span>
-                <span className="font-mono">DMC {s.dmc.codigo}</span>
-                <span className="text-muted-foreground">↔ Anchor {s.anchor.codigo}</span>
-                <span className="ml-auto">{s.full + s.half} pts · ~{s.meadas} meada(s)</span>
-              </div>
-            ))}
-          </div>
-        </CardContent></Card>
-      </div>
     </div>
   );
 }
