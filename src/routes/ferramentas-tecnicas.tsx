@@ -30,6 +30,7 @@ import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
+import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -1654,105 +1655,7 @@ function CosturaTab() {
 
 /* ============================ PONTO CRUZ ============================ */
 function PontoCruzTab() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [w, setW] = useMarcaDAgua();
-  const sheet = useSheet();
-  const [cols, setCols] = useState(40);
-  const [rows, setRows] = useState(40);
-  const [cor, setCor] = useState("#222222");
-  const [simbolos, setSimbolos] = useState(false);
-  const [grid, setGrid] = useState<Record<string, string>>({}); // "r,c" → hex
-  const materiais = useStore((s) => s.materiais);
-  const drawing = useRef(false);
-
-  const pinta = (r: number, c: number) => setGrid((g) => ({ ...g, [`${r},${c}`]: cor }));
-  const apaga = (r: number, c: number) => setGrid((g) => { const x = { ...g }; delete x[`${r},${c}`]; return x; });
-
-  const coresUsadas = useMemo(() => {
-    const m: Record<string, number> = {};
-    Object.values(grid).forEach((h) => { m[h] = (m[h] || 0) + 1; });
-    return Object.entries(m);
-  }, [grid]);
-
-  const SIMBOLOS = ["■", "▲", "●", "◆", "★", "✚", "✱", "▼", "◯", "□", "✦", "⬢", "✧", "❖", "✜"];
-  const simboloPara = (hex: string) => {
-    const i = coresUsadas.findIndex(([h]) => h === hex);
-    return SIMBOLOS[i % SIMBOLOS.length];
-  };
-
-  const cellSize = Math.min(500 / cols, 700 / rows);
-
-  const verificarStock = () => {
-    const faltas: string[] = [];
-    coresUsadas.forEach(([hex, count]) => {
-      const meadas = Math.ceil(count / 800); // estimativa simplificada
-      const stock = materiais.find((m) => m.categoria === "meadas" && m.imagem === hex);
-      if (!stock || stock.stock < meadas) faltas.push(`${hex} (${meadas} meadas)`);
-    });
-    if (faltas.length === 0) alert("Tens todas as cores em stock!");
-    else alert("Em falta:\n" + faltas.join("\n"));
-  };
-
-  return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
-        <div className="absolute inset-0 grid place-items-center p-4">
-          <div className="grid select-none" style={{ gridTemplateColumns: `repeat(${cols}, ${cellSize}px)` }}
-               onPointerDown={() => { drawing.current = true; }}
-               onPointerUp={() => { drawing.current = false; }}
-               onPointerLeave={() => { drawing.current = false; }}>
-            {Array.from({ length: rows }).map((_, r) =>
-              Array.from({ length: cols }).map((__, c) => {
-                const h = grid[`${r},${c}`];
-                return (
-                  <div key={`${r}-${c}`} className="border border-gray-200"
-                       style={{ width: cellSize, height: cellSize, background: simbolos ? "#fff" : (h || "#fff"), color: "#000" }}
-                       onPointerDown={(e) => { e.preventDefault(); e.button === 2 ? apaga(r, c) : pinta(r, c); }}
-                       onPointerEnter={() => { if (drawing.current) pinta(r, c); }}
-                       onContextMenu={(e) => { e.preventDefault(); apaga(r, c); }}>
-                    {simbolos && h && <div className="grid h-full w-full place-items-center" style={{ fontSize: cellSize * 0.7 }}>{simboloPara(h)}</div>}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </A4Stage>
-      <div className="space-y-3">
-        <SheetControls {...sheet} />
-        <Card><CardContent className="space-y-2 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div><Label className="text-xs">Largura ({cols})</Label><Slider value={[cols]} min={10} max={100} onValueChange={(v) => setCols(v[0])} /></div>
-            <div><Label className="text-xs">Altura ({rows})</Label><Slider value={[rows]} min={10} max={100} onValueChange={(v) => setRows(v[0])} /></div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="text-xs">Cor</Label>
-            <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-8 w-12 rounded border" />
-            <Button size="sm" variant={simbolos ? "default" : "outline"} onClick={() => setSimbolos((s) => !s)}>Símbolos</Button>
-            <Button size="sm" variant="ghost" onClick={() => setGrid({})}><Eraser className="mr-1 h-3 w-3" />Limpar</Button>
-          </div>
-        </CardContent></Card>
-
-        <Card><CardContent className="space-y-2 p-3">
-          <div className="font-display font-semibold text-sm">Custo do Projeto</div>
-          {coresUsadas.length === 0 && <p className="text-xs text-muted-foreground">Pinta a grelha para ver o custo estimado.</p>}
-          {coresUsadas.map(([hex, count]) => (
-            <div key={hex} className="flex items-center gap-2 text-xs">
-              <span className="inline-block h-4 w-4 rounded border" style={{ background: hex }} />
-              <span className="font-mono">{hex}</span>
-              <span className="ml-auto">{count} pontos</span>
-            </div>
-          ))}
-          {coresUsadas.length > 0 && (
-            <Button size="sm" variant="outline" onClick={verificarStock}>Verificar disponibilidade de linhas</Button>
-          )}
-        </CardContent></Card>
-
-        <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Ponto cruz" defaultTitulo="Gráfico Ponto Cruz" size={sheet.size} orientacao={sheet.orientacao} />
-      </div>
-    </div>
-  );
+  return <PontoCruzEditor />;
 }
 
 /* ============================ BORDADO ============================ */
