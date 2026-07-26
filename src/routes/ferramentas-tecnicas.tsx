@@ -1705,6 +1705,8 @@ function BordadoTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
   const sheet = useSheet();
+  // Fase 22/23 · resultado do auto-digitize partilhado com painéis QA e editor manual.
+  const [digiRules, setDigiRules] = useState<SmartLayerRule[]>([]);
   const [imagemFundo, setImagemFundo] = useState<string>("");
   const [imagemOpacidade, setImagemOpacidade] = useState(50);
   const [limiar, setLimiar] = useState(128);
