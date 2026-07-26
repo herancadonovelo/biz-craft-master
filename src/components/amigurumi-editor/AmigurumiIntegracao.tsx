@@ -13,7 +13,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Play, Pause, RotateCcw, Plus, Trash2, ShoppingCart, Calculator, Scale, Timer, Yarn as YarnIcon,
+  Play, Pause, RotateCcw, Plus, Trash2, ShoppingCart, Calculator, Scale, Timer, Palette as YarnIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useStore, formatEUR, type Material } from "@/lib/store";
