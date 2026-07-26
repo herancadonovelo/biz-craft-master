@@ -31,6 +31,7 @@ import { ConversorPage } from "./conversor-cores";
 import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
+import { CosturaEditor } from "@/components/CosturaEditor";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -1552,106 +1553,7 @@ function AmigurumiTab() {
 }
 
 /* ============================ COSTURA ============================ */
-function CosturaTab() {
-  const ref = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [w, setW] = useMarcaDAgua();
-  const sheet = useSheet();
-  const [escala, setEscala] = useState(2); // px por mm (200mm → 400px no SVG)
-  const [linhas, setLinhas] = useState<{ x1: number; y1: number; x2: number; y2: number; cm: number }[]>([]);
-  const [tamanho, setTamanho] = useState<"S" | "M" | "L" | "XL">("M");
-  const fator = tamanho === "S" ? 0.9 : tamanho === "M" ? 1 : tamanho === "L" ? 1.1 : 1.2;
-  const materiais = useStore((s) => s.materiais);
-  const [usados, setUsados] = useState<{ materialId: string; quantidade: number }[]>([]);
-  const custoTotal = useMemo(() => usados.reduce((acc, u) => {
-    const m = materiais.find((x) => x.id === u.materialId);
-    return acc + (m ? m.precoCompra * u.quantidade : 0);
-  }, 0), [usados, materiais]);
-
-  const inicio = useRef<{ x: number; y: number } | null>(null);
-  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    inicio.current = ponto(e, svgRef.current!);
-  };
-  const onUp = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!inicio.current) return;
-    const p = ponto(e, svgRef.current!);
-    const dx = (p.x - inicio.current.x) / escala / 10;
-    const dy = (p.y - inicio.current.y) / escala / 10;
-    const cm = Math.round(Math.hypot(dx, dy) * 10) / 10;
-    setLinhas((s) => [...s, { x1: inicio.current!.x, y1: inicio.current!.y, x2: p.x, y2: p.y, cm }]);
-    inicio.current = null;
-  };
-
-  const adicionarMedida = () => {
-    const v = window.prompt("Comprimento em cm:", "30");
-    if (!v) return;
-    const cm = parseFloat(v);
-    const px = cm * 10 * escala;
-    setLinhas((s) => [...s, { x1: 60, y1: 60 + s.length * 30, x2: 60 + px, y2: 60 + s.length * 30, cm }]);
-  };
-
-  return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
-        <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full" onPointerDown={onDown} onPointerUp={onUp}>
-          <defs><pattern id="gridc" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#eee" strokeWidth="0.5" />
-          </pattern></defs>
-          <rect width="100%" height="100%" fill="url(#gridc)" />
-          {linhas.map((l, i) => (
-            <g key={i}>
-              <line x1={l.x1} y1={l.y1} x2={l.x1 + (l.x2 - l.x1) * fator} y2={l.y1 + (l.y2 - l.y1) * fator} stroke="#222" strokeWidth="1.5" />
-              <text x={(l.x1 + l.x2) / 2} y={(l.y1 + l.y2) / 2 - 4} fontSize="10" textAnchor="middle" fill="#444">{(l.cm * fator).toFixed(1)}cm</text>
-            </g>
-          ))}
-        </svg>
-      </A4Stage>
-      <div className="space-y-3">
-        <SheetControls {...sheet} />
-        <Card><CardContent className="space-y-2 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div><Label className="text-xs">Tamanho</Label>
-              <Select value={tamanho} onValueChange={(v) => setTamanho(v as any)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["S","M","L","XL"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div><Label className="text-xs">Escala (px/mm): {escala}</Label>
-              <Slider value={[escala]} min={1} max={5} step={0.5} onValueChange={(v) => setEscala(v[0])} />
-            </div>
-          </div>
-          <Button size="sm" variant="outline" onClick={adicionarMedida}><Plus className="mr-1 h-3 w-3" />Adicionar linha por medida</Button>
-          <Button size="sm" variant="ghost" onClick={() => setLinhas([])}><Eraser className="mr-1 h-3 w-3" />Limpar</Button>
-        </CardContent></Card>
-
-        <Card><CardContent className="space-y-2 p-3">
-          <div className="font-display font-semibold text-sm">Custo do Projeto</div>
-          {usados.map((u, i) => {
-            const m = materiais.find((x) => x.id === u.materialId);
-            return (
-              <div key={i} className="grid grid-cols-[1fr_70px_auto] gap-1 items-center">
-                <Select value={u.materialId} onValueChange={(v) => setUsados((s) => s.map((x, j) => j === i ? { ...x, materialId: v } : x))}>
-                  <SelectTrigger className="h-8"><SelectValue placeholder="Material" /></SelectTrigger>
-                  <SelectContent>{materiais.map((m) => <SelectItem key={m.id} value={m.id}>{m.nome} ({m.unidade})</SelectItem>)}</SelectContent>
-                </Select>
-                <Input type="number" className="h-8" value={u.quantidade} onChange={(e) => setUsados((s) => s.map((x, j) => j === i ? { ...x, quantidade: +e.target.value } : x))} />
-                <Button size="icon" variant="ghost" onClick={() => setUsados((s) => s.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></Button>
-                {m && <div className="col-span-3 text-[10px] text-muted-foreground">{u.quantidade} × {formatEUR(m.precoCompra)} = {formatEUR(u.quantidade * m.precoCompra)}</div>}
-              </div>
-            );
-          })}
-          <Button size="sm" variant="outline" onClick={() => setUsados((s) => [...s, { materialId: materiais[0]?.id ?? "", quantidade: 1 }])}>
-            <Plus className="mr-1 h-3 w-3" />Material
-          </Button>
-          <div className="border-t pt-2 text-sm">Total estimado: <span className="font-display font-bold">{formatEUR(custoTotal)}</span></div>
-        </CardContent></Card>
-
-        <WatermarkControls w={w} set={setW} />
-        <ExportPanel targetRef={ref} defaultArea="Costura" defaultTitulo={`Molde ${tamanho}`} size={sheet.size} orientacao={sheet.orientacao} />
-      </div>
-    </div>
-  );
-}
+function CosturaTab() { return <CosturaEditor />; }
 
 /* ============================ PONTO CRUZ ============================ */
 function PontoCruzTab() {
