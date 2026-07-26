@@ -55,3 +55,33 @@ jobs:
           name: playwright-traces
           path: test-results/**
           if-no-files-found: ignore
+
+  webhook-tenant-map-writes-blocked:
+    name: Playwright · webhook_tenant_map write access
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CI: "1"
+      # Hits the live Supabase Data API with the publishable (anon) key to
+      # prove anon/authenticated/unauth requests cannot write to
+      # webhook_tenant_map. Configure these as repository secrets/vars.
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+      - name: Run webhook_tenant_map write-access spec
+        run: bunx playwright test e2e/webhook-tenant-map-writes-blocked.spec.ts
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report-webhook-tenant-map
+          path: playwright-report/html
+          if-no-files-found: ignore
