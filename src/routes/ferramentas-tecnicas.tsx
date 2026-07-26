@@ -1580,12 +1580,26 @@ function BordadoTab() {
   const [separados, setSeparados] = useState(true);
   const [aTrabalhar, setATrabalhar] = useState(false);
   const drawing = useRef(false);
+  // Buffer de pontos do traço atual (para suavização de tremor via média móvel).
+  const rawPts = useRef<{ x: number; y: number }[]>([]);
+  // Índices dos traços criados por um único gesto (original + espelhos), para desfazer/apagar em conjunto.
+  const currentGesture = useRef<number[]>([]);
 
   // Bastidor / fundo / grelha
   const [hoopOn, setHoopOn] = useState(true);
   const [hoop, setHoop] = useState<HoopShape>("round20");
   const [thirds, setThirds] = useState(false);
   const [fabric, setFabric] = useState<FabricKind>("none");
+
+  // Fase 2 — ferramentas de desenho
+  type BordadoTool = "pen" | "smooth" | "eraser";
+  const [tool, setTool] = useState<BordadoTool>("pen");
+  const [smoothN, setSmoothN] = useState(6);        // janela da média móvel (2–12)
+  const [mirrorOn, setMirrorOn] = useState(false);
+  const [mirrorAxes, setMirrorAxes] = useState(2); // 1..12 (1 = só o eixo, sem rotação extra)
+  const [eraserR, setEraserR] = useState(10);       // raio do apagador em px (SVG)
+  // Histórico de gestos p/ desfazer o último traço (inclui espelhos).
+  const undoStack = useRef<{ layerId: string; removeCount: number }[]>([]);
 
   // Camadas
   const [layers, setLayers] = useState<BordadoLayer[]>(() => [
@@ -1616,20 +1630,146 @@ function BordadoTab() {
     const copy = ls.slice(); [copy[i], copy[j]] = [copy[j], copy[i]]; return copy;
   });
 
+  // ---------- Fase 2: desenho, simetria e trim ----------
+
+  /** Reflete um ponto no eixo vertical central do A4 (x = A4_W/2). */
+  const reflectX = (x: number) => A4_W - x;
+  /** Rotaciona um ponto k passos de (360/N) graus em volta do centro do A4. */
+  const rotateAround = (x: number, y: number, k: number, n: number) => {
+    if (n <= 1 || k === 0) return { x, y };
+    const a = (2 * Math.PI * k) / n;
+    const cx = A4_W / 2, cy = A4_H / 2;
+    const dx = x - cx, dy = y - cy;
+    return { x: cx + dx * Math.cos(a) - dy * Math.sin(a), y: cy + dx * Math.sin(a) + dy * Math.cos(a) };
+  };
+  /** Gera N cópias giradas (original + espelho de cada) de um conjunto de pontos. */
+  const mirroredPointSets = (pts: { x: number; y: number }[]) => {
+    if (!mirrorOn) return [pts];
+    const sets: { x: number; y: number }[][] = [];
+    const n = Math.max(1, Math.min(12, mirrorAxes));
+    for (let k = 0; k < n; k++) {
+      sets.push(pts.map((p) => rotateAround(p.x, p.y, k, n)));
+      sets.push(pts.map((p) => { const r = rotateAround(p.x, p.y, k, n); return { x: reflectX(r.x), y: r.y }; }));
+    }
+    return sets;
+  };
+
+  const pointsToPath = (pts: { x: number; y: number }[]) =>
+    pts.length ? "M " + pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ") : "";
+
+  /** Média móvel simples com janela N nas duas dimensões. Reduz tremor sem cortar cantos como Chaikin. */
+  const smoothMovingAverage = (pts: { x: number; y: number }[], n: number) => {
+    if (n <= 1 || pts.length < 3) return pts;
+    const half = Math.floor(n / 2);
+    const out: { x: number; y: number }[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      let sx = 0, sy = 0, c = 0;
+      for (let j = Math.max(0, i - half); j <= Math.min(pts.length - 1, i + half); j++) {
+        sx += pts[j].x; sy += pts[j].y; c++;
+      }
+      out.push({ x: sx / c, y: sy / c });
+    }
+    return out;
+  };
+
+  /** Distância mínima entre um ponto e um segmento — para o apagador com trim. */
+  const distPointSeg = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
+    const dx = bx - ax, dy = by - ay;
+    const l2 = dx * dx + dy * dy;
+    if (l2 === 0) { const ex = px - ax, ey = py - ay; return Math.hypot(ex, ey); }
+    let t = ((px - ax) * dx + (py - ay) * dy) / l2;
+    t = Math.max(0, Math.min(1, t));
+    const qx = ax + t * dx, qy = ay + t * dy;
+    return Math.hypot(px - qx, py - qy);
+  };
+
+  /** Converte "M x y L x y ..." num array de pontos. Ignora sub-caminhos (apenas Fase 2). */
+  const pathToPoints = (d: string): { x: number; y: number }[] => {
+    const tokens = d.replace(/,/g, " ").split(/\s+/).filter(Boolean);
+    const pts: { x: number; y: number }[] = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      if (t === "M" || t === "L") {
+        const x = parseFloat(tokens[++i]); const y = parseFloat(tokens[++i]);
+        if (!isNaN(x) && !isNaN(y)) pts.push({ x, y });
+      }
+    }
+    return pts;
+  };
+
+  /** Aplica o apagador com trim: corta um traço nos pontos que ficam dentro do círculo do apagador. */
+  const trimAtPoint = (px: number, py: number) => {
+    setLayers((ls) => ls.map((l) => {
+      if (!l.visible || l.locked) return l;
+      const novos: string[] = [];
+      for (const d of l.strokes) {
+        const pts = pathToPoints(d);
+        if (pts.length < 2) { novos.push(d); continue; }
+        let current: { x: number; y: number }[] = [];
+        for (let i = 0; i < pts.length - 1; i++) {
+          const inside = distPointSeg(px, py, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) < eraserR;
+          if (inside) {
+            if (current.length >= 2) novos.push(pointsToPath(current));
+            current = [];
+          } else {
+            if (current.length === 0) current.push(pts[i]);
+            current.push(pts[i + 1]);
+          }
+        }
+        if (current.length >= 2) novos.push(pointsToPath(current));
+      }
+      return { ...l, strokes: novos };
+    }));
+  };
+
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    const p = ponto(e, svgRef.current!);
+    if (tool === "eraser") { drawing.current = true; trimAtPoint(p.x, p.y); return; }
     if (!active || active.locked || !active.visible) { toast.error("Camada bloqueada ou oculta."); return; }
     drawing.current = true;
-    const p = ponto(e, svgRef.current!);
-    patchLayer(active.id, { strokes: [...active.strokes, `M ${p.x} ${p.y}`] });
+    rawPts.current = [p];
+    const sets = mirroredPointSets(rawPts.current);
+    const startPaths = sets.map(pointsToPath);
+    currentGesture.current = [];
+    setLayers((ls) => ls.map((l) => {
+      if (l.id !== active.id) return l;
+      const base = l.strokes.length;
+      startPaths.forEach((_, i) => currentGesture.current.push(base + i));
+      return { ...l, strokes: [...l.strokes, ...startPaths] };
+    }));
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!drawing.current || !active) return;
+    if (!drawing.current) return;
     const p = ponto(e, svgRef.current!);
-    const strokes = active.strokes.slice();
-    strokes[strokes.length - 1] += ` L ${p.x} ${p.y}`;
-    patchLayer(active.id, { strokes });
+    if (tool === "eraser") { trimAtPoint(p.x, p.y); return; }
+    if (!active) return;
+    rawPts.current.push(p);
+    const smoothed = tool === "smooth" ? smoothMovingAverage(rawPts.current, smoothN) : rawPts.current;
+    const sets = mirroredPointSets(smoothed);
+    const paths = sets.map(pointsToPath);
+    setLayers((ls) => ls.map((l) => {
+      if (l.id !== active.id) return l;
+      const strokes = l.strokes.slice();
+      currentGesture.current.forEach((idx, k) => { if (paths[k]) strokes[idx] = paths[k]; });
+      return { ...l, strokes };
+    }));
   };
-  const onUp = () => { drawing.current = false; };
+  const onUp = () => {
+    if (drawing.current && tool !== "eraser" && currentGesture.current.length && active) {
+      undoStack.current.push({ layerId: active.id, removeCount: currentGesture.current.length });
+    }
+    drawing.current = false;
+    rawPts.current = [];
+    currentGesture.current = [];
+  };
+
+  const desfazerUltimoTraco = () => {
+    const g = undoStack.current.pop();
+    if (!g) { toast.error("Nada para desfazer."); return; }
+    setLayers((ls) => ls.map((l) => l.id === g.layerId
+      ? { ...l, strokes: l.strokes.slice(0, Math.max(0, l.strokes.length - g.removeCount)) }
+      : l));
+  };
 
   const vetorizar = async () => {
     if (!imagemFundo) { toast.error("Importa uma imagem primeiro."); return; }
@@ -1763,10 +1903,67 @@ function BordadoTab() {
               ))}
             </g>
           ))}
+          {/* Guias de simetria (Fase 2) */}
+          {mirrorOn && (
+            <g stroke="rgba(236,72,153,0.6)" strokeWidth="0.6" strokeDasharray="3 3" pointerEvents="none">
+              {Array.from({ length: Math.max(1, Math.min(12, mirrorAxes)) }).map((_, k, arr) => {
+                const ang = (Math.PI * k) / arr.length;
+                const cxg = A4_W / 2, cyg = A4_H / 2;
+                const L = Math.hypot(A4_W, A4_H);
+                const dx = Math.cos(ang) * L, dy = Math.sin(ang) * L;
+                return <line key={k} x1={cxg - dx} y1={cyg - dy} x2={cxg + dx} y2={cyg + dy} />;
+              })}
+            </g>
+          )}
         </svg>
       </A4Stage>
       <div className="space-y-3">
         <SheetControls {...sheet} />
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Ferramentas de desenho</Label>
+            <Button size="sm" variant="outline" onClick={desfazerUltimoTraco} title="Desfazer último traço">
+              <RotateCw className="mr-1 h-3 w-3 -scale-x-100" />Desfazer
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <Button size="sm" variant={tool === "pen" ? "default" : "outline"} onClick={() => setTool("pen")}>Caneta</Button>
+            <Button size="sm" variant={tool === "smooth" ? "default" : "outline"} onClick={() => setTool("smooth")}>Suave</Button>
+            <Button size="sm" variant={tool === "eraser" ? "default" : "outline"} onClick={() => setTool("eraser")}>Apagar</Button>
+          </div>
+          {tool === "smooth" && (
+            <div>
+              <Label className="text-xs">Correção de tremor ({smoothN})</Label>
+              <Slider value={[smoothN]} min={2} max={12} step={1} onValueChange={(v) => setSmoothN(v[0])} />
+            </div>
+          )}
+          {tool === "eraser" && (
+            <div>
+              <Label className="text-xs">Raio do apagador ({eraserR} px)</Label>
+              <Slider value={[eraserR]} min={3} max={40} step={1} onValueChange={(v) => setEraserR(v[0])} />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Apaga apenas as interseções sob o cursor; o resto do traço permanece intacto.
+              </p>
+            </div>
+          )}
+          <div className="border-t pt-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold">Simetria em tempo real</Label>
+              <Button size="sm" variant={mirrorOn ? "default" : "outline"} onClick={() => setMirrorOn((v) => !v)}>
+                {mirrorOn ? "Ligada" : "Desligada"}
+              </Button>
+            </div>
+            {mirrorOn && (
+              <div className="mt-1">
+                <Label className="text-xs">Eixos ({mirrorAxes})</Label>
+                <Slider value={[mirrorAxes]} min={1} max={12} step={1} onValueChange={(v) => setMirrorAxes(v[0])} />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Cada eixo cria uma cópia espelhada em torno do centro do bastidor.
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Bastidor virtual</Label>
           <div className="flex items-center justify-between">
