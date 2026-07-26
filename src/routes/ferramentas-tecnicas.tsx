@@ -3480,6 +3480,17 @@ function BordadoTab() {
           </Button>
           <p className="text-[10px] text-muted-foreground">Cria uma camada por cor a partir dos registos Tajima. Centrado na folha.</p>
         </CardContent></Card>
+        {/* Fase 12 — Projeto (Save/Load) */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Projeto do estúdio</Label>
+          <input ref={projectFileRef} type="file" accept="application/json,.json" className="hidden"
+                 onChange={(e) => { const f = e.target.files?.[0]; if (f) carregarProjeto(f); e.currentTarget.value = ""; }} />
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" onClick={salvarProjeto}>Guardar .json</Button>
+            <Button size="sm" variant="outline" onClick={() => projectFileRef.current?.click()}>Carregar…</Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.</p>
+        </CardContent></Card>
         {/* Fase 11 — Simulador animado */}
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Simulador de bordado</Label>
