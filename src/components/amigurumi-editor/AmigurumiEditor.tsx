@@ -19,6 +19,7 @@ import {
   parseCarreira, extractDeclaredTotal, validateCarreira,
   expandRepetition, collectAbreviaturasUsadas,
 } from "@/lib/amigurumi/math-engine";
+import { AmigurumiVisuais } from "./AmigurumiVisuais";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -72,6 +73,7 @@ function loadInitial(): Estado {
 export function AmigurumiEditor() {
   const [s, setS] = useState<Estado>(loadInitial);
   const [activeTab, setActiveTab] = useState<string>(() => DEFAULT_STATE.pecas[0].id);
+  const [topTab, setTopTab] = useState<"padrao" | "visuais">("padrao");
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
@@ -171,7 +173,17 @@ export function AmigurumiEditor() {
   const active = s.pecas.find((p) => p.id === activeTab) || s.pecas[0];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+    <div className="space-y-3">
+      <Tabs value={topTab} onValueChange={(v) => setTopTab(v as "padrao" | "visuais")}>
+        <TabsList>
+          <TabsTrigger value="padrao">Padrão & Escrita</TabsTrigger>
+          <TabsTrigger value="visuais">Visuais</TabsTrigger>
+        </TabsList>
+        <TabsContent value="visuais" className="mt-3">
+          <AmigurumiVisuais />
+        </TabsContent>
+        <TabsContent value="padrao" className="mt-3">
+          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
       {/* ============================ EDITOR ============================ */}
       <Card className="!bg-white/100 opacity-100">
         <CardContent className="space-y-4 p-4">
@@ -339,6 +351,9 @@ export function AmigurumiEditor() {
           </CardContent>
         </Card>
       </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
