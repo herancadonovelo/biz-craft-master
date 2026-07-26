@@ -979,6 +979,167 @@ function TricotinTab() {
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
+      {/* Lettering — Auto-script + Kerning + Text on Path */}
+      <div className="space-y-3 rounded-lg border bg-card p-3 tricotin-no-print">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold">Lettering (texto no molde)</div>
+            <div className="text-[11px] text-muted-foreground">
+              Auto-script liga letras cursivas · Kerning ajusta o espaçamento · Text on Path curva o texto ao longo de reta, arco ou círculo.
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              checked={lettering.ativa}
+              onChange={(e) => setL({ ativa: e.target.checked })}
+            />
+            Ativar
+          </label>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">Texto</span>
+            <input
+              type="text"
+              value={lettering.text}
+              onChange={(e) => setL({ text: e.target.value })}
+              className="rounded border bg-background px-2 py-1"
+              placeholder="Nome ou frase"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">Fonte</span>
+            <select
+              value={lettering.font}
+              onChange={(e) => setL({ font: e.target.value })}
+              className="rounded border bg-background px-2 py-1"
+            >
+              <optgroup label="Cursivas (recomendadas para Auto-script)">
+                {FONTES_CURSIVAS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </optgroup>
+              <optgroup label="Todas">
+                {FONTES_50.map((f) => <option key={f} value={f}>{f}</option>)}
+              </optgroup>
+            </select>
+          </label>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">Tamanho ({lettering.size}px)</span>
+            <input
+              type="range" min={20} max={220} step={1}
+              value={lettering.size}
+              onChange={(e) => setL({ size: Number(e.target.value) })}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">Kerning ({lettering.kerning > 0 ? "+" : ""}{lettering.kerning}px)</span>
+            <input
+              type="range" min={-30} max={40} step={1}
+              value={lettering.kerning}
+              onChange={(e) => setL({ kerning: Number(e.target.value) })}
+            />
+          </label>
+          <label className="flex items-center gap-2 text-xs">
+            <input
+              type="checkbox"
+              checked={lettering.autoScript}
+              onChange={(e) => setL({ autoScript: e.target.checked })}
+            />
+            Auto-script (ligar letras)
+          </label>
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">Cor</span>
+            <input
+              type="color"
+              value={lettering.color}
+              onChange={(e) => setL({ color: e.target.value })}
+              className="h-8 w-16 rounded border bg-background"
+            />
+          </label>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Text on Path:</span>
+          {(["straight", "arc", "circle"] as LetteringPath[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setL({ pathType: p })}
+              className={`rounded border px-2 py-1 ${lettering.pathType === p ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            >
+              {p === "straight" ? "Linha reta" : p === "arc" ? "Arco" : "Círculo"}
+            </button>
+          ))}
+        </div>
+        {lettering.pathType === "straight" && (
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-muted-foreground">
+              Ângulo da linha ({Math.round((lettering.straightAngle * 180) / Math.PI)}°)
+            </span>
+            <input
+              type="range" min={-180} max={180} step={1}
+              value={Math.round((lettering.straightAngle * 180) / Math.PI)}
+              onChange={(e) => setL({ straightAngle: (Number(e.target.value) * Math.PI) / 180 })}
+            />
+          </label>
+        )}
+        {lettering.pathType !== "straight" && (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-muted-foreground">Raio ({lettering.radius}px ≈ {(lettering.radius / PX_PER_CM).toFixed(1)} cm)</span>
+              <input
+                type="range" min={40} max={380} step={1}
+                value={lettering.radius}
+                onChange={(e) => setL({ radius: Number(e.target.value) })}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-muted-foreground">
+                Início do arco ({Math.round((lettering.angleStart * 180) / Math.PI)}°)
+              </span>
+              <input
+                type="range" min={-180} max={180} step={1}
+                value={Math.round((lettering.angleStart * 180) / Math.PI)}
+                onChange={(e) => setL({ angleStart: (Number(e.target.value) * Math.PI) / 180 })}
+              />
+            </label>
+            {lettering.pathType === "arc" && (
+              <label className="flex flex-col gap-1 text-xs">
+                <span className="text-muted-foreground">
+                  Abertura do arco ({Math.round((lettering.arcSweep * 180) / Math.PI)}°)
+                </span>
+                <input
+                  type="range" min={-360} max={360} step={1}
+                  value={Math.round((lettering.arcSweep * 180) / Math.PI)}
+                  onChange={(e) => setL({ arcSweep: (Number(e.target.value) * Math.PI) / 180 })}
+                />
+              </label>
+            )}
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <label className="flex flex-col gap-1">
+            <span className="text-muted-foreground">Centro X ({lettering.cx.toFixed(0)}px)</span>
+            <input
+              type="range" min={0} max={A4_W} step={1}
+              value={lettering.cx}
+              onChange={(e) => setL({ cx: Number(e.target.value) })}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-muted-foreground">Centro Y ({lettering.cy.toFixed(0)}px)</span>
+            <input
+              type="range" min={0} max={A4_H} step={1}
+              value={lettering.cy}
+              onChange={(e) => setL({ cy: Number(e.target.value) })}
+            />
+          </label>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
+        </p>
+      </div>
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
