@@ -710,7 +710,7 @@ export function PontoCruzEditor() {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
       {/* Canvas card (opaque) */}
-      <Card className="bg-background/100 opacity-100">
+      <Card className="!bg-white opacity-100" style={{ backgroundColor: "#ffffff", opacity: 1 }}>
         <CardContent className="p-3">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" onClick={undo} disabled={past.current.length === 0} title="Desfazer (Ctrl+Z)">
