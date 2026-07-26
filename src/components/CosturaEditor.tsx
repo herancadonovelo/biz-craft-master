@@ -657,6 +657,44 @@ export function CosturaEditor() {
           <ToolBtn label="Desfazer" icon={<Undo2 className="h-3 w-3" />} onClick={undo} />
           <ToolBtn label="Refazer" icon={<Redo2 className="h-3 w-3" />} onClick={redo} />
           <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
+          <Dialog>
+            <DialogTrigger asChild>
+              <button type="button" className="inline-flex items-center gap-1 rounded bg-background px-2 py-1 text-[11px] hover:bg-muted" title="Atalhos & ajuda">
+                <Keyboard className="h-3 w-3" /><span className="hidden sm:inline">Atalhos</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader><DialogTitle>Atalhos & ajuda</DialogTitle></DialogHeader>
+              <div className="space-y-2 text-xs">
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Comandos</div>
+                  <ul className="space-y-0.5">
+                    <li><kbd className="rounded border bg-background px-1">Ctrl+Z</kbd> desfazer</li>
+                    <li><kbd className="rounded border bg-background px-1">Ctrl+Y</kbd> / <kbd className="rounded border bg-background px-1">Ctrl+Shift+Z</kbd> refazer</li>
+                    <li><kbd className="rounded border bg-background px-1">Enter</kbd> / duplo-clique — fechar spline</li>
+                    <li><kbd className="rounded border bg-background px-1">Delete</kbd> apagar peça selecionada</li>
+                  </ul>
+                </div>
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Snaps ativos</div>
+                  <ul className="space-y-0.5">
+                    <li>• Interseções: {snapIntersect ? "on" : "off"}</li>
+                    <li>• Extremos: {snapEndpoints ? "on" : "off"}</li>
+                    <li>• Alinhamento H/V: {snapAlign ? "on" : "off"}</li>
+                    <li>• Tolerância: {snapTolPx}px (~{pxToCm(snapTolPx).toFixed(2)} cm)</li>
+                  </ul>
+                </div>
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Ferramentas</div>
+                  <ul className="space-y-0.5">
+                    {Object.entries(TOOL_HINTS).map(([k, v]) => (
+                      <li key={k}><b>{k}</b> — {v}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
         <Card className="!bg-white opacity-100" style={{ backgroundColor: "#ffffff", opacity: 1 }}><CardContent className="p-3">
