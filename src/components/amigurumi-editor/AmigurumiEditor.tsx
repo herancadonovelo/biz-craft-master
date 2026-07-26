@@ -277,7 +277,7 @@ export function AmigurumiEditor() {
           />
         </TabsContent>
         <TabsContent value="padrao" className="mt-3">
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-4">
       {/* ============================ EDITOR ============================ */}
       <Card className="!bg-white/100 opacity-100">
         <CardContent className="space-y-4 p-4">
@@ -379,42 +379,41 @@ export function AmigurumiEditor() {
               </Tabs>
             </CardContent>
           </Card>
-
-          {/* ================= Tensão / Enchimento / Olhos ================= */}
-          <div className="grid gap-3 md:grid-cols-3">
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Amostra (Tensão)</CardTitle></CardHeader>
-              <CardContent className="grid grid-cols-2 gap-2">
-                <div><Label>Pontos</Label><Input type="number" value={s.tensao.pontos || ""} onChange={(e) => patch({ tensao: { ...s.tensao, pontos: +e.target.value } })} /></div>
-                <div><Label>Carreiras</Label><Input type="number" value={s.tensao.carreiras || ""} onChange={(e) => patch({ tensao: { ...s.tensao, carreiras: +e.target.value } })} /></div>
-                <div><Label>= cm</Label><Input type="number" value={s.tensao.cm || ""} onChange={(e) => patch({ tensao: { ...s.tensao, cm: +e.target.value } })} /></div>
-                <div><Label>Agulha</Label><Input value={s.tensao.agulha} onChange={(e) => patch({ tensao: { ...s.tensao, agulha: e.target.value } })} placeholder="2.5 mm" /></div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Enchimento / Arame</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <div><Label>Fibra</Label><Input value={s.enchimento} onChange={(e) => patch({ enchimento: e.target.value })} placeholder="200 g fibra siliconada" /></div>
-                <div><Label>Arame</Label><Input value={s.arame} onChange={(e) => patch({ arame: e.target.value })} placeholder="Arame 1.5 mm, 40 cm" /></div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Olhos de Segurança</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <div><Label>Entre carreiras</Label><Input value={s.olhos.entre} onChange={(e) => patch({ olhos: { ...s.olhos, entre: e.target.value } })} placeholder="Carreira 8 e 9" /></div>
-                <div><Label>Distância</Label><Input value={s.olhos.distancia} onChange={(e) => patch({ olhos: { ...s.olhos, distancia: e.target.value } })} placeholder="5 pontos" /></div>
-                <div><Label>Tamanho</Label><Input value={s.olhos.tamanho} onChange={(e) => patch({ olhos: { ...s.olhos, tamanho: e.target.value } })} placeholder="9 mm" /></div>
-              </CardContent>
-            </Card>
-          </div>
         </CardContent>
       </Card>
 
-      {/* ============================ SIDE PREVIEW ============================ */}
-      <div className="space-y-3">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Legenda (auto)</CardTitle></CardHeader>
-          <CardContent>
+      {/* ============================ ABAS (restantes cards) ============================ */}
+      <Tabs defaultValue="amostra">
+        <TabsList className="flex-wrap justify-start">
+          <TabsTrigger value="amostra">Amostra (Tensão)</TabsTrigger>
+          <TabsTrigger value="enchimento">Enchimento / Arame</TabsTrigger>
+          <TabsTrigger value="olhos">Olhos de Segurança</TabsTrigger>
+          <TabsTrigger value="legenda">Legenda (auto)</TabsTrigger>
+          <TabsTrigger value="resumo">Resumo</TabsTrigger>
+        </TabsList>
+        <TabsContent value="amostra" className="mt-3">
+          <Card><CardContent className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">
+            <div><Label>Pontos</Label><Input type="number" value={s.tensao.pontos || ""} onChange={(e) => patch({ tensao: { ...s.tensao, pontos: +e.target.value } })} /></div>
+            <div><Label>Carreiras</Label><Input type="number" value={s.tensao.carreiras || ""} onChange={(e) => patch({ tensao: { ...s.tensao, carreiras: +e.target.value } })} /></div>
+            <div><Label>= cm</Label><Input type="number" value={s.tensao.cm || ""} onChange={(e) => patch({ tensao: { ...s.tensao, cm: +e.target.value } })} /></div>
+            <div><Label>Agulha</Label><Input value={s.tensao.agulha} onChange={(e) => patch({ tensao: { ...s.tensao, agulha: e.target.value } })} placeholder="2.5 mm" /></div>
+          </CardContent></Card>
+        </TabsContent>
+        <TabsContent value="enchimento" className="mt-3">
+          <Card><CardContent className="space-y-2 p-4">
+            <div><Label>Fibra</Label><Input value={s.enchimento} onChange={(e) => patch({ enchimento: e.target.value })} placeholder="200 g fibra siliconada" /></div>
+            <div><Label>Arame</Label><Input value={s.arame} onChange={(e) => patch({ arame: e.target.value })} placeholder="Arame 1.5 mm, 40 cm" /></div>
+          </CardContent></Card>
+        </TabsContent>
+        <TabsContent value="olhos" className="mt-3">
+          <Card><CardContent className="space-y-2 p-4">
+            <div><Label>Entre carreiras</Label><Input value={s.olhos.entre} onChange={(e) => patch({ olhos: { ...s.olhos, entre: e.target.value } })} placeholder="Carreira 8 e 9" /></div>
+            <div><Label>Distância</Label><Input value={s.olhos.distancia} onChange={(e) => patch({ olhos: { ...s.olhos, distancia: e.target.value } })} placeholder="5 pontos" /></div>
+            <div><Label>Tamanho</Label><Input value={s.olhos.tamanho} onChange={(e) => patch({ olhos: { ...s.olhos, tamanho: e.target.value } })} placeholder="9 mm" /></div>
+          </CardContent></Card>
+        </TabsContent>
+        <TabsContent value="legenda" className="mt-3">
+          <Card><CardContent className="p-4">
             {abreviaturas.length === 0 ? (
               <p className="text-xs text-muted-foreground">Escreve pontos nas carreiras para gerar a legenda automaticamente.</p>
             ) : (
@@ -428,12 +427,10 @@ export function AmigurumiEditor() {
                 ))}
               </ul>
             )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Resumo</CardTitle></CardHeader>
-          <CardContent className="space-y-1 text-xs">
+          </CardContent></Card>
+        </TabsContent>
+        <TabsContent value="resumo" className="mt-3">
+          <Card><CardContent className="space-y-1 p-4 text-xs">
             <div>Peças: <strong>{s.pecas.length}</strong></div>
             <div>Total de carreiras: <strong>{s.pecas.reduce((n, p) => n + p.carreiras.length, 0)}</strong></div>
             {s.tensao.pontos > 0 && s.tensao.cm > 0 && (
@@ -442,9 +439,9 @@ export function AmigurumiEditor() {
             <div className="pt-2 text-muted-foreground">
               Dica: cabelos consomem fio extra. Ex: 40 fios de 15 cm = <strong>{consumoCabelo(40, 15)} m</strong> adicionais.
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </CardContent></Card>
+        </TabsContent>
+      </Tabs>
           </div>
         </TabsContent>
       </Tabs>
