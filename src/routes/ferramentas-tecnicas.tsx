@@ -1903,10 +1903,67 @@ function BordadoTab() {
               ))}
             </g>
           ))}
+          {/* Guias de simetria (Fase 2) */}
+          {mirrorOn && (
+            <g stroke="rgba(236,72,153,0.6)" strokeWidth="0.6" strokeDasharray="3 3" pointerEvents="none">
+              {Array.from({ length: Math.max(1, Math.min(12, mirrorAxes)) }).map((_, k, arr) => {
+                const ang = (Math.PI * k) / arr.length;
+                const cxg = A4_W / 2, cyg = A4_H / 2;
+                const L = Math.hypot(A4_W, A4_H);
+                const dx = Math.cos(ang) * L, dy = Math.sin(ang) * L;
+                return <line key={k} x1={cxg - dx} y1={cyg - dy} x2={cxg + dx} y2={cyg + dy} />;
+              })}
+            </g>
+          )}
         </svg>
       </A4Stage>
       <div className="space-y-3">
         <SheetControls {...sheet} />
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Ferramentas de desenho</Label>
+            <Button size="sm" variant="outline" onClick={desfazerUltimoTraco} title="Desfazer último traço">
+              <RotateCw className="mr-1 h-3 w-3 -scale-x-100" />Desfazer
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <Button size="sm" variant={tool === "pen" ? "default" : "outline"} onClick={() => setTool("pen")}>Caneta</Button>
+            <Button size="sm" variant={tool === "smooth" ? "default" : "outline"} onClick={() => setTool("smooth")}>Suave</Button>
+            <Button size="sm" variant={tool === "eraser" ? "default" : "outline"} onClick={() => setTool("eraser")}>Apagar</Button>
+          </div>
+          {tool === "smooth" && (
+            <div>
+              <Label className="text-xs">Correção de tremor ({smoothN})</Label>
+              <Slider value={[smoothN]} min={2} max={12} step={1} onValueChange={(v) => setSmoothN(v[0])} />
+            </div>
+          )}
+          {tool === "eraser" && (
+            <div>
+              <Label className="text-xs">Raio do apagador ({eraserR} px)</Label>
+              <Slider value={[eraserR]} min={3} max={40} step={1} onValueChange={(v) => setEraserR(v[0])} />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Apaga apenas as interseções sob o cursor; o resto do traço permanece intacto.
+              </p>
+            </div>
+          )}
+          <div className="border-t pt-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold">Simetria em tempo real</Label>
+              <Button size="sm" variant={mirrorOn ? "default" : "outline"} onClick={() => setMirrorOn((v) => !v)}>
+                {mirrorOn ? "Ligada" : "Desligada"}
+              </Button>
+            </div>
+            {mirrorOn && (
+              <div className="mt-1">
+                <Label className="text-xs">Eixos ({mirrorAxes})</Label>
+                <Slider value={[mirrorAxes]} min={1} max={12} step={1} onValueChange={(v) => setMirrorAxes(v[0])} />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Cada eixo cria uma cópia espelhada em torno do centro do bastidor.
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Bastidor virtual</Label>
           <div className="flex items-center justify-between">
