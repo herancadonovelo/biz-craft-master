@@ -2118,6 +2118,80 @@ function BordadoTab() {
     toast.success("Sequência de aplique criada em 3 camadas (Colocar → Fixar → Cobrir).");
   };
 
+  // ---------- Fase 9: auto-digitize (foto → camadas) + monogramas ----------
+  const autoDigitizeImagem = async () => {
+    if (!imagemFundo) { toast.error("Importa uma imagem de decalque primeiro."); return; }
+    setAutoBusy(true);
+    try {
+      const outWpx = autoWidthMm * PX_PER_MM;
+      const originX = A4_W / 2 - outWpx / 2;
+      // altura aproximada preserva o rácio da imagem original ao alinhar no A4
+      const img = new Image(); img.src = imagemFundo;
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("img")); });
+      const ratio = img.naturalHeight / img.naturalWidth;
+      const outHpx = outWpx * ratio;
+      const originY = A4_H / 2 - outHpx / 2;
+      const digital: DigitizedLayer[] = await autoDigitize(imagemFundo, {
+        colors: autoNCores,
+        targetWidthPx: autoTargetW,
+        simplifyPx: autoSimplify,
+        minRegionPx: autoMinRegion,
+        originX, originY, outWidthPx: outWpx,
+      });
+      if (digital.length === 0) { toast.error("Nenhuma cor detetada com regiões suficientes."); return; }
+      const novas: BordadoLayer[] = digital.map((d, i) => {
+        let strokes = d.paths;
+        if (autoFillOnCreate) {
+          const fills: string[] = [];
+          for (const p of d.paths) {
+            const f = generateFill(p, fillOpts);
+            if (f) fills.push(f);
+          }
+          strokes = [...d.paths, ...fills];
+        }
+        return {
+          id: `l-auto-${Date.now()}-${i}`,
+          nome: `Foto ${i + 1} — ${d.hex}`,
+          visible: true, locked: false,
+          color: d.hex,
+          width: 1.2,
+          strokes,
+          stitch: "satin",
+        };
+      });
+      setLayers((ls) => [...ls, ...novas]);
+      setColorOrder(null);
+      toast.success(`Auto-digitize: ${novas.length} camada(s) criadas${autoFillOnCreate ? " com preenchimento" : ""}.`);
+    } catch (e) {
+      toast.error("Falha no auto-digitize: " + (e as Error).message);
+    } finally { setAutoBusy(false); }
+  };
+
+  const inserirMonograma = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const font = LETTERING_FONTS.find((f) => f.id === monoFontId) ?? LETTERING_FONTS[0];
+    const sizePx = monoSizeMm * PX_PER_MM;
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d")!;
+    ctx.font = `${font.weight} ${sizePx}px ${font.family}`;
+    const wEst = ctx.measureText(monoIniciais).width;
+    const x = A4_W / 2 - wEst / 2;
+    const y = A4_H / 2 - sizePx / 2;
+    try {
+      const letters = textToPaths({
+        text: monoIniciais, fontFamily: font.family, fontWeight: font.weight,
+        sizePx, x, y, simplifyPx: 0.5,
+      });
+      const frameSizePx = (monoFrameSizeMm + monoFramePadMm) * PX_PER_MM;
+      const outer = motifPath(monoFrame, A4_W / 2, A4_H / 2, frameSizePx);
+      const paths = [outer, ...(monoDoubleFrame ? [motifPath(monoFrame, A4_W / 2, A4_H / 2, frameSizePx - 5 * PX_PER_MM)] : []), ...letters];
+      setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...paths] } : l));
+      toast.success(`Monograma inserido (${letters.length} contornos + moldura).`);
+    } catch (e) {
+      toast.error("Falha ao criar monograma: " + (e as Error).message);
+    }
+  };
+
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
   /** Origem da grelha centrada na página. */
@@ -3071,6 +3145,81 @@ function BordadoTab() {
           </div>
           <Button size="sm" className="w-full" onClick={gerarAppliqueDaCamadaAtiva}>
             <Sparkles className="mr-1 h-3 w-3" />Gerar sequência de aplique
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Auto-digitize (foto → camadas)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Quantiza a imagem de decalque em N cores dominantes, gera contornos fechados por cor
+            e (opcionalmente) aplica preenchimento automático em cada camada.
+          </p>
+          <div>
+            <Label className="text-xs">Nº de cores ({autoNCores})</Label>
+            <Slider value={[autoNCores]} min={2} max={12} step={1} onValueChange={(v) => setAutoNCores(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Resolução de análise ({autoTargetW} px)</Label>
+            <Slider value={[autoTargetW]} min={80} max={480} step={20} onValueChange={(v) => setAutoTargetW(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Largura final ({autoWidthMm} mm)</Label>
+            <Slider value={[autoWidthMm]} min={40} max={180} step={5} onValueChange={(v) => setAutoWidthMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Simplificação ({autoSimplify.toFixed(2)} px)</Label>
+            <Slider value={[autoSimplify]} min={0.2} max={2.5} step={0.05} onValueChange={(v) => setAutoSimplify(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Regiões mínimas ({autoMinRegion} px)</Label>
+            <Slider value={[autoMinRegion]} min={6} max={200} step={2} onValueChange={(v) => setAutoMinRegion(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Preencher ao criar (satin/tatami)</Label>
+            <Button size="sm" variant={autoFillOnCreate ? "default" : "outline"} onClick={() => setAutoFillOnCreate((v) => !v)}>
+              {autoFillOnCreate ? "Sim" : "Não"}
+            </Button>
+          </div>
+          <Button size="sm" className="w-full" onClick={autoDigitizeImagem} disabled={autoBusy}>
+            <Sparkles className="mr-1 h-3 w-3" />{autoBusy ? "A processar…" : "Digitalizar imagem"}
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Monograma</Label>
+          <Input value={monoIniciais} onChange={(e) => setMonoIniciais(e.target.value.slice(0, 3))} placeholder="Iniciais (até 3)" className="h-8 text-xs" />
+          <div>
+            <Label className="text-xs">Fonte</Label>
+            <select value={monoFontId} onChange={(e) => setMonoFontId(e.target.value)} className="h-8 w-full rounded border bg-background px-2 text-xs">
+              {LETTERING_FONTS.map((f) => (<option key={f.id} value={f.id} style={{ fontFamily: f.family }}>{f.label}</option>))}
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs">Altura das iniciais ({monoSizeMm} mm)</Label>
+            <Slider value={[monoSizeMm]} min={12} max={80} step={1} onValueChange={(v) => setMonoSizeMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Moldura</Label>
+            <select value={monoFrame} onChange={(e) => setMonoFrame(e.target.value as MotifId)} className="h-8 w-full rounded border bg-background px-2 text-xs">
+              {MOTIF_PRESETS.filter((m) => m.id === "circle" || m.id === "hexagon" || m.id === "square" || m.id === "flower6").map((m) => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs">Tamanho da moldura ({monoFrameSizeMm} mm)</Label>
+            <Slider value={[monoFrameSizeMm]} min={20} max={140} step={2} onValueChange={(v) => setMonoFrameSizeMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Margem interna ({monoFramePadMm} mm)</Label>
+            <Slider value={[monoFramePadMm]} min={0} max={20} step={1} onValueChange={(v) => setMonoFramePadMm(v[0])} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Moldura dupla</Label>
+            <Button size="sm" variant={monoDoubleFrame ? "default" : "outline"} onClick={() => setMonoDoubleFrame((v) => !v)}>
+              {monoDoubleFrame ? "Sim" : "Não"}
+            </Button>
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirMonograma}>
+            <Type className="mr-1 h-3 w-3" />Inserir monograma
           </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
