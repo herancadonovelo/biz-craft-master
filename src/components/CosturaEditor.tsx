@@ -1,0 +1,642 @@
+import * as React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  A4Stage, ExportPanel, WatermarkControls, useMarcaDAgua,
+  SheetControls, useSheet,
+} from "@/components/A4Export";
+import { useStore, formatEUR } from "@/lib/store";
+import { toast } from "sonner";
+import {
+  MousePointer2, Minus, Spline, Compass, Scissors, Split, Waves,
+  GitCommitHorizontal, ImagePlus, Ruler, Trash2, Undo2, Plus, FlipHorizontal2,
+} from "lucide-react";
+
+/* ─────────────── Geometria ─────────────── */
+
+type Pt = { x: number; y: number };
+type PolyKind =
+  | "line" | "polyline" | "spline"
+  | "arc" | "circle" | "spiral"
+  | "offset" | "tangent" | "measure";
+
+type Poly = {
+  id: string;
+  kind: PolyKind;
+  pts: Pt[];
+  closed?: boolean;
+  color?: string;
+  marks?: Pt[];   // split-line markers
+  label?: string;
+};
+
+const A4_W = 595;
+const A4_H = 842;
+const PX_PER_CM = A4_W / 21; // ≈ 28.33 (mesma constante do editor)
+
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function dist(a: Pt, b: Pt) { return Math.hypot(a.x - b.x, a.y - b.y); }
+function polyLen(pts: Pt[]) {
+  let d = 0; for (let i = 1; i < pts.length; i++) d += dist(pts[i - 1], pts[i]); return d;
+}
+function pxToCm(px: number) { return px / PX_PER_CM; }
+function cmToPx(cm: number) { return cm * PX_PER_CM; }
+
+/** Catmull-Rom uniforme → amostra suave passando exatamente pelos pontos. */
+function catmullRom(pts: Pt[], samples = 24): Pt[] {
+  if (pts.length < 2) return pts.slice();
+  if (pts.length === 2) return [pts[0], pts[1]];
+  const out: Pt[] = [];
+  const ext = [pts[0], ...pts, pts[pts.length - 1]];
+  for (let i = 0; i < ext.length - 3; i++) {
+    const p0 = ext[i], p1 = ext[i + 1], p2 = ext[i + 2], p3 = ext[i + 3];
+    for (let j = 0; j < samples; j++) {
+      const t = j / samples, t2 = t * t, t3 = t2 * t;
+      out.push({
+        x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t
+              + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2
+              + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+        y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t
+              + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2
+              + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
+      });
+    }
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
+function arcSample(cx: number, cy: number, r: number, a0: number, a1: number, steps = 64): Pt[] {
+  const out: Pt[] = []; const n = Math.max(4, Math.round(steps * Math.abs(a1 - a0) / (Math.PI * 2)));
+  for (let i = 0; i <= n; i++) {
+    const t = a0 + (a1 - a0) * (i / n);
+    out.push({ x: cx + Math.cos(t) * r, y: cy + Math.sin(t) * r });
+  }
+  return out;
+}
+
+function spiralSample(cx: number, cy: number, r0: number, r1: number, turns: number, steps = 200): Pt[] {
+  const out: Pt[] = [];
+  const total = turns * Math.PI * 2;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps; const ang = t * total; const r = r0 + (r1 - r0) * t;
+    out.push({ x: cx + Math.cos(ang) * r, y: cy + Math.sin(ang) * r });
+  }
+  return out;
+}
+
+/** Offset paralelo de polilinha (positive = "direita" no sentido do traçado). */
+function offsetPolyline(pts: Pt[], distPx: number): Pt[] {
+  if (pts.length < 2) return pts;
+  const out: Pt[] = [];
+  for (let i = 0; i < pts.length; i++) {
+    const prev = pts[Math.max(0, i - 1)];
+    const next = pts[Math.min(pts.length - 1, i + 1)];
+    const tx = next.x - prev.x, ty = next.y - prev.y;
+    const l = Math.hypot(tx, ty) || 1;
+    // normal (rotação -90°)
+    const nx = -ty / l, ny = tx / l;
+    out.push({ x: pts[i].x + nx * distPx, y: pts[i].y + ny * distPx });
+  }
+  return out;
+}
+
+/** Marcadores equidistantes (N-1 marcadores entre extremos) para uma polyline. */
+function splitMarks(pts: Pt[], n: number): Pt[] {
+  const total = polyLen(pts); if (total <= 0 || n < 2) return [];
+  const step = total / n; const marks: Pt[] = []; let acc = 0;
+  for (let i = 1; i < pts.length; i++) {
+    let segLen = dist(pts[i - 1], pts[i]); if (segLen === 0) continue;
+    while (marks.length < n - 1 && acc + segLen >= step * (marks.length + 1)) {
+      const need = step * (marks.length + 1) - acc;
+      const t = need / segLen;
+      marks.push({
+        x: pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t,
+        y: pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t,
+      });
+    }
+    acc += segLen;
+  }
+  return marks;
+}
+
+/** Interseção segmento-segmento; devolve ponto ou null. */
+function segIntersect(a: Pt, b: Pt, c: Pt, d: Pt): Pt | null {
+  const rx = b.x - a.x, ry = b.y - a.y;
+  const sx = d.x - c.x, sy = d.y - c.y;
+  const denom = rx * sy - ry * sx; if (Math.abs(denom) < 1e-6) return null;
+  const t = ((c.x - a.x) * sy - (c.y - a.y) * sx) / denom;
+  const u = ((c.x - a.x) * ry - (c.y - a.y) * rx) / denom;
+  if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+  return { x: a.x + rx * t, y: a.y + ry * t };
+}
+
+function allIntersections(polys: Poly[]): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < polys.length; i++) {
+    for (let j = i + 1; j < polys.length; j++) {
+      const A = polys[i].pts, B = polys[j].pts;
+      for (let a = 1; a < A.length; a++) {
+        for (let b = 1; b < B.length; b++) {
+          const p = segIntersect(A[a - 1], A[a], B[b - 1], B[b]);
+          if (p) out.push(p);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement): Pt {
+  const r = svg.getBoundingClientRect();
+  return { x: ((e.clientX - r.left) / r.width) * A4_W, y: ((e.clientY - r.top) / r.height) * A4_H };
+}
+
+/* ─────────────── Componente ─────────────── */
+
+type Tool =
+  | "select" | "line" | "spline" | "arc" | "spiral"
+  | "offset" | "split" | "trim" | "tangent" | "measure";
+
+const TOOL_HINTS: Record<Tool, string> = {
+  select: "Clica numa peça para selecionar. Delete para apagar.",
+  line: "Clica-arrasta para criar uma linha reta. Ativa Live Mirror para espelhar.",
+  spline: "Clica em vários pontos; Enter/duplo-clique fecha a curva Catmull-Rom.",
+  arc: "Define centro, raio (cm) e ângulos, depois clica para posicionar o centro (compasso).",
+  spiral: "Define parâmetros e clica no centro (folhos em cascata).",
+  offset: "Seleciona uma peça e aplica offset em cm (revelo/margem interior).",
+  split: "Seleciona uma linha e divide em N partes iguais (casas de botão, franzido).",
+  trim: "Clica numa peça para remover o segmento entre as duas interseções mais próximas.",
+  tangent: "Clica no extremo de uma peça e depois no extremo de outra para as unir suavemente.",
+  measure: "Clica-arrasta para medir distâncias em cm sem criar peça.",
+};
+
+export function CosturaEditor() {
+  const ref = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [w, setW] = useMarcaDAgua();
+  const sheet = useSheet();
+
+  const [tool, setTool] = useState<Tool>("line");
+  const [polys, setPolys] = useState<Poly[]>([]);
+  const [history, setHistory] = useState<Poly[][]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [liveMirror, setLiveMirror] = useState(false);
+  const [snapIntersect, setSnapIntersect] = useState(true);
+  const [gridOn, setGridOn] = useState(true);
+
+  // Decalque (image underlay)
+  const [underlay, setUnderlay] = useState<string>("");
+  const [underOpacity, setUnderOpacity] = useState(35);
+
+  // Parâmetros de ferramentas
+  const [arcRadiusCm, setArcRadiusCm] = useState(20);
+  const [arcStart, setArcStart] = useState(180);
+  const [arcEnd, setArcEnd] = useState(360);
+  const [spiralR0, setSpiralR0] = useState(3);
+  const [spiralR1, setSpiralR1] = useState(12);
+  const [spiralTurns, setSpiralTurns] = useState(2.5);
+  const [offsetCm, setOffsetCm] = useState(4);
+  const [splitN, setSplitN] = useState(5);
+
+  // Traço em progresso (line drag, spline point list, measure)
+  const dragStart = useRef<Pt | null>(null);
+  const [previewLine, setPreviewLine] = useState<{ a: Pt; b: Pt } | null>(null);
+  const [splinePts, setSplinePts] = useState<Pt[]>([]);
+  const [measureBox, setMeasureBox] = useState<{ a: Pt; b: Pt } | null>(null);
+
+  // Tamanhos & custo
+  const [tamanho, setTamanho] = useState<"S" | "M" | "L" | "XL">("M");
+  const fator = tamanho === "S" ? 0.9 : tamanho === "M" ? 1 : tamanho === "L" ? 1.1 : 1.2;
+  const materiais = useStore((s) => s.materiais);
+  const [usados, setUsados] = useState<{ materialId: string; quantidade: number }[]>([]);
+  const custoTotal = useMemo(() => usados.reduce((acc, u) => {
+    const m = materiais.find((x) => x.id === u.materialId);
+    return acc + (m ? m.precoCompra * u.quantidade : 0);
+  }, 0), [usados, materiais]);
+
+  const intersections = useMemo(() => allIntersections(polys), [polys]);
+
+  function push(next: Poly[]) {
+    setHistory((h) => [...h.slice(-49), polys]);
+    setPolys(next);
+  }
+  function undo() {
+    setHistory((h) => {
+      if (!h.length) return h;
+      const prev = h[h.length - 1];
+      setPolys(prev);
+      return h.slice(0, -1);
+    });
+  }
+
+  function snap(p: Pt): Pt {
+    if (!snapIntersect) return p;
+    let best: Pt | null = null; let bd = 8;
+    for (const q of intersections) {
+      const d = dist(p, q); if (d < bd) { bd = d; best = q; }
+    }
+    return best ?? p;
+  }
+
+  function addPoly(kind: PolyKind, pts: Pt[], extra: Partial<Poly> = {}) {
+    const p: Poly = { id: uid(), kind, pts, color: "#222", ...extra };
+    const mirror: Poly[] = liveMirror
+      ? [{ id: uid(), kind, color: "#8b5cf6", pts: pts.map((q) => ({ x: A4_W - q.x, y: q.y })), ...extra }]
+      : [];
+    push([...polys, p, ...mirror]);
+  }
+
+  /* ─── Eventos do canvas ─── */
+  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    const p = snap(ponto(e, svgRef.current!));
+    if (tool === "line" || tool === "measure") {
+      dragStart.current = p;
+      if (tool === "measure") setMeasureBox({ a: p, b: p });
+      return;
+    }
+    if (tool === "spline") {
+      setSplinePts((s) => [...s, p]);
+      return;
+    }
+    if (tool === "arc") {
+      const r = cmToPx(arcRadiusCm);
+      const pts = arcSample(p.x, p.y, r, (arcStart * Math.PI) / 180, (arcEnd * Math.PI) / 180);
+      addPoly("arc", pts, { label: `⌀${arcRadiusCm}cm` });
+      return;
+    }
+    if (tool === "spiral") {
+      const pts = spiralSample(p.x, p.y, cmToPx(spiralR0), cmToPx(spiralR1), spiralTurns);
+      addPoly("spiral", pts, { label: `${spiralTurns}× espiral` });
+      return;
+    }
+    if (tool === "select" || tool === "offset" || tool === "split" || tool === "trim" || tool === "tangent") {
+      // pick nearest poly point
+      let bestId: string | null = null; let bd = 12;
+      polys.forEach((pl) => {
+        for (const q of pl.pts) {
+          const d = dist(p, q); if (d < bd) { bd = d; bestId = pl.id; }
+        }
+      });
+      setSelectedId(bestId);
+      if (bestId && tool === "trim") applyTrim(bestId, p);
+      if (bestId && tool === "tangent") applyTangent(bestId, p);
+      return;
+    }
+  };
+  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragStart.current) return;
+    const p = snap(ponto(e, svgRef.current!));
+    if (tool === "line") setPreviewLine({ a: dragStart.current, b: p });
+    if (tool === "measure") setMeasureBox({ a: dragStart.current, b: p });
+  };
+  const onUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragStart.current) return;
+    const p = snap(ponto(e, svgRef.current!));
+    if (tool === "line" && dist(dragStart.current, p) > 4) {
+      addPoly("line", [dragStart.current, p]);
+    }
+    dragStart.current = null; setPreviewLine(null);
+  };
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && tool === "spline" && splinePts.length >= 2) {
+      addPoly("spline", catmullRom(splinePts));
+      setSplinePts([]);
+    }
+    if (e.key === "Delete" && selectedId) {
+      push(polys.filter((x) => x.id !== selectedId));
+      setSelectedId(null);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") undo();
+  };
+  const onDoubleClick = () => {
+    if (tool === "spline" && splinePts.length >= 2) {
+      addPoly("spline", catmullRom(splinePts));
+      setSplinePts([]);
+    }
+  };
+
+  /* ─── Ações por seleção ─── */
+  function applyOffset(dir: 1 | -1) {
+    if (!selectedId) return toast.error("Seleciona uma peça primeiro.");
+    const src = polys.find((x) => x.id === selectedId); if (!src) return;
+    const off = offsetPolyline(src.pts, dir * cmToPx(offsetCm));
+    push([...polys, { id: uid(), kind: "offset", pts: off, color: dir > 0 ? "#0ea5e9" : "#22c55e" }]);
+    toast.success(`Offset ${dir > 0 ? "exterior" : "interior"} ${offsetCm} cm`);
+  }
+  function applySplit() {
+    if (!selectedId) return toast.error("Seleciona uma peça primeiro.");
+    const idx = polys.findIndex((x) => x.id === selectedId); if (idx < 0) return;
+    const src = polys[idx];
+    const marks = splitMarks(src.pts, splitN);
+    const next = polys.slice(); next[idx] = { ...src, marks };
+    push(next);
+    toast.success(`${marks.length} marcadores igualmente espaçados`);
+  }
+  function applyTrim(id: string, near: Pt) {
+    const idx = polys.findIndex((x) => x.id === id); if (idx < 0) return;
+    const src = polys[idx];
+    // interseções desta peça com todas as outras
+    const hits: { pt: Pt; segIdx: number; t: number }[] = [];
+    for (let a = 1; a < src.pts.length; a++) {
+      const A0 = src.pts[a - 1], A1 = src.pts[a];
+      polys.forEach((other) => {
+        if (other.id === id) return;
+        for (let b = 1; b < other.pts.length; b++) {
+          const p = segIntersect(A0, A1, other.pts[b - 1], other.pts[b]);
+          if (p) {
+            const len = dist(A0, A1) || 1;
+            hits.push({ pt: p, segIdx: a, t: dist(A0, p) / len });
+          }
+        }
+      });
+    }
+    if (hits.length < 2) return toast.error("Precisa de ≥2 interseções com outras peças.");
+    // ordena pela distância acumulada, escolhe as duas que envolvem o clique
+    hits.sort((x, y) => (x.segIdx + x.t) - (y.segIdx + y.t));
+    const posClick = hits.reduce((best, h) => dist(h.pt, near) < dist(best.pt, near) ? h : best, hits[0]);
+    const centerIdx = hits.indexOf(posClick);
+    const lo = hits[Math.max(0, centerIdx - 1)];
+    const hi = hits[Math.min(hits.length - 1, centerIdx + 1)];
+    // mantém partes antes de `lo` e depois de `hi`
+    const before = src.pts.slice(0, lo.segIdx).concat([lo.pt]);
+    const after = [hi.pt].concat(src.pts.slice(hi.segIdx));
+    const next = polys.slice();
+    next.splice(idx, 1,
+      { ...src, id: uid(), pts: before },
+      { ...src, id: uid(), pts: after },
+    );
+    push(next);
+    toast.success("Segmento aparado entre interseções.");
+  }
+  const tangentPick = useRef<{ id: string; pt: Pt } | null>(null);
+  function applyTangent(id: string, p: Pt) {
+    const src = polys.find((x) => x.id === id); if (!src) return;
+    // escolhe extremo mais próximo
+    const first = src.pts[0], last = src.pts[src.pts.length - 1];
+    const endpoint = dist(first, p) < dist(last, p) ? first : last;
+    if (!tangentPick.current) {
+      tangentPick.current = { id, pt: endpoint };
+      toast("Clica agora no extremo da segunda peça.");
+      return;
+    }
+    const a = tangentPick.current.pt;
+    tangentPick.current = null;
+    // curva de transição suave: Catmull-Rom com 4 pontos = tangente suave
+    const mid1 = { x: a.x + (endpoint.x - a.x) * 0.33, y: a.y + (endpoint.y - a.y) * 0.33 };
+    const mid2 = { x: a.x + (endpoint.x - a.x) * 0.66, y: a.y + (endpoint.y - a.y) * 0.66 };
+    const pts = catmullRom([a, mid1, mid2, endpoint], 12);
+    push([...polys, { id: uid(), kind: "tangent", pts, color: "#f59e0b" }]);
+    toast.success("Tangente automática criada.");
+  }
+
+  /* ─── Custo × tamanho ─── */
+  const totalCm = useMemo(
+    () => polys.reduce((acc, p) => acc + pxToCm(polyLen(p.pts)) * fator, 0),
+    [polys, fator],
+  );
+
+  // path helpers
+  const toD = (pts: Pt[]) => pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div>
+        <div className="mb-2 flex flex-wrap gap-1 rounded border bg-card p-1 text-[11px]" role="toolbar">
+          <ToolBtn label="Selecionar" icon={<MousePointer2 className="h-3 w-3" />} active={tool === "select"} onClick={() => setTool("select")} />
+          <ToolBtn label="Reta" icon={<Minus className="h-3 w-3" />} active={tool === "line"} onClick={() => setTool("line")} />
+          <ToolBtn label="Spline" icon={<Spline className="h-3 w-3" />} active={tool === "spline"} onClick={() => setTool("spline")} />
+          <ToolBtn label="Compasso" icon={<Compass className="h-3 w-3" />} active={tool === "arc"} onClick={() => setTool("arc")} />
+          <ToolBtn label="Espiral" icon={<Waves className="h-3 w-3" />} active={tool === "spiral"} onClick={() => setTool("spiral")} />
+          <ToolBtn label="Offset" icon={<GitCommitHorizontal className="h-3 w-3" />} active={tool === "offset"} onClick={() => setTool("offset")} />
+          <ToolBtn label="Dividir" icon={<Split className="h-3 w-3" />} active={tool === "split"} onClick={() => setTool("split")} />
+          <ToolBtn label="Aparar" icon={<Scissors className="h-3 w-3" />} active={tool === "trim"} onClick={() => setTool("trim")} />
+          <ToolBtn label="Tangente" icon={<Spline className="h-3 w-3 rotate-45" />} active={tool === "tangent"} onClick={() => setTool("tangent")} />
+          <ToolBtn label="Medir" icon={<Ruler className="h-3 w-3" />} active={tool === "measure"} onClick={() => setTool("measure")} />
+          <div className="mx-1 w-px bg-border" />
+          <ToolBtn label="Live Mirror" icon={<FlipHorizontal2 className="h-3 w-3" />} active={liveMirror} onClick={() => setLiveMirror((v) => !v)} />
+          <ToolBtn label="Snap ⇔" icon={<Compass className="h-3 w-3" />} active={snapIntersect} onClick={() => setSnapIntersect((v) => !v)} />
+          <ToolBtn label="Grelha" icon={<Compass className="h-3 w-3" />} active={gridOn} onClick={() => setGridOn((v) => !v)} />
+          <ToolBtn label="Desfazer" icon={<Undo2 className="h-3 w-3" />} onClick={undo} />
+          <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
+        </div>
+        <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
+        <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
+          {underlay && (
+            <img
+              src={underlay}
+              alt="decalque"
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+              style={{ opacity: underOpacity / 100 }}
+            />
+          )}
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${A4_W} ${A4_H}`}
+            className="absolute inset-0 h-full w-full touch-none"
+            tabIndex={0}
+            onPointerDown={onDown}
+            onPointerMove={onMove}
+            onPointerUp={onUp}
+            onDoubleClick={onDoubleClick}
+            onKeyDown={onKey}
+          >
+            {gridOn && (
+              <>
+                <defs>
+                  <pattern id="gridc" width={PX_PER_CM} height={PX_PER_CM} patternUnits="userSpaceOnUse">
+                    <path d={`M ${PX_PER_CM} 0 L 0 0 0 ${PX_PER_CM}`} fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#gridc)" />
+              </>
+            )}
+            {liveMirror && (
+              <line x1={A4_W / 2} y1={0} x2={A4_W / 2} y2={A4_H}
+                    stroke="#8b5cf6" strokeDasharray="4 6" strokeWidth="0.6" />
+            )}
+            {polys.map((pl) => {
+              const cm = (pxToCm(polyLen(pl.pts)) * fator).toFixed(1);
+              const sel = pl.id === selectedId;
+              return (
+                <g key={pl.id}>
+                  <path d={toD(pl.pts)} fill="none"
+                        stroke={sel ? "#ef4444" : (pl.color ?? "#222")}
+                        strokeWidth={sel ? 2 : 1.4}
+                        transform={fator !== 1 ? `translate(${pl.pts[0]?.x ?? 0} ${pl.pts[0]?.y ?? 0}) scale(${fator}) translate(${-(pl.pts[0]?.x ?? 0)} ${-(pl.pts[0]?.y ?? 0)})` : undefined} />
+                  {pl.marks?.map((m, i) => (
+                    <circle key={i} cx={m.x} cy={m.y} r={3} fill="#f43f5e" stroke="white" strokeWidth={1} />
+                  ))}
+                  {pl.label && pl.pts[0] && (
+                    <text x={pl.pts[0].x + 4} y={pl.pts[0].y - 4} fontSize="9" fill="#6b7280">{pl.label} · {cm}cm</text>
+                  )}
+                </g>
+              );
+            })}
+            {/* linha em pré-visualização */}
+            {previewLine && (
+              <line x1={previewLine.a.x} y1={previewLine.a.y} x2={previewLine.b.x} y2={previewLine.b.y}
+                    stroke="#0ea5e9" strokeDasharray="3 3" strokeWidth="1.2" />
+            )}
+            {/* pontos spline em progresso */}
+            {tool === "spline" && splinePts.length > 0 && (
+              <g>
+                <path d={toD(catmullRom(splinePts))} fill="none" stroke="#a78bfa" strokeDasharray="2 3" strokeWidth="1.2" />
+                {splinePts.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r={3} fill="#a78bfa" />
+                ))}
+              </g>
+            )}
+            {/* medidor */}
+            {measureBox && (
+              <g>
+                <line x1={measureBox.a.x} y1={measureBox.a.y} x2={measureBox.b.x} y2={measureBox.b.y}
+                      stroke="#f59e0b" strokeWidth="1" strokeDasharray="4 3" />
+                <text x={(measureBox.a.x + measureBox.b.x) / 2} y={(measureBox.a.y + measureBox.b.y) / 2 - 6}
+                      fontSize="10" fill="#b45309" textAnchor="middle">
+                  {pxToCm(dist(measureBox.a, measureBox.b)).toFixed(1)} cm
+                </text>
+              </g>
+            )}
+            {/* interseções */}
+            {snapIntersect && intersections.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r={2.2} fill="none" stroke="#10b981" strokeWidth="0.8" />
+            ))}
+          </svg>
+        </A4Stage>
+      </div>
+
+      <div className="space-y-3">
+        <SheetControls {...sheet} />
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Tamanho</Label>
+              <Select value={tamanho} onValueChange={(v) => setTamanho(v as any)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["S", "M", "L", "XL"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Total linhas</Label>
+              <div className="rounded border bg-muted/40 px-2 py-1 text-[11px]">{totalCm.toFixed(1)} cm</div>
+            </div>
+          </div>
+        </CardContent></Card>
+
+        {(tool === "arc") && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-medium">Compasso (arco por raio)</div>
+            <Label className="text-[11px]">Raio ({arcRadiusCm} cm)</Label>
+            <Slider value={[arcRadiusCm]} min={1} max={80} step={0.5} onValueChange={(v) => setArcRadiusCm(v[0])} />
+            <div className="grid grid-cols-2 gap-1">
+              <div>
+                <Label className="text-[11px]">Início ({arcStart}°)</Label>
+                <Slider value={[arcStart]} min={0} max={360} step={1} onValueChange={(v) => setArcStart(v[0])} />
+              </div>
+              <div>
+                <Label className="text-[11px]">Fim ({arcEnd}°)</Label>
+                <Slider value={[arcEnd]} min={0} max={720} step={1} onValueChange={(v) => setArcEnd(v[0])} />
+              </div>
+            </div>
+          </CardContent></Card>
+        )}
+
+        {(tool === "spiral") && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-medium">Gerador de espiral</div>
+            <Label className="text-[11px]">Raio inicial ({spiralR0} cm)</Label>
+            <Slider value={[spiralR0]} min={0.5} max={30} step={0.5} onValueChange={(v) => setSpiralR0(v[0])} />
+            <Label className="text-[11px]">Raio final ({spiralR1} cm)</Label>
+            <Slider value={[spiralR1]} min={1} max={40} step={0.5} onValueChange={(v) => setSpiralR1(v[0])} />
+            <Label className="text-[11px]">Voltas ({spiralTurns.toFixed(1)}×)</Label>
+            <Slider value={[spiralTurns]} min={0.5} max={8} step={0.1} onValueChange={(v) => setSpiralTurns(v[0])} />
+          </CardContent></Card>
+        )}
+
+        {(tool === "offset") && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-medium">Offset / Revelo</div>
+            <Label className="text-[11px]">Distância ({offsetCm} cm)</Label>
+            <Slider value={[offsetCm]} min={0.2} max={20} step={0.1} onValueChange={(v) => setOffsetCm(v[0])} />
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={() => applyOffset(1)}>Exterior (margem)</Button>
+              <Button size="sm" variant="outline" onClick={() => applyOffset(-1)}>Interior (revelo)</Button>
+            </div>
+          </CardContent></Card>
+        )}
+
+        {(tool === "split") && (
+          <Card><CardContent className="space-y-2 p-3">
+            <div className="text-xs font-medium">Dividir em N partes iguais</div>
+            <Label className="text-[11px]">N = {splitN}</Label>
+            <Slider value={[splitN]} min={2} max={30} step={1} onValueChange={(v) => setSplitN(v[0])} />
+            <Button size="sm" variant="outline" onClick={applySplit}><Plus className="mr-1 h-3 w-3" />Colocar marcadores</Button>
+          </CardContent></Card>
+        )}
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Decalque de imagem</div>
+          <Input type="file" accept="image/*" onChange={(e) => {
+            const f = e.target.files?.[0]; if (!f) return;
+            const r = new FileReader(); r.onload = () => setUnderlay(r.result as string); r.readAsDataURL(f);
+          }} />
+          {underlay && (
+            <>
+              <Label className="text-[11px]">Opacidade ({underOpacity}%)</Label>
+              <Slider value={[underOpacity]} min={5} max={90} step={1} onValueChange={(v) => setUnderOpacity(v[0])} />
+              <Button size="sm" variant="ghost" onClick={() => setUnderlay("")}><Trash2 className="mr-1 h-3 w-3" />Remover decalque</Button>
+            </>
+          )}
+          <p className="text-[10px] text-muted-foreground">
+            Importa uma fotografia de um molde antigo ou esboço e decalca por cima com as ferramentas.
+          </p>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="font-display font-semibold text-sm">Custo do Projeto</div>
+          {usados.map((u, i) => {
+            const m = materiais.find((x) => x.id === u.materialId);
+            return (
+              <div key={i} className="grid grid-cols-[1fr_70px_auto] items-center gap-1">
+                <Select value={u.materialId} onValueChange={(v) => setUsados((s) => s.map((x, j) => j === i ? { ...x, materialId: v } : x))}>
+                  <SelectTrigger className="h-8"><SelectValue placeholder="Material" /></SelectTrigger>
+                  <SelectContent>{materiais.map((mm) => <SelectItem key={mm.id} value={mm.id}>{mm.nome} ({mm.unidade})</SelectItem>)}</SelectContent>
+                </Select>
+                <Input type="number" className="h-8" value={u.quantidade}
+                       onChange={(e) => setUsados((s) => s.map((x, j) => j === i ? { ...x, quantidade: +e.target.value } : x))} />
+                <Button size="icon" variant="ghost" onClick={() => setUsados((s) => s.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></Button>
+                {m && <div className="col-span-3 text-[10px] text-muted-foreground">{u.quantidade} × {formatEUR(m.precoCompra)} = {formatEUR(u.quantidade * m.precoCompra)}</div>}
+              </div>
+            );
+          })}
+          <Button size="sm" variant="outline" onClick={() => setUsados((s) => [...s, { materialId: materiais[0]?.id ?? "", quantidade: 1 }])}>
+            <Plus className="mr-1 h-3 w-3" />Material
+          </Button>
+          <div className="border-t pt-2 text-sm">Total: <span className="font-display font-bold">{formatEUR(custoTotal)}</span></div>
+        </CardContent></Card>
+
+        <WatermarkControls w={w} set={setW} />
+        <ExportPanel targetRef={ref} defaultArea="Costura" defaultTitulo={`Molde ${tamanho}`} size={sheet.size} orientacao={sheet.orientacao} />
+      </div>
+    </div>
+  );
+}
+
+function ToolBtn({ label, icon, active, onClick }: { label: string; icon: React.ReactNode; active?: boolean; onClick: () => void }) {
+  return (
+    <button type="button"
+      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] ${active ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+      onClick={onClick} title={label}>
+      {icon}<span className="hidden sm:inline">{label}</span>
+    </button>
+  );
+}
