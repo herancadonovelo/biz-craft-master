@@ -42,6 +42,9 @@ const DEFAULT_RULES: MergeRules = {
   anexarNotas: true,
 };
 const RULES_KEY = "editor-receita-merge-rules";
+const RULES_PRESETS_KEY = "editor-receita-merge-rules-presets";
+
+interface MergePreset { id: string; nome: string; rules: MergeRules }
 
 export const Route = createFileRoute("/editor-receita")({
   head: () => ({ meta: [{ title: "Editor De Receitas" }] }),
@@ -67,6 +70,38 @@ function Page() {
     } catch { return DEFAULT_RULES; }
   });
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [presets, setPresets] = useState<MergePreset[]>(() => {
+    try {
+      const raw = typeof window !== "undefined" && window.localStorage.getItem(RULES_PRESETS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+  const [presetName, setPresetName] = useState("");
+  const savePresets = (list: MergePreset[]) => {
+    setPresets(list);
+    try { window.localStorage.setItem(RULES_PRESETS_KEY, JSON.stringify(list)); } catch {}
+  };
+  const gravarPreset = () => {
+    const nome = presetName.trim();
+    if (!nome) { toast.error("Dá um nome ao preset"); return; }
+    const existente = presets.find((p) => p.nome.toLowerCase() === nome.toLowerCase());
+    const entry: MergePreset = { id: existente?.id ?? uid(), nome, rules };
+    const next = existente
+      ? presets.map((p) => (p.id === existente.id ? entry : p))
+      : [...presets, entry];
+    savePresets(next);
+    setPresetName("");
+    toast.success(existente ? `Preset "${nome}" atualizado` : `Preset "${nome}" gravado`);
+  };
+  const aplicarPreset = (id: string) => {
+    const p = presets.find((x) => x.id === id);
+    if (!p) return;
+    setAndSaveRules(p.rules);
+    toast.success(`Preset "${p.nome}" aplicado`);
+  };
+  const removerPreset = (id: string) => {
+    savePresets(presets.filter((p) => p.id !== id));
+  };
   const setAndSaveRules = (r: MergeRules) => {
     setRules(r);
     try { window.localStorage.setItem(RULES_KEY, JSON.stringify(r)); } catch {}
