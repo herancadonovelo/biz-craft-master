@@ -20,36 +20,39 @@ interface SignupEmailProps {
 }
 
 export const SignupEmail = ({
-  siteName,
-  siteUrl,
-  recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="pt" dir="ltr">
     <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
+    <Preview>Bem-vindo(a) ao Craft Business Master 🎉 Confirma o teu acesso</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Heading style={h1}>Bem-vindo(a) ao Craft Business Master 🎉</Heading>
+        <Text style={text}>Olá!</Text>
         <Text style={text}>
-          Thanks for signing up for{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
-          </Link>
-          !
+          Que bom ver-te por aqui. Estás a um pequeno passo de simplificar toda a gestão
+          das tuas criações, despesas e vendas.
         </Text>
         <Text style={text}>
-          Please confirm your email address (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) by clicking the button below:
+          Para entrares oficialmente na plataforma, clica no botão abaixo para validar a
+          tua conta de email:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify Email
+          Validar Conta e Começar
         </Button>
+        <Text style={{ ...text, fontSize: '12px', color: '#888' }}>
+          Link alternativo:{' '}
+          <Link href={confirmationUrl} style={link}>
+            {confirmationUrl}
+          </Link>
+        </Text>
+        <Text style={text}>
+          Mal podemos esperar para ver o teu negócio crescer de forma organizada.
+        </Text>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          Um abraço,
+          <br />
+          A equipa Art Fusion
         </Text>
       </Container>
     </Body>
