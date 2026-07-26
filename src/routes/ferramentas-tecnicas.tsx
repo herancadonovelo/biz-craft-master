@@ -2744,7 +2744,7 @@ function BordadoTab() {
             <g pointerEvents="none">
               <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(255,255,255,0.85)" />
               {(() => {
-                const parts: JSX.Element[] = [];
+                const parts: React.ReactElement[] = [];
                 let curBlock = -1;
                 let d = "";
                 let curColor = "#111";
