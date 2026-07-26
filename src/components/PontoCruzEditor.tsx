@@ -991,19 +991,36 @@ export function PontoCruzEditor() {
                     <Slider value={[wm.opacity]} min={0} max={100} step={1} onValueChange={(v) => setWmField("opacity", v[0])} />
                   </div>
                 </div>
-                {/* Live preview */}
+                {/* Live preview (deferred to avoid jank while sliding) */}
                 <svg viewBox="0 0 210 297" className="mt-1 h-40 w-full rounded border bg-white">
                   <rect x="0" y="0" width="210" height="297" fill="#fff" />
                   <rect x="10" y="10" width="190" height="120" fill="#f4f4f5" stroke="#ddd" />
-                  {wm.text.trim() && wmCoords(wm.pos, 210, 297, 10).map((p, i) => (
+                  {wmPreview.text.trim() && wmCoords(wmPreview.pos, 210, 297, 10).map((p, i) => (
                     <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-                      transform={`rotate(${wm.angle} ${p.x} ${p.y})`}
-                      fill="#555" opacity={wm.opacity / 100}
-                      style={{ font: `bold ${Math.max(6, wm.size * 0.35)}px system-ui` }}>
-                      {wm.text}
+                      transform={`rotate(${wmPreview.angle} ${p.x} ${p.y})`}
+                      fill="#555" opacity={wmPreview.opacity / 100}
+                      style={{ font: `bold ${Math.max(6, wmPreview.size * 0.35)}px system-ui` }}>
+                      {wmPreview.text}
                     </text>
                   ))}
                 </svg>
+              </div>
+              <div className="rounded border p-2 space-y-2">
+                <div className="text-xs font-semibold">Resolução PNG</div>
+                <div>
+                  <Label className="text-[10px]">
+                    Célula ({pngCellPx}px) · ~{Math.round(pngCellPx * 25.4 / (2.54 * (chart.aidaCount / 14 * 5)))} DPI aprox.
+                  </Label>
+                  <Slider value={[pngCellPx]} min={12} max={64} step={2} onValueChange={(v) => setPngCellPx(v[0])} />
+                </div>
+                <div>
+                  <Label className="text-[10px]">Escala da legenda ({pngLegendScale.toFixed(2)}×)</Label>
+                  <Slider value={[Math.round(pngLegendScale * 100)]} min={50} max={300} step={10}
+                    onValueChange={(v) => setPngLegendScale(v[0] / 100)} />
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Aumenta a célula para impressão em maior formato. A legenda e a marca de água escalam para se manterem legíveis.
+                </p>
               </div>
               <div className="rounded border p-2 space-y-2">
                 <div className="text-xs font-semibold">Substituições de cores (por projeto)</div>
