@@ -589,6 +589,7 @@ export interface DesignSettings {
   nomeNegocio: string;
   precoHoraBase: number; // €/h base hourly rate
   idioma: Idioma;
+  moeda?: CurrencyCode; // ISO 4217 currency code (default EUR)
   pinContas: string; // 4 dígitos
   toqueAlarme: string;
   // Personalização visual avançada
@@ -881,6 +882,7 @@ const seed = (): Pick<
       nomeNegocio: "Craftme Business Master",
       precoHoraBase: 7,
       idioma: "en",
+      moeda: "EUR",
       pinContas: "0000",
       toqueAlarme: "ping",
       imagemFundo: "",
@@ -1165,4 +1167,52 @@ export const precoProjeto = (projeto: Projeto, materiais: Material[]) => {
 };
 
 export const formatEUR = (n: number) =>
-  new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+  formatCurrency(n);
+
+// ─── Moeda global ───────────────────────────────────────────────────
+export type CurrencyCode =
+  | "EUR" | "USD" | "BRL" | "GBP" | "CAD" | "AUD" | "CHF"
+  | (string & {});
+
+export interface CurrencyOption {
+  code: CurrencyCode;
+  label: string;
+  symbol: string;
+  locale: string;
+}
+
+export const CURRENCIES: CurrencyOption[] = [
+  { code: "EUR", label: "Euro",              symbol: "€",   locale: "pt-PT" },
+  { code: "USD", label: "Dólar Americano",   symbol: "$",   locale: "en-US" },
+  { code: "BRL", label: "Real Brasileiro",   symbol: "R$",  locale: "pt-BR" },
+  { code: "GBP", label: "Libra Esterlina",   symbol: "£",   locale: "en-GB" },
+  { code: "CAD", label: "Dólar Canadiano",   symbol: "CA$", locale: "en-CA" },
+  { code: "AUD", label: "Dólar Australiano", symbol: "AU$", locale: "en-AU" },
+  { code: "CHF", label: "Franco Suíço",      symbol: "CHF", locale: "de-CH" },
+];
+
+export function getCurrencyOption(code?: string): CurrencyOption {
+  return CURRENCIES.find((c) => c.code === code) ?? CURRENCIES[0];
+}
+
+/**
+ * Formata um valor monetário na moeda global preferida (ou na fornecida).
+ * Usa `Intl.NumberFormat` para respeitar a posição de símbolo/decimais por locale.
+ */
+export function formatCurrency(value: number, currencyCode?: string): string {
+  let code = currencyCode;
+  if (!code) {
+    try {
+      code = useStore.getState().design.moeda;
+    } catch { /* store may not be ready during SSR */ }
+  }
+  const opt = getCurrencyOption(code);
+  try {
+    return new Intl.NumberFormat(opt.locale, {
+      style: "currency",
+      currency: opt.code,
+    }).format(Number.isFinite(value) ? value : 0);
+  } catch {
+    return `${opt.symbol}${(Number.isFinite(value) ? value : 0).toFixed(2)}`;
+  }
+}
