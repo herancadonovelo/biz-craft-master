@@ -2531,10 +2531,6 @@ function BordadoTab() {
               <rect width="4" height="4" fill="#faf7f0" />
               <circle cx="2" cy="2" r="0.5" fill="#e2d6b8" />
             </pattern>
-            {preview3D && (
-              <rect id="fx-fabric-bg" x="0" y="0" width={A4_W} height={A4_H}
-                    fill={`url(#fx-fabric-${fabric3D})`} />
-            )}
             {layers.map((l) => (
               <React.Fragment key={`m-${l.id}`}>
                 <marker id={`mk-cross-${l.id}`} viewBox="-5 -5 10 10" markerWidth="6" markerHeight="6"
