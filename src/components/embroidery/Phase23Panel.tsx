@@ -36,6 +36,22 @@ import {
   type LayerOverride, type LayerOverrideMap,
 } from "@/lib/embroidery-phase23";
 
+type AutoFixChange = ReturnType<typeof autoFixOverrides>["changes"][number];
+
+const REASON_LABELS: Record<string, string> = {
+  "density-high":     "Densidade alta",
+  "density-low":      "Densidade baixa",
+  "satin-too-wide":   "Satim demasiado largo",
+  "run-too-large":    "Corrida > área máx.",
+  "underlay-missing": "Underlay em falta",
+  "pullcomp-excess":  "Pull-comp excessivo",
+};
+
+const fmtVal = (v: unknown) =>
+  typeof v === "number" ? v.toFixed(2)
+  : v === undefined     ? "—"
+  : String(v);
+
 interface Phase23PanelProps {
   projectId?: string;
   rules: SmartLayerRule[];
@@ -51,6 +67,9 @@ export function Phase23Panel({
   const [overrides, setOverrides] = useState<LayerOverrideMap>(() => loadOverrides(projectId));
   const [checkState, setCheckState] = useState<Record<string, boolean>>(() => loadChecklistState(projectId));
   const [machineId, setMachineId] = useState(() => loadMachineId(projectId));
+  const [lastFix, setLastFix] = useState<{
+    changes: AutoFixChange[]; manual: string[]; at: number;
+  } | null>(null);
 
   useEffect(() => { saveOverrides(overrides, projectId); }, [overrides, projectId]);
   useEffect(() => { saveChecklistState(checkState, projectId); }, [checkState, projectId]);
@@ -86,16 +105,18 @@ export function Phase23Panel({
 
   const doAutoFix = () => {
     const res = autoFixOverrides(initialRules, overrides);
-    if (res.changes.length === 0) {
-      toast.info("Nada a corrigir — as camadas já estão dentro dos parâmetros.");
-      return;
-    }
-    setOverrides(res.overrides);
     const manual: string[] = [];
     if (report.outOfHoop) manual.push("desenho fora do bastidor");
     if (report.longJumps >= 5 && !machine.supportsTrim) manual.push(`${report.longJumps} saltos longos`);
     if (report.colorCount > machine.needleCount && !machine.supportsColorChange)
       manual.push(`${report.colorCount} cores > ${machine.needleCount} agulhas`);
+    if (res.changes.length === 0) {
+      setLastFix({ changes: [], manual, at: Date.now() });
+      toast.info("Nada a corrigir — as camadas já estão dentro dos parâmetros.");
+      return;
+    }
+    setOverrides(res.overrides);
+    setLastFix({ changes: res.changes, manual, at: Date.now() });
     toast.success(
       `${res.changes.length} ajuste(s) aplicado(s) em ${new Set(res.changes.map((c) => c.layerIndex)).size} camada(s).`,
       manual.length ? { description: `Ainda requer ação manual: ${manual.join(" · ")}` } : undefined,
@@ -142,6 +163,54 @@ export function Phase23Panel({
             Corrigir automaticamente
           </Button>
         </div>
+
+        {lastFix && (lastFix.changes.length > 0 || lastFix.manual.length > 0) && (
+          <div className="rounded border bg-muted/20 p-2 space-y-2" data-testid="autofix-summary">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold">
+                Antes / depois · {lastFix.changes.length} alteração(ões)
+              </p>
+              <Button size="sm" variant="ghost" className="h-6 text-[11px]"
+                onClick={() => setLastFix(null)}>Fechar</Button>
+            </div>
+            {lastFix.changes.length > 0 && (() => {
+              const grouped = lastFix.changes.reduce<Record<string, AutoFixChange[]>>((acc, c) => {
+                (acc[c.reason] ||= []).push(c); return acc;
+              }, {});
+              return (
+                <div className="space-y-1.5">
+                  {Object.entries(grouped).map(([reason, list]) => (
+                    <div key={reason} className="rounded bg-background/70 p-1.5">
+                      <div className="text-[11px] font-medium">
+                        <Badge variant="outline" className="mr-1.5">{REASON_LABELS[reason] ?? reason}</Badge>
+                        <span className="text-muted-foreground">
+                          {list.length} camada(s)
+                        </span>
+                      </div>
+                      <div className="mt-1 grid gap-0.5 text-[11px] font-mono">
+                        {list.map((c, i) => (
+                          <div key={i} className="flex gap-2">
+                            <span className="text-muted-foreground">L{c.layerIndex + 1}</span>
+                            <span className="text-muted-foreground">{String(c.field)}:</span>
+                            <span className="line-through text-destructive/80">{fmtVal(c.from)}</span>
+                            <span aria-hidden>→</span>
+                            <span className="text-emerald-600 dark:text-emerald-400">{fmtVal(c.to)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+            {lastFix.manual.length > 0 && (
+              <div className="text-[11px] rounded border-l-2 border-amber-500 pl-2 py-1 bg-amber-50/40 dark:bg-amber-950/20">
+                <span className="font-medium">Requer ação manual:</span>{" "}
+                {lastFix.manual.join(" · ")}
+              </div>
+            )}
+          </div>
+        )}
 
           {(report.issues.length > 0 || report.digitizeAlerts.length > 0) && (
             <div className="space-y-1 text-xs">
