@@ -27,6 +27,7 @@ import {
   inverterCores, gerarRaglanTopDown, gerarMeia, malhasParaCm, PALETAS,
   type Chart, type Cell, type Gauge, type PaletaId,
 } from "@/lib/knit/engine";
+import { GradingPanel } from "@/components/knit-editor/GradingPanel";
 import { useStore, formatCurrency } from "@/lib/store";
 
 const STORAGE_KEY = "cbm:knit-editor:v1";
@@ -49,6 +50,14 @@ interface EditorState {
   customSymbols: { id: string; simbolo: string; nome: string }[];
   contador: { atual: number; destaque: number };
   circular: boolean;
+  // Fase 2 — grading avançado
+  bordas: number;
+  margemBotoesInferior: number;
+  margemBotoesSuperior: number;
+  cavaCm: number;
+  decoteTipo: "V" | "redondo";
+  decoteLarguraCm: number;
+  decoteProfundidadeCm: number;
 }
 
 function loadState(): EditorState {
@@ -78,6 +87,13 @@ function defaultState(): EditorState {
     customSymbols: [],
     contador: { atual: 1, destaque: 1 },
     circular: false,
+    bordas: 2,
+    margemBotoesInferior: 6,
+    margemBotoesSuperior: 4,
+    cavaCm: 20,
+    decoteTipo: "redondo",
+    decoteLarguraCm: 18,
+    decoteProfundidadeCm: 8,
   };
 }
 
