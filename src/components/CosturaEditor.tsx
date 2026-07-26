@@ -18,11 +18,13 @@ import {
   MousePointer2, Minus, Spline, Compass, Scissors, Split, Waves,
   GitCommitHorizontal, ImagePlus, Ruler, Trash2, Undo2, Plus, FlipHorizontal2,
   Redo2, History, FileDown, Save, Keyboard, FileUp, GitCompare,
+  BoxSelect, FileText,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { jsPDF } from "jspdf";
 
 /* ─────────────── Geometria ─────────────── */
 
@@ -46,6 +48,22 @@ type Poly = {
 const A4_W = 595;
 const A4_H = 842;
 const PX_PER_CM = A4_W / 21; // ≈ 28.33 (mesma constante do editor)
+const MM_PER_PX = 10 / PX_PER_CM; // 1 px em mm (folha A4 = 210 mm)
+
+/** Unidades suportadas em I/O CAD. */
+export type CadUnit = "mm" | "cm" | "px";
+/** Fator px → unidade escolhida. */
+function pxToUnit(px: number, u: CadUnit): number {
+  if (u === "mm") return px * MM_PER_PX;
+  if (u === "cm") return px * MM_PER_PX / 10;
+  return px;
+}
+/** Fator unidade → px (para importar). */
+function unitToPx(v: number, u: CadUnit): number {
+  if (u === "mm") return v / MM_PER_PX;
+  if (u === "cm") return v * 10 / MM_PER_PX;
+  return v;
+}
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 function dist(a: Pt, b: Pt) { return Math.hypot(a.x - b.x, a.y - b.y); }
@@ -179,12 +197,15 @@ function layerOf(pl: Poly): string {
   return pl.layer ?? (pl.color === "#8b5cf6" ? "mirror" : (pl.marks?.length ? "annotation" : "molde"));
 }
 
-function polysToSVGLayered(polys: Poly[], w: number, h: number, o: LayerOpts): string {
+function polysToSVGLayered(polys: Poly[], w: number, h: number, o: LayerOpts, unit: CadUnit = "px"): string {
   const groups: string[] = [];
+  const s = (px: number) => pxToUnit(px, unit).toFixed(2);
+  const wU = pxToUnit(w, unit);
+  const hU = pxToUnit(h, unit);
   if (o.grid) {
     const g = cmToPx(o.gridCm); const lines: string[] = [];
-    for (let x = 0; x <= w; x += g) lines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="#e5e7eb" stroke-width="0.4"/>`);
-    for (let y = 0; y <= h; y += g) lines.push(`<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#e5e7eb" stroke-width="0.4"/>`);
+    for (let x = 0; x <= w; x += g) lines.push(`<line x1="${s(x)}" y1="0" x2="${s(x)}" y2="${s(h)}" stroke="#e5e7eb" stroke-width="0.4"/>`);
+    for (let y = 0; y <= h; y += g) lines.push(`<line x1="0" y1="${s(y)}" x2="${s(w)}" y2="${s(y)}" stroke="#e5e7eb" stroke-width="0.4"/>`);
     groups.push(`<g id="grelha" inkscape:label="grelha">${lines.join("")}</g>`);
   }
   const byLayer: Record<string, Poly[]> = { molde: [], mirror: [], annotation: [] };
@@ -197,20 +218,30 @@ function polysToSVGLayered(polys: Poly[], w: number, h: number, o: LayerOpts): s
   }
   for (const [L, list] of Object.entries(byLayer)) {
     const paths = list.map((pl) => {
-      const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+      const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${s(p.x)} ${s(p.y)}`).join(" ");
       return `<path d="${d}" fill="none" stroke="${pl.color ?? "#000"}" stroke-width="1"/>`;
     }).join("");
     groups.push(`<g id="${L}" inkscape:label="${L}">${paths}</g>`);
   }
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${groups.join("")}</svg>`;
+  const wAttr = unit === "px" ? `${wU}` : `${wU}${unit}`;
+  const hAttr = unit === "px" ? `${hU}` : `${hU}${unit}`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 ${wU.toFixed(2)} ${hU.toFixed(2)}" width="${wAttr}" height="${hAttr}" data-cad-unit="${unit}">${groups.join("")}</svg>`;
 }
 
-function polysToDXFLayered(polys: Poly[], o: LayerOpts & { w: number; h: number }): string {
-  const lines: string[] = ["0", "SECTION", "2", "ENTITIES"];
+function polysToDXFLayered(polys: Poly[], o: LayerOpts & { w: number; h: number }, unit: CadUnit = "px"): string {
+  // $INSUNITS: 1=inch, 4=mm, 5=cm, 0=unitless
+  const insunits = unit === "mm" ? "4" : unit === "cm" ? "5" : "0";
+  const s = (px: number) => pxToUnit(px, unit).toFixed(3);
+  const lines: string[] = [
+    "0", "SECTION", "2", "HEADER",
+    "9", "$INSUNITS", "70", insunits,
+    "0", "ENDSEC",
+    "0", "SECTION", "2", "ENTITIES",
+  ];
   const emit = (a: Pt, b: Pt, layer: string) => {
     lines.push("0", "LINE", "8", layer,
-      "10", a.x.toFixed(3), "20", (-a.y).toFixed(3), "30", "0",
-      "11", b.x.toFixed(3), "21", (-b.y).toFixed(3), "31", "0");
+      "10", s(a.x), "20", (-pxToUnit(a.y, unit)).toFixed(3), "30", "0",
+      "11", s(b.x), "21", (-pxToUnit(b.y, unit)).toFixed(3), "31", "0");
   };
   if (o.grid) {
     const g = cmToPx(o.gridCm);
@@ -232,19 +263,38 @@ function polysToDXFLayered(polys: Poly[], o: LayerOpts & { w: number; h: number 
 
 /* ─────────────── Import (SVG/DXF) ─────────────── */
 
+/** Detecta unidade via atributo width ("210mm", "21cm", "595"). Devolve factor unidade→px. */
+function detectSvgScale(root: SVGSVGElement): number {
+  const declared = root.getAttribute("data-cad-unit") as CadUnit | null;
+  if (declared === "mm" || declared === "cm" || declared === "px") {
+    return unitToPx(1, declared);
+  }
+  const w = root.getAttribute("width") || "";
+  const m = w.match(/([\d.]+)\s*(mm|cm|in|px)?/i);
+  if (m) {
+    const unit = (m[2] || "px").toLowerCase();
+    if (unit === "mm") return unitToPx(1, "mm");
+    if (unit === "cm") return unitToPx(1, "cm");
+    if (unit === "in") return unitToPx(25.4, "mm");
+  }
+  return 1;
+}
+
 function parseSVG(text: string): Poly[] {
   const out: Poly[] = [];
   const dom = new DOMParser().parseFromString(text, "image/svg+xml");
+  const root = dom.querySelector("svg") as SVGSVGElement | null;
+  const k = root ? detectSvgScale(root) : 1;
   dom.querySelectorAll("line").forEach((el) => {
-    const a = { x: +(el.getAttribute("x1") || 0), y: +(el.getAttribute("y1") || 0) };
-    const b = { x: +(el.getAttribute("x2") || 0), y: +(el.getAttribute("y2") || 0) };
+    const a = { x: +(el.getAttribute("x1") || 0) * k, y: +(el.getAttribute("y1") || 0) * k };
+    const b = { x: +(el.getAttribute("x2") || 0) * k, y: +(el.getAttribute("y2") || 0) * k };
     out.push({ id: uid(), kind: "line", pts: [a, b], color: "#222", layer: "molde" });
   });
   dom.querySelectorAll("polyline, polygon").forEach((el) => {
     const raw = (el.getAttribute("points") || "").trim();
     const pts = raw.split(/[\s,]+/).map(Number);
     const points: Pt[] = [];
-    for (let i = 0; i + 1 < pts.length; i += 2) points.push({ x: pts[i], y: pts[i + 1] });
+    for (let i = 0; i + 1 < pts.length; i += 2) points.push({ x: pts[i] * k, y: pts[i + 1] * k });
     if (points.length >= 2) out.push({ id: uid(), kind: "polyline", pts: points, color: "#222", layer: "molde" });
   });
   dom.querySelectorAll("path").forEach((el) => {
@@ -262,7 +312,10 @@ function parseSVG(text: string): Poly[] {
       else if (t === "V") { for (const n of nums) { cy = n; points.push({ x: cx, y: cy }); } }
       else if (t === "v") { for (const n of nums) { cy += n; points.push({ x: cx, y: cy }); } }
     }
-    if (points.length >= 2) out.push({ id: uid(), kind: "polyline", pts: points, color: "#222", layer: "molde" });
+    if (points.length >= 2) {
+      const scaled = points.map((p) => ({ x: p.x * k, y: p.y * k }));
+      out.push({ id: uid(), kind: "polyline", pts: scaled, color: "#222", layer: "molde" });
+    }
   });
   return out;
 }
@@ -270,6 +323,17 @@ function parseSVG(text: string): Poly[] {
 function parseDXF(text: string): Poly[] {
   const out: Poly[] = [];
   const lines = text.split(/\r?\n/).map((s) => s.trim());
+  // ler $INSUNITS
+  let unit: CadUnit = "px";
+  for (let k = 0; k < lines.length - 3; k++) {
+    if (lines[k] === "9" && lines[k + 1] === "$INSUNITS" && lines[k + 2] === "70") {
+      const v = lines[k + 3];
+      if (v === "4") unit = "mm";
+      else if (v === "5") unit = "cm";
+      break;
+    }
+  }
+  const k = unitToPx(1, unit);
   let i = 0;
   while (i < lines.length) {
     if (lines[i] === "0" && lines[i + 1] === "LINE") {
@@ -282,7 +346,7 @@ function parseDXF(text: string): Poly[] {
         else if (code === "21") y2 = -val;
         j += 2;
       }
-      out.push({ id: uid(), kind: "line", pts: [{ x: x1, y: y1 }, { x: x2, y: y2 }], color: "#222", layer: "molde" });
+      out.push({ id: uid(), kind: "line", pts: [{ x: x1 * k, y: y1 * k }, { x: x2 * k, y: y2 * k }], color: "#222", layer: "molde" });
       i = j; continue;
     }
     i++;
@@ -350,6 +414,55 @@ export function CosturaEditor() {
   const [snapTolPx, setSnapTolPx] = useState(8);
   const [layerOpts, setLayerOpts] = useState({ molde: true, mirror: true, annotations: true, grid: false });
   const [diffIdx, setDiffIdx] = useState<number | null>(null);
+  const [exportUnit, setExportUnit] = useState<CadUnit>("mm");
+  const [projectSlug, setProjectSlug] = useState<string>(() => {
+    if (typeof window === "undefined") return "default";
+    return localStorage.getItem("costura:projectSlug") || "default";
+  });
+  useEffect(() => {
+    try { localStorage.setItem("costura:projectSlug", projectSlug); } catch { /* ignore */ }
+  }, [projectSlug]);
+
+  // Marquee selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [marquee, setMarquee] = useState<{ a: Pt; b: Pt } | null>(null);
+  const marqueeStart = useRef<Pt | null>(null);
+  const moveStart = useRef<{ p: Pt; snapshot: Poly[] } | null>(null);
+
+  // Presets de exportação
+  type ExportPreset = {
+    id: string; nome: string; unit: CadUnit; layers: LayerOpts; gridCm: number; dpi: number;
+  };
+  const PRESETS_KEY = `costura:exportPresets:${projectSlug}`;
+  const [presets, setPresets] = useState<ExportPreset[]>([]);
+  const [presetName, setPresetName] = useState("Preset");
+  const [presetDpi, setPresetDpi] = useState(150);
+  useEffect(() => {
+    try { setPresets(JSON.parse(localStorage.getItem(PRESETS_KEY) || "[]")); } catch { setPresets([]); }
+  }, [PRESETS_KEY]);
+  function savePresets(next: ExportPreset[]) {
+    setPresets(next);
+    try { localStorage.setItem(PRESETS_KEY, JSON.stringify(next)); } catch { /* quota */ }
+  }
+  function savePreset() {
+    const p: ExportPreset = {
+      id: uid(), nome: presetName || "Preset",
+      unit: exportUnit, layers: { ...layerOpts, gridCm },
+      gridCm, dpi: presetDpi,
+    };
+    savePresets([p, ...presets].slice(0, 24));
+    toast.success("Preset guardado.");
+  }
+  function applyPreset(p: ExportPreset) {
+    setExportUnit(p.unit);
+    setLayerOpts({ molde: p.layers.molde, mirror: p.layers.mirror, annotations: p.layers.annotations, grid: p.layers.grid });
+    setGridCm(p.gridCm);
+    setPresetDpi(p.dpi);
+    toast.success(`Preset "${p.nome}" aplicado.`);
+  }
+  function deletePreset(id: string) {
+    savePresets(presets.filter((x) => x.id !== id));
+  }
 
   // Autosave & versioning
   const AUTOSAVE_KEY = "costura:autosave";
@@ -486,6 +599,18 @@ export function CosturaEditor() {
   /* ─── Eventos do canvas ─── */
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     const p = snap(ponto(e, svgRef.current!));
+    if (tool === "marquee") {
+      // Se o clique cai sobre uma peça já selecionada, iniciar arrasto de mover
+      const rawP = ponto(e, svgRef.current!);
+      const clickedOnSel = polys.some((pl) => selectedIds.has(pl.id) && pl.pts.some((q) => dist(q, rawP) < 10));
+      if (clickedOnSel) {
+        moveStart.current = { p: rawP, snapshot: polys.map((x) => ({ ...x, pts: x.pts.map((q) => ({ ...q })) })) };
+        return;
+      }
+      marqueeStart.current = rawP;
+      setMarquee({ a: rawP, b: rawP });
+      return;
+    }
     if (tool === "line" || tool === "measure") {
       dragStart.current = p;
       if (tool === "measure") setMeasureBox({ a: p, b: p });
@@ -508,25 +633,69 @@ export function CosturaEditor() {
     }
     if (tool === "select" || tool === "offset" || tool === "split" || tool === "trim" || tool === "tangent") {
       // pick nearest poly point
-      let bestId: string | null = null; let bd = 12;
+      let bestId: string | null = null; let bd = Math.max(12, snapTolPx);
       polys.forEach((pl) => {
         for (const q of pl.pts) {
           const d = dist(p, q); if (d < bd) { bd = d; bestId = pl.id; }
         }
       });
       setSelectedId(bestId);
+      if (bestId) setSelectedIds(new Set([bestId])); else setSelectedIds(new Set());
       if (bestId && tool === "trim") applyTrim(bestId, p);
       if (bestId && tool === "tangent") applyTangent(bestId, p);
       return;
     }
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (tool === "marquee") {
+      const rawP = ponto(e, svgRef.current!);
+      if (marqueeStart.current) {
+        setMarquee({ a: marqueeStart.current, b: rawP });
+        return;
+      }
+      if (moveStart.current) {
+        const dx = rawP.x - moveStart.current.p.x;
+        const dy = rawP.y - moveStart.current.p.y;
+        setPolys(moveStart.current.snapshot.map((pl) =>
+          selectedIds.has(pl.id)
+            ? { ...pl, pts: pl.pts.map((q) => ({ x: q.x + dx, y: q.y + dy })) }
+            : pl,
+        ));
+        return;
+      }
+    }
     if (!dragStart.current) return;
     const p = snap(ponto(e, svgRef.current!));
     if (tool === "line") setPreviewLine({ a: dragStart.current, b: p });
     if (tool === "measure") setMeasureBox({ a: dragStart.current, b: p });
   };
   const onUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (tool === "marquee") {
+      if (marqueeStart.current && marquee) {
+        const x0 = Math.min(marquee.a.x, marquee.b.x);
+        const y0 = Math.min(marquee.a.y, marquee.b.y);
+        const x1 = Math.max(marquee.a.x, marquee.b.x);
+        const y1 = Math.max(marquee.a.y, marquee.b.y);
+        // Marquee: peça selecionada se ≥1 ponto dentro do retângulo,
+        // ou (proximidade) se qualquer ponto está dentro de snapTolPx do retângulo.
+        const tol = snapTolPx * 2;
+        const hit = new Set<string>();
+        for (const pl of polys) {
+          const inside = pl.pts.some((q) => q.x >= x0 - tol && q.x <= x1 + tol && q.y >= y0 - tol && q.y <= y1 + tol);
+          if (inside) hit.add(pl.id);
+        }
+        setSelectedIds(hit);
+        setSelectedId(hit.size === 1 ? Array.from(hit)[0] : null);
+      }
+      if (moveStart.current) {
+        // Commit no history só no fim do drag
+        push(polys);
+      }
+      marqueeStart.current = null;
+      moveStart.current = null;
+      setMarquee(null);
+      return;
+    }
     if (!dragStart.current) return;
     const p = snap(ponto(e, svgRef.current!));
     if (tool === "line" && dist(dragStart.current, p) > 4) {
@@ -539,9 +708,19 @@ export function CosturaEditor() {
       addPoly("spline", catmullRom(splinePts));
       setSplinePts([]);
     }
-    if (e.key === "Delete" && selectedId) {
-      push(polys.filter((x) => x.id !== selectedId));
-      setSelectedId(null);
+    if (e.key === "Delete" && (selectedIds.size || selectedId)) {
+      const ids = selectedIds.size ? selectedIds : new Set(selectedId ? [selectedId] : []);
+      push(polys.filter((x) => !ids.has(x.id)));
+      setSelectedId(null); setSelectedIds(new Set());
+    }
+    // Nudge da seleção com setas (1px, 10px com shift)
+    if (selectedIds.size && ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+      e.preventDefault();
+      const step = e.shiftKey ? 10 : 1;
+      const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+      const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+      push(polys.map((pl) => selectedIds.has(pl.id)
+        ? { ...pl, pts: pl.pts.map((q) => ({ x: q.x + dx, y: q.y + dy })) } : pl));
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") undo();
     if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) redo();
@@ -633,6 +812,53 @@ export function CosturaEditor() {
     [polys, fator],
   );
 
+  /* ─── Relatório PDF ─── */
+  function exportReportPDF() {
+    try {
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const M = 15;
+      doc.setFontSize(16);
+      doc.text("Relatório de Molde — Costura", M, M + 4);
+      doc.setFontSize(10);
+      let y = M + 14;
+      doc.text(`Projeto: ${projectSlug}`, M, y); y += 5;
+      doc.text(`Tamanho: ${tamanho}  (fator ${fator.toFixed(2)})`, M, y); y += 5;
+      doc.text(`Total de linhas: ${totalCm.toFixed(1)} cm`, M, y); y += 5;
+      doc.text(`Peças: ${polys.length}   Interseções: ${intersections.length}`, M, y); y += 5;
+      doc.text(`Tolerância de snap: ${snapTolPx}px (${pxToCm(snapTolPx).toFixed(2)} cm)`, M, y); y += 5;
+      doc.text(`Grelha: ${gridCm} cm   ·   Unidade export: ${exportUnit}`, M, y); y += 8;
+
+      doc.setFontSize(12); doc.text("Cotas por peça", M, y); y += 6;
+      doc.setFontSize(9);
+      doc.text("#", M, y);
+      doc.text("Tipo", M + 10, y);
+      doc.text("Camada", M + 40, y);
+      doc.text("Pontos", M + 70, y);
+      doc.text("Comp. (cm)", M + 95, y);
+      doc.text("Etiqueta", M + 130, y);
+      y += 3;
+      doc.line(M, y, 210 - M, y); y += 4;
+
+      polys.forEach((pl, i) => {
+        if (y > 285) { doc.addPage(); y = M; }
+        const cm = (pxToCm(polyLen(pl.pts)) * fator).toFixed(1);
+        doc.text(String(i + 1), M, y);
+        doc.text(pl.kind, M + 10, y);
+        doc.text(layerOf(pl), M + 40, y);
+        doc.text(String(pl.pts.length), M + 70, y);
+        doc.text(cm, M + 95, y);
+        if (pl.label) doc.text(pl.label.slice(0, 30), M + 130, y);
+        y += 5;
+      });
+
+      const name = `relatorio-molde-${projectSlug}.pdf`;
+      doc.save(name);
+      toast.success("Relatório PDF gerado.");
+    } catch (e) {
+      toast.error("Falha ao gerar relatório: " + (e as Error).message);
+    }
+  }
+
   // path helpers
   const toD = (pts: Pt[]) => pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
 
@@ -641,6 +867,7 @@ export function CosturaEditor() {
       <div>
         <div className="mb-2 flex flex-wrap gap-1 rounded border bg-card p-1 text-[11px]" role="toolbar">
           <ToolBtn label="Selecionar" icon={<MousePointer2 className="h-3 w-3" />} active={tool === "select"} onClick={() => setTool("select")} />
+          <ToolBtn label="Marquee" icon={<BoxSelect className="h-3 w-3" />} active={tool === "marquee"} onClick={() => setTool("marquee")} />
           <ToolBtn label="Reta" icon={<Minus className="h-3 w-3" />} active={tool === "line"} onClick={() => setTool("line")} />
           <ToolBtn label="Spline" icon={<Spline className="h-3 w-3" />} active={tool === "spline"} onClick={() => setTool("spline")} />
           <ToolBtn label="Compasso" icon={<Compass className="h-3 w-3" />} active={tool === "arc"} onClick={() => setTool("arc")} />
@@ -734,7 +961,7 @@ export function CosturaEditor() {
             )}
             {polys.map((pl) => {
               const cm = (pxToCm(polyLen(pl.pts)) * fator).toFixed(1);
-              const sel = pl.id === selectedId;
+              const sel = pl.id === selectedId || selectedIds.has(pl.id);
               return (
                 <g key={pl.id}>
                   <path d={toD(pl.pts)} fill="none"
@@ -800,6 +1027,15 @@ export function CosturaEditor() {
             {snapIntersect && intersections.map((p, i) => (
               <circle key={i} cx={p.x} cy={p.y} r={2.2} fill="none" stroke="#10b981" strokeWidth="0.8" />
             ))}
+            {marquee && (
+              <rect
+                x={Math.min(marquee.a.x, marquee.b.x)}
+                y={Math.min(marquee.a.y, marquee.b.y)}
+                width={Math.abs(marquee.b.x - marquee.a.x)}
+                height={Math.abs(marquee.b.y - marquee.a.y)}
+                fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeDasharray="4 3" strokeWidth="0.8"
+              />
+            )}
           </svg>
         </A4Stage>
         </CardContent></Card>
@@ -870,6 +1106,22 @@ export function CosturaEditor() {
 
         <Card><CardContent className="space-y-2 p-3">
           <div className="text-xs font-medium">Exportar / Importar CAD</div>
+          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+            <div>
+              <Label className="text-[11px]">Unidade CAD</Label>
+              <Select value={exportUnit} onValueChange={(v) => setExportUnit(v as CadUnit)}>
+                <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mm">Milímetros (mm)</SelectItem>
+                  <SelectItem value="cm">Centímetros (cm)</SelectItem>
+                  <SelectItem value="px">Pixels (px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              Folha: {pxToUnit(A4_W, exportUnit).toFixed(1)}×{pxToUnit(A4_H, exportUnit).toFixed(1)} {exportUnit}
+            </div>
+          </div>
           <div className="space-y-1 rounded border p-2">
             <div className="text-[10px] font-medium text-muted-foreground">Camadas a incluir</div>
             {([["molde","Molde"],["mirror","Mirror"],["annotations","Cotas/marcadores"],["grid","Grelha"]] as const).map(([k,l]) => (
@@ -880,11 +1132,14 @@ export function CosturaEditor() {
             ))}
           </div>
           <div className="grid grid-cols-2 gap-1">
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }), "image/svg+xml")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.svg`, polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }, exportUnit), "image/svg+xml")}>
               <FileDown className="mr-1 h-3 w-3" />SVG
             </Button>
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }), "application/dxf")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.dxf`, polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }, exportUnit), "application/dxf")}>
               <FileDown className="mr-1 h-3 w-3" />DXF
+            </Button>
+            <Button size="sm" variant="outline" className="col-span-2" onClick={exportReportPDF}>
+              <FileText className="mr-1 h-3 w-3" />Relatório PDF (cotas & tolerâncias)
             </Button>
           </div>
           <div className="pt-1">
@@ -898,14 +1153,42 @@ export function CosturaEditor() {
                   const parsed = f.name.toLowerCase().endsWith(".dxf") ? parseDXF(raw) : parseSVG(raw);
                   if (!parsed.length) return toast.error("Ficheiro sem geometria reconhecida.");
                   push([...polys, ...parsed]);
-                  toast.success(`${parsed.length} peça(s) importadas.`);
+                  toast.success(`${parsed.length} peça(s) importadas com escala CAD detetada.`);
                 } catch (err) { toast.error(String((err as Error).message)); }
               };
               r.readAsText(f);
               e.currentTarget.value = "";
             }} />
           </div>
-          <p className="text-[10px] text-muted-foreground">Export com camadas (Inkscape/AutoCAD). Import cria LINE/polyline/path como peças novas.</p>
+          <p className="text-[10px] text-muted-foreground">
+            Export com camadas (Inkscape/AutoCAD) na unidade escolhida. Import lê `width` do SVG e `$INSUNITS` do DXF para converter para px automaticamente.
+          </p>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Presets de exportação (por projeto)</div>
+          <div className="grid grid-cols-[1fr_auto] gap-1">
+            <Input value={projectSlug} onChange={(e) => setProjectSlug(e.target.value || "default")} placeholder="Nome do projeto" className="h-8 text-[11px]" />
+          </div>
+          <div className="grid grid-cols-[1fr_90px_auto] gap-1">
+            <Input value={presetName} onChange={(e) => setPresetName(e.target.value)} placeholder="Nome do preset" className="h-8 text-[11px]" />
+            <Input type="number" value={presetDpi} onChange={(e) => setPresetDpi(+e.target.value || 150)} placeholder="DPI" className="h-8 text-[11px]" />
+            <Button size="sm" variant="outline" onClick={savePreset}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+          </div>
+          {presets.length === 0 && <p className="text-[10px] text-muted-foreground">Guarda a combinação atual (unidade + camadas + grelha + DPI) para reutilizar.</p>}
+          <div className="max-h-40 space-y-1 overflow-auto">
+            {presets.map((p) => (
+              <div key={p.id} className="flex items-center justify-between rounded bg-muted/40 px-2 py-1 text-[10px]">
+                <span className="truncate">
+                  <b>{p.nome}</b> · {p.unit} · {p.dpi}dpi · [{[p.layers.molde&&"m",p.layers.mirror&&"mir",p.layers.annotations&&"cot",p.layers.grid&&"grl"].filter(Boolean).join(",")}]
+                </span>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => applyPreset(p)}>Aplicar</Button>
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => deletePreset(p.id)}><Trash2 className="h-3 w-3" /></Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
