@@ -400,6 +400,32 @@ export function CosturaEditor() {
   const [w, setW] = useMarcaDAgua();
   const sheet = useSheet();
 
+  // Consistency validation after transformations (scale/mirror/import)
+  function validateConsistency(showToast = true): string[] {
+    const issues: string[] = [];
+    const gPx = gridCm * (96 / 2.54); // cm→px @96dpi (matches cmToPx)
+    const tol = Math.max(2, snapTolPx);
+    let offGrid = 0;
+    for (const pl of polys) {
+      for (const p of pl.pts) {
+        const rx = Math.round(p.x / gPx) * gPx;
+        const ry = Math.round(p.y / gPx) * gPx;
+        if (Math.abs(p.x - rx) > tol || Math.abs(p.y - ry) > tol) offGrid++;
+      }
+    }
+    if (offGrid > 0) issues.push(`${offGrid} ponto(s) fora da grelha (${gridCm} cm, tol ${tol}px)`);
+    const moldes = polys.filter((p) => (p.layer ?? "molde") === "molde").length;
+    const mirrors = polys.filter((p) => p.layer === "mirror").length;
+    if (mirrors > moldes && moldes > 0) issues.push(`Mirror (${mirrors}) excede molde (${moldes}) — verifica simetria após escala.`);
+    const annotations = polys.filter((p) => p.layer === "annotation").length;
+    if (annotations > 0 && moldes === 0) issues.push(`${annotations} cota(s)/label(s) sem peça de molde associada.`);
+    if (showToast) {
+      if (issues.length === 0) toast.success("Consistência OK: snaps, grelha, cotas e mirror alinhados.");
+      else toast.warning(`Inconsistências detetadas (${issues.length}): ${issues.join(" · ")}`);
+    }
+    return issues;
+  }
+
   const [tool, setTool] = useState<Tool>("line");
   const [polys, setPolys] = useState<Poly[]>([]);
   const [history, setHistory] = useState<Poly[][]>([]);
@@ -1132,11 +1158,14 @@ export function CosturaEditor() {
               </label>
             ))}
           </div>
+          <Button size="sm" variant="outline" className="w-full" onClick={() => validateConsistency(true)}>
+            Validar consistência (snaps · grelha · cotas · mirror)
+          </Button>
           <div className="grid grid-cols-2 gap-1">
-            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.svg`, polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }, exportUnit), "image/svg+xml")}>
+            <Button size="sm" variant="outline" onClick={() => { const iss = validateConsistency(false); if (iss.length) toast.warning(`Export SVG com ${iss.length} inconsistência(s): ${iss[0]}`); downloadFile(`${projectSlug}.svg`, polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }, exportUnit), "image/svg+xml"); }}>
               <FileDown className="mr-1 h-3 w-3" />SVG
             </Button>
-            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.dxf`, polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }, exportUnit), "application/dxf")}>
+            <Button size="sm" variant="outline" onClick={() => { const iss = validateConsistency(false); if (iss.length) toast.warning(`Export DXF com ${iss.length} inconsistência(s): ${iss[0]}`); downloadFile(`${projectSlug}.dxf`, polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }, exportUnit), "application/dxf"); }}>
               <FileDown className="mr-1 h-3 w-3" />DXF
             </Button>
             <Button size="sm" variant="outline" className="col-span-2" onClick={exportReportPDF}>

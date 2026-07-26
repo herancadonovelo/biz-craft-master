@@ -97,7 +97,7 @@ const getGroups = (t: (k: string) => string) => [
     label: t("nav.operation"),
     items: [
       { title: "Encomendas", url: "/encomendas", icon: ShoppingBag },
-      { title: "Projetos & Criação De Projeto", url: "/projetos", icon: YarnBallIcon },
+      { title: "Projetos & Criação", url: "/projetos", icon: FolderPlus },
       { title: t("nav.calculator"), url: "/calculadora", icon: Calculator },
       { title: t("nav.hours"), url: "/horas", icon: Clock },
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
@@ -125,7 +125,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.clients"), url: "/clientes", icon: Users },
       { title: t("nav.courses"), url: "/cursos", icon: GraduationCap },
       { title: t("nav.sales"), url: "/vendas", icon: CheckCircle2 },
-      { title: "Faturação: Criar & Histórico", url: "/faturacao", icon: Receipt },
+      { title: "Faturação", url: "/faturacao", icon: Receipt },
       { title: "Marketing & Conteúdo", url: "/marketing-conteudo", icon: Megaphone },
       { title: t("nav.instagram"), url: "/instagram", icon: Instagram },
       { title: t("nav.whatsapp"), url: "/whatsapp", icon: MessageCircle },
