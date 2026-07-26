@@ -39,19 +39,21 @@ type WmPos = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right
 interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number; offsetX: number; offsetY: number }
 const DEFAULT_WM: WmCfg = { text: "", pos: "center", angle: 30, opacity: 15, size: 60, offsetX: 0, offsetY: 0 };
 
-function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number): Array<{ x: number; y: number }> {
+function wmCoords(pos: WmPos, pageW: number, pageH: number, margin: number, offsetX = 0, offsetY = 0): Array<{ x: number; y: number }> {
+  let base: Array<{ x: number; y: number }>;
   switch (pos) {
-    case "top-left": return [{ x: margin + 30, y: margin + 20 }];
-    case "top-right": return [{ x: pageW - margin - 30, y: margin + 20 }];
-    case "bottom-left": return [{ x: margin + 30, y: pageH - margin }];
-    case "bottom-right": return [{ x: pageW - margin - 30, y: pageH - margin }];
+    case "top-left": base = [{ x: margin + 30, y: margin + 20 }]; break;
+    case "top-right": base = [{ x: pageW - margin - 30, y: margin + 20 }]; break;
+    case "bottom-left": base = [{ x: margin + 30, y: pageH - margin }]; break;
+    case "bottom-right": base = [{ x: pageW - margin - 30, y: pageH - margin }]; break;
     case "tiled": {
       const out: Array<{ x: number; y: number }> = [];
       for (let y = margin + 30; y < pageH; y += 70) for (let x = margin + 30; x < pageW; x += 90) out.push({ x, y });
-      return out;
+      base = out; break;
     }
-    default: return [{ x: pageW / 2, y: pageH / 2 }];
+    default: base = [{ x: pageW / 2, y: pageH / 2 }];
   }
+  return base.map((p) => ({ x: p.x + offsetX, y: p.y + offsetY }));
 }
 
 function loadChart(): ChartDoc {
