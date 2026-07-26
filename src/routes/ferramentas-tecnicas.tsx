@@ -2051,6 +2051,12 @@ function BordadoTab() {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfTitulo, setPdfTitulo] = useState("Padrão de Bordado");
   const [pdfAutor, setPdfAutor] = useState("");
+  // Fase 11 — importação DST + simulador animado
+  const [simOn, setSimOn] = useState(false);
+  const [simSpeed, setSimSpeed] = useState(400); // pontos/segundo
+  const [simProgress, setSimProgress] = useState(0); // 0..1
+  const [simPlaying, setSimPlaying] = useState(false);
+  const dstFileRef = useRef<HTMLInputElement>(null);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
