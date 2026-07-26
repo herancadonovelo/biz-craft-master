@@ -2507,6 +2507,34 @@ function BordadoTab() {
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
           {/* Fase 3 — marcadores para ponto cruz e nó francês */}
           <defs>
+            {/* Fase 10 — filtros de pré-visualização 3D */}
+            <filter id="fx-thread" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur stdDeviation="0.35" />
+              <feSpecularLighting result="sp" surfaceScale="2" specularConstant="0.9" specularExponent="18" lightingColor="#ffffff">
+                <feDistantLight azimuth="135" elevation="55" />
+              </feSpecularLighting>
+              <feComposite in="sp" in2="SourceGraphic" operator="in" result="lit" />
+              <feMerge>
+                <feMergeNode in="SourceGraphic" />
+                <feMergeNode in="lit" />
+              </feMerge>
+            </filter>
+            <pattern id="fx-fabric-aida" width="8" height="8" patternUnits="userSpaceOnUse">
+              <rect width="8" height="8" fill="#f5efe1" />
+              <path d="M0 4 H8 M4 0 V8" stroke="#d9c9a3" strokeWidth="0.6" />
+            </pattern>
+            <pattern id="fx-fabric-linho" width="6" height="6" patternUnits="userSpaceOnUse">
+              <rect width="6" height="6" fill="#efe6d0" />
+              <path d="M0 0 L6 6 M6 0 L0 6" stroke="#c9b591" strokeWidth="0.4" opacity="0.7" />
+            </pattern>
+            <pattern id="fx-fabric-algodao" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect width="4" height="4" fill="#faf7f0" />
+              <circle cx="2" cy="2" r="0.5" fill="#e2d6b8" />
+            </pattern>
+            {preview3D && (
+              <rect id="fx-fabric-bg" x="0" y="0" width={A4_W} height={A4_H}
+                    fill={`url(#fx-fabric-${fabric3D})`} />
+            )}
             {layers.map((l) => (
               <React.Fragment key={`m-${l.id}`}>
                 <marker id={`mk-cross-${l.id}`} viewBox="-5 -5 10 10" markerWidth="6" markerHeight="6"
