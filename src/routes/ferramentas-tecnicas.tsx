@@ -32,6 +32,10 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
+import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
 // enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
 // texturas de tecido e gestor de camadas simples.
@@ -1537,7 +1541,65 @@ function PontoCruzTab() {
 type BordadoLayer = {
   id: string; nome: string; visible: boolean; locked: boolean;
   color: string; width: number; strokes: string[];
+  /** Fase 3 — tipo de ponto simulado para esta camada. */
+  stitch: StitchType;
+  /** Fase 3 — código DMC associado (opcional). */
+  dmc?: string;
 };
+
+/** Fase 3 — tipos de ponto suportados na simulação visual. */
+type StitchType =
+  | "backstitch"   // ponto atrás — linha contínua
+  | "running"      // ponto alinhavo — tracejado curto
+  | "chain"        // ponto cadeia — tracejado longo com pontas redondas
+  | "couching"     // ponto acolchoado — traço + espaço amplo
+  | "satin"        // ponto cheio — traço mais grosso
+  | "stem"         // ponto haste — pequenos traços inclinados
+  | "cross"        // ponto cruz — marcador "×" ao longo
+  | "knot";        // nó francês — marcador circular ao longo
+
+const STITCH_LABELS: Record<StitchType, string> = {
+  backstitch: "Ponto atrás",
+  running: "Alinhavo",
+  chain: "Cadeia",
+  couching: "Acolchoado",
+  satin: "Cheio (satin)",
+  stem: "Haste",
+  cross: "Ponto cruz",
+  knot: "Nó francês",
+};
+
+/** Devolve o dasharray e multiplicador de espessura para cada ponto. */
+function stitchStyle(kind: StitchType, base: number): { dash?: string; widthMul: number; marker?: "cross" | "knot" } {
+  switch (kind) {
+    case "backstitch": return { widthMul: 1 };
+    case "running":    return { dash: "6 3", widthMul: 1 };
+    case "chain":      return { dash: "10 4", widthMul: 1.2 };
+    case "couching":   return { dash: "3 6", widthMul: 1 };
+    case "satin":      return { widthMul: 2.2 };
+    case "stem":       return { dash: "8 2", widthMul: 1.1 };
+    case "cross":      return { dash: `0.1 ${Math.max(6, base * 6)}`, widthMul: 0.4, marker: "cross" };
+    case "knot":       return { dash: `0.1 ${Math.max(8, base * 7)}`, widthMul: 0.4, marker: "knot" };
+  }
+}
+
+/** Comprimento total em px de um path "M x y L x y ..." (multi-subpath). */
+function pathLengthPx(d: string): number {
+  const toks = d.replace(/,/g, " ").split(/\s+/).filter(Boolean);
+  let total = 0;
+  let px = 0, py = 0, has = false;
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    if (t === "M" || t === "L") {
+      const x = parseFloat(toks[++i]);
+      const y = parseFloat(toks[++i]);
+      if (isNaN(x) || isNaN(y)) continue;
+      if (t === "L" && has) total += Math.hypot(x - px, y - py);
+      px = x; py = y; has = true;
+    }
+  }
+  return total;
+}
 type HoopShape = "round15" | "round20" | "round25" | "oval" | "square";
 type FabricKind = "none" | "algodao" | "linho" | "escuro";
 
@@ -1603,9 +1665,9 @@ function BordadoTab() {
 
   // Camadas
   const [layers, setLayers] = useState<BordadoLayer[]>(() => [
-    { id: "l-esboco",   nome: "Esboço",   visible: true, locked: false, color: "#9ca3af", width: 1.2, strokes: [] },
-    { id: "l-risco",    nome: "Risco",    visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] },
-    { id: "l-decalque", nome: "Decalque", visible: true, locked: true,  color: "#1e88e5", width: 0.8, strokes: [] },
+    { id: "l-esboco",   nome: "Esboço",   visible: true, locked: false, color: "#9ca3af", width: 1.2, strokes: [], stitch: "running" },
+    { id: "l-risco",    nome: "Risco",    visible: true, locked: false, color: "#111111", width: 1.5, strokes: [], stitch: "backstitch" },
+    { id: "l-decalque", nome: "Decalque", visible: true, locked: true,  color: "#1e88e5", width: 0.8, strokes: [], stitch: "backstitch" },
   ]);
   const [activeLayer, setActiveLayer] = useState("l-risco");
   const active = layers.find((l) => l.id === activeLayer) ?? layers[0];
@@ -1614,7 +1676,7 @@ function BordadoTab() {
     setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   const addLayer = () => {
     const id = `l-${Date.now()}`;
-    setLayers((ls) => [...ls, { id, nome: `Camada ${ls.length + 1}`, visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] }]);
+    setLayers((ls) => [...ls, { id, nome: `Camada ${ls.length + 1}`, visible: true, locked: false, color: "#111111", width: 1.5, strokes: [], stitch: "backstitch" }]);
     setActiveLayer(id);
   };
   const removeLayer = (id: string) => setLayers((ls) => {
