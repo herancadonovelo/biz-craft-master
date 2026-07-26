@@ -36,6 +36,7 @@ import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
+import { encodePes, splitByHoop } from "@/lib/pes";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
