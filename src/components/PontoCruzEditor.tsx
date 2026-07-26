@@ -480,8 +480,8 @@ export function PontoCruzEditor() {
     const drawWatermark = () => {
       if (!watermark.trim()) return;
       pdf.saveGraphicsState();
-      // @ts-expect-error jsPDF has setGState in the GState plugin
-      pdf.setGState(new (pdf as unknown as { GState: new (o: object) => unknown }).GState({ opacity: 0.15 }));
+      const anyPdf = pdf as unknown as { setGState: (g: unknown) => void; GState: new (o: object) => unknown };
+      anyPdf.setGState(new anyPdf.GState({ opacity: 0.15 }));
       pdf.setFontSize(60); pdf.setTextColor(120, 120, 120);
       pdf.text(watermark, pageW / 2, pageH / 2, { align: "center", angle: 30 });
       pdf.restoreGraphicsState();
