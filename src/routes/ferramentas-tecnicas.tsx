@@ -1984,143 +1984,15 @@ function BordadoTab() {
   const [nCores, setNCores] = useState(12);
   const [convertendo, setConvertendo] = useState(false);
   const [carrinhoOpen, setCarrinhoOpen] = useState(false);
-
-  // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
-  const [stitchLenMm, setStitchLenMm] = useState(3);        // comprimento nominal do ponto (mm)
-  const [orderByNearest, setOrderByNearest] = useState(true); // otimizar ordem para reduzir saltos
-  const [dstOpen, setDstOpen] = useState(false);
+  // Fase 5 — estado UI declarado cedo (usado no return); a lógica que depende
+  // de chartArea/chartCells está mais abaixo após essas variáveis existirem.
+  const [stitchLenMm, setStitchLenMm] = useState(3);
+  const [orderByNearest, setOrderByNearest] = useState(true);
   const [dstBusy, setDstBusy] = useState(false);
   const [circText, setCircText] = useState("Craft Business Master");
-  const [circRadius, setCircRadius] = useState(60); // mm
+  const [circRadius, setCircRadius] = useState(60);
   const [circFontPx, setCircFontPx] = useState(20);
   const [circClockwise, setCircClockwise] = useState(true);
-
-  /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
-  const buildStitchBlocks = (): StitchBlock[] => {
-    const stepPx = stitchLenMm * PX_PER_MM;
-    const blocks: StitchBlock[] = [];
-    for (const l of layers) {
-      if (!l.visible || l.strokes.length === 0) continue;
-      const subs: { x: number; y: number }[][] = [];
-      for (const d of l.strokes) {
-        for (const sub of splitSubpaths(d)) {
-          if (sub.length < 2) continue;
-          subs.push(resample(sub, stepPx));
-        }
-      }
-      if (subs.length === 0) continue;
-      const ordered = orderByNearest ? orderNearest(subs) : subs;
-      // Concatena todos os sub-caminhos num único stream — os saltos entre eles
-      // ficam marcados como "jump" no encoder porque a distância excede 1 ponto.
-      const points: { x: number; y: number }[] = [];
-      for (const sub of ordered) for (const p of sub) points.push(p);
-      blocks.push({ color: l.color, label: `${l.nome}${l.dmc ? ` (DMC ${l.dmc})` : ""}`, points });
-    }
-    // Inclui também as cruzes do gráfico Aida como bloco final por cor.
-    if (chartArea && chartCells.length > 0) {
-      const porCor = new Map<string, { x: number; y: number }[]>();
-      for (const c of chartCells) {
-        const x = chartArea.x0 + (c.gx + 0.5) * chartArea.cellPx;
-        const y = chartArea.y0 + (c.gy + 0.5) * chartArea.cellPx;
-        const arr = porCor.get(c.dmc) ?? [];
-        // cruz = duas diagonais dentro da célula
-        const r = chartArea.cellPx / 2;
-        arr.push({ x: x - r, y: y - r }, { x: x + r, y: y + r });
-        arr.push({ x: x - r, y: y + r }, { x: x + r, y: y - r });
-        porCor.set(c.dmc, arr);
-      }
-      for (const [dmc, pts] of porCor.entries()) {
-        const dmcC = DMC_PALETTE.find((d) => d.code === dmc);
-        blocks.push({ color: dmcC?.hex ?? "#000000", label: `Cruzes DMC ${dmc}`, points: pts });
-      }
-    }
-    return blocks;
-  };
-
-  const exportarDst = async () => {
-    const blocks = buildStitchBlocks();
-    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
-    setDstBusy(true);
-    try {
-      const blob = encodeDst(blocks, PX_PER_MM, "CBM_BORDADO");
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `bordado-${Date.now()}.dst`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success(`DST gerado com ${blocks.length} cor(es). Pronto para a máquina.`);
-    } catch (e) {
-      toast.error("Falha ao gerar DST: " + (e as Error).message);
-    } finally { setDstBusy(false); }
-  };
-
-  /** Cria um path circular com texto disposto ao longo (aproximação sem fontes reais). */
-  const inserirTextoCircular = () => {
-    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
-    const txt = circText.trim();
-    if (!txt) { toast.error("Escreve o texto primeiro."); return; }
-    const rPx = circRadius * PX_PER_MM;
-    const cxg = A4_W / 2, cyg = A4_H / 2;
-    // Aproximação: cada carácter ocupa ~fontPx * 0.55 px de arco
-    const advance = circFontPx * 0.55;
-    const angStep = (advance / rPx) * (circClockwise ? 1 : -1);
-    // Traça cada carácter como uma pequena barra tangente (~fontPx alto) — legível
-    // e compatível com o exportador DST porque produz sub-paths reais.
-    const novos: string[] = [];
-    let ang = -Math.PI / 2; // começa no topo
-    for (let i = 0; i < txt.length; i++) {
-      const ch = txt[i];
-      if (ch === " ") { ang += angStep; continue; }
-      const x0 = cxg + rPx * Math.cos(ang);
-      const y0 = cyg + rPx * Math.sin(ang);
-      // tangente (perpendicular ao raio)
-      const tx = -Math.sin(ang), ty = Math.cos(ang);
-      const half = circFontPx / 2;
-      // desenha um pequeno "|" tangencial para cada glifo (representa o traço vertical)
-      const ax = x0 + tx * (advance * 0.15) - tx * half * 0.15;
-      const ay = y0 + ty * (advance * 0.15) - ty * half * 0.15;
-      const bx = x0 - tx * (advance * 0.15) + tx * half * 0.15;
-      const by = y0 - ty * (advance * 0.15) + ty * half * 0.15;
-      novos.push(`M ${ax.toFixed(1)} ${ay.toFixed(1)} L ${bx.toFixed(1)} ${by.toFixed(1)}`);
-      // arco superior para representar a "cabeça" da letra
-      const nx = x0 - Math.cos(ang) * (circFontPx * 0.3);
-      const ny = y0 - Math.sin(ang) * (circFontPx * 0.3);
-      novos.push(`M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${nx.toFixed(1)} ${ny.toFixed(1)}`);
-      ang += angStep;
-    }
-    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...novos] } : l));
-    toast.success(`Texto circular inserido (${txt.length} caracteres).`);
-  };
-
-  /** Estatísticas rápidas para o painel de máquina. */
-  const machineStats = useMemo(() => {
-    const stepPx = stitchLenMm * PX_PER_MM;
-    let pontos = 0, comprimentoMm = 0, cores = 0;
-    for (const l of layers) {
-      if (!l.visible || l.strokes.length === 0) continue;
-      cores++;
-      for (const d of l.strokes) {
-        for (const sub of splitSubpaths(d)) {
-          if (sub.length < 2) continue;
-          const rs = resample(sub, stepPx);
-          pontos += Math.max(0, rs.length - 1);
-          for (let i = 1; i < rs.length; i++) {
-            comprimentoMm += Math.hypot(rs[i].x - rs[i - 1].x, rs[i].y - rs[i - 1].y) / PX_PER_MM;
-          }
-        }
-      }
-    }
-    if (chartArea && chartCells.length > 0) {
-      const cellMm = chartArea.cellPx / PX_PER_MM;
-      pontos += chartCells.length * 4; // 2 diagonais × 2 pontos
-      comprimentoMm += chartCells.length * 2 * Math.SQRT2 * cellMm;
-      // conta cores distintas de cruzes
-      const set = new Set(chartCells.map((c) => c.dmc));
-      cores += set.size;
-    }
-    return { pontos, comprimentoMm, cores };
-  }, [layers, chartCells, chartArea, stitchLenMm]);
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
