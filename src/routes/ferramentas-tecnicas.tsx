@@ -2054,6 +2054,54 @@ function BordadoTab() {
     toast.success(`Preenchimento gerado (~${total.toLocaleString()} pontos, ${fillMode}).`);
   };
 
+  // ---------- Fase 8: lettering, motivos e apliques ----------
+  const inserirLettering = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const font = LETTERING_FONTS.find((f) => f.id === letFontId) ?? LETTERING_FONTS[0];
+    const sizePx = letSizeMm * PX_PER_MM;
+    // Estimativa de largura para centrar (measureText interno faz o cálculo real).
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d")!;
+    ctx.font = `${font.weight} ${sizePx}px ${font.family}`;
+    const wEst = ctx.measureText(letText).width;
+    const x = A4_W / 2 - wEst / 2;
+    const y = A4_H / 2 - sizePx / 2;
+    try {
+      const paths = textToPaths({
+        text: letText, fontFamily: font.family, fontWeight: font.weight,
+        sizePx, x, y, letterSpacingPx: letSpacingPx, simplifyPx: letSimplify,
+      });
+      if (paths.length === 0) { toast.error("Não foi possível traçar o texto."); return; }
+      setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...paths] } : l));
+      toast.success(`Lettering inserido (${paths.length} contornos). Usa "Aplicar preenchimento" para satin/tatami.`);
+    } catch (e) {
+      toast.error("Falha ao traçar o texto: " + (e as Error).message);
+    }
+  };
+
+  const inserirMotif = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const sizePx = motifSizeMm * PX_PER_MM;
+    const path = motifPath(motifId, A4_W / 2, A4_H / 2, sizePx);
+    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, path] } : l));
+    toast.success("Motivo inserido no centro da página.");
+  };
+
+  const gerarAppliqueDaCamadaAtiva = () => {
+    if (!active) { toast.error("Sem camada ativa."); return; }
+    const closed = active.strokes.filter((d) => /z/i.test(d));
+    if (closed.length === 0) { toast.error("A camada ativa não tem contornos fechados."); return; }
+    const specs = buildAppliqueLayers(closed, appliqueCover, appliqueWidth);
+    const novas: BordadoLayer[] = specs.map((s) => ({
+      id: `l-appl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      nome: s.nome, visible: true, locked: false,
+      color: s.color, width: s.width, strokes: s.strokes, stitch: s.stitch,
+    }));
+    setLayers((ls) => [...ls, ...novas]);
+    setColorOrder(null);
+    toast.success("Sequência de aplique criada em 3 camadas (Colocar → Fixar → Cobrir).");
+  };
+
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
   /** Origem da grelha centrada na página. */
