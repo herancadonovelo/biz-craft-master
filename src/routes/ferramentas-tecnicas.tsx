@@ -34,6 +34,7 @@ import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
+import { buildEmbroideryBundle, downloadBundle } from "@/lib/embroidery-bundle";
 import { decodeDst, blocksToPaths } from "@/lib/dst-import";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
@@ -2061,6 +2062,10 @@ function BordadoTab() {
   // Fase 13 — mapa de densidade + relatório de qualidade
   const [heatOn, setHeatOn] = useState(false);
   const [heatCellMm, setHeatCellMm] = useState(2);
+  // Fase 14 — bundle de exportação (.zip)
+  const [bundleBusy, setBundleBusy] = useState(false);
+  const [bundleIncludePdf, setBundleIncludePdf] = useState(true);
+  const [bundleSlug, setBundleSlug] = useState("bordado");
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2547,6 +2552,43 @@ function BordadoTab() {
     } catch (e) {
       toast.error("Falha a carregar projeto: " + (e as Error).message);
     }
+  };
+
+  // ---------- Fase 14: bundle .zip com todos os formatos ----------
+  const exportarBundle = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para o bundle."); return; }
+    setBundleBusy(true);
+    try {
+      const projectJson = JSON.stringify({
+        version: 14, kind: "cbm-bordado", savedAt: new Date().toISOString(),
+        layers, chartCells, hoopOn, hoop, stitchLenMm, orderByNearest, colorOrder, watermark: w,
+      }, null, 2);
+      let patternPdf: Uint8Array | undefined;
+      if (bundleIncludePdf && svgRef.current) {
+        const chartPngDataUrl = await svgToPngDataUrl(svgRef.current, 1400);
+        patternPdf = await buildPatternSheetPdf({
+          titulo: pdfTitulo || "Padrão de Bordado",
+          autor: pdfAutor || undefined,
+          hoop: hoopOn ? `${hoop === "square" ? "Quadrado" : "Redondo"} ${(hoopWpx / PX_PER_CM).toFixed(0)}×${(hoopHpx / PX_PER_CM).toFixed(0)} cm` : undefined,
+          aida: aidaCount || undefined,
+          dimensaoCm: { w: A4_W / PX_PER_CM, h: A4_H / PX_PER_CM },
+          totalStitches: blocks.reduce((s, b) => s + b.points.length, 0),
+          totalColors: blocks.length,
+          linhas: listaCompras,
+          chartPngDataUrl,
+          watermark: w?.texto || undefined,
+        });
+      }
+      const { blob, stats } = await buildEmbroideryBundle({
+        slug: bundleSlug || "bordado",
+        blocks, pxPerMm: PX_PER_MM, projectJson, patternPdf,
+      });
+      downloadBundle(blob, `${(bundleSlug || "bordado")}-${Date.now()}.zip`);
+      toast.success(`Bundle gerado: ${stats.files.length} ficheiros · ${stats.sizeKb} KB.`);
+    } catch (e) {
+      toast.error("Falha ao gerar bundle: " + (e as Error).message);
+    } finally { setBundleBusy(false); }
   };
 
   // Lista viva de cores (para o UI de reordenação)
@@ -3522,6 +3564,24 @@ function BordadoTab() {
             <Button size="sm" variant="outline" onClick={() => projectFileRef.current?.click()}>Carregar…</Button>
           </div>
           <p className="text-[10px] text-muted-foreground">Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.</p>
+        </CardContent></Card>
+        {/* Fase 14 — Bundle de exportação (.zip) */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Bundle de exportação (.zip)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Empacota DST + PES + EXP + projeto .json {bundleIncludePdf ? "+ PDF de padrão " : ""}num único ficheiro pronto a entregar.
+          </p>
+          <div>
+            <Label className="text-[10px]">Nome base</Label>
+            <Input value={bundleSlug} onChange={(e) => setBundleSlug(e.target.value)} className="h-7 text-xs" placeholder="bordado" />
+          </div>
+          <label className="flex items-center gap-2 text-[11px]">
+            <input type="checkbox" checked={bundleIncludePdf} onChange={(e) => setBundleIncludePdf(e.target.checked)} />
+            Incluir folha de padrão PDF
+          </label>
+          <Button size="sm" onClick={exportarBundle} disabled={bundleBusy} className="w-full">
+            {bundleBusy ? "A gerar bundle…" : "Exportar bundle .zip"}
+          </Button>
         </CardContent></Card>
         {/* Fase 13 — Mapa de densidade + Relatório de qualidade */}
         <Card><CardContent className="space-y-2 p-3">
