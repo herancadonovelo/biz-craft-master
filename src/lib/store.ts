@@ -475,6 +475,27 @@ export interface ReceitaEditor {
   }[];
   notas?: string;
   criadoEm: string;
+  tags?: string[];
+  horasEstimadas?: number;
+  materiaisRef?: { materialId: ID; quantidade: number }[];
+  historico?: { id: ID; data: string; label?: string; snapshot: string }[];
+}
+
+export interface EtapaProducao {
+  id: ID;
+  nome: string;
+  inicio?: string;   // ISO date
+  fim?: string;      // ISO date
+  concluida: boolean;
+  tarefas: { id: ID; texto: string; feito: boolean; prazo?: string }[];
+}
+
+export interface ProducaoPlano {
+  id: ID;
+  nome: string;
+  projetoId?: ID;
+  etapas: EtapaProducao[];
+  criadoEm: string;
 }
 
 export const MODULOS_PRESETS = {
