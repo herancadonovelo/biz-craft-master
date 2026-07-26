@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import {
   MousePointer2, Minus, Spline, Compass, Scissors, Split, Waves,
   GitCommitHorizontal, ImagePlus, Ruler, Trash2, Undo2, Plus, FlipHorizontal2,
+  Redo2, History, FileDown, Save,
 } from "lucide-react";
 
 /* ─────────────── Geometria ─────────────── */
@@ -154,6 +155,38 @@ function allIntersections(polys: Poly[]): Pt[] {
   return out;
 }
 
+/* ─────────────── Export helpers (SVG/DXF) ─────────────── */
+
+function polysToSVG(polys: Poly[], w: number, h: number): string {
+  const paths = polys.map((pl) => {
+    const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+    return `<path d="${d}" fill="none" stroke="${pl.color ?? "#000"}" stroke-width="1"/>`;
+  }).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${paths}</svg>`;
+}
+
+function polysToDXF(polys: Poly[]): string {
+  const lines: string[] = ["0", "SECTION", "2", "ENTITIES"];
+  for (const pl of polys) {
+    for (let i = 1; i < pl.pts.length; i++) {
+      const a = pl.pts[i - 1], b = pl.pts[i];
+      lines.push("0", "LINE", "8", "0",
+        "10", a.x.toFixed(3), "20", (-a.y).toFixed(3), "30", "0",
+        "11", b.x.toFixed(3), "21", (-b.y).toFixed(3), "31", "0");
+    }
+  }
+  lines.push("0", "ENDSEC", "0", "EOF");
+  return lines.join("\n");
+}
+
+function downloadFile(name: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
 function ponto(e: React.PointerEvent<SVGSVGElement>, svg: SVGSVGElement): Pt {
   const r = svg.getBoundingClientRect();
   return { x: ((e.clientX - r.left) / r.width) * A4_W, y: ((e.clientY - r.top) / r.height) * A4_H };
@@ -187,10 +220,53 @@ export function CosturaEditor() {
   const [tool, setTool] = useState<Tool>("line");
   const [polys, setPolys] = useState<Poly[]>([]);
   const [history, setHistory] = useState<Poly[][]>([]);
+  const [future, setFuture] = useState<Poly[][]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [liveMirror, setLiveMirror] = useState(false);
   const [snapIntersect, setSnapIntersect] = useState(true);
+  const [snapEndpoints, setSnapEndpoints] = useState(true);
+  const [snapAlign, setSnapAlign] = useState(true);
   const [gridOn, setGridOn] = useState(true);
+  const [gridCm, setGridCm] = useState(1);
+  const [annotate, setAnnotate] = useState(true);
+
+  // Autosave & versioning
+  const AUTOSAVE_KEY = "costura:autosave";
+  const VERSIONS_KEY = "costura:versions";
+  const [versions, setVersions] = useState<{ ts: number; polys: Poly[] }[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem(VERSIONS_KEY) || "[]"); } catch { return []; }
+  });
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (hydrated.current) return;
+    hydrated.current = true;
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Poly[];
+        if (Array.isArray(parsed) && parsed.length) setPolys(parsed);
+      }
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const t = setTimeout(() => {
+      try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(polys)); } catch { /* quota */ }
+    }, 700);
+    return () => clearTimeout(t);
+  }, [polys]);
+  function snapshotVersion() {
+    const v = [{ ts: Date.now(), polys }, ...versions].slice(0, 12);
+    setVersions(v);
+    try { localStorage.setItem(VERSIONS_KEY, JSON.stringify(v)); } catch { /* quota */ }
+    toast.success("Versão guardada.");
+  }
+  function restoreVersion(i: number) {
+    const v = versions[i]; if (!v) return;
+    push(v.polys);
+    toast.success("Versão restaurada.");
+  }
 
   // Decalque (image underlay)
   const [underlay, setUnderlay] = useState<string>("");
@@ -225,25 +301,56 @@ export function CosturaEditor() {
   const intersections = useMemo(() => allIntersections(polys), [polys]);
 
   function push(next: Poly[]) {
-    setHistory((h) => [...h.slice(-49), polys]);
+    setHistory((h) => [...h.slice(-99), polys]);
+    setFuture([]);
     setPolys(next);
   }
   function undo() {
     setHistory((h) => {
       if (!h.length) return h;
       const prev = h[h.length - 1];
+      setFuture((f) => [polys, ...f].slice(0, 99));
       setPolys(prev);
       return h.slice(0, -1);
     });
   }
+  function redo() {
+    setFuture((f) => {
+      if (!f.length) return f;
+      const nxt = f[0];
+      setHistory((h) => [...h.slice(-99), polys]);
+      setPolys(nxt);
+      return f.slice(1);
+    });
+  }
 
   function snap(p: Pt): Pt {
-    if (!snapIntersect) return p;
+    const candidates: Pt[] = [];
+    if (snapIntersect) candidates.push(...intersections);
+    if (snapEndpoints) {
+      for (const pl of polys) {
+        if (pl.pts.length) {
+          candidates.push(pl.pts[0], pl.pts[pl.pts.length - 1]);
+        }
+      }
+    }
     let best: Pt | null = null; let bd = 8;
-    for (const q of intersections) {
+    for (const q of candidates) {
       const d = dist(p, q); if (d < bd) { bd = d; best = q; }
     }
-    return best ?? p;
+    if (best) return best;
+    if (snapAlign) {
+      let sx = p.x, sy = p.y; let fx = false, fy = false;
+      for (const pl of polys) {
+        for (const q of [pl.pts[0], pl.pts[pl.pts.length - 1]]) {
+          if (!q) continue;
+          if (!fx && Math.abs(q.x - p.x) < 5) { sx = q.x; fx = true; }
+          if (!fy && Math.abs(q.y - p.y) < 5) { sy = q.y; fy = true; }
+        }
+      }
+      if (fx || fy) return { x: sx, y: sy };
+    }
+    return p;
   }
 
   function addPoly(kind: PolyKind, pts: Pt[], extra: Partial<Poly> = {}) {
@@ -315,6 +422,7 @@ export function CosturaEditor() {
       setSelectedId(null);
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") undo();
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) redo();
   };
   const onDoubleClick = () => {
     if (tool === "spline" && splinePts.length >= 2) {
@@ -425,9 +533,11 @@ export function CosturaEditor() {
           <ToolBtn label="Snap ⇔" icon={<Compass className="h-3 w-3" />} active={snapIntersect} onClick={() => setSnapIntersect((v) => !v)} />
           <ToolBtn label="Grelha" icon={<Compass className="h-3 w-3" />} active={gridOn} onClick={() => setGridOn((v) => !v)} />
           <ToolBtn label="Desfazer" icon={<Undo2 className="h-3 w-3" />} onClick={undo} />
+          <ToolBtn label="Refazer" icon={<Redo2 className="h-3 w-3" />} onClick={redo} />
           <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
         </div>
         <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
+        <Card className="bg-background opacity-100"><CardContent className="p-3">
         <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
           {underlay && (
             <img
@@ -451,8 +561,8 @@ export function CosturaEditor() {
             {gridOn && (
               <>
                 <defs>
-                  <pattern id="gridc" width={PX_PER_CM} height={PX_PER_CM} patternUnits="userSpaceOnUse">
-                    <path d={`M ${PX_PER_CM} 0 L 0 0 0 ${PX_PER_CM}`} fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                  <pattern id="gridc" width={cmToPx(gridCm)} height={cmToPx(gridCm)} patternUnits="userSpaceOnUse">
+                    <path d={`M ${cmToPx(gridCm)} 0 L 0 0 0 ${cmToPx(gridCm)}`} fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
                   </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#gridc)" />
@@ -477,6 +587,27 @@ export function CosturaEditor() {
                   {pl.label && pl.pts[0] && (
                     <text x={pl.pts[0].x + 4} y={pl.pts[0].y - 4} fontSize="9" fill="#6b7280">{pl.label} · {cm}cm</text>
                   )}
+                  {annotate && pl.pts.length >= 2 && pl.pts.slice(1).map((p, i) => {
+                    const a = pl.pts[i]; const mx = (a.x + p.x) / 2; const my = (a.y + p.y) / 2;
+                    const len = pxToCm(dist(a, p)) * fator;
+                    if (len < 0.6) return null;
+                    return (
+                      <text key={"seg" + i} x={mx} y={my - 3} fontSize="7" fill="#64748b" textAnchor="middle">
+                        {len.toFixed(1)}
+                      </text>
+                    );
+                  })}
+                  {annotate && pl.pts.length >= 3 && pl.pts.slice(1, -1).map((p, i) => {
+                    const a = pl.pts[i], c = pl.pts[i + 2];
+                    const v1x = a.x - p.x, v1y = a.y - p.y;
+                    const v2x = c.x - p.x, v2y = c.y - p.y;
+                    const cos = (v1x * v2x + v1y * v2y) / ((Math.hypot(v1x, v1y) || 1) * (Math.hypot(v2x, v2y) || 1));
+                    const ang = Math.round(Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI);
+                    if (ang >= 175) return null;
+                    return (
+                      <text key={"ang" + i} x={p.x + 4} y={p.y + 8} fontSize="7" fill="#94a3b8">{ang}°</text>
+                    );
+                  })}
                 </g>
               );
             })}
@@ -511,10 +642,58 @@ export function CosturaEditor() {
             ))}
           </svg>
         </A4Stage>
+        </CardContent></Card>
       </div>
 
       <div className="space-y-3">
         <SheetControls {...sheet} />
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Grelha & Snap</div>
+          <Label className="text-[11px]">Grelha ({gridCm} cm)</Label>
+          <div className="flex gap-1">
+            {[0.5, 1, 2, 5].map((g) => (
+              <Button key={g} size="sm" variant={gridCm === g ? "default" : "outline"} onClick={() => setGridCm(g)}>{g}</Button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-1 pt-1">
+            <Button size="sm" variant={snapEndpoints ? "default" : "outline"} onClick={() => setSnapEndpoints((v) => !v)}>Snap extremos</Button>
+            <Button size="sm" variant={snapAlign ? "default" : "outline"} onClick={() => setSnapAlign((v) => !v)}>Alinhar H/V</Button>
+            <Button size="sm" variant={snapIntersect ? "default" : "outline"} onClick={() => setSnapIntersect((v) => !v)}>Interseções</Button>
+            <Button size="sm" variant={annotate ? "default" : "outline"} onClick={() => setAnnotate((v) => !v)}>Cotas auto</Button>
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-medium">Versões do molde</div>
+            <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+          </div>
+          {versions.length === 0 && <p className="text-[10px] text-muted-foreground">Autosave ativo. Cria um ponto de restauro sempre que quiseres.</p>}
+          <div className="max-h-40 space-y-1 overflow-auto">
+            {versions.map((v, i) => (
+              <div key={v.ts} className="flex items-center justify-between rounded bg-muted/40 px-2 py-1 text-[10px]">
+                <span>#{versions.length - i} · {new Date(v.ts).toLocaleString()}</span>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => restoreVersion(i)}><History className="mr-1 h-3 w-3" />Restaurar</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="text-xs font-medium">Exportar CAD</div>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVG(polys, A4_W, A4_H), "image/svg+xml")}>
+              <FileDown className="mr-1 h-3 w-3" />SVG
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXF(polys), "application/dxf")}>
+              <FileDown className="mr-1 h-3 w-3" />DXF
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">SVG para impressão profissional / vinil; DXF para AutoCAD, plotters e mesas de corte.</p>
+        </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
           <div className="grid grid-cols-2 gap-2">
