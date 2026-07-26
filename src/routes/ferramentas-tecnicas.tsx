@@ -2108,22 +2108,46 @@ function BordadoTab() {
           <div className="space-y-1">
             {layers.slice().reverse().map((l) => (
               <div key={l.id}
-                   className={`flex items-center gap-1 rounded border px-2 py-1 ${activeLayer === l.id ? "border-primary bg-primary/5" : "border-border"}`}>
-                <button className="text-xs" onClick={() => patchLayer(l.id, { visible: !l.visible })} title="Visibilidade">
-                  {l.visible ? "👁" : "—"}
-                </button>
-                <button className="text-xs" onClick={() => patchLayer(l.id, { locked: !l.locked })} title="Bloquear">
-                  {l.locked ? "🔒" : "🔓"}
-                </button>
-                <Input value={l.nome} onChange={(e) => patchLayer(l.id, { nome: e.target.value })}
-                       className="h-6 flex-1 text-xs" onFocus={() => setActiveLayer(l.id)} />
-                <input type="color" value={l.color} onChange={(e) => patchLayer(l.id, { color: e.target.value })}
-                       className="h-6 w-6 cursor-pointer rounded border" />
-                <button className="text-xs" onClick={() => moveLayer(l.id, 1)} title="Subir">▲</button>
-                <button className="text-xs" onClick={() => moveLayer(l.id, -1)} title="Descer">▼</button>
-                <button className="text-xs text-destructive" onClick={() => removeLayer(l.id)} title="Apagar">
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                   className={`space-y-1 rounded border px-2 py-1 ${activeLayer === l.id ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className="flex items-center gap-1">
+                  <button className="text-xs" onClick={() => patchLayer(l.id, { visible: !l.visible })} title="Visibilidade">
+                    {l.visible ? "👁" : "—"}
+                  </button>
+                  <button className="text-xs" onClick={() => patchLayer(l.id, { locked: !l.locked })} title="Bloquear">
+                    {l.locked ? "🔒" : "🔓"}
+                  </button>
+                  <Input value={l.nome} onChange={(e) => patchLayer(l.id, { nome: e.target.value })}
+                         className="h-6 flex-1 text-xs" onFocus={() => setActiveLayer(l.id)} />
+                  <input type="color" value={l.color} onChange={(e) => patchLayer(l.id, { color: e.target.value, dmc: undefined })}
+                         className="h-6 w-6 cursor-pointer rounded border" title="Cor personalizada" />
+                  <button className="text-xs" onClick={() => moveLayer(l.id, 1)} title="Subir">▲</button>
+                  <button className="text-xs" onClick={() => moveLayer(l.id, -1)} title="Descer">▼</button>
+                  <button className="text-xs text-destructive" onClick={() => removeLayer(l.id)} title="Apagar">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Select value={l.stitch} onValueChange={(v) => patchLayer(l.id, { stitch: v as StitchType })}>
+                    <SelectTrigger className="h-6 flex-1 text-[11px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STITCH_LABELS) as StitchType[]).map((k) => (
+                        <SelectItem key={k} value={k}>{STITCH_LABELS[k]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <DmcPickerButton
+                    current={l.dmc}
+                    onPick={(c) => patchLayer(l.id, { color: c.hex, dmc: c.code })}
+                    onSuggest={() => {
+                      const near = nearestDmc(l.color);
+                      patchLayer(l.id, { color: near.hex, dmc: near.code });
+                      toast.success(`DMC ${near.code} aplicado (${near.name}).`);
+                    }}
+                  />
+                </div>
+                {l.dmc && (
+                  <p className="text-[10px] text-muted-foreground">DMC {l.dmc}</p>
+                )}
               </div>
             ))}
           </div>
@@ -2133,6 +2157,36 @@ function BordadoTab() {
                     onValueChange={(v) => patchLayer(active.id, { width: v[0] })} />
             <p className="text-[10px] text-muted-foreground mt-1">Sugestão: 0.4 px ≈ 1 fio · 0.8 px ≈ 3 fios · 1.4 px ≈ 6 fios.</p>
           </div>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-1 p-3">
+          <Label className="text-xs font-semibold">Estimativa de linha</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Comprimento total das linhas por camada (com 15% de margem para nós e sobra de agulha).
+          </p>
+          {linhaStats.every((s) => s.cm < 0.05) ? (
+            <p className="text-[11px] italic text-muted-foreground pt-1">
+              Desenha ou vetoriza para veres a estimativa de consumo por camada.
+            </p>
+          ) : (
+            <div className="pt-1 space-y-0.5">
+              {linhaStats.map((s) => (
+                s.cm > 0 && (
+                  <div key={s.id} className="flex justify-between text-[11px]">
+                    <span className="truncate">
+                      {s.nome}{s.dmc ? ` · DMC ${s.dmc}` : ""}
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {s.cmComMargem.toFixed(1)} cm
+                    </span>
+                  </div>
+                )
+              ))}
+              <div className="flex justify-between border-t pt-1 text-[11px] font-medium">
+                <span>Total estimado</span>
+                <span className="tabular-nums">{totalCmMargem.toFixed(1)} cm</span>
+              </div>
+            </div>
+          )}
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Imagem de referência (decalque)</Label>
