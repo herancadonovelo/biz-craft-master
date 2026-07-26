@@ -17,8 +17,12 @@ import { toast } from "sonner";
 import {
   MousePointer2, Minus, Spline, Compass, Scissors, Split, Waves,
   GitCommitHorizontal, ImagePlus, Ruler, Trash2, Undo2, Plus, FlipHorizontal2,
-  Redo2, History, FileDown, Save,
+  Redo2, History, FileDown, Save, Keyboard, FileUp, GitCompare,
 } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /* ─────────────── Geometria ─────────────── */
 
@@ -36,6 +40,7 @@ type Poly = {
   color?: string;
   marks?: Pt[];   // split-line markers
   label?: string;
+  layer?: "molde" | "mirror" | "annotation" | "guide";
 };
 
 const A4_W = 595;
@@ -158,25 +163,138 @@ function allIntersections(polys: Poly[]): Pt[] {
 /* ─────────────── Export helpers (SVG/DXF) ─────────────── */
 
 function polysToSVG(polys: Poly[], w: number, h: number): string {
-  const paths = polys.map((pl) => {
-    const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
-    return `<path d="${d}" fill="none" stroke="${pl.color ?? "#000"}" stroke-width="1"/>`;
-  }).join("");
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${paths}</svg>`;
+  return polysToSVGLayered(polys, w, h, { molde: true, mirror: true, annotations: true, grid: false, gridCm: 1 });
 }
 
 function polysToDXF(polys: Poly[]): string {
-  const lines: string[] = ["0", "SECTION", "2", "ENTITIES"];
+  return polysToDXFLayered(polys, { molde: true, mirror: true, annotations: true, grid: false, gridCm: 1, w: A4_W, h: A4_H });
+}
+
+type LayerOpts = {
+  molde: boolean; mirror: boolean; annotations: boolean;
+  grid: boolean; gridCm: number;
+};
+
+function layerOf(pl: Poly): string {
+  return pl.layer ?? (pl.color === "#8b5cf6" ? "mirror" : (pl.marks?.length ? "annotation" : "molde"));
+}
+
+function polysToSVGLayered(polys: Poly[], w: number, h: number, o: LayerOpts): string {
+  const groups: string[] = [];
+  if (o.grid) {
+    const g = cmToPx(o.gridCm); const lines: string[] = [];
+    for (let x = 0; x <= w; x += g) lines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="#e5e7eb" stroke-width="0.4"/>`);
+    for (let y = 0; y <= h; y += g) lines.push(`<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#e5e7eb" stroke-width="0.4"/>`);
+    groups.push(`<g id="grelha" inkscape:label="grelha">${lines.join("")}</g>`);
+  }
+  const byLayer: Record<string, Poly[]> = { molde: [], mirror: [], annotation: [] };
   for (const pl of polys) {
+    const L = layerOf(pl);
+    if (L === "mirror" && !o.mirror) continue;
+    if (L === "annotation" && !o.annotations) continue;
+    if (L === "molde" && !o.molde) continue;
+    (byLayer[L] ||= []).push(pl);
+  }
+  for (const [L, list] of Object.entries(byLayer)) {
+    const paths = list.map((pl) => {
+      const d = pl.pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+      return `<path d="${d}" fill="none" stroke="${pl.color ?? "#000"}" stroke-width="1"/>`;
+    }).join("");
+    groups.push(`<g id="${L}" inkscape:label="${L}">${paths}</g>`);
+  }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${groups.join("")}</svg>`;
+}
+
+function polysToDXFLayered(polys: Poly[], o: LayerOpts & { w: number; h: number }): string {
+  const lines: string[] = ["0", "SECTION", "2", "ENTITIES"];
+  const emit = (a: Pt, b: Pt, layer: string) => {
+    lines.push("0", "LINE", "8", layer,
+      "10", a.x.toFixed(3), "20", (-a.y).toFixed(3), "30", "0",
+      "11", b.x.toFixed(3), "21", (-b.y).toFixed(3), "31", "0");
+  };
+  if (o.grid) {
+    const g = cmToPx(o.gridCm);
+    for (let x = 0; x <= o.w; x += g) emit({ x, y: 0 }, { x, y: o.h }, "GRELHA");
+    for (let y = 0; y <= o.h; y += g) emit({ x: 0, y }, { x: o.w, y }, "GRELHA");
+  }
+  for (const pl of polys) {
+    const L = layerOf(pl).toUpperCase();
+    if (L === "MIRROR" && !o.mirror) continue;
+    if (L === "ANNOTATION" && !o.annotations) continue;
+    if (L === "MOLDE" && !o.molde) continue;
     for (let i = 1; i < pl.pts.length; i++) {
-      const a = pl.pts[i - 1], b = pl.pts[i];
-      lines.push("0", "LINE", "8", "0",
-        "10", a.x.toFixed(3), "20", (-a.y).toFixed(3), "30", "0",
-        "11", b.x.toFixed(3), "21", (-b.y).toFixed(3), "31", "0");
+      emit(pl.pts[i - 1], pl.pts[i], L);
     }
   }
   lines.push("0", "ENDSEC", "0", "EOF");
   return lines.join("\n");
+}
+
+/* ─────────────── Import (SVG/DXF) ─────────────── */
+
+function parseSVG(text: string): Poly[] {
+  const out: Poly[] = [];
+  const dom = new DOMParser().parseFromString(text, "image/svg+xml");
+  dom.querySelectorAll("line").forEach((el) => {
+    const a = { x: +(el.getAttribute("x1") || 0), y: +(el.getAttribute("y1") || 0) };
+    const b = { x: +(el.getAttribute("x2") || 0), y: +(el.getAttribute("y2") || 0) };
+    out.push({ id: uid(), kind: "line", pts: [a, b], color: "#222", layer: "molde" });
+  });
+  dom.querySelectorAll("polyline, polygon").forEach((el) => {
+    const raw = (el.getAttribute("points") || "").trim();
+    const pts = raw.split(/[\s,]+/).map(Number);
+    const points: Pt[] = [];
+    for (let i = 0; i + 1 < pts.length; i += 2) points.push({ x: pts[i], y: pts[i + 1] });
+    if (points.length >= 2) out.push({ id: uid(), kind: "polyline", pts: points, color: "#222", layer: "molde" });
+  });
+  dom.querySelectorAll("path").forEach((el) => {
+    const d = el.getAttribute("d") || "";
+    const cmds = d.match(/[MLHVZmlhvz][^MLHVZmlhvz]*/g) || [];
+    const points: Pt[] = []; let cx = 0, cy = 0;
+    for (const c of cmds) {
+      const t = c[0]; const nums = (c.slice(1).trim().match(/-?\d+(\.\d+)?/g) || []).map(Number);
+      if (t === "M" || t === "L") {
+        for (let i = 0; i + 1 < nums.length; i += 2) { cx = nums[i]; cy = nums[i + 1]; points.push({ x: cx, y: cy }); }
+      } else if (t === "m" || t === "l") {
+        for (let i = 0; i + 1 < nums.length; i += 2) { cx += nums[i]; cy += nums[i + 1]; points.push({ x: cx, y: cy }); }
+      } else if (t === "H") { for (const n of nums) { cx = n; points.push({ x: cx, y: cy }); } }
+      else if (t === "h") { for (const n of nums) { cx += n; points.push({ x: cx, y: cy }); } }
+      else if (t === "V") { for (const n of nums) { cy = n; points.push({ x: cx, y: cy }); } }
+      else if (t === "v") { for (const n of nums) { cy += n; points.push({ x: cx, y: cy }); } }
+    }
+    if (points.length >= 2) out.push({ id: uid(), kind: "polyline", pts: points, color: "#222", layer: "molde" });
+  });
+  return out;
+}
+
+function parseDXF(text: string): Poly[] {
+  const out: Poly[] = [];
+  const lines = text.split(/\r?\n/).map((s) => s.trim());
+  let i = 0;
+  while (i < lines.length) {
+    if (lines[i] === "0" && lines[i + 1] === "LINE") {
+      let x1 = 0, y1 = 0, x2 = 0, y2 = 0; let j = i + 2;
+      while (j < lines.length && !(lines[j] === "0")) {
+        const code = lines[j]; const val = parseFloat(lines[j + 1]);
+        if (code === "10") x1 = val;
+        else if (code === "20") y1 = -val;
+        else if (code === "11") x2 = val;
+        else if (code === "21") y2 = -val;
+        j += 2;
+      }
+      out.push({ id: uid(), kind: "line", pts: [{ x: x1, y: y1 }, { x: x2, y: y2 }], color: "#222", layer: "molde" });
+      i = j; continue;
+    }
+    i++;
+  }
+  return out;
+}
+
+/* ─────────────── Version diff ─────────────── */
+
+function polysStats(pls: Poly[]) {
+  const totalCm = pls.reduce((a, p) => a + pxToCm(polyLen(p.pts)), 0);
+  return { count: pls.length, totalCm, byKind: pls.reduce<Record<string, number>>((a, p) => { a[p.kind] = (a[p.kind] || 0) + 1; return a; }, {}) };
 }
 
 function downloadFile(name: string, content: string, mime: string) {
@@ -229,6 +347,9 @@ export function CosturaEditor() {
   const [gridOn, setGridOn] = useState(true);
   const [gridCm, setGridCm] = useState(1);
   const [annotate, setAnnotate] = useState(true);
+  const [snapTolPx, setSnapTolPx] = useState(8);
+  const [layerOpts, setLayerOpts] = useState({ molde: true, mirror: true, annotations: true, grid: false });
+  const [diffIdx, setDiffIdx] = useState<number | null>(null);
 
   // Autosave & versioning
   const AUTOSAVE_KEY = "costura:autosave";
@@ -334,18 +455,19 @@ export function CosturaEditor() {
         }
       }
     }
-    let best: Pt | null = null; let bd = 8;
+    let best: Pt | null = null; let bd = snapTolPx;
     for (const q of candidates) {
       const d = dist(p, q); if (d < bd) { bd = d; best = q; }
     }
     if (best) return best;
     if (snapAlign) {
       let sx = p.x, sy = p.y; let fx = false, fy = false;
+      const alignTol = Math.max(3, snapTolPx * 0.6);
       for (const pl of polys) {
         for (const q of [pl.pts[0], pl.pts[pl.pts.length - 1]]) {
           if (!q) continue;
-          if (!fx && Math.abs(q.x - p.x) < 5) { sx = q.x; fx = true; }
-          if (!fy && Math.abs(q.y - p.y) < 5) { sy = q.y; fy = true; }
+          if (!fx && Math.abs(q.x - p.x) < alignTol) { sx = q.x; fx = true; }
+          if (!fy && Math.abs(q.y - p.y) < alignTol) { sy = q.y; fy = true; }
         }
       }
       if (fx || fy) return { x: sx, y: sy };
@@ -354,9 +476,9 @@ export function CosturaEditor() {
   }
 
   function addPoly(kind: PolyKind, pts: Pt[], extra: Partial<Poly> = {}) {
-    const p: Poly = { id: uid(), kind, pts, color: "#222", ...extra };
+    const p: Poly = { id: uid(), kind, pts, color: "#222", layer: "molde", ...extra };
     const mirror: Poly[] = liveMirror
-      ? [{ id: uid(), kind, color: "#8b5cf6", pts: pts.map((q) => ({ x: A4_W - q.x, y: q.y })), ...extra }]
+      ? [{ id: uid(), kind, color: "#8b5cf6", layer: "mirror", pts: pts.map((q) => ({ x: A4_W - q.x, y: q.y })), ...extra }]
       : [];
     push([...polys, p, ...mirror]);
   }
@@ -535,9 +657,47 @@ export function CosturaEditor() {
           <ToolBtn label="Desfazer" icon={<Undo2 className="h-3 w-3" />} onClick={undo} />
           <ToolBtn label="Refazer" icon={<Redo2 className="h-3 w-3" />} onClick={redo} />
           <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
+          <Dialog>
+            <DialogTrigger asChild>
+              <button type="button" className="inline-flex items-center gap-1 rounded bg-background px-2 py-1 text-[11px] hover:bg-muted" title="Atalhos & ajuda">
+                <Keyboard className="h-3 w-3" /><span className="hidden sm:inline">Atalhos</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader><DialogTitle>Atalhos & ajuda</DialogTitle></DialogHeader>
+              <div className="space-y-2 text-xs">
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Comandos</div>
+                  <ul className="space-y-0.5">
+                    <li><kbd className="rounded border bg-background px-1">Ctrl+Z</kbd> desfazer</li>
+                    <li><kbd className="rounded border bg-background px-1">Ctrl+Y</kbd> / <kbd className="rounded border bg-background px-1">Ctrl+Shift+Z</kbd> refazer</li>
+                    <li><kbd className="rounded border bg-background px-1">Enter</kbd> / duplo-clique — fechar spline</li>
+                    <li><kbd className="rounded border bg-background px-1">Delete</kbd> apagar peça selecionada</li>
+                  </ul>
+                </div>
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Snaps ativos</div>
+                  <ul className="space-y-0.5">
+                    <li>• Interseções: {snapIntersect ? "on" : "off"}</li>
+                    <li>• Extremos: {snapEndpoints ? "on" : "off"}</li>
+                    <li>• Alinhamento H/V: {snapAlign ? "on" : "off"}</li>
+                    <li>• Tolerância: {snapTolPx}px (~{pxToCm(snapTolPx).toFixed(2)} cm)</li>
+                  </ul>
+                </div>
+                <div className="rounded bg-muted/40 p-2">
+                  <div className="mb-1 font-medium">Ferramentas</div>
+                  <ul className="space-y-0.5">
+                    {Object.entries(TOOL_HINTS).map(([k, v]) => (
+                      <li key={k}><b>{k}</b> — {v}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
-        <Card className="bg-background opacity-100"><CardContent className="p-3">
+        <Card className="!bg-white opacity-100" style={{ backgroundColor: "#ffffff", opacity: 1 }}><CardContent className="p-3">
         <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
           {underlay && (
             <img
@@ -662,12 +822,16 @@ export function CosturaEditor() {
             <Button size="sm" variant={snapIntersect ? "default" : "outline"} onClick={() => setSnapIntersect((v) => !v)}>Interseções</Button>
             <Button size="sm" variant={annotate ? "default" : "outline"} onClick={() => setAnnotate((v) => !v)}>Cotas auto</Button>
           </div>
+          <Label className="text-[11px] pt-1">Tolerância snap · {snapTolPx}px ({pxToCm(snapTolPx).toFixed(2)} cm)</Label>
+          <Slider value={[snapTolPx]} min={2} max={30} step={1} onValueChange={(v) => setSnapTolPx(v[0])} />
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
           <div className="flex items-center justify-between">
             <div className="text-xs font-medium">Versões do molde</div>
-            <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+            </div>
           </div>
           {versions.length === 0 && <p className="text-[10px] text-muted-foreground">Autosave ativo. Cria um ponto de restauro sempre que quiseres.</p>}
           <div className="max-h-40 space-y-1 overflow-auto">
@@ -675,24 +839,73 @@ export function CosturaEditor() {
               <div key={v.ts} className="flex items-center justify-between rounded bg-muted/40 px-2 py-1 text-[10px]">
                 <span>#{versions.length - i} · {new Date(v.ts).toLocaleString()}</span>
                 <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => setDiffIdx(i)}><GitCompare className="mr-1 h-3 w-3" />Diff</Button>
                   <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => restoreVersion(i)}><History className="mr-1 h-3 w-3" />Restaurar</Button>
                 </div>
               </div>
             ))}
           </div>
+          {diffIdx !== null && versions[diffIdx] && (() => {
+            const cur = polysStats(polys); const old = polysStats(versions[diffIdx].polys);
+            const kinds = Array.from(new Set([...Object.keys(cur.byKind), ...Object.keys(old.byKind)]));
+            return (
+              <div className="mt-1 rounded border bg-muted/30 p-2 text-[10px]">
+                <div className="mb-1 flex items-center justify-between">
+                  <b>Diferenças vs versão #{versions.length - diffIdx}</b>
+                  <button className="underline" onClick={() => setDiffIdx(null)}>fechar</button>
+                </div>
+                <div>Peças: {old.count} → {cur.count} ({cur.count - old.count >= 0 ? "+" : ""}{cur.count - old.count})</div>
+                <div>Linhas: {old.totalCm.toFixed(1)} cm → {cur.totalCm.toFixed(1)} cm</div>
+                <div className="pt-1">
+                  {kinds.map((k) => {
+                    const a = old.byKind[k] || 0, b = cur.byKind[k] || 0;
+                    if (a === b) return null;
+                    return <div key={k}>· {k}: {a} → {b}</div>;
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
-          <div className="text-xs font-medium">Exportar CAD</div>
+          <div className="text-xs font-medium">Exportar / Importar CAD</div>
+          <div className="space-y-1 rounded border p-2">
+            <div className="text-[10px] font-medium text-muted-foreground">Camadas a incluir</div>
+            {([["molde","Molde"],["mirror","Mirror"],["annotations","Cotas/marcadores"],["grid","Grelha"]] as const).map(([k,l]) => (
+              <label key={k} className="flex items-center gap-2 text-[11px]">
+                <Checkbox checked={(layerOpts as any)[k]} onCheckedChange={(v) => setLayerOpts((s) => ({ ...s, [k]: !!v }))} />
+                {l}
+              </label>
+            ))}
+          </div>
           <div className="grid grid-cols-2 gap-1">
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVG(polys, A4_W, A4_H), "image/svg+xml")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }), "image/svg+xml")}>
               <FileDown className="mr-1 h-3 w-3" />SVG
             </Button>
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXF(polys), "application/dxf")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }), "application/dxf")}>
               <FileDown className="mr-1 h-3 w-3" />DXF
             </Button>
           </div>
-          <p className="text-[10px] text-muted-foreground">SVG para impressão profissional / vinil; DXF para AutoCAD, plotters e mesas de corte.</p>
+          <div className="pt-1">
+            <Label className="text-[11px]">Importar SVG / DXF</Label>
+            <Input type="file" accept=".svg,.dxf,image/svg+xml,application/dxf" onChange={(e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              const r = new FileReader();
+              r.onload = () => {
+                try {
+                  const raw = String(r.result);
+                  const parsed = f.name.toLowerCase().endsWith(".dxf") ? parseDXF(raw) : parseSVG(raw);
+                  if (!parsed.length) return toast.error("Ficheiro sem geometria reconhecida.");
+                  push([...polys, ...parsed]);
+                  toast.success(`${parsed.length} peça(s) importadas.`);
+                } catch (err) { toast.error(String((err as Error).message)); }
+              };
+              r.readAsText(f);
+              e.currentTarget.value = "";
+            }} />
+          </div>
+          <p className="text-[10px] text-muted-foreground">Export com camadas (Inkscape/AutoCAD). Import cria LINE/polyline/path como peças novas.</p>
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
