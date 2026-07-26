@@ -475,6 +475,7 @@ function TricotinTab() {
       else ctx.lineTo(first.x, first.y);
     }
     ctx.stroke();
+    drawLettering(ctx, lettering);
   };
 
   // ---------- Régua mm/cm (calibração) ----------
@@ -701,8 +702,9 @@ function TricotinTab() {
         ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       });
     }
+    drawLettering(ctx, lettering, { withHandles: true });
     if (showRuler) drawRuler(ctx);
-  }, [nodes, isClosedPath, lineWidthTricotin, showRuler]);
+  }, [nodes, isClosedPath, lineWidthTricotin, showRuler, lettering]);
 
   React.useEffect(() => { draw(); }, [draw]);
 
