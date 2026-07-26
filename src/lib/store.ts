@@ -487,7 +487,14 @@ export interface EtapaProducao {
   inicio?: string;   // ISO date
   fim?: string;      // ISO date
   concluida: boolean;
-  tarefas: { id: ID; texto: string; feito: boolean; prazo?: string }[];
+  tarefas: {
+    id: ID;
+    texto: string;
+    feito: boolean;
+    prazo?: string;
+    responsavel?: string;
+    status?: "nao_iniciado" | "em_progresso" | "feito";
+  }[];
 }
 
 export interface ProducaoPlano {
