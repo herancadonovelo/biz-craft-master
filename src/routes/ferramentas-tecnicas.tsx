@@ -39,6 +39,14 @@ import {
 import { encodePes, splitByHoop } from "@/lib/pes";
 import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
+  textToPaths,
+  LETTERING_FONTS,
+  MOTIF_PRESETS,
+  motifPath,
+  buildAppliqueLayers,
+  type MotifId,
+} from "@/lib/lettering";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
@@ -2009,6 +2017,16 @@ function BordadoTab() {
   const [fillPullPx, setFillPullPx] = useState(0.6);
   const [fillUnderlay, setFillUnderlay] = useState<0 | 1 | 2>(1);
   const [fillUnderlayInsetPx, setFillUnderlayInsetPx] = useState(1.6);
+  // Fase 8 — Lettering + Motivos + Apliques
+  const [letText, setLetText] = useState("Bordado");
+  const [letFontId, setLetFontId] = useState<string>(LETTERING_FONTS[0].id);
+  const [letSizeMm, setLetSizeMm] = useState(18);
+  const [letSpacingPx, setLetSpacingPx] = useState(0);
+  const [letSimplify, setLetSimplify] = useState(0.6);
+  const [motifId, setMotifId] = useState<MotifId>("heart");
+  const [motifSizeMm, setMotifSizeMm] = useState(30);
+  const [appliqueCover, setAppliqueCover] = useState("#111111");
+  const [appliqueWidth, setAppliqueWidth] = useState(3.5);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2034,6 +2052,54 @@ function BordadoTab() {
     if (novos.length === 0) { toast.error("Nenhum polígono válido para preencher."); return; }
     setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...novos] } : l));
     toast.success(`Preenchimento gerado (~${total.toLocaleString()} pontos, ${fillMode}).`);
+  };
+
+  // ---------- Fase 8: lettering, motivos e apliques ----------
+  const inserirLettering = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const font = LETTERING_FONTS.find((f) => f.id === letFontId) ?? LETTERING_FONTS[0];
+    const sizePx = letSizeMm * PX_PER_MM;
+    // Estimativa de largura para centrar (measureText interno faz o cálculo real).
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d")!;
+    ctx.font = `${font.weight} ${sizePx}px ${font.family}`;
+    const wEst = ctx.measureText(letText).width;
+    const x = A4_W / 2 - wEst / 2;
+    const y = A4_H / 2 - sizePx / 2;
+    try {
+      const paths = textToPaths({
+        text: letText, fontFamily: font.family, fontWeight: font.weight,
+        sizePx, x, y, letterSpacingPx: letSpacingPx, simplifyPx: letSimplify,
+      });
+      if (paths.length === 0) { toast.error("Não foi possível traçar o texto."); return; }
+      setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...paths] } : l));
+      toast.success(`Lettering inserido (${paths.length} contornos). Usa "Aplicar preenchimento" para satin/tatami.`);
+    } catch (e) {
+      toast.error("Falha ao traçar o texto: " + (e as Error).message);
+    }
+  };
+
+  const inserirMotif = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const sizePx = motifSizeMm * PX_PER_MM;
+    const path = motifPath(motifId, A4_W / 2, A4_H / 2, sizePx);
+    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, path] } : l));
+    toast.success("Motivo inserido no centro da página.");
+  };
+
+  const gerarAppliqueDaCamadaAtiva = () => {
+    if (!active) { toast.error("Sem camada ativa."); return; }
+    const closed = active.strokes.filter((d) => /z/i.test(d));
+    if (closed.length === 0) { toast.error("A camada ativa não tem contornos fechados."); return; }
+    const specs = buildAppliqueLayers(closed, appliqueCover, appliqueWidth);
+    const novas: BordadoLayer[] = specs.map((s) => ({
+      id: `l-appl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      nome: s.nome, visible: true, locked: false,
+      color: s.color, width: s.width, strokes: s.strokes, stitch: s.stitch,
+    }));
+    setLayers((ls) => [...ls, ...novas]);
+    setColorOrder(null);
+    toast.success("Sequência de aplique criada em 3 camadas (Colocar → Fixar → Cobrir).");
   };
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
@@ -2898,6 +2964,98 @@ function BordadoTab() {
           <p className="text-[10px] text-muted-foreground">
             Dica: fecha o contorno com "Z" antes de preencher (ferramentas de desenho geram traços abertos por padrão).
           </p>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Lettering (texto → bordado)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Converte texto em contornos fechados prontos para satin/tatami e export DST/PES.
+          </p>
+          <Input value={letText} onChange={(e) => setLetText(e.target.value)} placeholder="Texto" className="h-8 text-xs" />
+          <div>
+            <Label className="text-xs">Fonte</Label>
+            <select
+              value={letFontId}
+              onChange={(e) => setLetFontId(e.target.value)}
+              className="h-8 w-full rounded border bg-background px-2 text-xs"
+            >
+              {LETTERING_FONTS.map((f) => (
+                <option key={f.id} value={f.id} style={{ fontFamily: f.family }}>{f.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs">Altura ({letSizeMm} mm)</Label>
+            <Slider value={[letSizeMm]} min={6} max={80} step={1} onValueChange={(v) => setLetSizeMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Espaçamento entre letras ({letSpacingPx.toFixed(1)} px)</Label>
+            <Slider value={[letSpacingPx]} min={-2} max={8} step={0.5} onValueChange={(v) => setLetSpacingPx(v[0])} />
+          </div>
+          <div>
+            <Label className="text-xs">Simplificação ({letSimplify.toFixed(2)} px)</Label>
+            <Slider value={[letSimplify]} min={0} max={2} step={0.05} onValueChange={(v) => setLetSimplify(v[0])} />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Menor = mais fiel; maior = menos pontos e ficheiros mais leves.
+            </p>
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirLettering}>
+            <Type className="mr-1 h-3 w-3" />Inserir texto vetorizado
+          </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Biblioteca de motivos</Label>
+          <div>
+            <Label className="text-xs">Motivo</Label>
+            <select
+              value={motifId}
+              onChange={(e) => setMotifId(e.target.value as MotifId)}
+              className="h-8 w-full rounded border bg-background px-2 text-xs"
+            >
+              {MOTIF_PRESETS.map((m) => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs">Tamanho ({motifSizeMm} mm)</Label>
+            <Slider value={[motifSizeMm]} min={8} max={120} step={2} onValueChange={(v) => setMotifSizeMm(v[0])} />
+          </div>
+          <Button size="sm" className="w-full" onClick={inserirMotif}>
+            <Sparkles className="mr-1 h-3 w-3" />Inserir motivo (contorno fechado)
+          </Button>
+          <p className="text-[10px] text-muted-foreground">
+            Ideal para combinar com o preenchimento automático e a sequência de aplique.
+          </p>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Apliques (appliqué)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Gera 3 passes canónicos a partir dos contornos fechados da camada ativa:
+            Colocar (corte), Fixar (tack) e Cobrir (satin no rebordo).
+          </p>
+          <div>
+            <Label className="text-xs">Cor da cobertura satin</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={appliqueCover}
+                onChange={(e) => setAppliqueCover(e.target.value)}
+                className="h-8 w-10 rounded border bg-background"
+              />
+              <Input
+                value={appliqueCover}
+                onChange={(e) => setAppliqueCover(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Largura do satin de cobertura ({appliqueWidth.toFixed(1)} px)</Label>
+            <Slider value={[appliqueWidth]} min={1.5} max={8} step={0.1} onValueChange={(v) => setAppliqueWidth(v[0])} />
+          </div>
+          <Button size="sm" className="w-full" onClick={gerarAppliqueDaCamadaAtiva}>
+            <Sparkles className="mr-1 h-3 w-3" />Gerar sequência de aplique
+          </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
