@@ -90,7 +90,7 @@ export function KnitEditor() {
 
   const addInventario = useStore((s) => s.add);
   const projetos = useStore((s) => s.projetos);
-  const inventario = useStore((s) => s.inventario);
+  const materiais = useStore((s) => s.materiais);
 
   const texto = React.useDeferredValue(React.useMemo(
     () => chartToText(st.chart, st.terminologia), [st.chart, st.terminologia],
@@ -163,13 +163,13 @@ export function KnitEditor() {
     // Estimativa simples: soma malhas totais e cria uma entrada no inventário.
     const totalG = Object.values(consumo).reduce((s, v) => s + v.gramas, 0);
     if (totalG <= 0) { toast.error("Grelha vazia — sem consumo estimado."); return; }
-    addInventario("inventario", {
-      id: `knit-${Date.now()}`,
+    addInventario("materiais", {
       nome: `Fio estimado (gráfico ${st.chart.cols}×${st.chart.rows})`,
-      quantidade: Math.ceil(totalG),
       unidade: "g",
-      preco: 0,
-    } as never);
+      stock: Math.ceil(totalG),
+      precoCompra: 0,
+      categoria: "fios",
+    });
     toast.success(`Estimado ${totalG.toFixed(1)}g de fio — adicionado ao inventário.`);
   };
 
@@ -616,7 +616,7 @@ export function KnitEditor() {
           <Card>
             <CardHeader><CardTitle className="text-base">Preificador automático</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <PreificadorPanel consumoG={Object.values(consumo).reduce((s, v) => s + v.gramas, 0)} inventario={inventario} projetos={projetos} />
+              <PreificadorPanel consumoG={Object.values(consumo).reduce((s, v) => s + v.gramas, 0)} materiais={materiais} projetos={projetos} />
               <Button variant="outline" onClick={criarProjetoStock}>+ Adicionar fio estimado ao inventário</Button>
             </CardContent>
           </Card>
@@ -684,8 +684,8 @@ function ExprConverter({ term }: { term: Terminologia }) {
   );
 }
 
-function PreificadorPanel({ consumoG, inventario, projetos }: {
-  consumoG: number; inventario: unknown[]; projetos: unknown[];
+function PreificadorPanel({ consumoG, materiais, projetos }: {
+  consumoG: number; materiais: unknown[]; projetos: unknown[];
 }) {
   const [horas, setHoras] = React.useState(20);
   const [precoHora, setPrecoHora] = React.useState(8);
@@ -710,7 +710,7 @@ function PreificadorPanel({ consumoG, inventario, projetos }: {
         <li className="text-primary"><b>Preço de venda sugerido:</b> {formatCurrency(venda)}</li>
       </ul>
       <p className="text-xs text-muted-foreground">
-        Inventário: {inventario.length} entradas · Projectos: {projetos.length}
+        Materiais: {materiais.length} entradas · Projectos: {projetos.length}
       </p>
     </>
   );
