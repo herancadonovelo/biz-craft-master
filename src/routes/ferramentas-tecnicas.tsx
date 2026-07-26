@@ -1525,6 +1525,48 @@ function PontoCruzTab() {
 }
 
 /* ============================ BORDADO ============================ */
+/** Botão + diálogo para escolher uma cor DMC da paleta ou pedir sugestão automática. */
+function DmcPickerButton({
+  current, onPick, onSuggest,
+}: { current?: string; onPick: (c: DmcColor) => void; onSuggest: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const filtered = DMC_PALETTE.filter((c) =>
+    !q ? true : c.code.toLowerCase().includes(q.toLowerCase()) || c.name.toLowerCase().includes(q.toLowerCase())
+  );
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="h-6 px-2 text-[10px]" title="Escolher DMC">
+          DMC{current ? ` ${current}` : ""}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Paleta DMC / Anchor</DialogTitle></DialogHeader>
+        <div className="flex items-center gap-2">
+          <Input placeholder="Pesquisar código ou nome…" value={q} onChange={(e) => setQ(e.target.value)} className="h-8 text-xs" />
+          <Button size="sm" variant="secondary" onClick={() => { onSuggest(); setOpen(false); }}>
+            Sugerir mais próxima
+          </Button>
+        </div>
+        <div className="grid max-h-[420px] grid-cols-2 gap-1 overflow-y-auto pr-1 sm:grid-cols-3">
+          {filtered.map((c) => (
+            <button key={c.code}
+              onClick={() => { onPick(c); setOpen(false); }}
+              className={`flex items-center gap-2 rounded border px-2 py-1 text-left text-[11px] hover:bg-accent ${current === c.code ? "border-primary" : "border-border"}`}>
+              <span className="h-5 w-5 shrink-0 rounded border" style={{ backgroundColor: c.hex }} />
+              <span className="min-w-0">
+                <span className="block font-medium">DMC {c.code}</span>
+                <span className="block truncate text-muted-foreground">{c.name}{c.anchor ? ` · A${c.anchor}` : ""}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /**
  * Estúdio de Bordado — Fase 1.
  * Sobre o desenho e vetorização originais adiciona:
