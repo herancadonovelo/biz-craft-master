@@ -51,6 +51,7 @@ import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
 import { Route as ModulosRouteImport } from './routes/modulos'
+import { Route as MoedaRouteImport } from './routes/moeda'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as MuralRouteImport } from './routes/mural'
 import { Route as NotasRouteImport } from './routes/notas'
@@ -289,6 +290,11 @@ const ModulosRoute = ModulosRouteImport.update({
   path: '/modulos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoedaRoute = MoedaRouteImport.update({
+  id: '/moeda',
+  path: '/moeda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MoodboardsRoute = MoodboardsRouteImport.update({
   id: '/moodboards',
   path: '/moodboards',
@@ -470,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
+  '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
@@ -541,6 +548,7 @@ export interface FileRoutesByTo {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
+  '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
@@ -613,6 +621,7 @@ export interface FileRoutesById {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/modulos': typeof ModulosRoute
+  '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
@@ -686,6 +695,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
+    | '/moeda'
     | '/moodboards'
     | '/mural'
     | '/notas'
@@ -757,6 +767,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
+    | '/moeda'
     | '/moodboards'
     | '/mural'
     | '/notas'
@@ -828,6 +839,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/modulos'
+    | '/moeda'
     | '/moodboards'
     | '/mural'
     | '/notas'
@@ -900,6 +912,7 @@ export interface RootRouteChildren {
   MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   ModulosRoute: typeof ModulosRoute
+  MoedaRoute: typeof MoedaRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
   MuralRoute: typeof MuralRoute
   NotasRoute: typeof NotasRoute
@@ -1223,6 +1236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModulosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/moeda': {
+      id: '/moeda'
+      path: '/moeda'
+      fullPath: '/moeda'
+      preLoaderRoute: typeof MoedaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/moodboards': {
       id: '/moodboards'
       path: '/moodboards'
@@ -1480,6 +1500,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingCampanhasRoute: MarketingCampanhasRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
   ModulosRoute: ModulosRoute,
+  MoedaRoute: MoedaRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
   MuralRoute: MuralRoute,
   NotasRoute: NotasRoute,

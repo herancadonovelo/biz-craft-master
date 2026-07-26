@@ -59,6 +59,7 @@ import {
   Crown,
   Music,
   Quote,
+  Coins,
 } from "lucide-react";
 import { Heart } from "lucide-react";
 import {
@@ -149,6 +150,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.settingsAlias"), url: "/design", icon: Palette },
       { title: t("nav.accounts"), url: "/contas", icon: Lock },
       { title: t("nav.language"), url: "/idioma", icon: Languages },
+      { title: "Moeda Principal", url: "/moeda", icon: Coins },
       { title: t("nav.profile"), url: "/perfil-negocio", icon: Building },
       { title: t("nav.sync"), url: "/sincronizacao", icon: RefreshCw },
       { title: "Backup & Restauro", url: "/backup", icon: HardDriveDownload },
