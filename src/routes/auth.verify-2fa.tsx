@@ -95,14 +95,14 @@ function Verify2FAPage() {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const { data } = await supabase
         .from("webhook_events")
-        .select("payload, created_at")
+        .select("payload, received_at")
         .eq("provider", "twilio")
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
+        .gte("received_at", since)
+        .order("received_at", { ascending: false })
         .limit(5);
       if (cancelled || !data) return;
-      const forMe = data.find((r: any) => r.payload?.to === phone);
-      const s = forMe?.payload?.status as typeof deliveryStatus;
+      const forMe = data.find((r: any) => r?.payload?.to === phone);
+      const s = (forMe?.payload as any)?.status as typeof deliveryStatus;
       if (s) setDeliveryStatus(s);
     };
     poll();
