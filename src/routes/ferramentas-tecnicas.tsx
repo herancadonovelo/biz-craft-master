@@ -35,6 +35,7 @@ import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
 import { buildEmbroideryBundle, downloadBundle } from "@/lib/embroidery-bundle";
+import { splitByHoopWithRegistration, buildRehoopGuideSvg } from "@/lib/hoop-registration";
 import { decodeDst, blocksToPaths } from "@/lib/dst-import";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
