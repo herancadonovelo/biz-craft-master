@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
+import { useStore, formatCurrency } from "@/lib/store";
 import {
   DEFAULT_CALIBRATION, DEFAULT_THREAD_OPTS,
   buildConsumption, calibrateFromMeasurement, estimateThread,
@@ -61,7 +61,7 @@ export function Phase18Panel({ blocks, projectId }: Phase18PanelProps) {
       touched++;
     }
     audit("consumo automático de linha (bordado)", "materiais", undefined,
-      `${touched} materiais · custo ≈ €${cost.toFixed(2)}`);
+      `${touched} materiais · custo ≈ ${formatCurrency(cost)}`);
     toast.success(touched
       ? `Inventário atualizado: ${touched} materiais.`
       : "Nenhuma cor encontrou material equivalente.");
@@ -178,7 +178,7 @@ export function Phase18Panel({ blocks, projectId }: Phase18PanelProps) {
                     {r.matched ? `${r.units.toFixed(3)} ${r.material!.unidade}` : "—"}
                   </td>
                   <td className="px-2 py-1 text-right">
-                    {r.matched ? `€${r.cost.toFixed(2)}` : "—"}
+                    {r.matched ? formatCurrency(r.cost) : "—"}
                   </td>
                 </tr>
               ))}
@@ -188,7 +188,7 @@ export function Phase18Panel({ blocks, projectId }: Phase18PanelProps) {
 
         <div className="flex items-center justify-between">
           <p className="text-sm">
-            Custo total estimado: <span className="font-semibold">€{cost.toFixed(2)}</span>
+            Custo total estimado: <span className="font-semibold">{formatCurrency(cost)}</span>
           </p>
           <Button size="sm" onClick={consumeInventory}
             disabled={consumption.every((c) => !c.matched)}>
