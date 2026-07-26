@@ -52,6 +52,8 @@ import {
   type MotifId,
 } from "@/lib/lettering";
 import { autoDigitize, type DigitizedLayer } from "@/lib/auto-digitize";
+import { Phase16Panel } from "@/components/embroidery/Phase16Panel";
+import type { LayerPaletteEntry } from "@/lib/embroidery-phase16";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -3697,6 +3699,22 @@ function BordadoTab() {
           <p className="text-[10px] text-muted-foreground">{simFlat.length.toLocaleString()} pontos · {orderedColorBlocks.length} cores.</p>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
+        <Phase16Panel
+          projectId="bordado"
+          palette={orderedColorBlocks.map<LayerPaletteEntry>((b) => ({
+            hex: b.color, strands: 2,
+          }))}
+          onPaletteChange={() => { /* aplicado via presets/blend na próxima fase */ }}
+          studioSnapshot={{
+            hoop: sheet, watermark: w, bundleSlug,
+            heatOn, heatCellMm, colorOrder,
+          }}
+          currentPresetData={{
+            hoopMm: { w: 100, h: 100 },
+            watermark: typeof w?.texto === "string" ? w.texto : undefined,
+            strands: 2,
+          }}
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
