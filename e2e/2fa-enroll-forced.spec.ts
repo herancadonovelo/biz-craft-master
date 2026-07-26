@@ -1,30 +1,57 @@
 import { test, expect } from "@playwright/test";
 
-// Verifies that a signed-in user without a verified phone is forced through
-// /auth/verify-2fa before reaching any protected route. Uses the dev-only
-// E2E_PLAN_OVERRIDE flag to simulate a session, and the absence of the
-// atelier-e2e-2fa-bypass flag to keep the 2FA gate active.
-test.describe("2FA enrollment", () => {
-  test("forces enrollment on protected routes when phone not verified", async ({ page }) => {
+// 2FA is opt-in. A user without a verified phone must NOT be forced
+// through the enrollment flow — they must be able to reach protected
+// surfaces (or land on /auth if the session isn't hydrated). Only users
+// who already enrolled a phone get a re-challenge after 24h.
+test.describe("2FA is opt-in, not mandatory", () => {
+  test("does NOT force /auth/verify-2fa for signed-in user without a verified phone", async ({ page }) => {
     await page.addInitScript(() => {
-      // Simulate signed-in state for the guard without hitting Supabase.
       window.localStorage.setItem("atelier-e2e-plan-override", "premium");
     });
     await page.goto("http://localhost:8080/configuracoes");
-    // Either we're at verify-2fa (correct enforcement) or at /auth if session
-    // truly isn't hydrated — both are acceptable "not letting user through".
     await page.waitForTimeout(1500);
     const url = page.url();
-    const okDestination = url.includes("/auth/verify-2fa") || url.includes("/auth") || url.endsWith("/configuracoes");
-    expect(okDestination, `landed on ${url}`).toBe(true);
-    if (url.includes("/auth/verify-2fa")) {
-      await expect(page.getByText(/telemóvel|verificação/i).first()).toBeVisible();
-    }
+    expect(url, `must not hard-redirect to /auth/verify-2fa`).not.toContain("/auth/verify-2fa");
   });
 
-  test("verify-2fa page renders phone input and send button", async ({ page }) => {
+  test("enroll mode: shows phone input + send button, NOT the 'code sent' copy", async ({ page }) => {
     await page.goto("http://localhost:8080/auth/verify-2fa?enroll=1");
     await expect(page.getByPlaceholder(/\+351/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /enviar código/i })).toBeVisible();
+    // In enroll mode we must NOT claim a code was already sent.
+    await expect(page.getByText(/Enviámos um código de 6 dígitos/i)).toHaveCount(0);
+    // Code input should not exist until the user actually sends.
+    await expect(page.getByPlaceholder("123456")).toHaveCount(0);
+  });
+
+  test("challenge mode: does not fabricate a 'code sent' message before a real send", async ({ page }) => {
+    // Simulate the re-challenge landing without an auto-send happening
+    // (no auth session in E2E, so autoSend can't fire). The UI must still
+    // reflect state truthfully: either no "sent" claim, or the send button
+    // is present (i.e. user can trigger the send themselves).
+    await page.goto("http://localhost:8080/auth/verify-2fa");
+    await page.waitForTimeout(600);
+    const codeInputCount = await page.getByPlaceholder("123456").count();
+    if (codeInputCount === 0) {
+      // No send happened → the "we sent a code" copy must not be shown.
+      await expect(page.getByText(/Enviámos um código de 6 dígitos por SMS\./i)).toHaveCount(0);
+      await expect(page.getByRole("button", { name: /enviar código/i })).toBeVisible();
+    } else {
+      // A send happened → the code input and success toast copy are OK.
+      await expect(page.getByPlaceholder("123456")).toBeVisible();
+    }
+  });
+
+  test("challenge mode logs twofa_otp_sent only after a successful send", async ({ page }) => {
+    const events: string[] = [];
+    page.on("console", (msg) => {
+      const t = msg.text();
+      if (t.includes("[session-telemetry]") && t.includes("twofa_")) events.push(t);
+    });
+    await page.goto("http://localhost:8080/auth/verify-2fa");
+    await page.waitForTimeout(800);
+    // No successful auto-send in E2E → no twofa_otp_sent must appear.
+    expect(events.some((e) => e.includes("twofa_otp_sent"))).toBe(false);
   });
 });

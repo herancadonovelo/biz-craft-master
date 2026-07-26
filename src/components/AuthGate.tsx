@@ -81,7 +81,13 @@ export function AuthGate() {
         .maybeSingle();
       if (!data || !data.phone_verified) return; // opt-in: no forced enrollment
       const fresh = data.last_2fa_at && new Date(data.last_2fa_at).getTime() > Date.now() - 24 * 60 * 60 * 1000;
-      if (!fresh) nav({ to: "/auth/verify-2fa" });
+      if (!fresh) {
+        void logSessionEvent("twofa_rechallenge_triggered", {
+          path: pathname,
+          metadata: { last_2fa_at: data.last_2fa_at },
+        });
+        nav({ to: "/auth/verify-2fa" });
+      }
     })();
   }, [user, loading, pathname, nav]);
 

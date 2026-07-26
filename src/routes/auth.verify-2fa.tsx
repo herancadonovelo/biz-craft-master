@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, Smartphone } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { mark2faCompletedFn, logOtpAttemptFn } from "@/lib/auth-2fa.functions";
+import { logSessionEvent } from "@/lib/session-telemetry";
 
 export const Route = createFileRoute("/auth/verify-2fa")({
   head: () => ({ meta: [{ title: "Verificação em dois passos" }] }),
@@ -30,6 +31,10 @@ function Verify2FAPage() {
 
   const mark2fa = useServerFn(mark2faCompletedFn);
   const logAttempt = useServerFn(logOtpAttemptFn);
+
+  useEffect(() => {
+    if (enrollMode) void logSessionEvent("twofa_enrollment_started");
+  }, [enrollMode]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -66,12 +71,14 @@ function Verify2FAPage() {
     setBusy(null);
     await logAttempt({ data: { kind: "send", phone: p, success: !error } });
     if (error) {
+      void logSessionEvent("twofa_otp_send_failed", { reason: error.message, metadata: { auto: true, mode: enrollMode ? "enroll" : "challenge" } });
       toast.error("Não foi possível enviar o código automaticamente. Toca em Reenviar.");
       return;
     }
     setSent(true);
     setCooldown(60);
     setDeliveryStatus("queued");
+    void logSessionEvent("twofa_otp_sent", { metadata: { auto: true, mode: enrollMode ? "enroll" : "challenge" } });
   }
 
   const canSend = useMemo(() => E164.test(phone) && cooldown === 0 && busy !== "send", [phone, cooldown, busy]);
@@ -85,6 +92,7 @@ function Verify2FAPage() {
     await logAttempt({ data: { kind: enrollMode ? "enroll" : "send", phone, success: !error } });
     if (error) {
       const msg = error.message || "";
+      void logSessionEvent("twofa_otp_send_failed", { reason: msg, metadata: { auto: false, mode: enrollMode ? "enroll" : "challenge" } });
       const low = msg.toLowerCase();
       if (/rate|too many/.test(low)) {
         toast.error("Muitas tentativas. Aguarda 60 s e tenta de novo.");
@@ -108,6 +116,7 @@ function Verify2FAPage() {
     setCooldown(60);
     toast.success("Enviámos um código de 6 dígitos por SMS.");
     setDeliveryStatus("queued");
+    void logSessionEvent("twofa_otp_sent", { metadata: { auto: false, mode: enrollMode ? "enroll" : "challenge" } });
   }
 
   // Twilio delivery status polling — reads webhook_events populated by
@@ -142,6 +151,7 @@ function Verify2FAPage() {
     if (error) {
       setBusy(null);
       await logAttempt({ data: { kind: "verify", phone, success: false } });
+      void logSessionEvent("twofa_verify_failed", { reason: error.message });
       const msg = error.message || "";
       if (/expired/i.test(msg)) toast.error("O código expirou. Pede um novo.");
       else if (/invalid/i.test(msg)) toast.error("Código incorreto. Verifica os dígitos.");
@@ -157,6 +167,7 @@ function Verify2FAPage() {
     }
     await mark2fa();
     await logAttempt({ data: { kind: "verify", phone, success: true } });
+    void logSessionEvent("twofa_verified", { metadata: { mode: enrollMode ? "enroll" : "challenge" } });
     setBusy(null);
     toast.success("Telemóvel verificado. Bem-vinda!");
     nav({ to: "/" });

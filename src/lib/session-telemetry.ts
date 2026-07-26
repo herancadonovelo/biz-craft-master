@@ -14,7 +14,13 @@ export type SessionEventType =
   | "oauth_callback_received"
   | "oauth_session_ready"
   | "oauth_cancelled"
-  | "oauth_failed";
+  | "oauth_failed"
+  | "twofa_otp_sent"
+  | "twofa_otp_send_failed"
+  | "twofa_verified"
+  | "twofa_verify_failed"
+  | "twofa_rechallenge_triggered"
+  | "twofa_enrollment_started";
 
 interface LogOpts {
   reason?: string;
