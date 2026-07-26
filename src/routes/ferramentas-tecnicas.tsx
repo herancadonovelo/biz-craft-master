@@ -866,7 +866,8 @@ function TricotinTab() {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
           <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
-          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
+          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted" title="Começar uma folha vazia">Criar novo molde</button>
+          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Folha do Editor</button>
         </div>
       </div>
       <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
