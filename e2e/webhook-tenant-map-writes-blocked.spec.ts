@@ -34,10 +34,16 @@ function expectDeniedStatus(status: number) {
 }
 
 test.describe("webhook_tenant_map write access", () => {
-  test.skip(
-    !SUPABASE_URL || !ANON_KEY,
-    "Supabase URL / publishable key not configured in the environment",
-  );
+  // Missing env means we cannot prove the security invariant. In CI the
+  // workflow guards the secrets and fails earlier; here we still fail hard
+  // rather than silently skip, so a local run without env is a visible red.
+  test.beforeAll(() => {
+    if (!SUPABASE_URL || !ANON_KEY) {
+      throw new Error(
+        "VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set to run this security spec.",
+      );
+    }
+  });
 
   test("anon INSERT is rejected", async () => {
     const api = await playwrightRequest.newContext();
