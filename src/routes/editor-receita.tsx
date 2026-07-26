@@ -119,10 +119,38 @@ function Page() {
             <Button variant="outline" onClick={() => patch({ seccoes: [...r.seccoes, { id: uid(), nome: "Nova secção", carreiras: [] }] })}><Plus className="mr-1 h-4 w-4" />Adicionar Secção</Button>
 
             <Textarea placeholder="Notas gerais" value={r.notas || ""} onChange={(e) => patch({ notas: e.target.value })} />
-            <div className="flex gap-2">
-              <Button onClick={() => toast.success("Receita guardada")}><Save className="mr-1 h-4 w-4" />Guardar</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={guardar}><Save className="mr-1 h-4 w-4" />Guardar (versão)</Button>
+              <Button variant="outline" onClick={exportarJSON}><Download className="mr-1 h-4 w-4" />Exportar JSON</Button>
               <Button variant="outline" onClick={() => window.print()}><FileDown className="mr-1 h-4 w-4" />Exportar PDF (imprimir)</Button>
             </div>
+
+            {(r.historico?.length ?? 0) > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="font-display flex items-center gap-2 text-sm">
+                    <History className="h-4 w-4" />Histórico de versões
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 max-h-64 overflow-auto">
+                  {(r.historico ?? []).map((h) => (
+                    <div key={h.id} className="flex items-center justify-between rounded-md border border-border p-2 text-xs">
+                      <div>
+                        <div className="font-medium">{h.label || "Versão"}</div>
+                        <div className="text-muted-foreground">{new Date(h.data).toLocaleString()}</div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => restaurar(h)}>Restaurar</Button>
+                        <Button size="sm" variant="ghost"
+                          onClick={() => patch({ historico: (r.historico ?? []).filter((x) => x.id !== h.id) })}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Preview */}
