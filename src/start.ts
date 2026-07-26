@@ -5,6 +5,10 @@ import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
+    const req = (arguments as any)?.[0]?.request as Request | undefined;
+    // no-op: request accessed below via TanStack Start context
+  } catch {}
+  try {
     return await next();
   } catch (error) {
     if (error != null && typeof error === "object" && "statusCode" in error) {
