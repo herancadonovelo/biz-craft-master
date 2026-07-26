@@ -57,6 +57,7 @@ import type { LayerPaletteEntry } from "@/lib/embroidery-phase16";
 import { Phase17Panel } from "@/components/embroidery/Phase17Panel";
 import { Phase18Panel } from "@/components/embroidery/Phase18Panel";
 import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
+import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -3726,6 +3727,12 @@ function BordadoTab() {
           }))}
         />
         <Phase19Panel
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+        />
+        <Phase20Panel
           blocks={orderedColorBlocks.map((b) => ({
             color: b.color,
             stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
