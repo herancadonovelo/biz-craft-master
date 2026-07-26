@@ -8,11 +8,13 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import {
   Pencil, Eraser, PaintBucket, Slash, Circle, Type as TypeIcon, FlipHorizontal2, FlipVertical2,
   Replace as ReplaceIcon, Upload, Download, FileDown, Image as ImageIcon, Layers, Palette, Blend,
+  Undo2, Redo2, Minus, Square, BoxSelect,
 } from "lucide-react";
 import {
   emptyChart, imageToChart, textToCells, floodFill, mirror, replaceColor,
@@ -20,9 +22,11 @@ import {
   closestThread, blend,
   type ChartDoc, type Cell, type BackstitchEdge, type FrenchKnot,
 } from "@/lib/ponto-cruz";
-import type { Marca } from "@/lib/cores-linhas";
+import { getDMC, getAnchor, type Marca, type Cor } from "@/lib/cores-linhas";
 
-type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop";
+type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop" | "line" | "rect" | "select";
+
+interface RectRegion { r1: number; c1: number; r2: number; c2: number }
 
 const STORAGE_KEY = "ponto-cruz-chart-v1";
 
@@ -35,8 +39,67 @@ function loadChart(): ChartDoc {
   return emptyChart();
 }
 
+/** Bresenham line — returns integer grid cells from (r1,c1) to (r2,c2). */
+function linePoints(r1: number, c1: number, r2: number, c2: number): Array<[number, number]> {
+  const pts: Array<[number, number]> = [];
+  const dx = Math.abs(c2 - c1), sx = c1 < c2 ? 1 : -1;
+  const dy = -Math.abs(r2 - r1), sy = r1 < r2 ? 1 : -1;
+  let err = dx + dy, r = r1, c = c1;
+  while (true) {
+    pts.push([r, c]);
+    if (r === r2 && c === c2) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; c += sx; }
+    if (e2 <= dx) { err += dx; r += sy; }
+  }
+  return pts;
+}
+function rectCells(reg: RectRegion, filled: boolean): Array<[number, number]> {
+  const r1 = Math.min(reg.r1, reg.r2), r2 = Math.max(reg.r1, reg.r2);
+  const c1 = Math.min(reg.c1, reg.c2), c2 = Math.max(reg.c1, reg.c2);
+  const out: Array<[number, number]> = [];
+  for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) {
+    if (filled || r === r1 || r === r2 || c === c1 || c === c2) out.push([r, c]);
+  }
+  return out;
+}
+
 export function PontoCruzEditor() {
   const [chart, setChart] = useState<ChartDoc>(loadChart);
+  // History stacks for undo/redo — cap to avoid memory bloat.
+  const past = useRef<ChartDoc[]>([]);
+  const future = useRef<ChartDoc[]>([]);
+  const [, forceTick] = useState(0);
+  const commit = useCallback((next: ChartDoc | ((c: ChartDoc) => ChartDoc)) => {
+    setChart((cur) => {
+      const n = typeof next === "function" ? (next as (c: ChartDoc) => ChartDoc)(cur) : next;
+      if (n === cur) return cur;
+      past.current.push(cur);
+      if (past.current.length > 80) past.current.shift();
+      future.current = [];
+      forceTick((x) => x + 1);
+      return n;
+    });
+  }, []);
+  const undo = useCallback(() => {
+    const prev = past.current.pop(); if (!prev) return;
+    setChart((cur) => { future.current.push(cur); forceTick((x) => x + 1); return prev; });
+  }, []);
+  const redo = useCallback(() => {
+    const nxt = future.current.pop(); if (!nxt) return;
+    setChart((cur) => { past.current.push(cur); forceTick((x) => x + 1); return nxt; });
+  }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const meta = e.ctrlKey || e.metaKey;
+      if (!meta) return;
+      if (e.key.toLowerCase() === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+      else if ((e.key.toLowerCase() === "z" && e.shiftKey) || e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
+
   const [tool, setTool] = useState<Tool>("pencil");
   const [cor, setCor] = useState("#C8102E");
   const [cor2, setCor2] = useState<string | null>(null);
@@ -50,6 +113,14 @@ export function PontoCruzEditor() {
   const [textRow, setTextRow] = useState<number>(2);
   const [textCol, setTextCol] = useState<number>(2);
   const [imgMaxColors, setImgMaxColors] = useState<number>(16);
+  const [rectFilled, setRectFilled] = useState(true);
+  const [selection, setSelection] = useState<RectRegion | null>(null);
+  const [preview, setPreview] = useState<Array<[number, number]> | null>(null);
+  const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
+  const [watermark, setWatermark] = useState<string>("");
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [palettePick, setPalettePick] = useState<Marca>("DMC");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState<number>(18);
   const drawing = useRef(false);
@@ -174,6 +245,13 @@ export function PontoCruzEditor() {
     });
   };
 
+  /** Snapshot the current chart into history before a mutating stroke starts. */
+  const beginStroke = () => {
+    past.current.push(chart);
+    if (past.current.length > 80) past.current.shift();
+    future.current = [];
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (tool === "backstitch") {
@@ -181,11 +259,11 @@ export function PontoCruzEditor() {
     }
     if (tool === "knot") {
       const v = eventToVertex(e);
-      setChart((ch) => ({ ...ch, knots: [...ch.knots, { r: v.r, c: v.c, hex: cor }] }));
+      commit((ch) => ({ ...ch, knots: [...ch.knots, { r: v.r, c: v.c, hex: cor }] }));
       return;
     }
     const { r, c } = eventToGrid(e);
-    if (tool === "bucket") { setChart((ch) => ({ ...ch, cells: floodFill(ch.cells, ch.cols, ch.rows, r, c, cor) })); return; }
+    if (tool === "bucket") { commit((ch) => ({ ...ch, cells: floodFill(ch.cells, ch.cols, ch.rows, r, c, cor) })); return; }
     if (tool === "replace") {
       const src = chart.cells[`${r},${c}`]?.hex; if (src) setReplaceFrom(src);
       toast.info(`Origem: ${src ?? "(vazio)"} — clica em “Substituir” para aplicar.`);
@@ -196,10 +274,32 @@ export function PontoCruzEditor() {
       return;
     }
     if (tool === "text") return;
-    drawing.current = true; paintCell(r, c);
+    if (tool === "line" || tool === "rect") {
+      setDragStart({ r, c });
+      setPreview(tool === "line" ? linePoints(r, c, r, c) : rectCells({ r1: r, c1: c, r2: r, c2: c }, rectFilled));
+      return;
+    }
+    if (tool === "select") {
+      setDragStart({ r, c });
+      setSelection({ r1: r, c1: c, r2: r, c2: c });
+      return;
+    }
+    drawing.current = true; beginStroke(); paintCell(r, c);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (dragStart && (tool === "line" || tool === "rect")) {
+      const { r, c } = eventToGrid(e);
+      setPreview(tool === "line"
+        ? linePoints(dragStart.r, dragStart.c, r, c)
+        : rectCells({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c }, rectFilled));
+      return;
+    }
+    if (dragStart && tool === "select") {
+      const { r, c } = eventToGrid(e);
+      setSelection({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c });
+      return;
+    }
     if (!drawing.current) return;
     const { r, c } = eventToGrid(e);
     paintCell(r, c);
@@ -207,12 +307,32 @@ export function PontoCruzEditor() {
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     drawing.current = false;
+    if ((tool === "line" || tool === "rect") && dragStart) {
+      const { r, c } = eventToGrid(e);
+      const pts = tool === "line"
+        ? linePoints(dragStart.r, dragStart.c, r, c)
+        : rectCells({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c }, rectFilled);
+      commit((ch) => {
+        const cells = { ...ch.cells };
+        for (const [rr, cc] of pts) {
+          if (rr < 0 || cc < 0 || rr >= ch.rows || cc >= ch.cols) continue;
+          cells[`${rr},${cc}`] = { hex: cor, type: "full", hex2: cor2 ?? undefined };
+        }
+        return { ...ch, cells };
+      });
+      setDragStart(null); setPreview(null);
+      return;
+    }
+    if (tool === "select" && dragStart) {
+      setDragStart(null);
+      return;
+    }
     if (tool === "backstitch" && backStart.current) {
       const v = eventToVertex(e);
       const s = backStart.current;
       if (s.r !== v.r || s.c !== v.c) {
         const edge: BackstitchEdge = { r1: s.r, c1: s.c, r2: v.r, c2: v.c, hex: cor };
-        setChart((ch) => ({ ...ch, back: [...ch.back, edge] }));
+        commit((ch) => ({ ...ch, back: [...ch.back, edge] }));
       }
       backStart.current = null;
     }
@@ -222,15 +342,37 @@ export function PontoCruzEditor() {
   const setSize = (cols: number, rows: number) => setChart((ch) => ({ ...ch, cols, rows }));
   const clearAll = () => {
     if (!confirm("Limpar todo o gráfico?")) return;
-    setChart(emptyChart(chart.cols, chart.rows));
+    commit(emptyChart(chart.cols, chart.rows));
   };
   const doMirror = (axis: "h" | "v") =>
-    setChart((ch) => ({ ...ch, cells: mirror(ch.cells, ch.cols, ch.rows, axis) }));
+    commit((ch) => ({ ...ch, cells: mirror(ch.cells, ch.cols, ch.rows, axis) }));
   const doReplace = (to: string) =>
-    setChart((ch) => ({ ...ch, cells: replaceColor(ch.cells, replaceFrom, to) }));
-  const removeLastBack = () => setChart((ch) => ({ ...ch, back: ch.back.slice(0, -1) }));
-  const clearBack = () => setChart((ch) => ({ ...ch, back: [] }));
-  const clearKnots = () => setChart((ch) => ({ ...ch, knots: [] }));
+    commit((ch) => ({ ...ch, cells: replaceColor(ch.cells, replaceFrom, to) }));
+  const removeLastBack = () => commit((ch) => ({ ...ch, back: ch.back.slice(0, -1) }));
+  const clearBack = () => commit((ch) => ({ ...ch, back: [] }));
+  const clearKnots = () => commit((ch) => ({ ...ch, knots: [] }));
+
+  const fillSelection = () => {
+    if (!selection) { toast.info("Sem seleção. Usa a ferramenta Seleção primeiro."); return; }
+    const pts = rectCells(selection, true);
+    commit((ch) => {
+      const cells = { ...ch.cells };
+      for (const [rr, cc] of pts) {
+        if (rr < 0 || cc < 0 || rr >= ch.rows || cc >= ch.cols) continue;
+        cells[`${rr},${cc}`] = { hex: cor, type: "full", hex2: cor2 ?? undefined };
+      }
+      return { ...ch, cells };
+    });
+  };
+  const clearSelectionCells = () => {
+    if (!selection) return;
+    const pts = rectCells(selection, true);
+    commit((ch) => {
+      const cells = { ...ch.cells };
+      for (const [rr, cc] of pts) delete cells[`${rr},${cc}`];
+      return { ...ch, cells };
+    });
+  };
 
   const importImage = (file: File) => {
     const url = URL.createObjectURL(file);
@@ -272,28 +414,125 @@ export function PontoCruzEditor() {
   const exportPng = () => {
     canvasRef.current?.toBlob((b) => { if (b) triggerDownload(b, "grafico-ponto-cruz.png"); });
   };
+  /**
+   * Render the chart into an offscreen canvas at print-grade resolution
+   * (independent of on-screen zoom), then export to A4 PDF with a legible
+   * legend (colour swatch, symbol, DMC/Anchor codes, stitch counts, skeins)
+   * and optional diagonal watermark on every page.
+   */
   const exportPdf = () => {
-    if (!canvasRef.current) return;
+    const PRINT_CELL = 24; // px per stitch in the exported bitmap (≈300 DPI at A4)
+    const off = document.createElement("canvas");
+    off.width = chart.cols * PRINT_CELL;
+    off.height = chart.rows * PRINT_CELL;
+    const ctx = off.getContext("2d")!;
+    // Background
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, off.width, off.height);
+    // Cells (symbols always shown on printed chart for high legibility)
+    for (const [k, v] of Object.entries(chart.cells)) {
+      const [r, c] = k.split(",").map(Number);
+      const x = c * PRINT_CELL, y = r * PRINT_CELL;
+      const fillHex = v.hex2 ? blend(v.hex, v.hex2) : v.hex;
+      if (v.type === "full") {
+        ctx.fillStyle = fillHex; ctx.fillRect(x, y, PRINT_CELL, PRINT_CELL);
+        const s = stats.find((st) => st.hex === v.hex);
+        // Contrast symbol color based on luminance
+        const rgb = fillHex.replace("#", "");
+        const lum = 0.299 * parseInt(rgb.slice(0, 2), 16) + 0.587 * parseInt(rgb.slice(2, 4), 16) + 0.114 * parseInt(rgb.slice(4, 6), 16);
+        ctx.fillStyle = lum < 140 ? "#ffffff" : "#111111";
+        ctx.font = `${PRINT_CELL * 0.7}px system-ui`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(s?.symbol ?? "?", x + PRINT_CELL / 2, y + PRINT_CELL / 2 + 1);
+      } else {
+        ctx.fillStyle = fillHex;
+        ctx.beginPath();
+        if (v.type === "half-tl") { ctx.moveTo(x, y); ctx.lineTo(x + PRINT_CELL, y); ctx.lineTo(x, y + PRINT_CELL); }
+        else { ctx.moveTo(x + PRINT_CELL, y); ctx.lineTo(x + PRINT_CELL, y + PRINT_CELL); ctx.lineTo(x, y + PRINT_CELL); }
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // Grid
+    ctx.strokeStyle = "rgba(0,0,0,0.25)"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let c = 0; c <= chart.cols; c++) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
+    for (let r = 0; r <= chart.rows; r++) { ctx.moveTo(0, r * PRINT_CELL + 0.5); ctx.lineTo(off.width, r * PRINT_CELL + 0.5); }
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let c = 0; c <= chart.cols; c += 10) { ctx.moveTo(c * PRINT_CELL + 0.5, 0); ctx.lineTo(c * PRINT_CELL + 0.5, off.height); }
+    for (let r = 0; r <= chart.rows; r += 10) { ctx.moveTo(0, r * PRINT_CELL + 0.5); ctx.lineTo(off.width, r * PRINT_CELL + 0.5); }
+    ctx.stroke();
+    // Backstitch + knots (on top)
+    for (const b of chart.back) {
+      ctx.strokeStyle = b.hex; ctx.lineWidth = Math.max(2, PRINT_CELL * 0.14);
+      ctx.lineCap = "round"; ctx.beginPath();
+      ctx.moveTo(b.c1 * PRINT_CELL, b.r1 * PRINT_CELL);
+      ctx.lineTo(b.c2 * PRINT_CELL, b.r2 * PRINT_CELL); ctx.stroke();
+    }
+    for (const k of chart.knots) {
+      ctx.fillStyle = k.hex; ctx.beginPath();
+      ctx.arc(k.c * PRINT_CELL, k.r * PRINT_CELL, PRINT_CELL * 0.26, 0, Math.PI * 2);
+      ctx.fill(); ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+    }
+
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const imgData = canvasRef.current.toDataURL("image/png");
     const pageW = 210, pageH = 297, margin = 10;
-    const maxW = pageW - margin * 2, maxH = 160;
-    const ratio = canvasRef.current.width / canvasRef.current.height;
+    const drawWatermark = () => {
+      if (!watermark.trim()) return;
+      pdf.saveGraphicsState();
+      const anyPdf = pdf as unknown as { setGState: (g: unknown) => void; GState: new (o: object) => unknown };
+      anyPdf.setGState(new anyPdf.GState({ opacity: 0.15 }));
+      pdf.setFontSize(60); pdf.setTextColor(120, 120, 120);
+      pdf.text(watermark, pageW / 2, pageH / 2, { align: "center", angle: 30 });
+      pdf.restoreGraphicsState();
+      pdf.setTextColor(0, 0, 0);
+    };
+
+    // Header
+    pdf.setFontSize(16); pdf.text("Gráfico de Ponto Cruz", margin, 15);
+    pdf.setFontSize(10);
+    pdf.text(
+      `Grelha: ${chart.cols} × ${chart.rows}  ·  Aida ${chart.aidaCount} ct  ·  Tecido: ${cm.w.toFixed(1)} × ${cm.h.toFixed(1)} cm  ·  Cores: ${stats.length}`,
+      margin, 22,
+    );
+    // Chart image fitted to page width
+    const maxW = pageW - margin * 2, maxH = 230;
+    const ratio = off.width / off.height;
     let w = maxW, h = maxW / ratio;
     if (h > maxH) { h = maxH; w = maxH * ratio; }
-    pdf.setFontSize(14); pdf.text("Gráfico de Ponto Cruz", margin, 15);
+    pdf.addImage(off.toDataURL("image/png"), "PNG", (pageW - w) / 2, 28, w, h, undefined, "FAST");
+    drawWatermark();
+
+    // Legend page(s)
+    pdf.addPage();
+    drawWatermark();
+    pdf.setFontSize(14); pdf.text("Legenda de cores & meadas", margin, 15);
     pdf.setFontSize(9);
-    pdf.text(`Grelha: ${chart.cols} × ${chart.rows} | Aida: ${chart.aidaCount} ct | Tecido: ${cm.w.toFixed(1)} × ${cm.h.toFixed(1)} cm`, margin, 22);
-    pdf.addImage(imgData, "PNG", margin, 28, w, h);
-    let y = 28 + h + 8;
-    pdf.setFontSize(12); pdf.text("Legenda de cores", margin, y); y += 5;
-    pdf.setFontSize(9);
+    // Table header
+    let y = 24;
+    const cols = { swatch: margin, sym: margin + 10, dmc: margin + 20, anchor: margin + 68, stitches: margin + 108, meadas: margin + 168 };
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Cor", cols.swatch, y);
+    pdf.text("Símb.", cols.sym, y);
+    pdf.text("DMC", cols.dmc, y);
+    pdf.text("Anchor", cols.anchor, y);
+    pdf.text("Pontos (inteiros / ½ / nós)", cols.stitches, y);
+    pdf.text("Meadas", cols.meadas, y);
+    pdf.setFont("helvetica", "normal");
+    y += 3;
+    pdf.setDrawColor(180); pdf.line(margin, y, pageW - margin, y); y += 4;
     for (const s of stats) {
-      if (y > pageH - 10) { pdf.addPage(); y = 15; }
+      if (y > pageH - 12) { pdf.addPage(); drawWatermark(); y = 15; }
       pdf.setFillColor(s.hex);
-      pdf.rect(margin, y - 3, 4, 4, "F");
-      pdf.text(`${s.symbol}  DMC ${s.dmc.codigo} · ${s.dmc.nome ?? ""}  ↔  Anchor ${s.anchor.codigo}  —  ${s.full} pontos inteiros, ${s.half} meios, ${s.knots} nós  •  ~${s.meadas} meada(s)`, margin + 6, y);
-      y += 5;
+      pdf.rect(cols.swatch, y - 3.5, 6, 5, "F");
+      pdf.setDrawColor(120); pdf.rect(cols.swatch, y - 3.5, 6, 5, "S");
+      pdf.setFontSize(11); pdf.text(s.symbol, cols.sym, y);
+      pdf.setFontSize(9);
+      pdf.text(`${s.dmc.codigo}${s.dmc.nome ? "  " + s.dmc.nome : ""}`, cols.dmc, y);
+      pdf.text(String(s.anchor.codigo), cols.anchor, y);
+      pdf.text(`${s.full} / ${s.half} / ${s.knots}`, cols.stitches, y);
+      pdf.text(`~ ${s.meadas}`, cols.meadas, y);
+      y += 6;
     }
     pdf.save("grafico-ponto-cruz.pdf");
   };
@@ -317,8 +556,18 @@ export function PontoCruzEditor() {
       <Card className="bg-background/100 opacity-100">
         <CardContent className="p-3">
           <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="outline" onClick={undo} disabled={past.current.length === 0} title="Desfazer (Ctrl+Z)">
+              <Undo2 className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={redo} disabled={future.current.length === 0} title="Refazer (Ctrl+Y)">
+              <Redo2 className="h-4 w-4" />
+            </Button>
+            <span className="mx-1 h-5 w-px bg-border" />
             <ToolButton icon={<Pencil className="h-4 w-4" />} label="Lápis" active={tool === "pencil"} onClick={() => setTool("pencil")} />
             <ToolButton icon={<Eraser className="h-4 w-4" />} label="Apagar" active={tool === "eraser"} onClick={() => setTool("eraser")} />
+            <ToolButton icon={<Minus className="h-4 w-4" />} label="Linha" active={tool === "line"} onClick={() => setTool("line")} />
+            <ToolButton icon={<Square className="h-4 w-4" />} label="Retângulo" active={tool === "rect"} onClick={() => setTool("rect")} />
+            <ToolButton icon={<BoxSelect className="h-4 w-4" />} label="Seleção" active={tool === "select"} onClick={() => setTool("select")} />
             <ToolButton icon={<PaintBucket className="h-4 w-4" />} label="Balde" active={tool === "bucket"} onClick={() => setTool("bucket")} />
             <ToolButton icon={<Slash className="h-4 w-4" />} label="½ ponto" active={tool === "half"} onClick={() => setTool("half")} />
             <ToolButton icon={<Pencil className="h-4 w-4 rotate-45" />} label="Ponto atrás" active={tool === "backstitch"} onClick={() => setTool("backstitch")} />
@@ -327,6 +576,23 @@ export function PontoCruzEditor() {
             <ToolButton icon={<ReplaceIcon className="h-4 w-4" />} label="Selecionar cor origem" active={tool === "replace"} onClick={() => setTool("replace")} />
             <ToolButton icon={<Palette className="h-4 w-4" />} label="Conta-gotas" active={tool === "eyedrop"} onClick={() => setTool("eyedrop")} />
           </div>
+          {tool === "rect" && (
+            <div className="mb-2 flex items-center gap-2 text-xs">
+              <label className="flex items-center gap-2">
+                <Switch checked={rectFilled} onCheckedChange={setRectFilled} /> Retângulo preenchido
+              </label>
+            </div>
+          )}
+          {tool === "select" && selection && (
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">
+                Seleção: {Math.abs(selection.c2 - selection.c1) + 1} × {Math.abs(selection.r2 - selection.r1) + 1}
+              </span>
+              <Button size="sm" onClick={fillSelection}>Preencher com cor</Button>
+              <Button size="sm" variant="outline" onClick={clearSelectionCells}>Limpar seleção</Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelection(null)}>Fechar</Button>
+            </div>
+          )}
           <div className="max-h-[70vh] max-w-full overflow-auto rounded border bg-white p-2">
             <canvas ref={canvasRef}
               onPointerDown={handlePointerDown}
@@ -422,6 +688,53 @@ export function PontoCruzEditor() {
                 <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-8 w-10 rounded border" />
                 <Button size="sm" onClick={() => doReplace(cor)}>Aplicar</Button>
               </div>
+              <Dialog open={paletteOpen} onOpenChange={setPaletteOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="secondary"><Palette className="mr-1 h-3 w-3" />Gerir paleta</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>Paleta de linhas</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex items-center gap-2">
+                    <Select value={palettePick} onValueChange={(v: string) => setPalettePick(v as Marca)}>
+                      <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DMC">DMC</SelectItem>
+                        <SelectItem value="Anchor">Anchor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="Procurar por código ou nome…" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} className="h-8" />
+                  </div>
+                  <div className="max-h-80 overflow-auto rounded border">
+                    {(palettePick === "DMC" ? getDMC() : getAnchor())
+                      .filter((c: Cor) => {
+                        const q = paletteQuery.trim().toLowerCase();
+                        if (!q) return true;
+                        return c.codigo.toLowerCase().includes(q) || (c.nome ?? "").toLowerCase().includes(q);
+                      })
+                      .slice(0, 200)
+                      .map((c: Cor) => (
+                        <button
+                          key={`${c.marca}-${c.codigo}`}
+                          type="button"
+                          onClick={() => { setCor(c.hex); setPaletteOpen(false); }}
+                          className="flex w-full items-center gap-2 border-b px-2 py-1 text-left text-xs hover:bg-accent"
+                        >
+                          <span className="inline-block h-4 w-4 rounded border" style={{ background: c.hex }} />
+                          <span className="font-mono">{c.marca} {c.codigo}</span>
+                          <span className="text-muted-foreground">{c.nome ?? ""}</span>
+                          <span className="ml-auto text-muted-foreground">{c.hex}</span>
+                        </button>
+                      ))}
+                  </div>
+                  <DialogFooter>
+                    <Button size="sm" variant="outline" onClick={() => { setChart((ch) => ({ ...ch, paletteMax: Math.max(ch.paletteMax, stats.length) })); toast.success("Máx. de cores atualizado."); }}>
+                      Atualizar máx. de cores ({stats.length})
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardContent></Card>
           </TabsContent>
 
@@ -481,6 +794,10 @@ export function PontoCruzEditor() {
 
           <TabsContent value="io">
             <Card><CardContent className="space-y-2 p-3">
+              <div>
+                <Label className="text-xs">Marca de água (PDF)</Label>
+                <Input value={watermark} onChange={(e) => setWatermark(e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG</Button>
                 <Button size="sm" variant="outline" onClick={exportPdf}><FileDown className="mr-1 h-3 w-3" />PDF + Legenda</Button>
