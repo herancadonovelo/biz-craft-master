@@ -2552,6 +2552,20 @@ function BordadoTab() {
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
 
+  // ---------- Fase 13: mapa de densidade + relatório de qualidade ----------
+  const densityGrid = useMemo(() => {
+    if (!heatOn || orderedColorBlocks.length === 0) return null;
+    const cellPx = Math.max(2, heatCellMm * PX_PER_MM);
+    // Import dinâmico evita colocar util no bundle inicial deste editor pesado.
+    // (síncrono via require-style — mas usamos import estático abaixo)
+    return buildDensityGrid(orderedColorBlocks,
+      { x0: 0, y0: 0, w: 595, h: 842 }, cellPx);
+  }, [heatOn, heatCellMm, orderedColorBlocks]);
+  const qualityReport = useMemo(() =>
+    analyzeQuality(orderedColorBlocks, PX_PER_MM,
+      { grid: densityGrid ?? undefined, hotspotThreshold: 25 }),
+    [orderedColorBlocks, densityGrid]);
+
   // ---------- Fase 11: simulador animado ----------
   const simFlat = useMemo(() => {
     const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
