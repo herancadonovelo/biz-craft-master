@@ -289,10 +289,40 @@ function TricotinTab() {
   type Mode = "select" | "straight" | "curve";
 
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
-  const [nodes, setNodes] = React.useState<PtNode[]>([]);
-  const [isClosedPath, setIsClosedPath] = React.useState(false);
-  const [lineWidthTricotin, setLineWidthTricotin] = React.useState(12);
-  const [mode, setMode] = React.useState<Mode>("straight");
+  // ---------- Auto-persist current canvas across reloads ----------
+  // Every knob that survives a reload is loaded once from this key and rewritten
+  // whenever the user changes it. Kept minimal so the file is safe to grow.
+  const CANVAS_KEY = "tricotin-canvas-state-v1";
+  type CanvasSnapshot = {
+    nodes: PtNode[]; isClosedPath: boolean; lineWidthTricotin: number; mode: Mode;
+  };
+  const initialCanvas: CanvasSnapshot = (() => {
+    if (typeof window === "undefined") return { nodes: [], isClosedPath: false, lineWidthTricotin: 12, mode: "straight" };
+    try {
+      const raw = window.localStorage.getItem(CANVAS_KEY);
+      if (!raw) return { nodes: [], isClosedPath: false, lineWidthTricotin: 12, mode: "straight" };
+      const parsed = JSON.parse(raw) as Partial<CanvasSnapshot>;
+      return {
+        nodes: Array.isArray(parsed.nodes) ? parsed.nodes : [],
+        isClosedPath: !!parsed.isClosedPath,
+        lineWidthTricotin: typeof parsed.lineWidthTricotin === "number" ? parsed.lineWidthTricotin : 12,
+        mode: (parsed.mode === "select" || parsed.mode === "curve" || parsed.mode === "straight") ? parsed.mode : "straight",
+      };
+    } catch { return { nodes: [], isClosedPath: false, lineWidthTricotin: 12, mode: "straight" }; }
+  })();
+  const [nodes, setNodes] = React.useState<PtNode[]>(initialCanvas.nodes);
+  const [isClosedPath, setIsClosedPath] = React.useState(initialCanvas.isClosedPath);
+  const [lineWidthTricotin, setLineWidthTricotin] = React.useState(initialCanvas.lineWidthTricotin);
+  const [mode, setMode] = React.useState<Mode>(initialCanvas.mode);
+  React.useEffect(() => {
+    // Debounce to avoid thrashing localStorage while dragging.
+    const id = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(CANVAS_KEY, JSON.stringify({ nodes, isClosedPath, lineWidthTricotin, mode }));
+      } catch { /* quota / private mode */ }
+    }, 250);
+    return () => window.clearTimeout(id);
+  }, [nodes, isClosedPath, lineWidthTricotin, mode]);
   // Snapping options (opt-in)
   const [snapGridOn, setSnapGridOn] = React.useState(false);
   const [gridStepCm, setGridStepCm] = React.useState<0.5 | 1>(0.5);
