@@ -3718,7 +3718,12 @@ function BordadoTab() {
           }}
         />
         <Phase17Panel blocks={orderedColorBlocks} />
-        <Phase18Panel blocks={orderedColorBlocks} />
+        <Phase18Panel
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
