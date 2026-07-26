@@ -39,6 +39,14 @@ import {
 import { encodePes, splitByHoop } from "@/lib/pes";
 import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
+  textToPaths,
+  LETTERING_FONTS,
+  MOTIF_PRESETS,
+  motifPath,
+  buildAppliqueLayers,
+  type MotifId,
+} from "@/lib/lettering";
+import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
