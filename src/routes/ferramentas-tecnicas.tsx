@@ -937,58 +937,6 @@ function TricotinTab() {
           </div>
         )}
       </div>
-      {/* Calibração de escala mm/cm */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <span className="font-medium text-muted-foreground">Calibração de escala:</span>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={showRuler} onChange={(e) => setShowRuler(e.target.checked)} />
-          Mostrar régua mm/cm no canvas
-        </label>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={printRuler} onChange={(e) => setPrintRuler(e.target.checked)} />
-          Incluir régua na impressão (verificação 1:1)
-        </label>
-        <span className="text-muted-foreground">
-          A4 = 21,0 × 29,7 cm · 1 cm = {PX_PER_CM.toFixed(2)} px · 1 mm = {PX_PER_MM.toFixed(3)} px.
-          Imprime com régua ativa e mede a barra de 100 mm — se der 10,0 cm exatos, está calibrado.
-        </span>
-      </div>
-      {/* Calibração automática (sem fazer contas) */}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3 text-xs tricotin-no-print">
-        <div>
-          <div className="font-medium text-muted-foreground">Calibração automática</div>
-          <div className="text-muted-foreground">
-            Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.
-          </div>
-        </div>
-        <label className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Medição obtida (mm)</span>
-          <input
-            type="number" inputMode="decimal" step="0.1" min={50} max={150}
-            value={measuredMm}
-            onChange={(e) => setMeasuredMm(e.target.value)}
-            placeholder="ex.: 99,4"
-            className="w-28 rounded border bg-background px-2 py-1"
-          />
-        </label>
-        <button onClick={applyCalibration} className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90">
-          Calcular &amp; aplicar
-        </button>
-        <button onClick={resetCalibration} className="rounded border px-3 py-1.5 hover:bg-muted">Repor 1:1</button>
-        <div className="ml-auto flex flex-col items-end gap-0.5">
-          <span>
-            Erro atual:{" "}
-            <strong className={errorMm == null ? "" : Math.abs(errorMm) < 0.2 ? "text-emerald-600" : "text-destructive"}>
-              {errorMm == null ? "—" : `${errorMm > 0 ? "+" : ""}${errorMm.toFixed(2)} mm`}
-            </strong>
-            {errorMm != null && <span className="text-muted-foreground"> ({((errorMm / 100) * 100).toFixed(2)}%)</span>}
-          </span>
-          <span className="text-muted-foreground">
-            Fator aplicado: <strong className="text-foreground">×{calScale.toFixed(4)}</strong>
-            {" · "}Impressão: {(21 * calScale).toFixed(2)} × {(29.7 * calScale).toFixed(2)} cm
-          </span>
-        </div>
-      </div>
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
