@@ -60,6 +60,8 @@ import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
 import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
 import { Phase21Panel } from "@/components/embroidery/Phase21Panel";
 import { Phase22Panel } from "@/components/embroidery/Phase22Panel";
+import { Phase23Panel } from "@/components/embroidery/Phase23Panel";
+import type { SmartLayerRule } from "@/lib/embroidery-phase22";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -1703,6 +1705,8 @@ function BordadoTab() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
   const sheet = useSheet();
+  // Fase 22/23 · resultado do auto-digitize partilhado com painéis QA e editor manual.
+  const [digiRules, setDigiRules] = useState<SmartLayerRule[]>([]);
   const [imagemFundo, setImagemFundo] = useState<string>("");
   const [imagemOpacidade, setImagemOpacidade] = useState(50);
   const [limiar, setLimiar] = useState(128);
@@ -3748,7 +3752,20 @@ function BordadoTab() {
           }))}
           hoopMm={{ w: 100, h: 100 }}
         />
-        <Phase22Panel projectId="bordado" />
+        <Phase22Panel
+          projectId="bordado"
+          onDigitized={(_layers, rules) => setDigiRules(rules)}
+        />
+        <Phase23Panel
+          projectId="bordado"
+          rules={digiRules}
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+          stitchBlocks={orderedColorBlocks}
+          label="Bordado"
+        />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
