@@ -99,6 +99,7 @@ const getGroups = (t: (k: string) => string) => [
     items: [
       { title: "Encomendas", url: "/encomendas", icon: ShoppingBag },
       { title: "Projetos & Criação", url: "/projetos", icon: FolderPlus },
+      { title: "Planeador De Produção", url: "/planeador-producao", icon: ListChecks },
       { title: t("nav.calculator"), url: "/calculadora", icon: Calculator },
       { title: t("nav.hours"), url: "/horas", icon: Clock },
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
