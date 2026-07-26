@@ -302,94 +302,22 @@ export function KnitEditor() {
 
         {/* ================= 2. MATEMÁTICA ================= */}
         <TabsContent value="mate" className="mt-4 space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="text-base">Tensão / Amostra</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-3 gap-2">
-                  <div><Label>Pontos</Label><Input type="number" value={st.gauge.pontos}
-                    onChange={(e) => patch({ gauge: { ...st.gauge, pontos: Number(e.target.value) } })} /></div>
-                  <div><Label>Carreiras</Label><Input type="number" value={st.gauge.carreiras}
-                    onChange={(e) => patch({ gauge: { ...st.gauge, carreiras: Number(e.target.value) } })} /></div>
-                  <div><Label>em cm</Label><Input type="number" value={st.gauge.cm}
-                    onChange={(e) => patch({ gauge: { ...st.gauge, cm: Number(e.target.value) } })} /></div>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Base para escalonamento automático dos tamanhos.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Verificador de múltiplos</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <Label>Múltiplo obrigatório (padrão)</Label>
-                <Input type="number" value={st.multiplo}
-                  onChange={(e) => patch({ multiplo: Number(e.target.value) })} />
-                <p className="text-sm">Malhas na carreira 1: <b>{totalMalhas}</b></p>
-                {chkMult.ok
-                  ? <p className="text-sm text-green-600">✓ Divisível por {st.multiplo}.</p>
-                  : <p className="text-sm text-red-600">
-                      ✗ Não divide por {st.multiplo}. Sugestão: {chkMult.sugestao?.[0]} ou {chkMult.sugestao?.[1]}.
-                    </p>}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Escalonamento automático</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <Label>Peito no tamanho M (cm)</Label>
-                <Input type="number" value={st.peitoCm}
-                  onChange={(e) => patch({ peitoCm: Number(e.target.value) })} />
-                <table className="w-full text-sm">
-                  <thead><tr><th className="text-left">Tamanho</th><th>Δ peito</th><th>Malhas</th></tr></thead>
-                  <tbody>
-                    {[
-                      { t: "XS", d: -10 }, { t: "S", d: -5 }, { t: "M", d: 0 },
-                      { t: "L", d: +5 }, { t: "XL", d: +10 }, { t: "XXL", d: +15 },
-                    ].map((s) => (
-                      <tr key={s.t}>
-                        <td>{s.t}</td>
-                        <td className="text-center">{s.d > 0 ? `+${s.d}` : s.d} cm</td>
-                        <td className="text-right font-mono">
-                          {malhasParaCm(st.gauge, st.peitoCm + s.d)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Casas de botão</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div><Label>Carreiras totais</Label>
-                    <Input type="number" value={st.carreirasTotais}
-                      onChange={(e) => patch({ carreirasTotais: Number(e.target.value) })} />
-                  </div>
-                  <div><Label>Nº de botões</Label>
-                    <Input type="number" value={st.botoes}
-                      onChange={(e) => patch({ botoes: Number(e.target.value) })} />
-                  </div>
-                </div>
-                <p className="text-sm">Fazer casa nas carreiras: <b>{carreirasBotoes.join(", ") || "—"}</b></p>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader><CardTitle className="text-base">Validador de simetria (carreira 1)</CardTitle></CardHeader>
-              <CardContent>
-                {(() => {
-                  const v = validarSimetriaDiminuicoes(st.chart.grid[0]);
-                  return v.ok
-                    ? <p className="text-sm text-green-600">✓ Simetria de diminuições coerente.</p>
-                    : <p className="text-sm text-red-600">⚠ {v.msg}</p>;
-                })()}
-              </CardContent>
-            </Card>
-          </div>
+          <GradingPanel
+            chart={st.chart}
+            gauge={st.gauge}
+            peitoBaseCm={st.peitoCm}
+            multiplo={st.multiplo}
+            bordas={st.bordas}
+            carreirasTotais={st.carreirasTotais}
+            botoes={st.botoes}
+            margemBotoesInferior={st.margemBotoesInferior}
+            margemBotoesSuperior={st.margemBotoesSuperior}
+            cavaCm={st.cavaCm}
+            decoteTipo={st.decoteTipo}
+            decoteLarguraCm={st.decoteLarguraCm}
+            decoteProfundidadeCm={st.decoteProfundidadeCm}
+            onChange={(partial) => patch(partial as Partial<EditorState>)}
+          />
         </TabsContent>
 
         {/* ================= 3. COLORWORK ================= */}
