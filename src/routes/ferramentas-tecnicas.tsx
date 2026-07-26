@@ -36,6 +36,7 @@ import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
+import { encodePes, splitByHoop } from "@/lib/pes";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -1993,6 +1994,11 @@ function BordadoTab() {
   const [circRadius, setCircRadius] = useState(60);
   const [circFontPx, setCircFontPx] = useState(20);
   const [circClockwise, setCircClockwise] = useState(true);
+  // Fase 6 — PES + tiling multi-bastidor + reordenação de cores
+  const [pesBusy, setPesBusy] = useState(false);
+  const [tilingOn, setTilingOn] = useState(false);
+  const [tileMarginMm, setTileMarginMm] = useState(5);
+  const [colorOrder, setColorOrder] = useState<number[] | null>(null);
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
@@ -2162,7 +2168,7 @@ function BordadoTab() {
   };
 
   const exportarDst = async () => {
-    const blocks = buildStitchBlocks();
+    const blocks = applyColorOrder(buildStitchBlocks());
     if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
     setDstBusy(true);
     try {
@@ -2176,6 +2182,60 @@ function BordadoTab() {
       toast.error("Falha ao gerar DST: " + (e as Error).message);
     } finally { setDstBusy(false); }
   };
+
+  // Reordena blocos conforme a sequência do utilizador (ou identidade).
+  const applyColorOrder = (blocks: StitchBlock[]): StitchBlock[] => {
+    if (!colorOrder || colorOrder.length !== blocks.length) return blocks;
+    const seen = new Set<number>();
+    const out: StitchBlock[] = [];
+    for (const idx of colorOrder) {
+      if (idx >= 0 && idx < blocks.length && !seen.has(idx)) { out.push(blocks[idx]); seen.add(idx); }
+    }
+    for (let i = 0; i < blocks.length; i++) if (!seen.has(i)) out.push(blocks[i]);
+    return out;
+  };
+
+  const moveColor = (i: number, dir: -1 | 1) => {
+    const base = colorOrder ?? buildStitchBlocks().map((_, k) => k);
+    const j = i + dir;
+    if (j < 0 || j >= base.length) return;
+    const next = base.slice();
+    [next[i], next[j]] = [next[j], next[i]];
+    setColorOrder(next);
+  };
+
+  const exportarPes = async () => {
+    let blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
+    setPesBusy(true);
+    try {
+      if (tilingOn && hoopOn) {
+        const tiles = splitByHoop(blocks, hoopWpx, hoopHpx, tileMarginMm * PX_PER_MM);
+        if (tiles.length === 0) { toast.error("Nada a exportar após dividir por bastidor."); setPesBusy(false); return; }
+        tiles.forEach((tile, i) => {
+          const blob = encodePes(tile, PX_PER_MM, `CBM_${i + 1}`);
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = `bordado-hoop${i + 1}-${Date.now()}.pes`; a.click();
+          URL.revokeObjectURL(url);
+        });
+        toast.success(`Design dividido em ${tiles.length} bastidor(es) PES.`);
+      } else {
+        const blob = encodePes(blocks, PX_PER_MM, "CBM_BORDADO");
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `bordado-${Date.now()}.pes`; a.click();
+        URL.revokeObjectURL(url);
+        toast.success(`PES gerado com ${blocks.length} cor(es).`);
+      }
+    } catch (e) {
+      toast.error("Falha ao gerar PES: " + (e as Error).message);
+    } finally { setPesBusy(false); }
+  };
+
+  // Lista viva de cores (para o UI de reordenação)
+  const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
+  const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
 
   const inserirTextoCircular = () => {
     if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
@@ -2680,6 +2740,52 @@ function BordadoTab() {
           <Button size="sm" className="w-full" onClick={exportarDst} disabled={dstBusy || machineStats.pontos === 0}>
             <Sparkles className="mr-1 h-3 w-3" />{dstBusy ? "A gerar…" : "Exportar .DST"}
           </Button>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Brother PES + multi-bastidor</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Gera ficheiros .PES v1 nativos para máquinas Brother/Babylock. Ativa o tiling para dividir automaticamente designs maiores que o bastidor em vários ficheiros posicionáveis.
+          </p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Dividir por bastidor</Label>
+            <Button size="sm" variant={tilingOn ? "default" : "outline"} onClick={() => setTilingOn((v) => !v)} disabled={!hoopOn}>
+              {tilingOn ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          {!hoopOn && <p className="text-[10px] text-amber-600">Ativa o bastidor para permitir tiling.</p>}
+          {tilingOn && (
+            <div>
+              <Label className="text-xs">Margem de sobreposição ({tileMarginMm} mm)</Label>
+              <Slider value={[tileMarginMm]} min={0} max={20} step={1} onValueChange={(v) => setTileMarginMm(v[0])} />
+            </div>
+          )}
+          <Button size="sm" className="w-full" onClick={exportarPes} disabled={pesBusy || machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />{pesBusy ? "A gerar…" : "Exportar .PES"}
+          </Button>
+          <div className="border-t pt-2">
+            <Label className="text-xs font-semibold">Sequência de cores</Label>
+            <p className="text-[10px] text-muted-foreground mb-1">
+              Reordena os blocos para reduzir trocas de agulha e otimizar a operação da máquina.
+            </p>
+            <div className="space-y-1 max-h-48 overflow-auto pr-1">
+              {orderedColorBlocks.length === 0 && (
+                <p className="text-[10px] text-muted-foreground">Ainda sem blocos visíveis.</p>
+              )}
+              {orderedColorBlocks.map((b, i) => (
+                <div key={`${b.label}-${i}`} className="flex items-center gap-1 rounded border bg-background/50 px-2 py-1">
+                  <span className="inline-block h-3 w-3 rounded-sm border" style={{ background: b.color }} />
+                  <span className="text-[11px] flex-1 truncate">{i + 1}. {b.label}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => moveColor(i, -1)} disabled={i === 0} aria-label="Subir">↑</Button>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => moveColor(i, +1)} disabled={i === orderedColorBlocks.length - 1} aria-label="Descer">↓</Button>
+                </div>
+              ))}
+            </div>
+            {colorOrder && (
+              <Button size="sm" variant="ghost" className="w-full mt-1" onClick={() => setColorOrder(null)}>
+                Restaurar ordem original
+              </Button>
+            )}
+          </div>
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Texto circular</Label>
