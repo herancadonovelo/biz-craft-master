@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, Smartphone } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { mark2faCompletedFn, logOtpAttemptFn } from "@/lib/auth-2fa.functions";
+import { logSessionEvent } from "@/lib/session-telemetry";
 
 export const Route = createFileRoute("/auth/verify-2fa")({
   head: () => ({ meta: [{ title: "Verificação em dois passos" }] }),
@@ -30,6 +31,10 @@ function Verify2FAPage() {
 
   const mark2fa = useServerFn(mark2faCompletedFn);
   const logAttempt = useServerFn(logOtpAttemptFn);
+
+  useEffect(() => {
+    if (enrollMode) void logSessionEvent("twofa_enrollment_started");
+  }, [enrollMode]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
