@@ -1158,11 +1158,14 @@ export function CosturaEditor() {
               </label>
             ))}
           </div>
+          <Button size="sm" variant="outline" className="w-full" onClick={() => validateConsistency(true)}>
+            Validar consistência (snaps · grelha · cotas · mirror)
+          </Button>
           <div className="grid grid-cols-2 gap-1">
-            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.svg`, polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }, exportUnit), "image/svg+xml")}>
+            <Button size="sm" variant="outline" onClick={() => { const iss = validateConsistency(false); if (iss.length) toast.warning(`Export SVG com ${iss.length} inconsistência(s): ${iss[0]}`); downloadFile(`${projectSlug}.svg`, polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }, exportUnit), "image/svg+xml"); }}>
               <FileDown className="mr-1 h-3 w-3" />SVG
             </Button>
-            <Button size="sm" variant="outline" onClick={() => downloadFile(`${projectSlug}.dxf`, polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }, exportUnit), "application/dxf")}>
+            <Button size="sm" variant="outline" onClick={() => { const iss = validateConsistency(false); if (iss.length) toast.warning(`Export DXF com ${iss.length} inconsistência(s): ${iss[0]}`); downloadFile(`${projectSlug}.dxf`, polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }, exportUnit), "application/dxf"); }}>
               <FileDown className="mr-1 h-3 w-3" />DXF
             </Button>
             <Button size="sm" variant="outline" className="col-span-2" onClick={exportReportPDF}>
