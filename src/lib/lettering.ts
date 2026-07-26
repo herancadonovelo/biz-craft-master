@@ -44,7 +44,7 @@ function rasterizeText(o: LetteringOptions): { data: Uint8ClampedArray; w: numbe
 }
 
 /** Marching-squares simples: devolve polígonos fechados de cada contorno. */
-function marchingSquares(mask: Uint8Array, w: number, h: number): number[][][] {
+export function marchingSquares(mask: Uint8Array, w: number, h: number): number[][][] {
   // Constrói arestas entre células vizinhas (0/1) e reconstrói ciclos.
   type Edge = { a: number; b: number };
   const key = (x: number, y: number) => y * (w + 1) + x;
@@ -116,7 +116,7 @@ function marchingSquares(mask: Uint8Array, w: number, h: number): number[][][] {
 }
 
 /** RDP simplification. */
-function rdp(pts: number[][], eps: number): number[][] {
+export function rdp(pts: number[][], eps: number): number[][] {
   if (pts.length < 3 || eps <= 0) return pts;
   const [x1, y1] = pts[0], [x2, y2] = pts[pts.length - 1];
   let maxD = 0, idx = 0;
