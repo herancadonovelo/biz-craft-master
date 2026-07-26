@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type RefObject } from "react";
+import { useDeferredValue, useState, type ReactNode, type RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Printer, Save, Lock } from "lucide-react";
+import { Download, Printer, Save, Lock, Image as ImageIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
@@ -79,16 +79,20 @@ export function useMarcaDAgua(): [MarcaDAgua, (p: Partial<MarcaDAgua>) => void] 
 export function Watermark({ w }: { w: MarcaDAgua }) {
   const perfil = useStore((s) => s.perfilNegocio);
   if (!w.ativa) return null;
-  const size = w.bloqueada ? 60 : w.tamanho;
+  // Preview is deferred to avoid re-render storms on large canvases while the
+  // user drags the size/opacity sliders. Print/export capture always reads the
+  // committed prop, so this only affects the live preview.
+  const dw = useDeferredValue(w);
+  const size = dw.bloqueada ? 60 : dw.tamanho;
   return (
     <div className="pointer-events-none absolute inset-0 grid place-items-center select-none"
-         style={{ opacity: w.opacidade / 100 }}>
+         style={{ opacity: dw.opacidade / 100, willChange: "opacity, transform" }}>
       {perfil.logo ? (
         <img src={perfil.logo} alt="" style={{ width: `${size}%`, transform: "rotate(-25deg)" }} />
       ) : (
         <div className="font-display font-bold text-center"
              style={{ fontSize: `${size * 0.6}px`, transform: "rotate(-25deg)", color: "#111" }}>
-          {w.texto}
+          {dw.texto}
         </div>
       )}
     </div>
@@ -140,10 +144,14 @@ export function ExportPanel({
   const add = useStore((s) => s.add);
   const [area, setArea] = useState<AreaTecnica>(defaultArea);
   const [titulo, setTitulo] = useState(defaultTitulo);
+  // Escala/DPI aplicada apenas ao PNG. 2× ≈ 150 dpi para A4, 3× ≈ 226 dpi,
+  // 4× ≈ 300 dpi (qualidade de imprensa). Mantém legenda + marca d'água
+  // consistentes na impressão.
+  const [pngScale, setPngScale] = useState<number>(3);
 
-  const capturar = async () => {
+  const capturar = async (pixelRatio = 2) => {
     if (!targetRef.current) throw new Error("Tela não encontrada");
-    return toPng(targetRef.current, { pixelRatio: 2, cacheBust: true, backgroundColor: "#ffffff" });
+    return toPng(targetRef.current, { pixelRatio, cacheBust: true, backgroundColor: "#ffffff" });
   };
 
   const guardarBib = async () => {
@@ -160,7 +168,7 @@ export function ExportPanel({
 
   const exportarPDF = async () => {
     try {
-      const data = await capturar();
+      const data = await capturar(2);
       const spec = PAPER_SIZES.find((p) => p.id === size) ?? PAPER_SIZES[1];
       const format: [number, number] = orientacao === "portrait" ? [spec.w, spec.h] : [spec.h, spec.w];
       const pdf = new jsPDF({ orientation: orientacao, unit: "mm", format });
@@ -173,7 +181,7 @@ export function ExportPanel({
 
   const imprimir = async () => {
     try {
-      const data = await capturar();
+      const data = await capturar(2);
       const win = window.open("", "_blank");
       if (!win) return;
       const cssSize = size === "Letter" || size === "Legal"
@@ -184,6 +192,17 @@ export function ExportPanel({
         </head><body><img src="${esc(data)}" onload="window.print();setTimeout(()=>window.close(),300)"/></body></html>`);
       win.document.close();
     } catch (e) { toast.error("Falha ao imprimir: " + (e as Error).message); }
+  };
+
+  const exportarPNG = async () => {
+    try {
+      const data = await capturar(pngScale);
+      const a = document.createElement("a");
+      a.href = data;
+      a.download = `${(titulo || "trabalho").replace(/\s+/g, "-")}@${pngScale}x.png`;
+      a.click();
+      toast.success(`PNG exportado (${pngScale}× ≈ ${Math.round(pngScale * 75)} dpi)`);
+    } catch (e) { toast.error("Falha ao exportar PNG: " + (e as Error).message); }
   };
 
   return (
@@ -199,10 +218,18 @@ export function ExportPanel({
           <SelectContent>{AREAS.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
         </Select>
       </div>
+      <div>
+        <Label className="text-xs">Resolução PNG ({pngScale}× · ≈ {Math.round(pngScale * 75)} dpi)</Label>
+        <Slider value={[pngScale]} min={1} max={6} step={1} onValueChange={(v) => setPngScale(v[0])} />
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          1×–2× para partilha rápida · 3× impressão caseira · 4×–6× impressão profissional. Mantém legenda e marca d&apos;água na mesma proporção.
+        </p>
+      </div>
       {extra}
       <div className="grid grid-cols-1 gap-2">
         <Button onClick={guardarBib}><Save className="mr-1 h-4 w-4" />Guardar na Biblioteca</Button>
         <Button variant="secondary" onClick={exportarPDF}><Download className="mr-1 h-4 w-4" />Criar PDF</Button>
+        <Button variant="secondary" onClick={exportarPNG}><ImageIcon className="mr-1 h-4 w-4" />Exportar PNG ({pngScale}×)</Button>
         <Button variant="outline" onClick={imprimir}><Printer className="mr-1 h-4 w-4" />Imprimir A4</Button>
       </div>
     </CardContent></Card>
