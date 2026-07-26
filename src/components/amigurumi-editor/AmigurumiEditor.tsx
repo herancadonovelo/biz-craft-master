@@ -95,6 +95,14 @@ export function AmigurumiEditor() {
     setActiveTab(np.id);
   };
 
+  const removePeca = (pid: string) =>
+    setS((x) => {
+      const pecas = x.pecas.filter((y) => y.id !== pid);
+      const safe = pecas.length ? pecas : [{ id: uid(), nome: "Peça 1", carreiras: [] }];
+      if (activeTab === pid) setActiveTab(safe[0].id);
+      return { ...x, pecas: safe };
+    });
+
   const clonarEspelhado = (pid: string) => {
     const original = s.pecas.find((p) => p.id === pid);
     if (!original) return;
@@ -357,7 +365,7 @@ export function AmigurumiEditor() {
                         </PopoverContent>
                       </Popover>
                       <Button size="sm" variant="ghost"
-                        onClick={() => setS((x) => ({ ...x, pecas: x.pecas.filter((y) => y.id !== p.id) }))}>
+                        onClick={() => removePeca(p.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
