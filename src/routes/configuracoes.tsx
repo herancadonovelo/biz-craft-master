@@ -270,7 +270,18 @@ function TwoFactorCard() {
     setBusy("send");
     const { error } = await supabase.auth.updateUser({ phone });
     setBusy(null);
-    if (error) return toast.error("Não foi possível enviar código: " + error.message);
+    if (error) {
+      const low = (error.message || "").toLowerCase();
+      if (/rate|too many/.test(low)) return toast.error("Muitas tentativas. Aguarda 60 s.");
+      if (/provider|not configured|unsupported|disabled/.test(low))
+        return toast.error(
+          "Provider SMS não está configurado. Peça ao admin para ligar Twilio/MessageBird no Auth do Lovable Cloud.",
+          { duration: 8000 },
+        );
+      if (/sms|twilio/.test(low)) return toast.error("SMS temporariamente indisponível. Tenta mais tarde.");
+      if (/already|taken/.test(low)) return toast.error("Número já associado a outra conta.");
+      return toast.error("Não foi possível enviar código: " + error.message);
+    }
     setSent(true); setCooldown(60);
     toast.success("Código enviado por SMS.");
   }
@@ -285,6 +296,14 @@ function TwoFactorCard() {
     if (rpc) return toast.error("Não foi possível gravar: " + rpc.message);
     toast.success("Telemóvel verificado!");
     setSent(false); setCode(""); setPhone("");
+    await loadStatus();
+  }
+
+  async function forceReverify() {
+    if (!confirm("Isto marca o teu telemóvel como não-verificado e vai obrigar a nova verificação SMS no próximo login. Continuar?")) return;
+    const { error } = await supabase.rpc("reset_phone_verification");
+    if (error) return toast.error("Não foi possível repor: " + error.message);
+    toast.success("Verificação 2FA reposta. Vais receber um código no próximo login.");
     await loadStatus();
   }
 
@@ -327,6 +346,16 @@ function TwoFactorCard() {
           )}
           <RLink to="/auth/verify-2fa" className="text-xs text-muted-foreground self-center underline">Abrir página completa de verificação</RLink>
         </div>
+        {status.verified && !sent && (
+          <div className="border-t pt-3">
+            <Button variant="outline" size="sm" onClick={forceReverify}>
+              Trocar número / forçar nova verificação
+            </Button>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Usa isto se mudaste de telemóvel. O próximo login pede o código SMS de novo.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
