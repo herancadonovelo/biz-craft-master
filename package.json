@@ -14,8 +14,8 @@
     "test:e2e:install": "playwright install chromium",
     "i18n:audit": "node scripts/i18n-audit.mjs --dir src/routes --lang en",
     "i18n:audit:suggest": "node scripts/i18n-audit.mjs --dir src/routes --lang en --suggest",
-    "i18n:audit:ci": "node scripts/i18n-audit.mjs --dir src/routes --lang en --ci"
-    ,"i18n:length-check": "node scripts/i18n-length-check.mjs"
+    "i18n:audit:ci": "node scripts/i18n-audit.mjs --dir src/routes --lang en --ci",
+    "i18n:length-check": "node scripts/i18n-length-check.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -62,6 +62,7 @@
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.575.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",

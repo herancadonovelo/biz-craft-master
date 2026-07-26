@@ -22,6 +22,7 @@ import {
 import { AmigurumiVisuais } from "./AmigurumiVisuais";
 import { AmigurumiIntegracao } from "./AmigurumiIntegracao";
 import { AmigurumiTester } from "./AmigurumiTester";
+import { AmigurumiDesign } from "./AmigurumiDesign";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -75,7 +76,7 @@ function loadInitial(): Estado {
 export function AmigurumiEditor() {
   const [s, setS] = useState<Estado>(loadInitial);
   const [activeTab, setActiveTab] = useState<string>(() => DEFAULT_STATE.pecas[0].id);
-  const [topTab, setTopTab] = useState<"padrao" | "visuais" | "integracao" | "tester">("padrao");
+  const [topTab, setTopTab] = useState<"padrao" | "visuais" | "integracao" | "tester" | "design">("padrao");
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
@@ -182,6 +183,7 @@ export function AmigurumiEditor() {
           <TabsTrigger value="visuais">Visuais</TabsTrigger>
           <TabsTrigger value="integracao">CBM · Stock & Preço</TabsTrigger>
           <TabsTrigger value="tester">Modo Tester</TabsTrigger>
+          <TabsTrigger value="design">Design & PDF</TabsTrigger>
         </TabsList>
         <TabsContent value="visuais" className="mt-3">
           <AmigurumiVisuais />
@@ -195,6 +197,29 @@ export function AmigurumiEditor() {
             titulo={s.titulo}
             autor={s.autor}
             pecas={s.pecas.map((p) => ({ id: p.id, nome: p.nome }))}
+          />
+        </TabsContent>
+        <TabsContent value="design" className="mt-3">
+          <AmigurumiDesign
+            receita={{
+              titulo: s.titulo,
+              autor: s.autor,
+              nivel: s.nivel,
+              intro: s.intro,
+              terminologia: s.terminologia,
+              pecas: s.pecas.map((p) => ({
+                id: p.id, nome: p.nome,
+                carreiras: p.carreiras.map((c) => ({ texto: c.texto })),
+              })),
+              tensao: s.tensao,
+              enchimento: s.enchimento,
+              arame: s.arame,
+              olhos: s.olhos,
+              legenda: abreviaturas.map((p) => ({
+                abrev: p.abrev[s.terminologia],
+                nome: p.nome[s.terminologia],
+              })),
+            }}
           />
         </TabsContent>
         <TabsContent value="padrao" className="mt-3">
