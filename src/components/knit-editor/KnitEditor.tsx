@@ -29,6 +29,8 @@ import {
 } from "@/lib/knit/engine";
 import { GradingPanel } from "@/components/knit-editor/GradingPanel";
 import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
+import { ConstructionPanel } from "@/components/knit-editor/ConstructionPanel";
+import type { Marcador } from "@/lib/knit/construction";
 import { useStore, formatCurrency } from "@/lib/store";
 
 const STORAGE_KEY = "cbm:knit-editor:v1";
@@ -63,6 +65,7 @@ interface EditorState {
   gramasPor100m: number;
   metrosPorNovelo: number;
   floatMultiplier: number;
+  marcadores: Marcador[];
 }
 
 function loadState(): EditorState {
@@ -102,6 +105,7 @@ function defaultState(): EditorState {
     gramasPor100m: 50,
     metrosPorNovelo: 200,
     floatMultiplier: 1.8,
+    marcadores: [],
   };
 }
 
@@ -346,60 +350,14 @@ export function KnitEditor() {
 
         {/* ================= 4. CONSTRUÇÃO ================= */}
         <TabsContent value="construcao" className="mt-4 space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="text-base">Wizard Top-Down (Raglan)</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <Label>Peito (cm)</Label>
-                <Input type="number" value={st.peitoCm}
-                  onChange={(e) => patch({ peitoCm: Number(e.target.value) })} />
-                {(() => {
-                  const r = gerarRaglanTopDown({ peitoCm: st.peitoCm, gauge: st.gauge });
-                  return (
-                    <ul className="text-sm space-y-1">
-                      <li>Total peito: <b>{r.totalMalhas}</b> malhas</li>
-                      <li>Início da gola: <b>{r.gola}</b> malhas</li>
-                      <li>Cada manga: <b>{r.manga}</b> malhas</li>
-                      <li>Cada meio-corpo: <b>{r.corpo}</b> malhas</li>
-                      <li>Malhas de raglan (×4): <b>{r.raglan}</b></li>
-                    </ul>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Sock Wizard</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <Label>Comprimento do pé (cm)</Label>
-                <Input type="number" value={st.peCm}
-                  onChange={(e) => patch({ peCm: Number(e.target.value) })} />
-                {(() => {
-                  const m = gerarMeia({ peCm: st.peCm, gauge: st.gauge });
-                  return (
-                    <ul className="text-sm space-y-1">
-                      <li>Montar: <b>{m.montar}</b> malhas</li>
-                      <li>Calcanhar sobre: <b>{m.calcanhar}</b> malhas</li>
-                      <li>Ponte: <b>{m.ponte}</b> malhas</li>
-                    </ul>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader><CardTitle className="text-base">Circular vs Retas & Marcadores</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <Switch checked={st.circular} onCheckedChange={(v) => patch({ circular: v })} />
-                  <span className="text-sm">{st.circular ? "Circular (todas as carreiras direito → esquerda)" : "Retas (virar o trabalho a cada carreira)"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Afecta a tradução automática do gráfico e a exportação Ravelry.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <ConstructionPanel
+            gauge={st.gauge}
+            peitoCm={st.peitoCm}
+            peCm={st.peCm}
+            circular={st.circular}
+            marcadores={st.marcadores}
+            onChange={(partial) => patch(partial as Partial<EditorState>)}
+          />
         </TabsContent>
 
         {/* ================= 5. ESCRITA ================= */}
