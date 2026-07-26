@@ -2044,6 +2044,12 @@ function BordadoTab() {
   const [monoFrameSizeMm, setMonoFrameSizeMm] = useState(70);
   const [monoFramePadMm, setMonoFramePadMm] = useState(6);
   const [monoDoubleFrame, setMonoDoubleFrame] = useState(true);
+  // Fase 10 — pré-visualização 3D + folha de padrão PDF
+  const [preview3D, setPreview3D] = useState(false);
+  const [fabric3D, setFabric3D] = useState<"aida" | "linho" | "algodao">("aida");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfTitulo, setPdfTitulo] = useState("Padrão de Bordado");
+  const [pdfAutor, setPdfAutor] = useState("");
 
   const fillOpts: FillOptions = {
     mode: fillMode,
