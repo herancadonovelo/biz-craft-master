@@ -35,6 +35,7 @@ import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
 import { buildEmbroideryBundle, downloadBundle } from "@/lib/embroidery-bundle";
+import { splitByHoopWithRegistration, buildRehoopGuideSvg } from "@/lib/hoop-registration";
 import { decodeDst, blocksToPaths } from "@/lib/dst-import";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
@@ -2066,6 +2067,10 @@ function BordadoTab() {
   const [bundleBusy, setBundleBusy] = useState(false);
   const [bundleIncludePdf, setBundleIncludePdf] = useState(true);
   const [bundleSlug, setBundleSlug] = useState("bordado");
+  // Fase 15 — divisão multi-bastidor com marcas de registo
+  const [rehoopOverlapMm, setRehoopOverlapMm] = useState(20);
+  const [rehoopMarginMm, setRehoopMarginMm] = useState(5);
+  const [rehoopBusy, setRehoopBusy] = useState(false);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2589,6 +2594,42 @@ function BordadoTab() {
     } catch (e) {
       toast.error("Falha ao gerar bundle: " + (e as Error).message);
     } finally { setBundleBusy(false); }
+  };
+
+  // ---------- Fase 15: split multi-bastidor com marcas de registo ----------
+  const exportarRehoop = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para dividir."); return; }
+    setRehoopBusy(true);
+    try {
+      const tiles = splitByHoopWithRegistration(blocks, {
+        hoopWpx, hoopHpx,
+        overlapPx: rehoopOverlapMm * PX_PER_MM,
+        marginPx: rehoopMarginMm * PX_PER_MM,
+      });
+      if (tiles.length === 0) { toast.error("Nada a exportar."); return; }
+      const { default: JSZip } = await import("jszip");
+      const zip = new JSZip();
+      for (const t of tiles) {
+        const pes = encodePes(t.blocks, PX_PER_MM, `TILE_${t.index + 1}`);
+        const dst = encodeDst(t.blocks, PX_PER_MM, `TILE_${t.index + 1}`);
+        zip.file(`tile-${String(t.index + 1).padStart(2, "0")}.pes`, await pes.arrayBuffer());
+        zip.file(`tile-${String(t.index + 1).padStart(2, "0")}.dst`, await dst.arrayBuffer());
+      }
+      const guideSvg = buildRehoopGuideSvg(tiles, {
+        hoopWpx, hoopHpx,
+        overlapPx: rehoopOverlapMm * PX_PER_MM,
+        marginPx: rehoopMarginMm * PX_PER_MM,
+        pageWpx: A4_W, pageHpx: A4_H,
+      });
+      zip.file("guia-rehoop.svg", guideSvg);
+      zip.file("README.md", `# Multi-bastidor — ${tiles.length} tiles\nOverlap: ${rehoopOverlapMm} mm\nAlinhe as cruzes vermelhas ao re-enfronhar o tecido.`);
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      downloadBundle(blob, `rehoop-${Date.now()}.zip`);
+      toast.success(`Dividido em ${tiles.length} bastidor(es) com marcas de registo.`);
+    } catch (e) {
+      toast.error("Falha no split: " + (e as Error).message);
+    } finally { setRehoopBusy(false); }
   };
 
   // Lista viva de cores (para o UI de reordenação)
@@ -3581,6 +3622,24 @@ function BordadoTab() {
           </label>
           <Button size="sm" onClick={exportarBundle} disabled={bundleBusy} className="w-full">
             {bundleBusy ? "A gerar bundle…" : "Exportar bundle .zip"}
+          </Button>
+        </CardContent></Card>
+        {/* Fase 15 — Multi-bastidor com marcas de registo */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Multi-bastidor (re-hoop)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Divide designs grandes em vários bastidores com sobreposição e cruzes de registo alinhadas para reposicionar o tecido sem desvio.
+          </p>
+          <div>
+            <Label className="text-[10px]">Sobreposição ({rehoopOverlapMm} mm)</Label>
+            <Slider value={[rehoopOverlapMm]} min={5} max={40} step={1} onValueChange={(v) => setRehoopOverlapMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Margem interna ({rehoopMarginMm} mm)</Label>
+            <Slider value={[rehoopMarginMm]} min={0} max={20} step={1} onValueChange={(v) => setRehoopMarginMm(v[0])} />
+          </div>
+          <Button size="sm" onClick={exportarRehoop} disabled={rehoopBusy} className="w-full">
+            {rehoopBusy ? "A dividir…" : "Exportar tiles + guia SVG"}
           </Button>
         </CardContent></Card>
         {/* Fase 13 — Mapa de densidade + Relatório de qualidade */}
