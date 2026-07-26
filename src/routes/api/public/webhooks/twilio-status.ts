@@ -49,8 +49,11 @@ export const Route = createFileRoute("/api/public/webhooks/twilio-status")({
             .eq("provider", "twilio")
             .eq("tenant_key", to)
             .maybeSingle();
+          if (!tenant?.user_id) {
+            return Response.json({ ok: true, unmapped: true, messageSid, status });
+          }
           await supabaseAdmin.from("webhook_events").insert({
-            user_id: tenant?.user_id ?? null,
+            user_id: tenant.user_id,
             provider: "twilio",
             external_id: messageSid,
             payload: { messageSid, status, to, raw: params },
