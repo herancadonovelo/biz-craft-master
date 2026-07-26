@@ -3147,6 +3147,9 @@ function BordadoTab() {
           <Button size="sm" className="w-full" onClick={exportarDst} disabled={dstBusy || machineStats.pontos === 0}>
             <Sparkles className="mr-1 h-3 w-3" />{dstBusy ? "A gerar…" : "Exportar .DST"}
           </Button>
+          <Button size="sm" variant="outline" className="w-full" onClick={exportarExp} disabled={machineStats.pontos === 0}>
+            <Sparkles className="mr-1 h-3 w-3" />Exportar .EXP (Melco)
+          </Button>
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs font-semibold">Brother PES + multi-bastidor</Label>
