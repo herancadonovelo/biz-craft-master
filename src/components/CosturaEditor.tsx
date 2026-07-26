@@ -347,6 +347,9 @@ export function CosturaEditor() {
   const [gridOn, setGridOn] = useState(true);
   const [gridCm, setGridCm] = useState(1);
   const [annotate, setAnnotate] = useState(true);
+  const [snapTolPx, setSnapTolPx] = useState(8);
+  const [layerOpts, setLayerOpts] = useState({ molde: true, mirror: true, annotations: true, grid: false });
+  const [diffIdx, setDiffIdx] = useState<number | null>(null);
 
   // Autosave & versioning
   const AUTOSAVE_KEY = "costura:autosave";
@@ -452,18 +455,19 @@ export function CosturaEditor() {
         }
       }
     }
-    let best: Pt | null = null; let bd = 8;
+    let best: Pt | null = null; let bd = snapTolPx;
     for (const q of candidates) {
       const d = dist(p, q); if (d < bd) { bd = d; best = q; }
     }
     if (best) return best;
     if (snapAlign) {
       let sx = p.x, sy = p.y; let fx = false, fy = false;
+      const alignTol = Math.max(3, snapTolPx * 0.6);
       for (const pl of polys) {
         for (const q of [pl.pts[0], pl.pts[pl.pts.length - 1]]) {
           if (!q) continue;
-          if (!fx && Math.abs(q.x - p.x) < 5) { sx = q.x; fx = true; }
-          if (!fy && Math.abs(q.y - p.y) < 5) { sy = q.y; fy = true; }
+          if (!fx && Math.abs(q.x - p.x) < alignTol) { sx = q.x; fx = true; }
+          if (!fy && Math.abs(q.y - p.y) < alignTol) { sy = q.y; fy = true; }
         }
       }
       if (fx || fy) return { x: sx, y: sy };
@@ -472,9 +476,9 @@ export function CosturaEditor() {
   }
 
   function addPoly(kind: PolyKind, pts: Pt[], extra: Partial<Poly> = {}) {
-    const p: Poly = { id: uid(), kind, pts, color: "#222", ...extra };
+    const p: Poly = { id: uid(), kind, pts, color: "#222", layer: "molde", ...extra };
     const mirror: Poly[] = liveMirror
-      ? [{ id: uid(), kind, color: "#8b5cf6", pts: pts.map((q) => ({ x: A4_W - q.x, y: q.y })), ...extra }]
+      ? [{ id: uid(), kind, color: "#8b5cf6", layer: "mirror", pts: pts.map((q) => ({ x: A4_W - q.x, y: q.y })), ...extra }]
       : [];
     push([...polys, p, ...mirror]);
   }
