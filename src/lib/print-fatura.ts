@@ -1,9 +1,15 @@
 import type { Fatura, Cliente, PerfilNegocio } from "@/lib/store";
 import { escapeHtml as e } from "@/lib/escape-html";
+import { formatCurrency } from "@/lib/store";
 
-export function imprimirFatura(f: Fatura, c: Cliente | undefined, p: PerfilNegocio) {
+export function imprimirFatura(
+  f: Fatura,
+  c: Cliente | undefined,
+  p: PerfilNegocio,
+  currencyCode?: string,
+) {
   const total = f.valor * (1 + f.iva / 100);
-  const fmt = (n: number) => new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
+  const fmt = (n: number) => formatCurrency(n, currencyCode);
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${e(f.numero)}</title>
 <style>
   body{font-family:-apple-system,Segoe UI,sans-serif;color:#111;margin:40px;}
