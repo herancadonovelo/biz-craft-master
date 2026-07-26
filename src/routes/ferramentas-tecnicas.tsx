@@ -58,6 +58,7 @@ import { Phase17Panel } from "@/components/embroidery/Phase17Panel";
 import { Phase18Panel } from "@/components/embroidery/Phase18Panel";
 import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
 import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
+import { Phase21Panel } from "@/components/embroidery/Phase21Panel";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -3737,6 +3738,14 @@ function BordadoTab() {
             color: b.color,
             stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
           }))}
+        />
+        <Phase21Panel
+          projectId="bordado"
+          blocks={orderedColorBlocks.map((b) => ({
+            color: b.color,
+            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+          }))}
+          hoopMm={{ w: 100, h: 100 }}
         />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
