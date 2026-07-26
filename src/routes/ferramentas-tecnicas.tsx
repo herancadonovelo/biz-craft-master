@@ -2000,6 +2000,41 @@ function BordadoTab() {
   const [tilingOn, setTilingOn] = useState(false);
   const [tileMarginMm, setTileMarginMm] = useState(5);
   const [colorOrder, setColorOrder] = useState<number[] | null>(null);
+  // Fase 7 — preenchimento (satin/tatami) + underlay + compensação de puxão
+  const [fillMode, setFillMode] = useState<"satin" | "tatami">("tatami");
+  const [fillAngle, setFillAngle] = useState(0);
+  const [fillSpacingPx, setFillSpacingPx] = useState(2.2);
+  const [fillStitchPx, setFillStitchPx] = useState(6);
+  const [fillStagger, setFillStagger] = useState(0.5);
+  const [fillPullPx, setFillPullPx] = useState(0.6);
+  const [fillUnderlay, setFillUnderlay] = useState<0 | 1 | 2>(1);
+  const [fillUnderlayInsetPx, setFillUnderlayInsetPx] = useState(1.6);
+
+  const fillOpts: FillOptions = {
+    mode: fillMode,
+    angleDeg: fillAngle,
+    spacingPx: fillSpacingPx,
+    stitchPx: fillStitchPx,
+    stagger: fillStagger,
+    pullCompensationPx: fillPullPx,
+    underlay: fillUnderlay,
+    underlayInsetPx: fillUnderlayInsetPx,
+  };
+
+  const preencherCamadaAtiva = () => {
+    if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
+    const fechados = active.strokes.filter((d) => /z/i.test(d));
+    if (fechados.length === 0) { toast.error("A camada ativa não tem contornos fechados (usa Z para fechar)."); return; }
+    let total = 0;
+    const novos: string[] = [];
+    for (const d of fechados) {
+      const fill = generateFill(d, fillOpts);
+      if (fill) { novos.push(fill); total += estimateFillStitches(d, fillOpts); }
+    }
+    if (novos.length === 0) { toast.error("Nenhum polígono válido para preencher."); return; }
+    setLayers((ls) => ls.map((l) => l.id === active.id ? { ...l, strokes: [...l.strokes, ...novos] } : l));
+    toast.success(`Preenchimento gerado (~${total.toLocaleString()} pontos, ${fillMode}).`);
+  };
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
