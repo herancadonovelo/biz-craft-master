@@ -10,10 +10,38 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { Plus, Trash2, Save, FileDown, Upload, Download, History as HistoryIcon, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
+
+type HorasMode = "keep" | "replace" | "max" | "sum" | "recalc";
+type MargemMode = "keep" | "replace" | "max" | "avg";
+
+interface MergeRules {
+  horas: HorasMode;
+  /** Recalc: horas = sum(materiais.qtd * horasPorUnidade). */
+  horasPorUnidade: number;
+  margem: MargemMode;
+  atualizarPrecos: boolean;
+  adicionarMateriaisNovos: boolean;
+  unirTags: boolean;
+  anexarNotas: boolean;
+}
+
+const DEFAULT_RULES: MergeRules = {
+  horas: "max",
+  horasPorUnidade: 0.5,
+  margem: "max",
+  atualizarPrecos: true,
+  adicionarMateriaisNovos: true,
+  unirTags: true,
+  anexarNotas: true,
+};
+const RULES_KEY = "editor-receita-merge-rules";
 
 export const Route = createFileRoute("/editor-receita")({
   head: () => ({ meta: [{ title: "Editor De Receitas" }] }),
@@ -32,6 +60,17 @@ function Page() {
   const [query, setQuery] = useState("");
   const [tagInput, setTagInput] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [rules, setRules] = useState<MergeRules>(() => {
+    try {
+      const raw = typeof window !== "undefined" && window.localStorage.getItem(RULES_KEY);
+      return raw ? { ...DEFAULT_RULES, ...JSON.parse(raw) } : DEFAULT_RULES;
+    } catch { return DEFAULT_RULES; }
+  });
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const setAndSaveRules = (r: MergeRules) => {
+    setRules(r);
+    try { window.localStorage.setItem(RULES_KEY, JSON.stringify(r)); } catch {}
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -102,7 +141,7 @@ function Page() {
         existente &&
         typeof window !== "undefined" &&
         window.confirm(
-          `Já existe uma receita "${existente.nome}". OK = mesclar (materiais, preços, horas/margem). Cancelar = criar nova.`,
+          `Já existe uma receita "${existente.nome}". OK = mesclar aplicando as regras configuradas (horas=${rules.horas}, margem=${rules.margem}). Cancelar = criar nova.`,
         );
 
       const materiaisImportados = Array.isArray(data.materiais)
@@ -130,14 +169,14 @@ function Page() {
           if (cur) {
             const idx = mergedMats.findIndex((m) => m.id === cur.id);
             const antigoPreco = cur.precoUnitario;
-            const novoPreco = im.precoUnitario ?? antigoPreco;
-            if (im.precoUnitario != null && im.precoUnitario !== antigoPreco) precosAtualizados++;
+            const novoPreco = rules.atualizarPrecos ? (im.precoUnitario ?? antigoPreco) : antigoPreco;
+            if (rules.atualizarPrecos && im.precoUnitario != null && im.precoUnitario !== antigoPreco) precosAtualizados++;
             mergedMats[idx] = {
               ...cur,
               quantidade: im.quantidade || cur.quantidade,
               precoUnitario: novoPreco,
             };
-          } else {
+          } else if (rules.adicionarMateriaisNovos) {
             mergedMats.push(im);
             materiaisNovos++;
           }
@@ -163,25 +202,69 @@ function Page() {
           }
         }
 
-        const horas =
-          typeof data.horasEstimadas === "number"
-            ? Math.max(existente.horasEstimadas ?? 0, data.horasEstimadas)
-            : existente.horasEstimadas;
-        const tags = Array.from(new Set([...(existente.tags ?? []), ...(Array.isArray(data.tags) ? data.tags.map(String) : [])]));
+        // Horas: apply configured rule.
+        const horasImport = typeof data.horasEstimadas === "number" ? data.horasEstimadas : undefined;
+        const horasCur = existente.horasEstimadas;
+        let horas = horasCur;
+        switch (rules.horas) {
+          case "keep": horas = horasCur; break;
+          case "replace": horas = horasImport ?? horasCur; break;
+          case "max":
+            horas = horasImport != null ? Math.max(horasCur ?? 0, horasImport) : horasCur;
+            break;
+          case "sum":
+            horas = horasImport != null ? (horasCur ?? 0) + horasImport : horasCur;
+            break;
+          case "recalc": {
+            const totalUnidades = mergedMats.reduce((n, m) => {
+              const q = parseFloat(String(m.quantidade).replace(",", ".")) || 0;
+              return n + q;
+            }, 0);
+            horas = +(totalUnidades * (rules.horasPorUnidade || 0)).toFixed(2);
+            break;
+          }
+        }
+
+        // Margem: apply configured rule.
+        const margemImport = typeof data.margemPercent === "number" ? data.margemPercent : undefined;
+        const margemCur = existente.margemPercent;
+        let margem = margemCur;
+        switch (rules.margem) {
+          case "keep": margem = margemCur; break;
+          case "replace": margem = margemImport ?? margemCur; break;
+          case "max":
+            margem = margemImport != null ? Math.max(margemCur ?? 0, margemImport) : margemCur;
+            break;
+          case "avg":
+            margem = margemImport != null && margemCur != null
+              ? +((margemImport + margemCur) / 2).toFixed(2)
+              : (margemImport ?? margemCur);
+            break;
+        }
+
+        const tags = rules.unirTags
+          ? Array.from(new Set([...(existente.tags ?? []), ...(Array.isArray(data.tags) ? data.tags.map(String) : [])]))
+          : existente.tags;
+        const notas = rules.anexarNotas && data.notas
+          ? `${existente.notas ?? ""}\n---\n${data.notas}`.trim()
+          : existente.notas;
 
         update("receitasEditor", existente.id, {
           materiais: mergedMats,
           seccoes: mergedSec,
           horasEstimadas: horas,
+          margemPercent: margem,
           tags,
-          notas: data.notas ? `${existente.notas ?? ""}\n---\n${data.notas}`.trim() : existente.notas,
+          notas,
         });
         setEditId(existente.id);
-        toast.success(
-          `Mesclado: +${materiaisNovos} materiais, ${precosAtualizados} preços atualizados${
-            horas !== existente.horasEstimadas ? `, horas → ${horas}h` : ""
-          }`,
-        );
+        const bits = [
+          `+${materiaisNovos} materiais`,
+          `${precosAtualizados} preços`,
+          horas !== horasCur ? `horas → ${horas}h` : null,
+          margem !== margemCur ? `margem → ${margem}%` : null,
+        ].filter(Boolean).join(", ");
+        toast.success(`Mesclado: ${bits}`);
         return;
       }
 
@@ -201,6 +284,7 @@ function Page() {
         criadoEm: data.criadoEm ?? new Date().toISOString(),
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
         horasEstimadas: typeof data.horasEstimadas === "number" ? data.horasEstimadas : undefined,
+        margemPercent: typeof data.margemPercent === "number" ? data.margemPercent : undefined,
         materiaisRef: Array.isArray(data.materiaisRef) ? data.materiaisRef : undefined,
         historico: [],
       };
@@ -243,8 +327,76 @@ function Page() {
         <Button variant="outline" onClick={() => fileRef.current?.click()}>
           <Upload className="mr-1 h-4 w-4" />Importar JSON
         </Button>
+        <Button variant="outline" onClick={() => setRulesOpen(true)}>Regras de merge</Button>
         {r && <Button variant="ghost" onClick={() => { remove("receitasEditor", r.id); setEditId(null); }}><Trash2 className="h-4 w-4" /></Button>}
       </div>
+
+      <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Regras de merge ao importar receita.json</DialogTitle></DialogHeader>
+          <div className="grid gap-3">
+            <div>
+              <Label>Horas estimadas</Label>
+              <Select value={rules.horas} onValueChange={(v) => setAndSaveRules({ ...rules, horas: v as HorasMode })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="keep">Manter as existentes</SelectItem>
+                  <SelectItem value="replace">Substituir pelas importadas</SelectItem>
+                  <SelectItem value="max">Usar o maior valor</SelectItem>
+                  <SelectItem value="sum">Somar</SelectItem>
+                  <SelectItem value="recalc">Recalcular por materiais</SelectItem>
+                </SelectContent>
+              </Select>
+              {rules.horas === "recalc" && (
+                <div className="mt-2">
+                  <Label>Horas por unidade de material</Label>
+                  <Input
+                    type="number" min={0} step={0.05}
+                    value={rules.horasPorUnidade}
+                    onChange={(e) => setAndSaveRules({ ...rules, horasPorUnidade: +e.target.value || 0 })}
+                  />
+                </div>
+              )}
+            </div>
+            <div>
+              <Label>Margem (%)</Label>
+              <Select value={rules.margem} onValueChange={(v) => setAndSaveRules({ ...rules, margem: v as MargemMode })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="keep">Manter a existente</SelectItem>
+                  <SelectItem value="replace">Substituir pela importada</SelectItem>
+                  <SelectItem value="max">Usar a maior</SelectItem>
+                  <SelectItem value="avg">Média das duas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={rules.atualizarPrecos}
+                onChange={(e) => setAndSaveRules({ ...rules, atualizarPrecos: e.target.checked })} />
+              Atualizar preços de materiais existentes
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={rules.adicionarMateriaisNovos}
+                onChange={(e) => setAndSaveRules({ ...rules, adicionarMateriaisNovos: e.target.checked })} />
+              Adicionar materiais novos
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={rules.unirTags}
+                onChange={(e) => setAndSaveRules({ ...rules, unirTags: e.target.checked })} />
+              Unir tags
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={rules.anexarNotas}
+                onChange={(e) => setAndSaveRules({ ...rules, anexarNotas: e.target.checked })} />
+              Anexar notas importadas
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAndSaveRules(DEFAULT_RULES)}>Repor padrão</Button>
+            <Button onClick={() => setRulesOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {!r ? (
         <Card className="p-10 text-center text-muted-foreground">Cria a tua primeira receita.</Card>
