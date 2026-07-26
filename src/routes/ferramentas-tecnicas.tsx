@@ -2162,6 +2162,43 @@ function BordadoTab() {
               <line x1="0" y1={(A4_H * 2) / 3} x2={A4_W} y2={(A4_H * 2) / 3} />
             </g>
           )}
+          {/* Fase 4 — grelha Aida (opcional) */}
+          {chartArea && (
+            <g pointerEvents="none">
+              <g stroke="rgba(0,0,0,0.22)" strokeWidth="0.3">
+                {Array.from({ length: chartArea.nx + 1 }).map((_, i) => (
+                  <line key={`vx-${i}`} x1={chartArea.x0 + i * chartArea.cellPx} y1={chartArea.y0}
+                        x2={chartArea.x0 + i * chartArea.cellPx} y2={chartArea.y0 + chartArea.ny * chartArea.cellPx} />
+                ))}
+                {Array.from({ length: chartArea.ny + 1 }).map((_, i) => (
+                  <line key={`hz-${i}`} x1={chartArea.x0} y1={chartArea.y0 + i * chartArea.cellPx}
+                        x2={chartArea.x0 + chartArea.nx * chartArea.cellPx} y2={chartArea.y0 + i * chartArea.cellPx} />
+                ))}
+              </g>
+              {/* linhas de 10 em 10 mais escuras (referência de contagem) */}
+              <g stroke="rgba(0,0,0,0.55)" strokeWidth="0.6">
+                {Array.from({ length: Math.floor(chartArea.nx / 10) + 1 }).map((_, i) => (
+                  <line key={`v10-${i}`} x1={chartArea.x0 + i * 10 * chartArea.cellPx} y1={chartArea.y0}
+                        x2={chartArea.x0 + i * 10 * chartArea.cellPx} y2={chartArea.y0 + chartArea.ny * chartArea.cellPx} />
+                ))}
+                {Array.from({ length: Math.floor(chartArea.ny / 10) + 1 }).map((_, i) => (
+                  <line key={`h10-${i}`} x1={chartArea.x0} y1={chartArea.y0 + i * 10 * chartArea.cellPx}
+                        x2={chartArea.x0 + chartArea.nx * chartArea.cellPx} y2={chartArea.y0 + i * 10 * chartArea.cellPx} />
+                ))}
+              </g>
+            </g>
+          )}
+          {/* Fase 4 — células do gráfico de ponto cruz */}
+          {chartArea && chartCells.length > 0 && (
+            <g pointerEvents="none">
+              {chartCells.map((c, i) => (
+                <rect key={`cc-${i}`} x={chartArea.x0 + c.gx * chartArea.cellPx}
+                      y={chartArea.y0 + c.gy * chartArea.cellPx}
+                      width={chartArea.cellPx} height={chartArea.cellPx}
+                      fill={c.hex} opacity={0.85} />
+              ))}
+            </g>
+          )}
           {layers.map((layer) => {
             if (!layer.visible) return null;
             const st = stitchStyle(layer.stitch, layer.width);
