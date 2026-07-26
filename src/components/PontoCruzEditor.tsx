@@ -1077,7 +1077,7 @@ export function PontoCruzEditor() {
               <Button size="sm" variant="ghost" onClick={() => setSelection(null)}>Fechar</Button>
             </div>
           )}
-          <div className="max-h-[70vh] max-w-full overflow-auto rounded border bg-white p-2">
+          <div className="max-w-full overflow-x-auto overflow-y-hidden rounded border bg-white p-2">
             <canvas ref={canvasRef}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
