@@ -32,8 +32,9 @@ import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
 import { ConstructionPanel } from "@/components/knit-editor/ConstructionPanel";
 import { WritingPanel } from "@/components/knit-editor/WritingPanel";
 import { TesterPanel } from "@/components/knit-editor/TesterPanel";
+import { CustoExportPanel } from "@/components/knit-editor/CustoExportPanel";
 import type { Marcador } from "@/lib/knit/construction";
-import { useStore, formatCurrency } from "@/lib/store";
+import { useStore } from "@/lib/store";
 
 const STORAGE_KEY = "cbm:knit-editor:v1";
 
@@ -392,33 +393,21 @@ export function KnitEditor() {
 
         {/* ================= 7. CUSTO & EXPORT ================= */}
         <TabsContent value="custo" className="mt-4 space-y-4">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Preificador automático</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <PreificadorPanel consumoG={Object.values(consumo).reduce((s, v) => s + v.gramas, 0)} materiais={materiais} projetos={projetos} />
-              <Button variant="outline" onClick={criarProjetoStock}>+ Adicionar fio estimado ao inventário</Button>
-            </CardContent>
-          </Card>
+          <CustoExportPanel
+            chart={st.chart}
+            gauge={st.gauge}
+            gramasPor100m={st.gramasPor100m}
+            floatMultiplier={st.floatMultiplier}
+            darkMode={st.darkMode}
+            textoReceita={texto}
+          />
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Exportações</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Exportações rápidas do gráfico</CardTitle></CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              <Button onClick={exportSvg}>SVG vetorial (zoom infinito)</Button>
-              <Button variant="outline" onClick={exportRavelry}>JSON compatível Ravelry</Button>
-              <Button variant="outline" onClick={() => {
-                const w = window.open("", "_blank");
-                if (!w) return;
-                w.document.write(`<html><head><title>Receita Tricô</title>
-                  <style>body{font-family:serif;font-size:14pt;padding:2cm;line-height:1.5}
-                  pre{white-space:pre-wrap;font-family:monospace}</style></head><body>
-                  <h1>Receita de Tricô</h1>
-                  <p><b>Tensão:</b> ${st.gauge.pontos} pts × ${st.gauge.carreiras} car / ${st.gauge.cm} cm · agulha ${agulha.mm}mm (US ${agulha.us})</p>
-                  <h2>Instruções</h2><pre>${texto.join("\n")}</pre>
-                  ${chartToSvg(st.chart)}
-                  </body></html>`);
-                w.document.close();
-                setTimeout(() => w.print(), 300);
-              }}>Printer-friendly (P&B)</Button>
+              <Button onClick={exportSvg}>SVG vetorial</Button>
+              <Button variant="outline" onClick={exportRavelry}>JSON Ravelry</Button>
+              <Button variant="outline" onClick={criarProjetoStock}>+ fio estimado ao inventário</Button>
             </CardContent>
           </Card>
 
@@ -459,38 +448,6 @@ function ExprConverter({ term }: { term: Terminologia }) {
       <div className="rounded border bg-muted/40 p-3 text-sm">
         {converterExpressoes(txt, term, to)}
       </div>
-    </>
-  );
-}
-
-function PreificadorPanel({ consumoG, materiais, projetos }: {
-  consumoG: number; materiais: unknown[]; projetos: unknown[];
-}) {
-  const [horas, setHoras] = React.useState(20);
-  const [precoHora, setPrecoHora] = React.useState(8);
-  const [precoFioGrama, setPrecoFioGrama] = React.useState(0.15);
-  const [margem, setMargem] = React.useState(40);
-  const custoFio = consumoG * precoFioGrama;
-  const custoMao = horas * precoHora;
-  const total = custoFio + custoMao;
-  const venda = total * (1 + margem / 100);
-  return (
-    <>
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <div><Label>Horas</Label><Input type="number" value={horas} onChange={(e) => setHoras(Number(e.target.value))} /></div>
-        <div><Label>€/hora</Label><Input type="number" value={precoHora} onChange={(e) => setPrecoHora(Number(e.target.value))} /></div>
-        <div><Label>€/g fio</Label><Input type="number" step="0.01" value={precoFioGrama} onChange={(e) => setPrecoFioGrama(Number(e.target.value))} /></div>
-        <div><Label>Margem %</Label><Input type="number" value={margem} onChange={(e) => setMargem(Number(e.target.value))} /></div>
-      </div>
-      <ul className="text-sm">
-        <li>Fio ({consumoG.toFixed(1)}g): {formatCurrency(custoFio)}</li>
-        <li>Mão de obra: {formatCurrency(custoMao)}</li>
-        <li><b>Custo total:</b> {formatCurrency(total)}</li>
-        <li className="text-primary"><b>Preço de venda sugerido:</b> {formatCurrency(venda)}</li>
-      </ul>
-      <p className="text-xs text-muted-foreground">
-        Materiais: {materiais.length} entradas · Projectos: {projetos.length}
-      </p>
     </>
   );
 }
