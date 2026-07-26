@@ -906,11 +906,78 @@ export function PontoCruzEditor() {
           <TabsContent value="io">
             <Card><CardContent className="space-y-2 p-3">
               <div>
-                <Label className="text-xs">Marca de água (PDF)</Label>
-                <Input value={watermark} onChange={(e) => setWatermark(e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
+                <Label className="text-xs">Projeto</Label>
+                <Input value={projectId} onChange={(e) => setProjectId(e.target.value)} placeholder="ID do projeto" className="h-8" />
+                <p className="mt-1 text-[10px] text-muted-foreground">Presets de substituição de cores ficam guardados por projeto.</p>
+              </div>
+              <div>
+                <Label className="text-xs">Limite do histórico (undo/redo): {historyMax}</Label>
+                <Slider value={[historyMax]} min={10} max={300} step={5} onValueChange={(v) => setHistoryMax(v[0])} />
+              </div>
+              <div className="rounded border p-2 space-y-2">
+                <div className="text-xs font-semibold">Marca de água</div>
+                <Input value={wm.text} onChange={(e) => setWmField("text", e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-[10px]">Posição</Label>
+                    <Select value={wm.pos} onValueChange={(v: string) => setWmField("pos", v as WmPos)}>
+                      <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="center">Centro</SelectItem>
+                        <SelectItem value="top-left">Topo esquerdo</SelectItem>
+                        <SelectItem value="top-right">Topo direito</SelectItem>
+                        <SelectItem value="bottom-left">Rodapé esquerdo</SelectItem>
+                        <SelectItem value="bottom-right">Rodapé direito</SelectItem>
+                        <SelectItem value="tiled">Mosaico</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Tamanho ({wm.size}pt)</Label>
+                    <Slider value={[wm.size]} min={10} max={120} step={2} onValueChange={(v) => setWmField("size", v[0])} />
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Rotação ({wm.angle}°)</Label>
+                    <Slider value={[wm.angle]} min={-90} max={90} step={1} onValueChange={(v) => setWmField("angle", v[0])} />
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Opacidade ({wm.opacity}%)</Label>
+                    <Slider value={[wm.opacity]} min={0} max={100} step={1} onValueChange={(v) => setWmField("opacity", v[0])} />
+                  </div>
+                </div>
+                {/* Live preview */}
+                <svg viewBox="0 0 210 297" className="mt-1 h-40 w-full rounded border bg-white">
+                  <rect x="0" y="0" width="210" height="297" fill="#fff" />
+                  <rect x="10" y="10" width="190" height="120" fill="#f4f4f5" stroke="#ddd" />
+                  {wm.text.trim() && wmCoords(wm.pos, 210, 297, 10).map((p, i) => (
+                    <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
+                      transform={`rotate(${wm.angle} ${p.x} ${p.y})`}
+                      fill="#555" opacity={wm.opacity / 100}
+                      style={{ font: `bold ${Math.max(6, wm.size * 0.35)}px system-ui` }}>
+                      {wm.text}
+                    </text>
+                  ))}
+                </svg>
+              </div>
+              <div className="rounded border p-2 space-y-2">
+                <div className="text-xs font-semibold">Substituições de cores (por projeto)</div>
+                <div className="flex items-center gap-2">
+                  <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder="Nome do preset" className="h-8" />
+                  <Button size="sm" onClick={saveCurrentSubSet}>Guardar</Button>
+                </div>
+                {Object.keys(subs).length === 0 && <p className="text-[10px] text-muted-foreground">Sem presets guardados neste projeto.</p>}
+                <div className="space-y-1">
+                  {Object.entries(subs).map(([name, map]) => (
+                    <div key={name} className="flex items-center gap-2 text-xs">
+                      <span className="flex-1 truncate">{name} <span className="text-muted-foreground">({Object.keys(map).length})</span></span>
+                      <Button size="sm" variant="outline" onClick={() => applySubSet(name)}>Aplicar</Button>
+                      <Button size="sm" variant="ghost" onClick={() => deleteSubSet(name)}>×</Button>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG</Button>
+                <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG + Legenda</Button>
                 <Button size="sm" variant="outline" onClick={exportPdf}><FileDown className="mr-1 h-3 w-3" />PDF + Legenda</Button>
                 <Button size="sm" variant="outline" onClick={exportJson}>JSON</Button>
                 <Button size="sm" variant="outline" onClick={exportOxs}>OXS (Pattern Keeper)</Button>
