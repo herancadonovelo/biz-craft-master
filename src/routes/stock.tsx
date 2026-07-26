@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/ImagePicker";
+import { CsvImportInventarioDialog } from "@/components/CsvImportInventarioDialog";
 
 function aplicarDesconto(subtotal: number, fornecedor: { valorDesconto?: number; tipoDesconto?: "percentagem" | "fixo" } | undefined) {
   if (!fornecedor?.valorDesconto || fornecedor.valorDesconto <= 0) return { desconto: 0, final: subtotal };
@@ -52,6 +53,8 @@ export const Route = createFileRoute("/stock")({
       <div className="space-y-6">
         <PageHeader title="Stock de material" description="Materiais em stock, com fornecedor e preço praticado."
           actions={
+            <div className="flex flex-wrap gap-2">
+            <CsvImportInventarioDialog />
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" />Novo material</Button></DialogTrigger>
               <DialogContent>
@@ -139,6 +142,7 @@ export const Route = createFileRoute("/stock")({
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           }
         />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
