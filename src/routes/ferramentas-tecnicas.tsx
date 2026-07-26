@@ -41,11 +41,19 @@ export const Route = createFileRoute("/ferramentas-tecnicas")({
 });
 
 function FerramentasPage() {
+  const TAB_KEY = "ferramentas-tecnicas-tab-v1";
+  const [tab, setTab] = React.useState<string>(() => {
+    if (typeof window === "undefined") return "instrucoes";
+    try { return window.localStorage.getItem(TAB_KEY) || "instrucoes"; } catch { return "instrucoes"; }
+  });
+  React.useEffect(() => {
+    try { window.localStorage.setItem(TAB_KEY, tab); } catch { /* noop */ }
+  }, [tab]);
   return (
     <div className="space-y-6">
       <PageHeader title="Ferramentas Técnicas"
         description="Os 5 editores partilham tela A4, marca d'água configurável e exportação para Biblioteca, PDF e Imprimir." />
-      <Tabs defaultValue="instrucoes">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="instrucoes">Instruções de uso</TabsTrigger>
           <TabsTrigger value="tricotin">Editor de Moldes: Tricotin/i-cord</TabsTrigger>
@@ -58,16 +66,18 @@ function FerramentasPage() {
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
           <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
         </TabsList>
-        <TabsContent value="instrucoes" className="mt-24"><InstrucoesTab /></TabsContent>
-        <TabsContent value="tricotin" className="mt-24"><TricotinTab /></TabsContent>
-        <TabsContent value="amigurumi" className="mt-24"><AmigurumiTab /></TabsContent>
-        <TabsContent value="costura" className="mt-24"><CosturaTab /></TabsContent>
-        <TabsContent value="ponto-cruz" className="mt-24"><PontoCruzTab /></TabsContent>
-        <TabsContent value="bordado" className="mt-24"><BordadoTab /></TabsContent>
-        <TabsContent value="editor-receita" className="mt-24"><EditorReceitaPage /></TabsContent>
-        <TabsContent value="editor-moodboards" className="mt-24"><EditorMoodboardsPage /></TabsContent>
-        <TabsContent value="conversor" className="mt-24"><ConversorPage /></TabsContent>
-        <TabsContent value="contador" className="mt-24"><ContadorPage /></TabsContent>
+        {/* forceMount keeps editor state (canvas, form, presets) alive when
+            switching tabs — Radix would otherwise unmount inactive content. */}
+        <TabsContent forceMount value="instrucoes" className="mt-24 data-[state=inactive]:hidden"><InstrucoesTab /></TabsContent>
+        <TabsContent forceMount value="tricotin" className="mt-24 data-[state=inactive]:hidden"><TricotinTab /></TabsContent>
+        <TabsContent forceMount value="amigurumi" className="mt-24 data-[state=inactive]:hidden"><AmigurumiTab /></TabsContent>
+        <TabsContent forceMount value="costura" className="mt-24 data-[state=inactive]:hidden"><CosturaTab /></TabsContent>
+        <TabsContent forceMount value="ponto-cruz" className="mt-24 data-[state=inactive]:hidden"><PontoCruzTab /></TabsContent>
+        <TabsContent forceMount value="bordado" className="mt-24 data-[state=inactive]:hidden"><BordadoTab /></TabsContent>
+        <TabsContent forceMount value="editor-receita" className="mt-24 data-[state=inactive]:hidden"><EditorReceitaPage /></TabsContent>
+        <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
+        <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
+        <TabsContent forceMount value="contador" className="mt-24 data-[state=inactive]:hidden"><ContadorPage /></TabsContent>
       </Tabs>
     </div>
   );
