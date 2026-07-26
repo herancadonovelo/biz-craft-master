@@ -46,6 +46,7 @@ import {
   buildAppliqueLayers,
   type MotifId,
 } from "@/lib/lettering";
+import { autoDigitize, type DigitizedLayer } from "@/lib/auto-digitize";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -2027,6 +2028,21 @@ function BordadoTab() {
   const [motifSizeMm, setMotifSizeMm] = useState(30);
   const [appliqueCover, setAppliqueCover] = useState("#111111");
   const [appliqueWidth, setAppliqueWidth] = useState(3.5);
+  // Fase 9 — Auto-digitize + Monogramas
+  const [autoNCores, setAutoNCores] = useState(5);
+  const [autoTargetW, setAutoTargetW] = useState(220);
+  const [autoSimplify, setAutoSimplify] = useState(0.8);
+  const [autoMinRegion, setAutoMinRegion] = useState(24);
+  const [autoWidthMm, setAutoWidthMm] = useState(120);
+  const [autoFillOnCreate, setAutoFillOnCreate] = useState(true);
+  const [autoBusy, setAutoBusy] = useState(false);
+  const [monoIniciais, setMonoIniciais] = useState("AF");
+  const [monoFontId, setMonoFontId] = useState<string>(LETTERING_FONTS[1].id);
+  const [monoSizeMm, setMonoSizeMm] = useState(40);
+  const [monoFrame, setMonoFrame] = useState<MotifId>("circle");
+  const [monoFrameSizeMm, setMonoFrameSizeMm] = useState(70);
+  const [monoFramePadMm, setMonoFramePadMm] = useState(6);
+  const [monoDoubleFrame, setMonoDoubleFrame] = useState(true);
 
   const fillOpts: FillOptions = {
     mode: fillMode,
