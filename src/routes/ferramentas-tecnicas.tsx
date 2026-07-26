@@ -2618,7 +2618,8 @@ function BordadoTab() {
                             : st.marker === "knot"  ? `url(#mk-knot-${layer.id})`
                             : undefined;
             return (
-              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
+              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}
+                 filter={preview3D ? "url(#fx-thread)" : undefined}>
                 {layer.stitch === "satin" && layer.strokes.map((d, i) => (
                   // ponto cheio — 2ª passagem paralela ligeiramente deslocada para efeito de preenchimento
                   <path key={`sat-${layer.id}-${i}`} d={d} stroke={layer.color}
