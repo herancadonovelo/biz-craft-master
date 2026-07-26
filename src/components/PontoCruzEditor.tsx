@@ -555,7 +555,7 @@ export function PontoCruzEditor() {
       ctx.globalAlpha = wm.opacity / 100;
       ctx.fillStyle = "#555";
       const wmScale = Math.max(1, pngCellPx / 24);
-      const spots = wmCoords(wm.pos, out.width, out.height, 40);
+      const spots = wmCoords(wm.pos, out.width, out.height, 40, wm.offsetX, wm.offsetY);
       for (const p of spots) {
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -638,7 +638,7 @@ export function PontoCruzEditor() {
       const anyPdf = pdf as unknown as { setGState: (g: unknown) => void; GState: new (o: object) => unknown };
       anyPdf.setGState(new anyPdf.GState({ opacity: wm.opacity / 100 }));
       pdf.setFontSize(wm.size); pdf.setTextColor(120, 120, 120);
-      for (const p of wmCoords(wm.pos, pageW, pageH, margin)) {
+      for (const p of wmCoords(wm.pos, pageW, pageH, margin, wm.offsetX * 0.5, wm.offsetY * 0.5)) {
         pdf.text(wm.text, p.x, p.y, { align: "center", angle: wm.angle });
       }
       pdf.restoreGraphicsState();
