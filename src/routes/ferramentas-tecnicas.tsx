@@ -2168,7 +2168,7 @@ function BordadoTab() {
   };
 
   const exportarDst = async () => {
-    const blocks = buildStitchBlocks();
+    const blocks = applyColorOrder(buildStitchBlocks());
     if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
     setDstBusy(true);
     try {
@@ -2182,6 +2182,60 @@ function BordadoTab() {
       toast.error("Falha ao gerar DST: " + (e as Error).message);
     } finally { setDstBusy(false); }
   };
+
+  // Reordena blocos conforme a sequência do utilizador (ou identidade).
+  const applyColorOrder = (blocks: StitchBlock[]): StitchBlock[] => {
+    if (!colorOrder || colorOrder.length !== blocks.length) return blocks;
+    const seen = new Set<number>();
+    const out: StitchBlock[] = [];
+    for (const idx of colorOrder) {
+      if (idx >= 0 && idx < blocks.length && !seen.has(idx)) { out.push(blocks[idx]); seen.add(idx); }
+    }
+    for (let i = 0; i < blocks.length; i++) if (!seen.has(i)) out.push(blocks[i]);
+    return out;
+  };
+
+  const moveColor = (i: number, dir: -1 | 1) => {
+    const base = colorOrder ?? buildStitchBlocks().map((_, k) => k);
+    const j = i + dir;
+    if (j < 0 || j >= base.length) return;
+    const next = base.slice();
+    [next[i], next[j]] = [next[j], next[i]];
+    setColorOrder(next);
+  };
+
+  const exportarPes = async () => {
+    let blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para exportar."); return; }
+    setPesBusy(true);
+    try {
+      if (tilingOn && hoopOn) {
+        const tiles = splitByHoop(blocks, hoopWpx, hoopHpx, tileMarginMm * PX_PER_MM);
+        if (tiles.length === 0) { toast.error("Nada a exportar após dividir por bastidor."); setPesBusy(false); return; }
+        tiles.forEach((tile, i) => {
+          const blob = encodePes(tile, PX_PER_MM, `CBM_${i + 1}`);
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = `bordado-hoop${i + 1}-${Date.now()}.pes`; a.click();
+          URL.revokeObjectURL(url);
+        });
+        toast.success(`Design dividido em ${tiles.length} bastidor(es) PES.`);
+      } else {
+        const blob = encodePes(blocks, PX_PER_MM, "CBM_BORDADO");
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `bordado-${Date.now()}.pes`; a.click();
+        URL.revokeObjectURL(url);
+        toast.success(`PES gerado com ${blocks.length} cor(es).`);
+      }
+    } catch (e) {
+      toast.error("Falha ao gerar PES: " + (e as Error).message);
+    } finally { setPesBusy(false); }
+  };
+
+  // Lista viva de cores (para o UI de reordenação)
+  const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
+  const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
 
   const inserirTextoCircular = () => {
     if (!active || active.locked) { toast.error("Camada ativa bloqueada."); return; }
