@@ -146,7 +146,14 @@ export function encodePes(blocks: StitchBlock[], pxPerMm: number, label = "CBM")
   colorTable[0] = (nCores - 1) & 0xff;
   for (let i = 0; i < nCores; i++) colorTable[1 + i] = colorIdx[i] & 0xff;
 
-  const parts: BlobPart[] = [pesHeader, labelBytes, preamble, meta, colorTable, stitchData];
+  const parts: BlobPart[] = [
+    pesHeader.buffer as ArrayBuffer,
+    labelBytes.buffer as ArrayBuffer,
+    preamble.buffer as ArrayBuffer,
+    meta.buffer as ArrayBuffer,
+    colorTable.buffer as ArrayBuffer,
+    stitchData.buffer as ArrayBuffer,
+  ];
   return new Blob(parts, { type: "application/octet-stream" });
 }
 
