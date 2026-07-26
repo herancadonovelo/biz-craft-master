@@ -86,10 +86,11 @@ export function Phase21Panel({
 
   const exportPdf = async () => {
     try {
+      const currencyCode = useStore.getState().design.moeda;
       const bytes = await buildConfigurablePdf({
         layout, report, hoopMm, designMm,
         chartPng: chartPngDataUrl ? dataUrlToBytes(chartPngDataUrl) : undefined,
-        shoppingRows: shopping, checklist,
+        shoppingRows: shopping, checklist, currencyCode,
       });
       downloadBlob(bytes, `${(layout.title || "padrao").replace(/[^a-z0-9-_]/gi, "_")}.pdf`, "application/pdf");
       toast.success("PDF gerado.");
@@ -99,7 +100,7 @@ export function Phase21Panel({
   };
 
   const exportCsv = () => {
-    const csv = buildInventoryCsv(report, mats, cal);
+    const csv = buildInventoryCsv(report, mats, cal, useStore.getState().design.moeda);
     downloadBlob(csv, `inventario-${Date.now()}.csv`, "text/csv;charset=utf-8");
     toast.success("CSV exportado.");
   };
