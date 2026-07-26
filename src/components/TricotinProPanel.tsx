@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   chaikin, rdp, yarnEstimateMeters, materialCost, mirror, offsetPolyline,
   centroid, exportGCode, exportGCodeArcs, nestRectsRotational, textileMetadata, computeA4Tiles,
+  analyzeArcApproximation,
   type P,
 } from "@/lib/tricotin-pro";
 import { SHARED_TEMPLATES, BRAND_PALETTES } from "@/lib/cloud-templates";
@@ -77,6 +78,27 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
 
   const meters = React.useMemo(() => yarnEstimateMeters(getPoints(), pxPerMm), [getPoints, pxPerMm]);
   const cost = React.useMemo(() => materialCost(meters, pricePerM), [meters, pricePerM]);
+
+  // ------- Tolerance preview (arcs vs. original) -------
+  // Recomputed whenever the tolerance changes or the user re-opens the panel;
+  // getPoints is called eagerly here so the preview reflects the live canvas.
+  const arcStats = React.useMemo(() => {
+    const pts = getPoints();
+    return analyzeArcApproximation(pts, { pxPerMm, arcToleranceMm: arcTolMm });
+  }, [getPoints, pxPerMm, arcTolMm]);
+  const originalPts = React.useMemo(() => getPoints(), [getPoints]);
+  const previewBox = React.useMemo(() => {
+    const src = originalPts.length > 1 ? originalPts : arcStats.polylineForPreview;
+    if (!src.length) return null;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of src) {
+      if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+    }
+    const pad = 8;
+    return { minX: minX - pad, minY: minY - pad, w: maxX - minX + pad * 2, h: maxY - minY + pad * 2 };
+  }, [originalPts, arcStats]);
+  const toPolyStr = (pts: P[]) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
 
   function apply(name: string, fn: (pts: P[]) => P[]) {
     const pts = getPoints();
@@ -192,6 +214,40 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
               : "Grosseira — poucos arcos longos, movimento muito suave, mas desvio visível do desenho original."}
             {" "}Menor tolerância = mais precisão + mais descontinuidades; maior tolerância = movimento mais fluido + menos aceleração.
           </p>
+          <div data-testid="arc-tolerance-preview" className="col-span-2 rounded border bg-background p-2 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] font-medium">
+              <span>Pré-visualização da tolerância</span>
+              <span className="text-muted-foreground">tol {arcTolMm} mm</span>
+            </div>
+            {previewBox ? (
+              <svg viewBox={`${previewBox.minX} ${previewBox.minY} ${previewBox.w} ${previewBox.h}`}
+                   className="h-32 w-full rounded bg-muted/30" preserveAspectRatio="xMidYMid meet">
+                {originalPts.length > 1 && (
+                  <polyline points={toPolyStr(originalPts)} fill="none" stroke="#94a3b8" strokeWidth={1.2} strokeDasharray="3 3" />
+                )}
+                {arcStats.polylineForPreview.length > 1 && (
+                  <polyline points={toPolyStr(arcStats.polylineForPreview)} fill="none" stroke="#2563eb" strokeWidth={1.6} />
+                )}
+              </svg>
+            ) : (
+              <div className="grid h-32 place-items-center text-[11px] text-muted-foreground">
+                Desenha um traçado para pré-visualizar a aproximação por arcos.
+              </div>
+            )}
+            <div className="grid grid-cols-4 gap-1 text-[10.5px]">
+              <Metric label="Arcos" value={arcStats.arcs} testid="metric-arcs" />
+              <Metric label="Retas" value={arcStats.lines} testid="metric-lines" />
+              <Metric label="Descont." value={arcStats.discontinuities} testid="metric-disc"
+                     hint="Mudanças de direção ≥ 5° entre comandos (paragens/aceleração do CNC)." />
+              <Metric label="Seg. médio" value={`${arcStats.avgSegmentMm.toFixed(1)} mm`} testid="metric-avg"
+                     hint="Comprimento médio por comando. Maior = movimento mais fluido." />
+            </div>
+            <div className="flex items-center gap-1 text-[10.5px] text-muted-foreground">
+              <span>Legenda:</span>
+              <span className="inline-block h-1.5 w-4 bg-[#94a3b8]" /> original
+              <span className="inline-block h-1.5 w-4 bg-[#2563eb] ml-2" /> arcos @ {arcTolMm} mm
+            </div>
+          </div>
           <button data-testid="export-gcode" className="rounded border px-2 py-1" onClick={() => {
             const pts = getPoints();
             if (!pts.length) return toast.error("Desenha algo primeiro.");
@@ -267,6 +323,15 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
 
 function slug(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "") || "molde";
+}
+
+function Metric({ label, value, testid, hint }: { label: string; value: React.ReactNode; testid?: string; hint?: string }) {
+  return (
+    <div className="rounded bg-muted/40 px-1.5 py-1" title={hint} data-testid={testid}>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[11px] font-semibold">{value}</div>
+    </div>
+  );
 }
 
 function readLS<T>(key: string, fallback: T): T {

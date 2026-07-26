@@ -408,6 +408,114 @@ export function exportGCodeArcs(
   return out.join("\n");
 }
 
+/**
+ * Analyse how the arc-aware exporter would segment a path at a given
+ * tolerance, without emitting G-code. Powers the tolerance preview in the
+ * Pro panel so the user can weigh precision vs. controller smoothness before
+ * exporting.
+ *
+ * Returned metrics:
+ *  - `arcs`, `lines`   → count of G2/G3 vs. G1 commands.
+ *  - `segments`        → total command count.
+ *  - `discontinuities` → number of direction changes ≥ ~5° between
+ *    consecutive commands (proxy for controller decelerations).
+ *  - `avgSegmentMm`    → average segment length (higher = smoother motion).
+ *  - `polylineForPreview` → resampled polyline of the reconstructed arcs +
+ *    straight moves, in the same px space, so the panel can render both the
+ *    original and the approximated path overlapped.
+ */
+export function analyzeArcApproximation(
+  points: P[],
+  opts: { pxPerMm: number; arcToleranceMm?: number; minArcPoints?: number },
+): {
+  arcs: number;
+  lines: number;
+  segments: number;
+  discontinuities: number;
+  avgSegmentMm: number;
+  polylineForPreview: P[];
+} {
+  const { pxPerMm } = opts;
+  const tolPx = (opts.arcToleranceMm ?? 0.1) * pxPerMm;
+  const minPts = Math.max(3, opts.minArcPoints ?? 4);
+  const zero = { arcs: 0, lines: 0, segments: 0, discontinuities: 0, avgSegmentMm: 0, polylineForPreview: [] as P[] };
+  if (points.length < 2) return zero;
+
+  type Cmd = { kind: "G1"; from: P; to: P } | { kind: "G2" | "G3"; from: P; to: P; cx: number; cy: number; r: number };
+  const cmds: Cmd[] = [];
+  let i = 0;
+  while (i < points.length - 1) {
+    let bestJ = -1;
+    let bestCircle: { cx: number; cy: number; r: number; cw: boolean } | null = null;
+    for (let j = i + minPts - 1; j < points.length; j++) {
+      const c = fitCircle(points, i, j);
+      if (!c) break;
+      let ok = true;
+      for (let k = i; k <= j; k++) {
+        const d = Math.abs(Math.hypot(points[k].x - c.cx, points[k].y - c.cy) - c.r);
+        if (d > tolPx) { ok = false; break; }
+      }
+      if (!ok) break;
+      bestJ = j; bestCircle = c;
+    }
+    if (bestJ >= 0 && bestCircle) {
+      cmds.push({ kind: bestCircle.cw ? "G2" : "G3", from: points[i], to: points[bestJ], cx: bestCircle.cx, cy: bestCircle.cy, r: bestCircle.r });
+      i = bestJ;
+    } else {
+      cmds.push({ kind: "G1", from: points[i], to: points[i + 1] });
+      i += 1;
+    }
+  }
+
+  // Resample arcs into small line segments for the visual preview.
+  const poly: P[] = [cmds[0].from];
+  let totalLenPx = 0;
+  for (const c of cmds) {
+    if (c.kind === "G1") {
+      poly.push(c.to);
+      totalLenPx += Math.hypot(c.to.x - c.from.x, c.to.y - c.from.y);
+    } else {
+      const a0 = Math.atan2(c.from.y - c.cy, c.from.x - c.cx);
+      const a1 = Math.atan2(c.to.y - c.cy, c.to.x - c.cx);
+      let delta = a1 - a0;
+      // Normalise sweep direction according to cw/ccw
+      const cw = c.kind === "G2";
+      if (cw && delta > 0) delta -= Math.PI * 2;
+      if (!cw && delta < 0) delta += Math.PI * 2;
+      const steps = Math.max(6, Math.round(Math.abs(delta) * c.r / 3));
+      for (let s = 1; s <= steps; s++) {
+        const t = s / steps;
+        const a = a0 + delta * t;
+        poly.push({ x: c.cx + Math.cos(a) * c.r, y: c.cy + Math.sin(a) * c.r });
+      }
+      totalLenPx += Math.abs(delta) * c.r;
+    }
+  }
+
+  // Discontinuities: direction changes between consecutive commands' entry vectors.
+  let disc = 0;
+  for (let k = 1; k < cmds.length; k++) {
+    const prev = cmds[k - 1], cur = cmds[k];
+    const v1x = prev.to.x - prev.from.x, v1y = prev.to.y - prev.from.y;
+    const v2x = cur.to.x - cur.from.x, v2y = cur.to.y - cur.from.y;
+    const L1 = Math.hypot(v1x, v1y) || 1;
+    const L2 = Math.hypot(v2x, v2y) || 1;
+    const cos = (v1x * v2x + v1y * v2y) / (L1 * L2);
+    const angle = Math.acos(Math.max(-1, Math.min(1, cos)));
+    if (angle > (5 * Math.PI) / 180) disc += 1;
+  }
+
+  const arcs = cmds.filter((c) => c.kind !== "G1").length;
+  const lines = cmds.length - arcs;
+  return {
+    arcs, lines,
+    segments: cmds.length,
+    discontinuities: disc,
+    avgSegmentMm: cmds.length ? (totalLenPx / pxPerMm) / cmds.length : 0,
+    polylineForPreview: poly,
+  };
+}
+
 /** Least-squares circle fit through points[i..j]. Returns null if degenerate. */
 function fitCircle(points: P[], i: number, j: number):
   { cx: number; cy: number; r: number; cw: boolean } | null {
