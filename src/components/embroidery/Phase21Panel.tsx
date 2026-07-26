@@ -26,6 +26,7 @@ import {
   buildConfigurablePdf, loadPdfLayout, savePdfLayout, loadSpm, saveSpm,
   downloadBlob, type PdfLayout, type PageFormat, type PageOrientation,
 } from "@/lib/embroidery-phase21";
+import { useStore } from "@/lib/store";
 import { buildConsumption, estimateThread } from "@/lib/embroidery-phase18";
 
 interface Phase21PanelProps {
