@@ -58,6 +58,7 @@ import { Route as NotasRouteImport } from './routes/notas'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
+import { Route as PlaneadorProducaoRouteImport } from './routes/planeador-producao'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -324,6 +325,11 @@ const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
   path: '/perfil-negocio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaneadorProducaoRoute = PlaneadorProducaoRouteImport.update({
+  id: '/planeador-producao',
+  path: '/planeador-producao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanosRoute = PlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -477,6 +483,7 @@ export interface FileRoutesByFullPath {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -548,6 +555,7 @@ export interface FileRoutesByTo {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -620,6 +628,7 @@ export interface FileRoutesById {
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
+  '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
   '/portfolio': typeof PortfolioRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -693,6 +702,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planeador-producao'
     | '/planos'
     | '/portfolio'
     | '/privacidade'
@@ -764,6 +774,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planeador-producao'
     | '/planos'
     | '/portfolio'
     | '/privacidade'
@@ -835,6 +846,7 @@ export interface FileRouteTypes {
     | '/notificacoes'
     | '/onboarding'
     | '/perfil-negocio'
+    | '/planeador-producao'
     | '/planos'
     | '/portfolio'
     | '/privacidade'
@@ -907,6 +919,7 @@ export interface RootRouteChildren {
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
+  PlaneadorProducaoRoute: typeof PlaneadorProducaoRoute
   PlanosRoute: typeof PlanosRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -1272,6 +1285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilNegocioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planeador-producao': {
+      id: '/planeador-producao'
+      path: '/planeador-producao'
+      fullPath: '/planeador-producao'
+      preLoaderRoute: typeof PlaneadorProducaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planos': {
       id: '/planos'
       path: '/planos'
@@ -1487,6 +1507,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
+  PlaneadorProducaoRoute: PlaneadorProducaoRoute,
   PlanosRoute: PlanosRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacidadeRoute: PrivacidadeRoute,
