@@ -1,5 +1,48 @@
 # Plano de implementação
 
+---
+
+## Backlog Editor Tricotin/i-cord (a implementar por fases)
+
+Feito nesta iteração: **Lettering — Auto-script + Kerning + Text on Path** (linha reta, arco, círculo) com guia visual e exportação PNG/A4.
+
+### Fila (por ordem sugerida de entrega)
+1. **Vetorização + Exportação SVG/DXF + E2E**
+   - Ferramenta Trace (imagem → linha única via Ramer-Douglas-Peucker + skeletonization).
+   - Exportação SVG/DXF garantindo `polyline` única contínua.
+   - Testes Playwright: upload imagem, verificar 1 único path exportado, validar comprimento.
+2. **Webhook Twilio de entregas**
+   - `/api/public/webhooks/twilio-status` com verificação de assinatura X-Twilio-Signature.
+   - Persistir em `webhook_events` com provider="twilio".
+   - `/auth/verify-2fa` faz poll de estado (queued/sent/delivered/failed) e mostra badge.
+3. **Desenho: Single Line + Smoothing + Medial Axis**
+   - Caneta contínua, suavização automática, esqueleto de formas fechadas.
+4. **Simulação de volume**
+   - Diâmetro do cordão (8/10/12mm), textura de lã (bump), Ghost View (linha central), Offset de margem.
+5. **Guias de produção**
+   - Setas de direção numeradas, cruzamentos over/under, alerta de ângulos críticos, marcadores início/fim.
+6. **Cálculos automáticos**
+   - Estimador de lã, redimensionamento proporcional, calculadora de custo material.
+7. **Camadas + Snap + Mirror**
+   - Layers, snap-to-object, duplicação simétrica.
+8. **Impressão avançada**
+   - Tiling A4, escala 1:1 auditada, modo economia de tinta.
+9. **Vetorial avançado**
+   - Boolean fusão, Mesh Warp, offset dinâmico, tangência automática, parametrização de curvas.
+10. **Simulação física**
+    - Análise de tensão (efeito mola), centro de gravidade, renderização foto, mapeamento textura curvilínea.
+11. **Exportação industrial**
+    - G-Code para CNC, nesting otimizado, metadados de rastreabilidade, perfis CMYK têxtil.
+12. **Nuvem**
+    - Catálogo de templates partilhados, paletas de marcas reais.
+
+Cada fase entrega: código + testes E2E + docs mínimas no editor.
+
+---
+
+## Plano original abaixo
+
+
 Duas frentes independentes, entregues na mesma vaga. Cada uma tem testes E2E próprios.
 
 ---
