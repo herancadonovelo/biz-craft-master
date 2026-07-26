@@ -101,7 +101,7 @@ export const Route = createFileRoute("/fornecedores")({
                         </Button>
                         {f.valorDesconto ? (
                           <Badge variant="secondary" className="text-[10px]">
-                            -{f.valorDesconto}{f.tipoDesconto === "fixo" ? "€" : "%"}
+                            -{f.tipoDesconto === "fixo" ? formatCurrency(f.valorDesconto) : `${f.valorDesconto}%`}
                           </Badge>
                         ) : null}
                       </div>
