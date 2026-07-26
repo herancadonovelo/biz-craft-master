@@ -869,8 +869,8 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Canvas</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white tricotin-no-print">
-        <div className="relative">
+      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
+        <div className="relative bg-white">
           <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
             Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
             <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
@@ -886,7 +886,16 @@ function TricotinTab() {
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
           />
+          {/* Watermark overlay (renderizada em cima da folha) */}
+          <div className="pointer-events-none absolute inset-0">
+            <Watermark w={w} />
+          </div>
         </div>
+      </div>
+      {/* Marca d'água da folha de desenho */}
+      <div className="rounded-lg border bg-card p-3 tricotin-no-print">
+        <div className="mb-2 text-xs font-medium text-muted-foreground">Marca d'água da folha de desenho</div>
+        <WatermarkControls w={w} set={setW} />
       </div>
       {/* Gestão do Molde (abaixo da folha de desenho) */}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
