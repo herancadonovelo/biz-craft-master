@@ -2361,6 +2361,64 @@ function BordadoTab() {
     } finally { setPdfBusy(false); }
   };
 
+  // ---------- Fase 11: importação DST ----------
+  const importarDst = async (file: File) => {
+    try {
+      const buf = await file.arrayBuffer();
+      const blocks = decodeDst(buf, PX_PER_MM);
+      if (blocks.length === 0) { toast.error("DST sem pontos válidos."); return; }
+      const paths = blocksToPaths(blocks, { cx: A4_W / 2, cy: A4_H / 2 });
+      const novosLayers: BordadoLayer[] = paths
+        .filter((p) => p.d)
+        .map((p, i) => ({
+          id: crypto.randomUUID(),
+          nome: `DST · ${p.label}`,
+          color: p.color,
+          width: 1.6,
+          stitch: "running",
+          visible: true,
+          locked: false,
+          strokes: [p.d],
+        }));
+      setLayers((ls) => [...ls, ...novosLayers]);
+      toast.success(`DST importado: ${novosLayers.length} camadas, ${blocks.reduce((s, b) => s + b.points.length, 0).toLocaleString()} pontos.`);
+    } catch (e) {
+      toast.error("Falha ao importar DST: " + (e as Error).message);
+    }
+  };
+
+  // ---------- Fase 11: simulador animado ----------
+  /** Achata os stitch blocks em pontos absolutos + índice de bloco (para cor). */
+  const simFlat = useMemo(() => {
+    const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
+    orderedColorBlocks.forEach((b, bi) => {
+      b.points.forEach((p, pi) => arr.push({ x: p.x, y: p.y, blockIdx: bi, jump: pi === 0 && bi > 0 }));
+    });
+    return arr;
+  }, [orderedColorBlocks]);
+
+  useEffect(() => {
+    if (!simPlaying || !simOn || simFlat.length === 0) return;
+    let raf = 0;
+    let last = performance.now();
+    const tick = (t: number) => {
+      const dt = (t - last) / 1000;
+      last = t;
+      setSimProgress((p) => {
+        const total = simFlat.length;
+        const stepFrac = (simSpeed * dt) / total;
+        const next = p + stepFrac;
+        if (next >= 1) { setSimPlaying(false); return 1; }
+        return next;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [simPlaying, simOn, simFlat, simSpeed]);
+
+  const simVisibleCount = Math.round(simProgress * simFlat.length);
+
   // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
   /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
   const buildStitchBlocks = (): StitchBlock[] => {
