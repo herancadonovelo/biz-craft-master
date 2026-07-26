@@ -7,6 +7,7 @@ import {
   type P,
 } from "@/lib/tricotin-pro";
 import { SHARED_TEMPLATES, BRAND_PALETTES } from "@/lib/cloud-templates";
+import { formatCurrency } from "@/lib/store";
 
 type Props = {
   getPoints: () => P[];
@@ -175,7 +176,7 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
               {presets.map((p) => (
                 <div key={p.id} className="flex items-center gap-2 rounded border bg-background px-2 py-1">
                   <button className="flex-1 text-left" onClick={() => applyPreset(p)}>
-                    <b>{p.name}</b> <span className="text-muted-foreground">· ⌀{p.cordMm}mm · €{p.pricePerM}/m</span>
+                    <b>{p.name}</b> <span className="text-muted-foreground">· ⌀{p.cordMm}mm · {formatCurrency(p.pricePerM)}/m</span>
                   </button>
                   <button className="text-destructive" onClick={() => deletePreset(p.id)}>×</button>
                 </div>
@@ -208,9 +209,9 @@ export function TricotinProPanel({ getPoints, setPoints, pxPerMm, sheetW, sheetH
         <summary className="cursor-pointer font-medium">Cálculos automáticos</summary>
         <div className="mt-2 grid grid-cols-2 gap-2">
           <label>Diâm. cordão (mm) <input type="number" min={4} max={20} value={cordMm} onChange={(e) => setCordMm(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
-          <label>Preço €/m <input type="number" step={0.1} value={pricePerM} onChange={(e) => setPricePerM(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
+          <label>Preço /m <input type="number" step={0.1} value={pricePerM} onChange={(e) => setPricePerM(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <div className="col-span-2 rounded bg-muted p-2 text-[11px]">
-            Lã estimada: <b data-testid="yarn-meters">{meters.toFixed(2)} m</b> · Custo material: <b>{cost.toFixed(2)} €</b>
+            Lã estimada: <b data-testid="yarn-meters">{meters.toFixed(2)} m</b> · Custo material: <b>{formatCurrency(cost)}</b>
           </div>
           <label className="col-span-2">Redimensionar (fator) <input type="number" step={0.05} value={scaleFactor} onChange={(e) => setScaleFactor(+e.target.value)} className="w-full rounded border px-2 py-1" /></label>
           <button className="col-span-2 rounded border px-2 py-1" onClick={() => {

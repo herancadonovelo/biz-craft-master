@@ -118,7 +118,7 @@ export function FaturacaoCriarContent() {
                       </Select>
                     </TableCell>
                     <TableCell className="space-x-1 text-right">
-                      <Button variant="ghost" size="icon" onClick={() => imprimirFatura(f, c, perfilNegocio)}><Printer className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => imprimirFatura(f, c, perfilNegocio, useStore.getState().design.moeda)}><Printer className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => { audit("eliminou fatura", "fatura", f.id, f.numero); remove("faturas", f.id); }}><Trash2 className="h-4 w-4" /></Button>
                     </TableCell>
                   </TableRow>

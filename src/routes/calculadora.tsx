@@ -101,7 +101,7 @@ export const Route = createFileRoute("/calculadora")({
         data: new Date().toISOString().slice(0, 10),
         notas: `Convertida da cotação · ${numero}`,
       });
-      audit("converteu cotação em fatura", "fatura", undefined, `${numero} · ${proj.nome} · ${precoFinal.toFixed(2)}€`);
+      audit("converteu cotação em fatura", "fatura", undefined, `${numero} · ${proj.nome} · ${formatEUR(precoFinal)}`);
       audit("alterou estado do projeto", "projeto", proj.id, `${estadoAntes} → concluido (via fatura ${numero})`);
       toast.success(`Fatura ${numero} criada · projeto marcado como concluído`);
     };
@@ -232,7 +232,7 @@ export const Route = createFileRoute("/calculadora")({
                   ativo: true,
                   criadoEm: new Date().toISOString(),
                 } as any);
-                audit("guardou item no catálogo", "catalogo", undefined, `${proj?.nome || ""} · ${precoFinal.toFixed(2)}€`);
+                audit("guardou item no catálogo", "catalogo", undefined, `${proj?.nome || ""} · ${formatEUR(precoFinal)}`);
                 toast.success("Guardado no Catálogo como preço de venda");
               }}>
                 <Package className="mr-1 h-4 w-4" />Guardar no Catálogo
