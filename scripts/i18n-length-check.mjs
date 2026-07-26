@@ -22,7 +22,10 @@ function walk(dir) {
 
 const offenders = [];
 for (const file of walk(SRC)) {
-  const src = readFileSync(file, "utf8");
+  let src = readFileSync(file, "utf8");
+  // Strip line and block comments so stray apostrophes/quotes in comments
+  // don't confuse the naive string-literal regex below.
+  src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
   // Match any string literal (single, double, template) longer than the limit.
   const rx = /(["'`])((?:\\.|(?!\1)[^\\])*)\1/gs;
   let m;
