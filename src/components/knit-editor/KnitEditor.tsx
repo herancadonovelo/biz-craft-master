@@ -30,6 +30,7 @@ import {
 import { GradingPanel } from "@/components/knit-editor/GradingPanel";
 import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
 import { ConstructionPanel } from "@/components/knit-editor/ConstructionPanel";
+import { WritingPanel } from "@/components/knit-editor/WritingPanel";
 import type { Marcador } from "@/lib/knit/construction";
 import { useStore, formatCurrency } from "@/lib/store";
 
@@ -362,53 +363,16 @@ export function KnitEditor() {
 
         {/* ================= 5. ESCRITA ================= */}
         <TabsContent value="escrita" className="mt-4 space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="text-base">Terminologia & agulhas</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <Label>Terminologia</Label>
-                <Select value={st.terminologia} onValueChange={(v) => patch({ terminologia: v as Terminologia })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pt">Português</SelectItem>
-                    <SelectItem value="us">US (knit/purl)</SelectItem>
-                    <SelectItem value="uk">UK (cast off)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div>
-                  <Label>Agulha (mm)</Label>
-                  <Input type="number" step="0.25" value={st.agulhaMm}
-                    onChange={(e) => patch({ agulhaMm: Number(e.target.value) })} />
-                  <p className="text-sm mt-2">
-                    {agulha.mm}mm ≡ US <b>{agulha.us}</b> ≡ UK <b>{agulha.uk}</b>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Conversor de expressões</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <ExprConverter term={st.terminologia} />
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader><CardTitle className="text-base">Legenda automática</CardTitle></CardHeader>
-              <CardContent>
-                <table className="w-full text-sm">
-                  <thead><tr><th className="text-left">Símbolo</th><th className="text-left">Abrev</th><th className="text-left">Nome</th></tr></thead>
-                  <tbody>
-                    {PONTOS_TRICOT.map((p) => (
-                      <tr key={p.id}><td className="font-mono">{p.simbolo}</td>
-                        <td>{p.abrev[st.terminologia]}</td>
-                        <td>{p.nome[st.terminologia]}</td></tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-          </div>
+          <WritingPanel
+            terminologia={st.terminologia}
+            onChange={(p) => patch(p as Partial<EditorState>)}
+          />
+          <Card>
+            <CardHeader><CardTitle className="text-base">Conversor de expressões (frase completa)</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              <ExprConverter term={st.terminologia} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ================= 6. TESTADORES ================= */}
