@@ -121,6 +121,114 @@ const FONTES_50 = [
   "Overpass","Pacifico","Permanent Marker","Pathway Gothic One","Questrial","Rubik","Signika","Tinos","Vollkorn","Yanone Kaffeesatz",
 ];
 
+/* ---- Fontes cursivas priorizadas pelo Auto-script (ligação natural entre letras) ---- */
+const FONTES_CURSIVAS = [
+  "Pacifico","Great Vibes","Allura","Dancing Script","Sacramento","Alex Brush","Parisienne","Kaushan Script","Satisfy",
+];
+
+type LetteringPath = "straight" | "arc" | "circle";
+type Lettering = {
+  ativa: boolean;
+  text: string;
+  font: string;
+  size: number;      // px
+  kerning: number;   // px extra entre letras (pode ser negativo)
+  autoScript: boolean;
+  pathType: LetteringPath;
+  cx: number;        // centro/origem em px do canvas A4
+  cy: number;
+  radius: number;    // px, para arc/circle
+  angleStart: number; // rad, ponto inicial do arco (0 = 3h, -PI/2 = 12h)
+  arcSweep: number;   // rad, extensão do arco (positivo = sentido horário)
+  straightAngle: number; // rad, para linha reta
+  color: string;
+};
+
+/**
+ * Renderiza texto ao longo de uma linha reta, arco ou círculo.
+ * Aplica Auto-script (sobreposição estética entre glifos cursivos) e Kerning manual.
+ * Chamado tanto no draw() (com handles) como no renderClean() (para PNG/impressão).
+ */
+function drawLettering(ctx: CanvasRenderingContext2D, L: Lettering, opts?: { withHandles?: boolean }) {
+  if (!L.ativa || !L.text) return;
+  const withHandles = !!opts?.withHandles;
+  const font = L.autoScript
+    ? (FONTES_CURSIVAS.includes(L.font) ? L.font : "Pacifico")
+    : L.font;
+  ctx.save();
+  ctx.fillStyle = L.color;
+  ctx.strokeStyle = L.color;
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `${L.size}px "${font}", cursive`;
+  const chars = Array.from(L.text);
+  // Auto-script: reduz espaçamento em ~12% para "ligar" letras cursivas
+  const autoOverlap = L.autoScript ? -Math.round(L.size * 0.12) : 0;
+  const widths = chars.map((c) => ctx.measureText(c).width);
+  const advances = widths.map((w) => w + L.kerning + autoOverlap);
+  const totalW = advances.reduce((a, b) => a + b, 0);
+
+  if (L.pathType === "straight") {
+    // Origem em (cx, cy), texto começa aí e segue ao longo de straightAngle
+    ctx.translate(L.cx, L.cy);
+    ctx.rotate(L.straightAngle);
+    let x = 0;
+    for (let i = 0; i < chars.length; i++) {
+      ctx.fillText(chars[i], x, 0);
+      x += advances[i];
+    }
+  } else {
+    // Arc/Circle: distribui chars por comprimento de arco
+    const r = Math.max(20, L.radius);
+    const totalSweep = L.pathType === "circle" ? Math.PI * 2 : L.arcSweep;
+    // Comprimento disponível ao longo do arco
+    const arcLen = Math.abs(totalSweep) * r;
+    // Se o texto não cabe, aperta advances proporcionalmente
+    const scale = totalW > arcLen ? arcLen / totalW : 1;
+    let cumLen = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const advPx = advances[i] * scale;
+      const midLen = cumLen + advPx / 2;
+      // Distribuição centrada: começa em angleStart e avança
+      const t = midLen / r; // rad
+      const dir = totalSweep >= 0 ? 1 : -1;
+      const ang = L.angleStart + dir * t;
+      const px = L.cx + Math.cos(ang) * r;
+      const py = L.cy + Math.sin(ang) * r;
+      ctx.save();
+      ctx.translate(px, py);
+      // Perpendicular ao raio, alinhado ao sentido do arco
+      ctx.rotate(ang + dir * Math.PI / 2);
+      ctx.fillText(chars[i], -widths[i] * scale / 2, 0);
+      ctx.restore();
+      cumLen += advPx;
+    }
+    if (withHandles) {
+      ctx.strokeStyle = "rgba(59,130,246,0.55)";
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (L.pathType === "circle") ctx.arc(L.cx, L.cy, r, 0, Math.PI * 2);
+      else ctx.arc(L.cx, L.cy, r, L.angleStart, L.angleStart + L.arcSweep, L.arcSweep < 0);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  ctx.restore();
+
+  if (withHandles && L.pathType === "straight") {
+    ctx.save();
+    ctx.strokeStyle = "rgba(59,130,246,0.55)";
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(L.cx, L.cy);
+    ctx.lineTo(L.cx + Math.cos(L.straightAngle) * 400, L.cy + Math.sin(L.straightAngle) * 400);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+}
+
 const SILHUETAS: { nome: string; d: string }[] = [
   { nome: "Coração",    d: "M50,85 C20,60 5,40 25,20 C40,8 50,25 50,35 C50,25 60,8 75,20 C95,40 80,60 50,85 Z" },
   { nome: "Estrela",    d: "M50,5 L61,38 L96,38 L67,58 L78,92 L50,72 L22,92 L33,58 L4,38 L39,38 Z" },
