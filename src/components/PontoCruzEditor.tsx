@@ -556,8 +556,18 @@ export function PontoCruzEditor() {
       <Card className="bg-background/100 opacity-100">
         <CardContent className="p-3">
           <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="outline" onClick={undo} disabled={past.current.length === 0} title="Desfazer (Ctrl+Z)">
+              <Undo2 className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={redo} disabled={future.current.length === 0} title="Refazer (Ctrl+Y)">
+              <Redo2 className="h-4 w-4" />
+            </Button>
+            <span className="mx-1 h-5 w-px bg-border" />
             <ToolButton icon={<Pencil className="h-4 w-4" />} label="Lápis" active={tool === "pencil"} onClick={() => setTool("pencil")} />
             <ToolButton icon={<Eraser className="h-4 w-4" />} label="Apagar" active={tool === "eraser"} onClick={() => setTool("eraser")} />
+            <ToolButton icon={<Minus className="h-4 w-4" />} label="Linha" active={tool === "line"} onClick={() => setTool("line")} />
+            <ToolButton icon={<Square className="h-4 w-4" />} label="Retângulo" active={tool === "rect"} onClick={() => setTool("rect")} />
+            <ToolButton icon={<BoxSelect className="h-4 w-4" />} label="Seleção" active={tool === "select"} onClick={() => setTool("select")} />
             <ToolButton icon={<PaintBucket className="h-4 w-4" />} label="Balde" active={tool === "bucket"} onClick={() => setTool("bucket")} />
             <ToolButton icon={<Slash className="h-4 w-4" />} label="½ ponto" active={tool === "half"} onClick={() => setTool("half")} />
             <ToolButton icon={<Pencil className="h-4 w-4 rotate-45" />} label="Ponto atrás" active={tool === "backstitch"} onClick={() => setTool("backstitch")} />
@@ -566,6 +576,23 @@ export function PontoCruzEditor() {
             <ToolButton icon={<ReplaceIcon className="h-4 w-4" />} label="Selecionar cor origem" active={tool === "replace"} onClick={() => setTool("replace")} />
             <ToolButton icon={<Palette className="h-4 w-4" />} label="Conta-gotas" active={tool === "eyedrop"} onClick={() => setTool("eyedrop")} />
           </div>
+          {tool === "rect" && (
+            <div className="mb-2 flex items-center gap-2 text-xs">
+              <label className="flex items-center gap-2">
+                <Switch checked={rectFilled} onCheckedChange={setRectFilled} /> Retângulo preenchido
+              </label>
+            </div>
+          )}
+          {tool === "select" && selection && (
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">
+                Seleção: {Math.abs(selection.c2 - selection.c1) + 1} × {Math.abs(selection.r2 - selection.r1) + 1}
+              </span>
+              <Button size="sm" onClick={fillSelection}>Preencher com cor</Button>
+              <Button size="sm" variant="outline" onClick={clearSelectionCells}>Limpar seleção</Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelection(null)}>Fechar</Button>
+            </div>
+          )}
           <div className="max-h-[70vh] max-w-full overflow-auto rounded border bg-white p-2">
             <canvas ref={canvasRef}
               onPointerDown={handlePointerDown}
