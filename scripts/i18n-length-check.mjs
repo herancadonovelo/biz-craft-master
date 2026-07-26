@@ -5,6 +5,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const LIMIT = 5000;
+const WARN_AT = 4500;
+const WARN_ONLY = process.argv.includes("--warn");
 const ROOT = process.cwd();
 const SRC = join(ROOT, "src");
 
@@ -21,6 +23,7 @@ function walk(dir) {
 }
 
 const offenders = [];
+const warnings = [];
 for (const file of walk(SRC)) {
   let src = readFileSync(file, "utf8");
   // Strip line and block comments so stray apostrophes/quotes in comments
@@ -35,8 +38,20 @@ for (const file of walk(SRC)) {
       const before = src.slice(0, m.index);
       const line = before.split("\n").length;
       offenders.push({ file: relative(ROOT, file), line, length: str.length, preview: str.slice(0, 60) + "…" });
+    } else if (str.length >= WARN_AT) {
+      const before = src.slice(0, m.index);
+      const line = before.split("\n").length;
+      warnings.push({ file: relative(ROOT, file), line, length: str.length, preview: str.slice(0, 60) + "…" });
     }
   }
+}
+
+if (warnings.length) {
+  console.warn(`\n⚠  ${warnings.length} translatable string(s) approaching the ${LIMIT} char limit (>= ${WARN_AT}):`);
+  for (const w of warnings) {
+    console.warn(`   ${w.file}:${w.line}  (${w.length} chars)  ${w.preview}`);
+  }
+  console.warn("   Consider splitting these before they hit the hard limit.\n");
 }
 
 if (offenders.length === 0) {
@@ -49,4 +64,4 @@ for (const o of offenders) {
   console.error(`  ${o.file}:${o.line}  (${o.length} chars)  ${o.preview}`);
 }
 console.error("\nSplit these into shorter paragraphs (e.g. multiple <p> elements) or into numbered i18n keys.\n");
-process.exit(1);
+process.exit(WARN_ONLY ? 0 : 1);
