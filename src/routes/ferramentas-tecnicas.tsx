@@ -3565,6 +3565,24 @@ function BordadoTab() {
           </div>
           <p className="text-[10px] text-muted-foreground">Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.</p>
         </CardContent></Card>
+        {/* Fase 14 — Bundle de exportação (.zip) */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Bundle de exportação (.zip)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Empacota DST + PES + EXP + projeto .json {bundleIncludePdf ? "+ PDF de padrão " : ""}num único ficheiro pronto a entregar.
+          </p>
+          <div>
+            <Label className="text-[10px]">Nome base</Label>
+            <Input value={bundleSlug} onChange={(e) => setBundleSlug(e.target.value)} className="h-7 text-xs" placeholder="bordado" />
+          </div>
+          <label className="flex items-center gap-2 text-[11px]">
+            <input type="checkbox" checked={bundleIncludePdf} onChange={(e) => setBundleIncludePdf(e.target.checked)} />
+            Incluir folha de padrão PDF
+          </label>
+          <Button size="sm" onClick={exportarBundle} disabled={bundleBusy} className="w-full">
+            {bundleBusy ? "A gerar bundle…" : "Exportar bundle .zip"}
+          </Button>
+        </CardContent></Card>
         {/* Fase 13 — Mapa de densidade + Relatório de qualidade */}
         <Card><CardContent className="space-y-2 p-3">
           <div className="flex items-center justify-between">
