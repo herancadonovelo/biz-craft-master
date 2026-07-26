@@ -3728,48 +3728,76 @@ function BordadoTab() {
             strands: 2,
           }}
         />
-        <Phase17Panel blocks={orderedColorBlocks} />
-        <Phase18Panel
-          blocks={orderedColorBlocks.map((b) => ({
-            color: b.color,
-            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
-          }))}
-        />
-        <Phase19Panel
-          blocks={orderedColorBlocks.map((b) => ({
-            color: b.color,
-            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
-          }))}
-        />
-        <Phase20Panel
-          blocks={orderedColorBlocks.map((b) => ({
-            color: b.color,
-            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
-          }))}
-        />
-        <Phase21Panel
-          projectId="bordado"
-          blocks={orderedColorBlocks.map((b) => ({
-            color: b.color,
-            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
-          }))}
-          hoopMm={{ w: 100, h: 100 }}
-        />
-        <Phase22Panel
-          projectId="bordado"
-          onDigitized={(_layers, rules) => setDigiRules(rules)}
-        />
-        <Phase23Panel
-          projectId="bordado"
-          rules={digiRules}
-          blocks={orderedColorBlocks.map((b) => ({
-            color: b.color,
-            stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
-          }))}
-          stitchBlocks={orderedColorBlocks}
-          label="Bordado"
-        />
-        <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
+        <Tabs defaultValue="p17">
+          <TabsList className="flex-wrap justify-start h-auto">
+            <TabsTrigger value="p17">Fase 17</TabsTrigger>
+            <TabsTrigger value="p18">Fase 18</TabsTrigger>
+            <TabsTrigger value="p19">Fase 19</TabsTrigger>
+            <TabsTrigger value="p20">Fase 20</TabsTrigger>
+            <TabsTrigger value="p21">Fase 21</TabsTrigger>
+            <TabsTrigger value="p22">Fase 22</TabsTrigger>
+            <TabsTrigger value="p23">Fase 23</TabsTrigger>
+            <TabsTrigger value="export">Exportar PDF</TabsTrigger>
+          </TabsList>
+          <TabsContent value="p17" className="mt-2">
+            <Phase17Panel blocks={orderedColorBlocks} />
+          </TabsContent>
+          <TabsContent value="p18" className="mt-2">
+            <Phase18Panel
+              blocks={orderedColorBlocks.map((b) => ({
+                color: b.color,
+                stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+              }))}
+            />
+          </TabsContent>
+          <TabsContent value="p19" className="mt-2">
+            <Phase19Panel
+              blocks={orderedColorBlocks.map((b) => ({
+                color: b.color,
+                stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+              }))}
+            />
+          </TabsContent>
+          <TabsContent value="p20" className="mt-2">
+            <Phase20Panel
+              blocks={orderedColorBlocks.map((b) => ({
+                color: b.color,
+                stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+              }))}
+            />
+          </TabsContent>
+          <TabsContent value="p21" className="mt-2">
+            <Phase21Panel
+              projectId="bordado"
+              blocks={orderedColorBlocks.map((b) => ({
+                color: b.color,
+                stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+              }))}
+              hoopMm={{ w: 100, h: 100 }}
+            />
+          </TabsContent>
+          <TabsContent value="p22" className="mt-2">
+            <Phase22Panel
+              projectId="bordado"
+              onDigitized={(_layers, rules) => setDigiRules(rules)}
+            />
+          </TabsContent>
+          <TabsContent value="p23" className="mt-2">
+            <Phase23Panel
+              projectId="bordado"
+              rules={digiRules}
+              blocks={orderedColorBlocks.map((b) => ({
+                color: b.color,
+                stitches: b.points.map((p) => ({ x: p.x, y: p.y, color: b.color })),
+              }))}
+              stitchBlocks={orderedColorBlocks}
+              label="Bordado"
+            />
+          </TabsContent>
+          <TabsContent value="export" className="mt-2">
+            <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
