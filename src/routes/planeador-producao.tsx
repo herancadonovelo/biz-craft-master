@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Trash2, Calendar as CalIcon, CalendarDown, Download } from "lucide-react";
+import { Plus, Trash2, Calendar as CalIcon, Download } from "lucide-react";
 import { toast } from "sonner";
 import { downloadICS } from "@/lib/ics";
 
@@ -166,11 +166,11 @@ function PlaneadorProducaoPage() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {etapa.tarefas.map((t) => (
-                    <div key={t.id} className="grid grid-cols-[auto_1fr_150px_auto] items-center gap-2">
+                    <div key={t.id} className="grid grid-cols-[auto_1fr_160px_150px_140px_auto] items-center gap-2">
                       <Checkbox
-                        checked={t.feito}
+                        checked={t.status === "feito" || t.feito}
                         onCheckedChange={(c) => patchEtapa(etapa.id, (e) => ({
-                          ...e, tarefas: e.tarefas.map((x) => x.id === t.id ? { ...x, feito: !!c } : x),
+                          ...e, tarefas: e.tarefas.map((x) => x.id === t.id ? { ...x, feito: !!c, status: c ? "feito" : "nao_iniciado" } : x),
                         }))}
                       />
                       <Input
@@ -178,7 +178,14 @@ function PlaneadorProducaoPage() {
                         onChange={(e) => patchEtapa(etapa.id, (x) => ({
                           ...x, tarefas: x.tarefas.map((y) => y.id === t.id ? { ...y, texto: e.target.value } : y),
                         }))}
-                        className={t.feito ? "line-through text-muted-foreground" : ""}
+                        className={(t.status === "feito" || t.feito) ? "line-through text-muted-foreground" : ""}
+                      />
+                      <Input
+                        placeholder="Responsável"
+                        value={t.responsavel ?? ""}
+                        onChange={(e) => patchEtapa(etapa.id, (x) => ({
+                          ...x, tarefas: x.tarefas.map((y) => y.id === t.id ? { ...y, responsavel: e.target.value } : y),
+                        }))}
                       />
                       <Input
                         type="date"
@@ -187,6 +194,19 @@ function PlaneadorProducaoPage() {
                           ...x, tarefas: x.tarefas.map((y) => y.id === t.id ? { ...y, prazo: e.target.value } : y),
                         }))}
                       />
+                      <Select
+                        value={t.status ?? (t.feito ? "feito" : "nao_iniciado")}
+                        onValueChange={(v) => patchEtapa(etapa.id, (x) => ({
+                          ...x, tarefas: x.tarefas.map((y) => y.id === t.id ? { ...y, status: v as any, feito: v === "feito" } : y),
+                        }))}
+                      >
+                        <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao_iniciado">Não iniciado</SelectItem>
+                          <SelectItem value="em_progresso">Em progresso</SelectItem>
+                          <SelectItem value="feito">Feito</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <Button
                         variant="ghost" size="icon"
                         onClick={() => patchEtapa(etapa.id, (x) => ({
@@ -200,7 +220,7 @@ function PlaneadorProducaoPage() {
                   <Button
                     size="sm" variant="outline"
                     onClick={() => patchEtapa(etapa.id, (x) => ({
-                      ...x, tarefas: [...x.tarefas, { id: uid(), texto: "", feito: false }],
+                      ...x, tarefas: [...x.tarefas, { id: uid(), texto: "", feito: false, status: "nao_iniciado" }],
                     }))}
                   >
                     <Plus className="mr-1 h-4 w-4" />Tarefa
