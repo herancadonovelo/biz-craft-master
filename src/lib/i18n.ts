@@ -104,7 +104,7 @@ const en: Dict = {
   "nav.sales": "Sales",
   "nav.billing": "Invoicing",
   "nav.marketing": "Marketing & sales",
-  "nav.cashflow": "Área Financeira",
+  "nav.cashflow": "Financial area",
   "nav.expenses": "Expenses",
   "nav.design": "Customization",
   "nav.supplierMgmt": "Suppliers",
