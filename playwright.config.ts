@@ -25,12 +25,14 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // Assumes `bun run dev` is already running on PORT.
-  // Uncomment the block below to auto-start dev server in CI:
-  // webServer: {
-  //   command: "bun run dev",
-  //   url: BASE_URL,
-  //   reuseExistingServer: true,
-  //   timeout: 120_000,
-  // },
+  // In CI a fresh dev server is started; locally we reuse whatever is already
+  // running on PORT (bun run dev). Setting PLAYWRIGHT_SKIP_WEBSERVER=1 opts out.
+  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
+    ? undefined
+    : {
+        command: "bun run dev",
+        url: BASE_URL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
 });
