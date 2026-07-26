@@ -39,6 +39,7 @@ import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
 import { encodePes, splitByHoop } from "@/lib/pes";
+import { buildDensityGrid, analyzeQuality, heatColor } from "@/lib/stitch-analysis";
 import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
   textToPaths,
