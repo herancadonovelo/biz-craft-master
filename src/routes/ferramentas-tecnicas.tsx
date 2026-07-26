@@ -33,6 +33,7 @@ import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceRe
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
 import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
+import { buildPatternSheetPdf, downloadPdf, svgToPngDataUrl } from "@/lib/embroidery-pdf";
 import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
@@ -2043,6 +2044,12 @@ function BordadoTab() {
   const [monoFrameSizeMm, setMonoFrameSizeMm] = useState(70);
   const [monoFramePadMm, setMonoFramePadMm] = useState(6);
   const [monoDoubleFrame, setMonoDoubleFrame] = useState(true);
+  // Fase 10 — pré-visualização 3D + folha de padrão PDF
+  const [preview3D, setPreview3D] = useState(false);
+  const [fabric3D, setFabric3D] = useState<"aida" | "linho" | "algodao">("aida");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfTitulo, setPdfTitulo] = useState("Padrão de Bordado");
+  const [pdfAutor, setPdfAutor] = useState("");
 
   const fillOpts: FillOptions = {
     mode: fillMode,
@@ -2320,6 +2327,33 @@ function BordadoTab() {
     toast.success("Lista exportada em CSV.");
   };
 
+  // ---------- Fase 10: folha de padrão PDF ----------
+  const exportarPatternSheetPdf = async () => {
+    if (!svgRef.current) { toast.error("SVG não disponível."); return; }
+    setPdfBusy(true);
+    try {
+      const chartPngDataUrl = await svgToPngDataUrl(svgRef.current, 1600);
+      const dimensaoCm = { w: A4_W / PX_PER_CM, h: A4_H / PX_PER_CM };
+      const totalStitches = listaCompras.reduce((s, r) => s + r.stitches, 0);
+      const bytes = await buildPatternSheetPdf({
+        titulo: pdfTitulo || "Padrão de Bordado",
+        autor: pdfAutor || undefined,
+        hoop: hoopOn ? `${hoop === "square" ? "Quadrado" : "Redondo"} ${(hoopWpx / PX_PER_CM).toFixed(0)}×${(hoopHpx / PX_PER_CM).toFixed(0)} cm` : undefined,
+        aida: aidaCount || undefined,
+        dimensaoCm,
+        totalStitches,
+        totalColors: listaCompras.length,
+        linhas: listaCompras,
+        chartPngDataUrl,
+        watermark: w?.texto || undefined,
+      });
+      downloadPdf(bytes, `padrao-bordado-${Date.now()}.pdf`);
+      toast.success("Folha de padrão PDF gerada.");
+    } catch (e) {
+      toast.error("Falha ao gerar PDF: " + (e as Error).message);
+    } finally { setPdfBusy(false); }
+  };
+
   // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
   /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
   const buildStitchBlocks = (): StitchBlock[] => {
@@ -2500,6 +2534,30 @@ function BordadoTab() {
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
           {/* Fase 3 — marcadores para ponto cruz e nó francês */}
           <defs>
+            {/* Fase 10 — filtros de pré-visualização 3D */}
+            <filter id="fx-thread" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur stdDeviation="0.35" />
+              <feSpecularLighting result="sp" surfaceScale="2" specularConstant="0.9" specularExponent="18" lightingColor="#ffffff">
+                <feDistantLight azimuth="135" elevation="55" />
+              </feSpecularLighting>
+              <feComposite in="sp" in2="SourceGraphic" operator="in" result="lit" />
+              <feMerge>
+                <feMergeNode in="SourceGraphic" />
+                <feMergeNode in="lit" />
+              </feMerge>
+            </filter>
+            <pattern id="fx-fabric-aida" width="8" height="8" patternUnits="userSpaceOnUse">
+              <rect width="8" height="8" fill="#f5efe1" />
+              <path d="M0 4 H8 M4 0 V8" stroke="#d9c9a3" strokeWidth="0.6" />
+            </pattern>
+            <pattern id="fx-fabric-linho" width="6" height="6" patternUnits="userSpaceOnUse">
+              <rect width="6" height="6" fill="#efe6d0" />
+              <path d="M0 0 L6 6 M6 0 L0 6" stroke="#c9b591" strokeWidth="0.4" opacity="0.7" />
+            </pattern>
+            <pattern id="fx-fabric-algodao" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect width="4" height="4" fill="#faf7f0" />
+              <circle cx="2" cy="2" r="0.5" fill="#e2d6b8" />
+            </pattern>
             {layers.map((l) => (
               <React.Fragment key={`m-${l.id}`}>
                 <marker id={`mk-cross-${l.id}`} viewBox="-5 -5 10 10" markerWidth="6" markerHeight="6"
@@ -2513,6 +2571,10 @@ function BordadoTab() {
               </React.Fragment>
             ))}
           </defs>
+          {preview3D && (
+            <rect x="0" y="0" width={A4_W} height={A4_H}
+                  fill={`url(#fx-fabric-${fabric3D})`} pointerEvents="none" />
+          )}
           {hoopOn && (
             <>
               <defs>
@@ -2583,7 +2645,8 @@ function BordadoTab() {
                             : st.marker === "knot"  ? `url(#mk-knot-${layer.id})`
                             : undefined;
             return (
-              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
+              <g key={layer.id} opacity={layer.locked ? 0.7 : 1}
+                 filter={preview3D ? "url(#fx-thread)" : undefined}>
                 {layer.stitch === "satin" && layer.strokes.map((d, i) => (
                   // ponto cheio — 2ª passagem paralela ligeiramente deslocada para efeito de preenchimento
                   <path key={`sat-${layer.id}-${i}`} d={d} stroke={layer.color}
@@ -3220,6 +3283,36 @@ function BordadoTab() {
           </div>
           <Button size="sm" className="w-full" onClick={inserirMonograma}>
             <Type className="mr-1 h-3 w-3" />Inserir monograma
+          </Button>
+        </CardContent></Card>
+        {/* Fase 10 — Pré-visualização 3D */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Pré-visualização 3D</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Ativar</Label>
+            <Button size="sm" variant={preview3D ? "default" : "outline"} onClick={() => setPreview3D((v) => !v)}>
+              {preview3D ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          <div>
+            <Label className="text-xs">Tecido</Label>
+            <select value={fabric3D} onChange={(e) => setFabric3D(e.target.value as "aida" | "linho" | "algodao")}
+                    className="h-8 w-full rounded border bg-background px-2 text-xs">
+              <option value="aida">Aida</option>
+              <option value="linho">Linho</option>
+              <option value="algodao">Algodão</option>
+            </select>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Simula o brilho da linha e a textura do tecido para conferência visual antes de bordar.</p>
+        </CardContent></Card>
+        {/* Fase 10 — Folha de padrão PDF */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Folha de padrão (PDF)</Label>
+          <Input value={pdfTitulo} onChange={(e) => setPdfTitulo(e.target.value)} placeholder="Título" className="h-8 text-xs" />
+          <Input value={pdfAutor} onChange={(e) => setPdfAutor(e.target.value)} placeholder="Autor(a) (opcional)" className="h-8 text-xs" />
+          <p className="text-[10px] text-muted-foreground">Gera PDF com capa, gráfico e legenda DMC (com símbolos, swatches e stock).</p>
+          <Button size="sm" className="w-full" onClick={exportarPatternSheetPdf} disabled={pdfBusy}>
+            {pdfBusy ? "A gerar…" : "Exportar folha PDF"}
           </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
