@@ -52,6 +52,8 @@ import {
   type MotifId,
 } from "@/lib/lettering";
 import { autoDigitize, type DigitizedLayer } from "@/lib/auto-digitize";
+import { Phase16Panel } from "@/components/embroidery/Phase16Panel";
+import type { LayerPaletteEntry } from "@/lib/embroidery-phase16";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
