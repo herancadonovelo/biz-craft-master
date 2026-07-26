@@ -326,6 +326,7 @@ function snap(v: number, on: boolean, step = PX_PER_CM / 2) {
 
 function TricotinTab() {
   const addToStore = useStore((s) => s.add);
+  const perfilNegocio = useStore((s) => s.perfilNegocio);
   type NodeType = "start" | "straight" | "curve";
   type PtNode = { id: string; x: number; y: number; type: NodeType; ctrlX?: number; ctrlY?: number };
   type Mode = "select" | "straight" | "curve";
@@ -386,6 +387,38 @@ function TricotinTab() {
   // ---------- Lettering (Auto-script + Kerning + Text on Path) ----------
   // Marca de agua da folha de desenho
   const [w, setW] = useMarcaDAgua();
+  // Watermark positioning (lock / snap / clamp) — tricotin canvas overlay.
+  // xPct/yPct sao percentagens do canvas (0-100). rot em graus.
+  type WmPos = {
+    xPct: number; yPct: number; rot: number;
+    locked: boolean; snap: boolean; clamp: boolean;
+    snapPct: 1 | 2 | 5 | 10; snapDeg: 5 | 15 | 45 | 90;
+  };
+  const WM_POS_KEY = "tricotin-wm-pos-v1";
+  const [wmPos, setWmPos] = React.useState<WmPos>(() => {
+    if (typeof window === "undefined")
+      return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15 };
+    try {
+      const raw = window.localStorage.getItem(WM_POS_KEY);
+      if (raw) return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15, ...JSON.parse(raw) };
+    } catch { /* noop */ }
+    return { xPct: 50, yPct: 50, rot: -25, locked: false, snap: false, clamp: true, snapPct: 5, snapDeg: 15 };
+  });
+  const setWm = (p: Partial<WmPos>) => setWmPos((s) => {
+    const next = { ...s, ...p };
+    if (next.snap) {
+      if (p.xPct !== undefined) next.xPct = Math.round(next.xPct / next.snapPct) * next.snapPct;
+      if (p.yPct !== undefined) next.yPct = Math.round(next.yPct / next.snapPct) * next.snapPct;
+      if (p.rot !== undefined) next.rot = Math.round(next.rot / next.snapDeg) * next.snapDeg;
+    }
+    if (next.clamp) {
+      const half = (next.locked ? 60 : w.tamanho) / 2;
+      next.xPct = Math.max(half, Math.min(100 - half, next.xPct));
+      next.yPct = Math.max(half, Math.min(100 - half, next.yPct));
+    }
+    try { window.localStorage.setItem(WM_POS_KEY, JSON.stringify(next)); } catch { /* noop */ }
+    return next;
+  });
   const [lettering, setLettering] = React.useState<Lettering>({
     ativa: false,
     text: "Sara",
@@ -1071,7 +1104,93 @@ function TricotinTab() {
             </p>
           </TabsContent>
           <TabsContent value="watermark" className="mt-3">
-            <WatermarkControls w={w} set={setW} />
+            <div className="space-y-3">
+              <WatermarkControls w={w} set={setW} />
+              <div className="rounded-md border bg-muted/30 p-3 space-y-3 text-xs" data-testid="tricotin-wm-position">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.locked}
+                      onChange={(e) => setWm({ locked: e.target.checked })}
+                    />
+                    Travar marca d&apos;água
+                  </label>
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.snap}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ snap: e.target.checked })}
+                    />
+                    Alinhar ao grid (snap)
+                  </label>
+                  <select
+                    value={wmPos.snapPct}
+                    disabled={!wmPos.snap || wmPos.locked}
+                    onChange={(e) => setWm({ snapPct: Number(e.target.value) as WmPos["snapPct"] })}
+                    className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+                  >
+                    <option value={1}>1%</option>
+                    <option value={2}>2%</option>
+                    <option value={5}>5%</option>
+                    <option value={10}>10%</option>
+                  </select>
+                  <select
+                    value={wmPos.snapDeg}
+                    disabled={!wmPos.snap || wmPos.locked}
+                    onChange={(e) => setWm({ snapDeg: Number(e.target.value) as WmPos["snapDeg"] })}
+                    className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+                  >
+                    <option value={5}>5°</option>
+                    <option value={15}>15°</option>
+                    <option value={45}>45°</option>
+                    <option value={90}>90°</option>
+                  </select>
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={wmPos.clamp}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ clamp: e.target.checked })}
+                    />
+                    Manter dentro do canvas
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Posição X ({wmPos.xPct.toFixed(0)}%)</span>
+                    <input
+                      type="range" min={0} max={100} step={wmPos.snap ? wmPos.snapPct : 1}
+                      value={wmPos.xPct}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ xPct: Number(e.target.value) })}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Posição Y ({wmPos.yPct.toFixed(0)}%)</span>
+                    <input
+                      type="range" min={0} max={100} step={wmPos.snap ? wmPos.snapPct : 1}
+                      value={wmPos.yPct}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ yPct: Number(e.target.value) })}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-muted-foreground">Rotação ({wmPos.rot.toFixed(0)}°)</span>
+                    <input
+                      type="range" min={-180} max={180} step={wmPos.snap ? wmPos.snapDeg : 1}
+                      value={wmPos.rot}
+                      disabled={wmPos.locked}
+                      onChange={(e) => setWm({ rot: Number(e.target.value) })}
+                    />
+                  </label>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Travar bloqueia posição/rotação. Snap alinha em passos %/°. Clamp mantém sempre dentro do canvas.
+                </p>
+              </div>
+            </div>
           </TabsContent>
           <TabsContent value="trace" className="mt-3">
             <TracePanel
@@ -1196,7 +1315,8 @@ function TricotinTab() {
           <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Folha do Editor</button>
         </div>
       </div>
-      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
+      <div className="rounded-lg border bg-card tricotin-no-print" data-testid="tricotin-sheet-card">
+        <div className="overflow-auto bg-white">
         <div className="relative bg-white">
           <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
             Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
@@ -1213,10 +1333,49 @@ function TricotinTab() {
           className="block touch-none"
           style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
           />
-          {/* Watermark overlay (renderizada em cima da folha) */}
-          <div className="pointer-events-none absolute inset-0">
-            <Watermark w={w} />
-          </div>
+          {/* Watermark overlay (posicionada, com lock/snap/clamp) */}
+          {w.ativa && (
+            <div
+              className="pointer-events-none absolute select-none"
+              style={{
+                left: `${wmPos.xPct}%`,
+                top: `${wmPos.yPct}%`,
+                transform: `translate(-50%, -50%) rotate(${wmPos.rot}deg)`,
+                opacity: w.opacidade / 100,
+                width: `${(w.bloqueada ? 60 : w.tamanho)}%`,
+                textAlign: "center",
+              }}
+            >
+              {perfilNegocio.logo ? (
+                <img src={perfilNegocio.logo} alt="" style={{ width: "100%" }} />
+              ) : (
+                <div
+                  className="font-display font-bold"
+                  style={{ fontSize: `${(w.bloqueada ? 60 : w.tamanho) * 0.6}px`, color: "#111" }}
+                >
+                  {w.texto}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        </div>
+        <div className="border-t p-3">
+          <TricotinProPanel
+            getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
+            setPoints={(pts) => {
+              pushHistory();
+              setNodes(pts.map((p, i) => ({
+                id: `p${Date.now().toString(36)}${i}`,
+                x: p.x,
+                y: p.y,
+                type: i === 0 ? "start" : "straight",
+              })));
+            }}
+            pxPerMm={PX_PER_MM}
+            sheetW={W}
+            sheetH={H}
+          />
         </div>
       </div>
       {/* Gestão do Molde (abaixo da folha de desenho) */}
@@ -1262,21 +1421,6 @@ function TricotinTab() {
       <p className="text-xs text-muted-foreground tricotin-no-print">
         Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
       </p>
-      <TricotinProPanel
-        getPoints={() => nodes.map((n) => ({ x: n.x, y: n.y }))}
-        setPoints={(pts) => {
-          pushHistory();
-          setNodes(pts.map((p, i) => ({
-            id: `p${Date.now().toString(36)}${i}`,
-            x: p.x,
-            y: p.y,
-            type: i === 0 ? "start" : "straight",
-          })));
-        }}
-        pxPerMm={PX_PER_MM}
-        sheetW={W}
-        sheetH={H}
-      />
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
