@@ -2554,6 +2554,43 @@ function BordadoTab() {
     }
   };
 
+  // ---------- Fase 14: bundle .zip com todos os formatos ----------
+  const exportarBundle = async () => {
+    const blocks = applyColorOrder(buildStitchBlocks());
+    if (blocks.length === 0) { toast.error("Sem traços visíveis para o bundle."); return; }
+    setBundleBusy(true);
+    try {
+      const projectJson = JSON.stringify({
+        version: 14, kind: "cbm-bordado", savedAt: new Date().toISOString(),
+        layers, chartCells, hoopOn, hoop, stitchLenMm, orderByNearest, colorOrder, watermark: w,
+      }, null, 2);
+      let patternPdf: Uint8Array | undefined;
+      if (bundleIncludePdf && svgRef.current) {
+        const chartPngDataUrl = await svgToPngDataUrl(svgRef.current, 1400);
+        patternPdf = await buildPatternSheetPdf({
+          titulo: pdfTitulo || "Padrão de Bordado",
+          autor: pdfAutor || undefined,
+          hoop: hoopOn ? `${hoop === "square" ? "Quadrado" : "Redondo"} ${(hoopWpx / PX_PER_CM).toFixed(0)}×${(hoopHpx / PX_PER_CM).toFixed(0)} cm` : undefined,
+          aida: aidaCount || undefined,
+          dimensaoCm: { w: A4_W / PX_PER_CM, h: A4_H / PX_PER_CM },
+          totalStitches: blocks.reduce((s, b) => s + b.points.length, 0),
+          totalColors: blocks.length,
+          linhas: listaCompras,
+          chartPngDataUrl,
+          watermark: w?.texto || undefined,
+        });
+      }
+      const { blob, stats } = await buildEmbroideryBundle({
+        slug: bundleSlug || "bordado",
+        blocks, pxPerMm: PX_PER_MM, projectJson, patternPdf,
+      });
+      downloadBundle(blob, `${(bundleSlug || "bordado")}-${Date.now()}.zip`);
+      toast.success(`Bundle gerado: ${stats.files.length} ficheiros · ${stats.sizeKb} KB.`);
+    } catch (e) {
+      toast.error("Falha ao gerar bundle: " + (e as Error).message);
+    } finally { setBundleBusy(false); }
+  };
+
   // Lista viva de cores (para o UI de reordenação)
   const colorBlocks = useMemo(() => buildStitchBlocks(), [layers, chartArea, chartCells, stitchLenMm, orderByNearest]);
   const orderedColorBlocks = useMemo(() => applyColorOrder(colorBlocks), [colorBlocks, colorOrder]);
