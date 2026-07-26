@@ -1994,6 +1994,11 @@ function BordadoTab() {
   const [circRadius, setCircRadius] = useState(60);
   const [circFontPx, setCircFontPx] = useState(20);
   const [circClockwise, setCircClockwise] = useState(true);
+  // Fase 6 — PES + tiling multi-bastidor + reordenação de cores
+  const [pesBusy, setPesBusy] = useState(false);
+  const [tilingOn, setTilingOn] = useState(false);
+  const [tileMarginMm, setTileMarginMm] = useState(5);
+  const [colorOrder, setColorOrder] = useState<number[] | null>(null);
 
   /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
   const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
