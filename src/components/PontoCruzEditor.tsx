@@ -245,6 +245,13 @@ export function PontoCruzEditor() {
     });
   };
 
+  /** Snapshot the current chart into history before a mutating stroke starts. */
+  const beginStroke = () => {
+    past.current.push(chart);
+    if (past.current.length > 80) past.current.shift();
+    future.current = [];
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (tool === "backstitch") {
@@ -252,11 +259,11 @@ export function PontoCruzEditor() {
     }
     if (tool === "knot") {
       const v = eventToVertex(e);
-      setChart((ch) => ({ ...ch, knots: [...ch.knots, { r: v.r, c: v.c, hex: cor }] }));
+      commit((ch) => ({ ...ch, knots: [...ch.knots, { r: v.r, c: v.c, hex: cor }] }));
       return;
     }
     const { r, c } = eventToGrid(e);
-    if (tool === "bucket") { setChart((ch) => ({ ...ch, cells: floodFill(ch.cells, ch.cols, ch.rows, r, c, cor) })); return; }
+    if (tool === "bucket") { commit((ch) => ({ ...ch, cells: floodFill(ch.cells, ch.cols, ch.rows, r, c, cor) })); return; }
     if (tool === "replace") {
       const src = chart.cells[`${r},${c}`]?.hex; if (src) setReplaceFrom(src);
       toast.info(`Origem: ${src ?? "(vazio)"} — clica em “Substituir” para aplicar.`);
@@ -267,10 +274,32 @@ export function PontoCruzEditor() {
       return;
     }
     if (tool === "text") return;
-    drawing.current = true; paintCell(r, c);
+    if (tool === "line" || tool === "rect") {
+      setDragStart({ r, c });
+      setPreview(tool === "line" ? linePoints(r, c, r, c) : rectCells({ r1: r, c1: c, r2: r, c2: c }, rectFilled));
+      return;
+    }
+    if (tool === "select") {
+      setDragStart({ r, c });
+      setSelection({ r1: r, c1: c, r2: r, c2: c });
+      return;
+    }
+    drawing.current = true; beginStroke(); paintCell(r, c);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (dragStart && (tool === "line" || tool === "rect")) {
+      const { r, c } = eventToGrid(e);
+      setPreview(tool === "line"
+        ? linePoints(dragStart.r, dragStart.c, r, c)
+        : rectCells({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c }, rectFilled));
+      return;
+    }
+    if (dragStart && tool === "select") {
+      const { r, c } = eventToGrid(e);
+      setSelection({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c });
+      return;
+    }
     if (!drawing.current) return;
     const { r, c } = eventToGrid(e);
     paintCell(r, c);
@@ -278,12 +307,32 @@ export function PontoCruzEditor() {
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     drawing.current = false;
+    if ((tool === "line" || tool === "rect") && dragStart) {
+      const { r, c } = eventToGrid(e);
+      const pts = tool === "line"
+        ? linePoints(dragStart.r, dragStart.c, r, c)
+        : rectCells({ r1: dragStart.r, c1: dragStart.c, r2: r, c2: c }, rectFilled);
+      commit((ch) => {
+        const cells = { ...ch.cells };
+        for (const [rr, cc] of pts) {
+          if (rr < 0 || cc < 0 || rr >= ch.rows || cc >= ch.cols) continue;
+          cells[`${rr},${cc}`] = { hex: cor, type: "full", hex2: cor2 ?? undefined };
+        }
+        return { ...ch, cells };
+      });
+      setDragStart(null); setPreview(null);
+      return;
+    }
+    if (tool === "select" && dragStart) {
+      setDragStart(null);
+      return;
+    }
     if (tool === "backstitch" && backStart.current) {
       const v = eventToVertex(e);
       const s = backStart.current;
       if (s.r !== v.r || s.c !== v.c) {
         const edge: BackstitchEdge = { r1: s.r, c1: s.c, r2: v.r, c2: v.c, hex: cor };
-        setChart((ch) => ({ ...ch, back: [...ch.back, edge] }));
+        commit((ch) => ({ ...ch, back: [...ch.back, edge] }));
       }
       backStart.current = null;
     }
@@ -293,15 +342,37 @@ export function PontoCruzEditor() {
   const setSize = (cols: number, rows: number) => setChart((ch) => ({ ...ch, cols, rows }));
   const clearAll = () => {
     if (!confirm("Limpar todo o gráfico?")) return;
-    setChart(emptyChart(chart.cols, chart.rows));
+    commit(emptyChart(chart.cols, chart.rows));
   };
   const doMirror = (axis: "h" | "v") =>
-    setChart((ch) => ({ ...ch, cells: mirror(ch.cells, ch.cols, ch.rows, axis) }));
+    commit((ch) => ({ ...ch, cells: mirror(ch.cells, ch.cols, ch.rows, axis) }));
   const doReplace = (to: string) =>
-    setChart((ch) => ({ ...ch, cells: replaceColor(ch.cells, replaceFrom, to) }));
-  const removeLastBack = () => setChart((ch) => ({ ...ch, back: ch.back.slice(0, -1) }));
-  const clearBack = () => setChart((ch) => ({ ...ch, back: [] }));
-  const clearKnots = () => setChart((ch) => ({ ...ch, knots: [] }));
+    commit((ch) => ({ ...ch, cells: replaceColor(ch.cells, replaceFrom, to) }));
+  const removeLastBack = () => commit((ch) => ({ ...ch, back: ch.back.slice(0, -1) }));
+  const clearBack = () => commit((ch) => ({ ...ch, back: [] }));
+  const clearKnots = () => commit((ch) => ({ ...ch, knots: [] }));
+
+  const fillSelection = () => {
+    if (!selection) { toast.info("Sem seleção. Usa a ferramenta Seleção primeiro."); return; }
+    const pts = rectCells(selection, true);
+    commit((ch) => {
+      const cells = { ...ch.cells };
+      for (const [rr, cc] of pts) {
+        if (rr < 0 || cc < 0 || rr >= ch.rows || cc >= ch.cols) continue;
+        cells[`${rr},${cc}`] = { hex: cor, type: "full", hex2: cor2 ?? undefined };
+      }
+      return { ...ch, cells };
+    });
+  };
+  const clearSelectionCells = () => {
+    if (!selection) return;
+    const pts = rectCells(selection, true);
+    commit((ch) => {
+      const cells = { ...ch.cells };
+      for (const [rr, cc] of pts) delete cells[`${rr},${cc}`];
+      return { ...ch, cells };
+    });
+  };
 
   const importImage = (file: File) => {
     const url = URL.createObjectURL(file);
