@@ -8,11 +8,13 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import {
   Pencil, Eraser, PaintBucket, Slash, Circle, Type as TypeIcon, FlipHorizontal2, FlipVertical2,
   Replace as ReplaceIcon, Upload, Download, FileDown, Image as ImageIcon, Layers, Palette, Blend,
+  Undo2, Redo2, Minus, Square, BoxSelect,
 } from "lucide-react";
 import {
   emptyChart, imageToChart, textToCells, floodFill, mirror, replaceColor,
@@ -20,9 +22,11 @@ import {
   closestThread, blend,
   type ChartDoc, type Cell, type BackstitchEdge, type FrenchKnot,
 } from "@/lib/ponto-cruz";
-import type { Marca } from "@/lib/cores-linhas";
+import { getDMC, getAnchor, type Marca, type Cor } from "@/lib/cores-linhas";
 
-type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop";
+type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop" | "line" | "rect" | "select";
+
+interface RectRegion { r1: number; c1: number; r2: number; c2: number }
 
 const STORAGE_KEY = "ponto-cruz-chart-v1";
 
@@ -35,8 +39,67 @@ function loadChart(): ChartDoc {
   return emptyChart();
 }
 
+/** Bresenham line — returns integer grid cells from (r1,c1) to (r2,c2). */
+function linePoints(r1: number, c1: number, r2: number, c2: number): Array<[number, number]> {
+  const pts: Array<[number, number]> = [];
+  const dx = Math.abs(c2 - c1), sx = c1 < c2 ? 1 : -1;
+  const dy = -Math.abs(r2 - r1), sy = r1 < r2 ? 1 : -1;
+  let err = dx + dy, r = r1, c = c1;
+  while (true) {
+    pts.push([r, c]);
+    if (r === r2 && c === c2) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; c += sx; }
+    if (e2 <= dx) { err += dx; r += sy; }
+  }
+  return pts;
+}
+function rectCells(reg: RectRegion, filled: boolean): Array<[number, number]> {
+  const r1 = Math.min(reg.r1, reg.r2), r2 = Math.max(reg.r1, reg.r2);
+  const c1 = Math.min(reg.c1, reg.c2), c2 = Math.max(reg.c1, reg.c2);
+  const out: Array<[number, number]> = [];
+  for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) {
+    if (filled || r === r1 || r === r2 || c === c1 || c === c2) out.push([r, c]);
+  }
+  return out;
+}
+
 export function PontoCruzEditor() {
   const [chart, setChart] = useState<ChartDoc>(loadChart);
+  // History stacks for undo/redo — cap to avoid memory bloat.
+  const past = useRef<ChartDoc[]>([]);
+  const future = useRef<ChartDoc[]>([]);
+  const [, forceTick] = useState(0);
+  const commit = useCallback((next: ChartDoc | ((c: ChartDoc) => ChartDoc)) => {
+    setChart((cur) => {
+      const n = typeof next === "function" ? (next as (c: ChartDoc) => ChartDoc)(cur) : next;
+      if (n === cur) return cur;
+      past.current.push(cur);
+      if (past.current.length > 80) past.current.shift();
+      future.current = [];
+      forceTick((x) => x + 1);
+      return n;
+    });
+  }, []);
+  const undo = useCallback(() => {
+    const prev = past.current.pop(); if (!prev) return;
+    setChart((cur) => { future.current.push(cur); forceTick((x) => x + 1); return prev; });
+  }, []);
+  const redo = useCallback(() => {
+    const nxt = future.current.pop(); if (!nxt) return;
+    setChart((cur) => { past.current.push(cur); forceTick((x) => x + 1); return nxt; });
+  }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const meta = e.ctrlKey || e.metaKey;
+      if (!meta) return;
+      if (e.key.toLowerCase() === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+      else if ((e.key.toLowerCase() === "z" && e.shiftKey) || e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
+
   const [tool, setTool] = useState<Tool>("pencil");
   const [cor, setCor] = useState("#C8102E");
   const [cor2, setCor2] = useState<string | null>(null);
@@ -50,6 +113,14 @@ export function PontoCruzEditor() {
   const [textRow, setTextRow] = useState<number>(2);
   const [textCol, setTextCol] = useState<number>(2);
   const [imgMaxColors, setImgMaxColors] = useState<number>(16);
+  const [rectFilled, setRectFilled] = useState(true);
+  const [selection, setSelection] = useState<RectRegion | null>(null);
+  const [preview, setPreview] = useState<Array<[number, number]> | null>(null);
+  const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
+  const [watermark, setWatermark] = useState<string>("");
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [palettePick, setPalettePick] = useState<Marca>("DMC");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState<number>(18);
   const drawing = useRef(false);
