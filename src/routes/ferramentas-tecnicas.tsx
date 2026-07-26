@@ -3285,6 +3285,36 @@ function BordadoTab() {
             <Type className="mr-1 h-3 w-3" />Inserir monograma
           </Button>
         </CardContent></Card>
+        {/* Fase 10 — Pré-visualização 3D */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Pré-visualização 3D</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Ativar</Label>
+            <Button size="sm" variant={preview3D ? "default" : "outline"} onClick={() => setPreview3D((v) => !v)}>
+              {preview3D ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          <div>
+            <Label className="text-xs">Tecido</Label>
+            <select value={fabric3D} onChange={(e) => setFabric3D(e.target.value as "aida" | "linho" | "algodao")}
+                    className="h-8 w-full rounded border bg-background px-2 text-xs">
+              <option value="aida">Aida</option>
+              <option value="linho">Linho</option>
+              <option value="algodao">Algodão</option>
+            </select>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Simula o brilho da linha e a textura do tecido para conferência visual antes de bordar.</p>
+        </CardContent></Card>
+        {/* Fase 10 — Folha de padrão PDF */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Folha de padrão (PDF)</Label>
+          <Input value={pdfTitulo} onChange={(e) => setPdfTitulo(e.target.value)} placeholder="Título" className="h-8 text-xs" />
+          <Input value={pdfAutor} onChange={(e) => setPdfAutor(e.target.value)} placeholder="Autor(a) (opcional)" className="h-8 text-xs" />
+          <p className="text-[10px] text-muted-foreground">Gera PDF com capa, gráfico e legenda DMC (com símbolos, swatches e stock).</p>
+          <Button size="sm" className="w-full" onClick={exportarPatternSheetPdf} disabled={pdfBusy}>
+            {pdfBusy ? "A gerar…" : "Exportar folha PDF"}
+          </Button>
+        </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
