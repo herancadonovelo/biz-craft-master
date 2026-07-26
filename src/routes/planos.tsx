@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { formatCurrency } from "@/lib/store";
 
 export const Route = createFileRoute("/planos")({
   head: () => ({ meta: [
@@ -160,22 +161,22 @@ function PlanosPage() {
                       <p className="mt-1 text-3xl font-semibold">
                         {promoDiscount && (
                           <span className="mr-2 text-lg font-normal text-muted-foreground line-through">
-                            {precoMostrar.toFixed(2).replace(".", ",")} €
+                            {formatCurrency(precoMostrar)}
                           </span>
                         )}
-                        {applyDiscount(precoMostrar).toFixed(2).replace(".", ",")} €<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                        {formatCurrency(applyDiscount(precoMostrar))}<span className="text-sm font-normal text-muted-foreground">/mês</span>
                       </p>
                       {promoDiscount && (
                         <p className="text-xs font-medium text-emerald-600">Código {promoDiscount.code} (-{promoDiscount.pct}%)</p>
                       )}
                       {cycle === "anual" ? (
                         <p className="text-xs text-muted-foreground">
-                          faturado anualmente — {applyDiscount(p.precoAnualTotal).toFixed(2).replace(".", ",")} €/ano
+                          faturado anualmente — {formatCurrency(applyDiscount(p.precoAnualTotal))}/ano
                           <span className="ml-1 font-medium text-primary">(poupa {ANNUAL_DISCOUNT_PCT}%)</span>
                         </p>
                       ) : (
                         <p className="text-xs text-muted-foreground">
-                          ou {applyDiscount(p.precoAnualMensal).toFixed(2).replace(".", ",")} €/mês no plano anual
+                          ou {formatCurrency(applyDiscount(p.precoAnualMensal))}/mês no plano anual
                         </p>
                       )}
                     </>
@@ -207,7 +208,7 @@ function PlanosPage() {
                         onClick={() => onSubscribe(p.id, "mensal")}
                       >
                         {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Mensal · {applyDiscount(p.precoMensal).toFixed(2).replace(".", ",")} €
+                        Mensal · {formatCurrency(applyDiscount(p.precoMensal))}
                       </Button>
                       <Button
                         className="w-full"
@@ -216,7 +217,7 @@ function PlanosPage() {
                         onClick={() => onSubscribe(p.id, "anual")}
                       >
                         {busy === p.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Star className="mr-2 h-4 w-4" />}
-                        Anual · {applyDiscount(p.precoAnualTotal).toFixed(2).replace(".", ",")} €
+                        Anual · {formatCurrency(applyDiscount(p.precoAnualTotal))}
                         <Badge variant="outline" className="ml-1 border-current/30">-{ANNUAL_DISCOUNT_PCT}%</Badge>
                       </Button>
                     </div>
