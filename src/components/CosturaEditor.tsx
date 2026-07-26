@@ -659,7 +659,7 @@ export function CosturaEditor() {
           <ToolBtn label="Limpar" icon={<Trash2 className="h-3 w-3" />} onClick={() => push([])} />
         </div>
         <p className="mb-2 rounded bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">{TOOL_HINTS[tool]}</p>
-        <Card className="bg-background opacity-100"><CardContent className="p-3">
+        <Card className="!bg-white opacity-100" style={{ backgroundColor: "#ffffff", opacity: 1 }}><CardContent className="p-3">
         <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
           {underlay && (
             <img
@@ -784,12 +784,16 @@ export function CosturaEditor() {
             <Button size="sm" variant={snapIntersect ? "default" : "outline"} onClick={() => setSnapIntersect((v) => !v)}>Interseções</Button>
             <Button size="sm" variant={annotate ? "default" : "outline"} onClick={() => setAnnotate((v) => !v)}>Cotas auto</Button>
           </div>
+          <Label className="text-[11px] pt-1">Tolerância snap · {snapTolPx}px ({pxToCm(snapTolPx).toFixed(2)} cm)</Label>
+          <Slider value={[snapTolPx]} min={2} max={30} step={1} onValueChange={(v) => setSnapTolPx(v[0])} />
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
           <div className="flex items-center justify-between">
             <div className="text-xs font-medium">Versões do molde</div>
-            <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={snapshotVersion}><Save className="mr-1 h-3 w-3" />Guardar</Button>
+            </div>
           </div>
           {versions.length === 0 && <p className="text-[10px] text-muted-foreground">Autosave ativo. Cria um ponto de restauro sempre que quiseres.</p>}
           <div className="max-h-40 space-y-1 overflow-auto">
@@ -797,24 +801,73 @@ export function CosturaEditor() {
               <div key={v.ts} className="flex items-center justify-between rounded bg-muted/40 px-2 py-1 text-[10px]">
                 <span>#{versions.length - i} · {new Date(v.ts).toLocaleString()}</span>
                 <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => setDiffIdx(i)}><GitCompare className="mr-1 h-3 w-3" />Diff</Button>
                   <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => restoreVersion(i)}><History className="mr-1 h-3 w-3" />Restaurar</Button>
                 </div>
               </div>
             ))}
           </div>
+          {diffIdx !== null && versions[diffIdx] && (() => {
+            const cur = polysStats(polys); const old = polysStats(versions[diffIdx].polys);
+            const kinds = Array.from(new Set([...Object.keys(cur.byKind), ...Object.keys(old.byKind)]));
+            return (
+              <div className="mt-1 rounded border bg-muted/30 p-2 text-[10px]">
+                <div className="mb-1 flex items-center justify-between">
+                  <b>Diferenças vs versão #{versions.length - diffIdx}</b>
+                  <button className="underline" onClick={() => setDiffIdx(null)}>fechar</button>
+                </div>
+                <div>Peças: {old.count} → {cur.count} ({cur.count - old.count >= 0 ? "+" : ""}{cur.count - old.count})</div>
+                <div>Linhas: {old.totalCm.toFixed(1)} cm → {cur.totalCm.toFixed(1)} cm</div>
+                <div className="pt-1">
+                  {kinds.map((k) => {
+                    const a = old.byKind[k] || 0, b = cur.byKind[k] || 0;
+                    if (a === b) return null;
+                    return <div key={k}>· {k}: {a} → {b}</div>;
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
-          <div className="text-xs font-medium">Exportar CAD</div>
+          <div className="text-xs font-medium">Exportar / Importar CAD</div>
+          <div className="space-y-1 rounded border p-2">
+            <div className="text-[10px] font-medium text-muted-foreground">Camadas a incluir</div>
+            {([["molde","Molde"],["mirror","Mirror"],["annotations","Cotas/marcadores"],["grid","Grelha"]] as const).map(([k,l]) => (
+              <label key={k} className="flex items-center gap-2 text-[11px]">
+                <Checkbox checked={(layerOpts as any)[k]} onCheckedChange={(v) => setLayerOpts((s) => ({ ...s, [k]: !!v }))} />
+                {l}
+              </label>
+            ))}
+          </div>
           <div className="grid grid-cols-2 gap-1">
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVG(polys, A4_W, A4_H), "image/svg+xml")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.svg", polysToSVGLayered(polys, A4_W, A4_H, { ...layerOpts, gridCm }), "image/svg+xml")}>
               <FileDown className="mr-1 h-3 w-3" />SVG
             </Button>
-            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXF(polys), "application/dxf")}>
+            <Button size="sm" variant="outline" onClick={() => downloadFile("molde.dxf", polysToDXFLayered(polys, { ...layerOpts, gridCm, w: A4_W, h: A4_H }), "application/dxf")}>
               <FileDown className="mr-1 h-3 w-3" />DXF
             </Button>
           </div>
-          <p className="text-[10px] text-muted-foreground">SVG para impressão profissional / vinil; DXF para AutoCAD, plotters e mesas de corte.</p>
+          <div className="pt-1">
+            <Label className="text-[11px]">Importar SVG / DXF</Label>
+            <Input type="file" accept=".svg,.dxf,image/svg+xml,application/dxf" onChange={(e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              const r = new FileReader();
+              r.onload = () => {
+                try {
+                  const raw = String(r.result);
+                  const parsed = f.name.toLowerCase().endsWith(".dxf") ? parseDXF(raw) : parseSVG(raw);
+                  if (!parsed.length) return toast.error("Ficheiro sem geometria reconhecida.");
+                  push([...polys, ...parsed]);
+                  toast.success(`${parsed.length} peça(s) importadas.`);
+                } catch (err) { toast.error(String((err as Error).message)); }
+              };
+              r.readAsText(f);
+              e.currentTarget.value = "";
+            }} />
+          </div>
+          <p className="text-[10px] text-muted-foreground">Export com camadas (Inkscape/AutoCAD). Import cria LINE/polyline/path como peças novas.</p>
         </CardContent></Card>
 
         <Card><CardContent className="space-y-2 p-3">
