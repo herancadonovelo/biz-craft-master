@@ -6,11 +6,13 @@
 
 Feito nesta iteração: **Lettering — Auto-script + Kerning + Text on Path** (linha reta, arco, círculo) com guia visual e exportação PNG/A4.
 
+Feito na iteração seguinte: **Fase 1 — Vetorização + Exportação SVG/DXF + E2E**.
+- `src/lib/trace.ts` — pipeline Otsu → binário → Zhang-Suen → extract paths → stitch → RDP.
+- `TracePanel` no editor Tricotin: upload, limiar auto/manual, inverter, ε, preview, importar para molde, exportar SVG (1× `<polyline>`) e DXF (1× `POLYLINE` R12).
+- `e2e/tricotin-trace-export.spec.ts` valida um único traço no SVG/DXF.
+
 ### Fila (por ordem sugerida de entrega)
-1. **Vetorização + Exportação SVG/DXF + E2E**
-   - Ferramenta Trace (imagem → linha única via Ramer-Douglas-Peucker + skeletonization).
-   - Exportação SVG/DXF garantindo `polyline` única contínua.
-   - Testes Playwright: upload imagem, verificar 1 único path exportado, validar comprimento.
+1. ~~**Vetorização + Exportação SVG/DXF + E2E**~~ — concluído.
 2. **Webhook Twilio de entregas**
    - `/api/public/webhooks/twilio-status` com verificação de assinatura X-Twilio-Signature.
    - Persistir em `webhook_events` com provider="twilio".

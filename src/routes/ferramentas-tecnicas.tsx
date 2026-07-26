@@ -28,6 +28,7 @@ import { EditorReceitaPage } from "./editor-receita";
 import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { ContadorPage } from "./contador";
+import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -1140,6 +1141,22 @@ function TricotinTab() {
           A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
         </p>
       </div>
+      <TracePanel
+        onImport={(pts: TracePoint[]) => {
+          if (!pts.length) return;
+          pushHistory();
+          const imported: PtNode[] = pts.map((p: TracePoint, i: number) => ({
+            id: `t${Date.now().toString(36)}${i}`,
+            x: p.x,
+            y: p.y,
+            type: i === 0 ? "start" : "straight",
+          }));
+          setNodes(imported);
+          setIsClosedPath(false);
+        }}
+        fitW={W}
+        fitH={H}
+      />
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
@@ -1163,6 +1180,242 @@ function ToolBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
       className={`flex flex-col items-center gap-0.5 rounded border p-1.5 text-[10px] ${active ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}>
       {icon}<span className="truncate">{label}</span>
     </button>
+  );
+}
+
+/* ============================================================
+ * TracePanel — Vetorização de imagem → polyline única contínua.
+ * Ferramenta: upload → threshold + epsilon → preview → importar
+ * como molde OU exportar SVG/DXF (uma única polyline garantida).
+ * ============================================================ */
+function TracePanel({
+  onImport,
+  fitW,
+  fitH,
+}: {
+  onImport: (pts: TracePoint[]) => void;
+  fitW: number;
+  fitH: number;
+}) {
+  const fileRef = React.useRef<HTMLInputElement | null>(null);
+  const previewRef = React.useRef<HTMLCanvasElement | null>(null);
+  const [imgEl, setImgEl] = React.useState<HTMLImageElement | null>(null);
+  const [thrMode, setThrMode] = React.useState<"auto" | "manual">("auto");
+  const [thr, setThr] = React.useState<number>(128);
+  const [invert, setInvert] = React.useState<boolean>(false);
+  const [epsilon, setEpsilon] = React.useState<number>(1.5);
+  const [result, setResult] = React.useState<TraceResult | null>(null);
+  const [busy, setBusy] = React.useState(false);
+
+  const onFile = (f: File) => {
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      setImgEl(img);
+      setResult(null);
+    };
+    img.onerror = () => toast.error("Não consegui abrir a imagem.");
+    img.src = url;
+  };
+
+  const runTrace = React.useCallback(() => {
+    if (!imgEl) return;
+    setBusy(true);
+    try {
+      const r = traceImage(imgEl, {
+        maxDim: 400,
+        threshold: thrMode === "manual" ? thr : undefined,
+        invert,
+        epsilon,
+      });
+      setResult(r);
+      if (thrMode === "auto") setThr(r.threshold);
+      if (r.points.length < 4) {
+        toast.warning("Muito poucos pontos detetados. Ajusta o limiar/inverte.");
+      } else {
+        toast.success(`Traço: ${r.points.length} pontos, ${polylineLength(r.points).toFixed(0)}px.`);
+      }
+    } catch (e) {
+      toast.error("Falha na vetorização.");
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }, [imgEl, thrMode, thr, invert, epsilon]);
+
+  // Redesenha preview
+  React.useEffect(() => {
+    const cv = previewRef.current;
+    if (!cv || !result) return;
+    cv.width = result.width;
+    cv.height = result.height;
+    const ctx = cv.getContext("2d")!;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (let i = 0; i < result.points.length; i++) {
+      const p = result.points[i];
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+  }, [result]);
+
+  // Escala e centra pontos para caber no A4 do Tricotin.
+  const scaledForImport = React.useMemo<TracePoint[]>(() => {
+    if (!result) return [];
+    const pad = 40;
+    const scale = Math.min((fitW - pad * 2) / result.width, (fitH - pad * 2) / result.height);
+    const w = result.width * scale;
+    const h = result.height * scale;
+    const ox = (fitW - w) / 2;
+    const oy = (fitH - h) / 2;
+    return result.points.map((p) => ({ x: ox + p.x * scale, y: oy + p.y * scale }));
+  }, [result, fitW, fitH]);
+
+  const download = (name: string, mime: string, body: string) => {
+    const blob = new Blob([body], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  return (
+    <div
+      className="space-y-3 rounded-lg border bg-card p-3 tricotin-no-print"
+      data-testid="trace-panel"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold">Vetorização (Trace)</div>
+          <div className="text-[11px] text-muted-foreground">
+            Converte uma imagem em <strong>uma única polyline contínua</strong> pronta a importar
+            para o molde ou a exportar como <strong>SVG/DXF</strong> (linha única garantida).
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            data-testid="trace-file"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.currentTarget.value = ""; }}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="rounded border px-3 py-1.5 text-xs hover:bg-muted"
+          >
+            Carregar imagem
+          </button>
+          <button
+            type="button"
+            onClick={runTrace}
+            disabled={!imgEl || busy}
+            data-testid="trace-run"
+            className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90 disabled:opacity-40"
+          >
+            {busy ? "A vetorizar…" : "Vetorizar"}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-muted-foreground">Limiar</span>
+          <div className="flex items-center gap-2">
+            <select
+              value={thrMode}
+              onChange={(e) => setThrMode(e.target.value as "auto" | "manual")}
+              className="rounded border bg-background px-1 py-0.5"
+            >
+              <option value="auto">Auto (Otsu)</option>
+              <option value="manual">Manual</option>
+            </select>
+            <input
+              type="range" min={16} max={240} step={1}
+              value={thr}
+              disabled={thrMode === "auto"}
+              onChange={(e) => setThr(Number(e.target.value))}
+              className="flex-1"
+            />
+            <span className="w-8 tabular-nums">{thr}</span>
+          </div>
+        </label>
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-muted-foreground">Simplificação (ε px)</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="range" min={0.2} max={6} step={0.1}
+              value={epsilon}
+              onChange={(e) => setEpsilon(Number(e.target.value))}
+              className="flex-1"
+            />
+            <span className="w-10 tabular-nums">{epsilon.toFixed(1)}</span>
+          </div>
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input type="checkbox" checked={invert} onChange={(e) => setInvert(e.target.checked)} />
+          <span>Inverter (fundo escuro / linha clara)</span>
+        </label>
+      </div>
+
+      {result && (
+        <div className="flex flex-wrap items-start gap-3">
+          <div className="rounded border bg-white p-1">
+            <canvas
+              ref={previewRef}
+              data-testid="trace-preview"
+              style={{ width: "min(320px, 100%)", height: "auto", display: "block" }}
+            />
+          </div>
+          <div className="flex flex-1 flex-col gap-2 text-xs">
+            <div className="text-muted-foreground">
+              <strong>{result.points.length}</strong> pontos ·{" "}
+              <strong>1</strong> polyline contínua · limiar {result.threshold}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onImport(scaledForImport)}
+                data-testid="trace-import"
+                className="rounded border bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90"
+              >
+                Importar para o molde
+              </button>
+              <button
+                type="button"
+                data-testid="trace-svg"
+                onClick={() => download("tracado.svg", "image/svg+xml", toSVG(result.points, result.width, result.height))}
+                className="rounded border px-3 py-1.5 hover:bg-muted"
+              >
+                Exportar SVG
+              </button>
+              <button
+                type="button"
+                data-testid="trace-dxf"
+                onClick={() => download("tracado.dxf", "application/dxf", toDXF(result.points, result.height))}
+                className="rounded border px-3 py-1.5 hover:bg-muted"
+              >
+                Exportar DXF
+              </button>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              O importador substitui o desenho atual pelo traçado vetorizado, centrado na folha A4.
+              Podes editar os nós no <em>Modo Seleção</em>.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
