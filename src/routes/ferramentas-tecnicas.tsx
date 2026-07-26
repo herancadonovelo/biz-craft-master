@@ -28,6 +28,7 @@ import { EditorReceitaPage } from "./editor-receita";
 import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { ContadorPage } from "./contador";
+import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
