@@ -688,6 +688,7 @@ interface State {
   contadores: ContadorReceita[];
   receitasEditor: ReceitaEditor[];
   marketingInfo: MarketingInfo;
+  producaoPlanos: ProducaoPlano[];
 
   // generic helpers
   add: <K extends keyof CollectionMap>(k: K, item: Omit<CollectionMap[K], "id">) => void;
@@ -746,6 +747,7 @@ type CollectionMap = {
   acoesMarketing: AcaoMarketing;
   contadores: ContadorReceita;
   receitasEditor: ReceitaEditor;
+  producaoPlanos: ProducaoPlano;
 };
 
 const seed = (): Pick<
