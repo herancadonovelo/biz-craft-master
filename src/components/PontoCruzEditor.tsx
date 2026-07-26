@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,9 @@ interface RectRegion { r1: number; c1: number; r2: number; c2: number }
 const STORAGE_KEY = "ponto-cruz-chart-v1";
 const HISTORY_KEY = "ponto-cruz-history-max-v1";
 const SUBS_KEY = (projectId: string) => `ponto-cruz-subs-v1:${projectId || "default"}`;
+const PROJ_CFG_KEY = (projectId: string) => `ponto-cruz-cfg-v1:${projectId || "default"}`;
+
+interface ProjectCfg { wm: WmCfg; historyMax: number; pngCellPx: number; pngLegendScale: number }
 
 type WmPos = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right" | "tiled";
 interface WmCfg { text: string; pos: WmPos; angle: number; opacity: number; size: number }
@@ -87,6 +90,8 @@ function rectCells(reg: RectRegion, filled: boolean): Array<[number, number]> {
 
 export function PontoCruzEditor() {
   const [chart, setChart] = useState<ChartDoc>(loadChart);
+  // Chart may carry a projectId (persisted via JSON spread in jsonToChart).
+  const chartProjectId = (chart as unknown as { projectId?: string }).projectId;
   // History stacks for undo/redo — cap to avoid memory bloat.
   const past = useRef<ChartDoc[]>([]);
   const future = useRef<ChartDoc[]>([]);
@@ -150,7 +155,12 @@ export function PontoCruzEditor() {
   const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
   const [wm, setWm] = useState<WmCfg>(DEFAULT_WM);
   const setWmField = <K extends keyof WmCfg>(k: K, v: WmCfg[K]) => setWm((s) => ({ ...s, [k]: v }));
-  const [projectId, setProjectId] = useState<string>("default");
+  // Deferred copy so the SVG live-preview re-renders less frequently than sliders.
+  const wmPreview = useDeferredValue(wm);
+  const [projectId, setProjectId] = useState<string>(chartProjectId || "default");
+  // PNG export resolution controls
+  const [pngCellPx, setPngCellPx] = useState<number>(24);      // ~150dpi at 22ct
+  const [pngLegendScale, setPngLegendScale] = useState<number>(1);
   // Saved color substitution presets per project: { presetName: { fromHex: toHex } }
   const [subs, setSubs] = useState<Record<string, Record<string, string>>>({});
   useEffect(() => {
@@ -159,7 +169,37 @@ export function PontoCruzEditor() {
       const raw = window.localStorage.getItem(SUBS_KEY(projectId));
       setSubs(raw ? JSON.parse(raw) : {});
     } catch { setSubs({}); }
+    // Restore per-project watermark/history/export config.
+    try {
+      const rawCfg = window.localStorage.getItem(PROJ_CFG_KEY(projectId));
+      if (rawCfg) {
+        const c = JSON.parse(rawCfg) as Partial<ProjectCfg>;
+        if (c.wm) setWm({ ...DEFAULT_WM, ...c.wm });
+        if (Number.isFinite(c.historyMax) && (c.historyMax as number) >= 5) setHistoryMax(c.historyMax as number);
+        if (Number.isFinite(c.pngCellPx) && (c.pngCellPx as number) >= 8) setPngCellPx(c.pngCellPx as number);
+        if (Number.isFinite(c.pngLegendScale) && (c.pngLegendScale as number) > 0) setPngLegendScale(c.pngLegendScale as number);
+      }
+    } catch { /* noop */ }
+    // Ensure the chart carries the project id so exports/imports round-trip.
+    setChart((ch) => {
+      const cur = (ch as unknown as { projectId?: string }).projectId;
+      if (cur === projectId) return ch;
+      return { ...ch, projectId } as ChartDoc;
+    });
   }, [projectId]);
+  // Persist per-project cfg (debounced).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const t = setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          PROJ_CFG_KEY(projectId),
+          JSON.stringify({ wm, historyMax, pngCellPx, pngLegendScale } satisfies ProjectCfg),
+        );
+      } catch { /* noop */ }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [projectId, wm, historyMax, pngCellPx, pngLegendScale]);
   const saveSubs = (next: Record<string, Record<string, string>>) => {
     setSubs(next);
     try { window.localStorage.setItem(SUBS_KEY(projectId), JSON.stringify(next)); } catch { /* noop */ }
@@ -484,8 +524,11 @@ export function PontoCruzEditor() {
   };
   const exportPng = () => {
     // High-res PNG with legend + watermark (independent of on-screen zoom).
-    const bmp = renderPrintBitmap();
-    const legendH = 40 + stats.length * 22 + 20;
+    const bmp = renderPrintBitmap(pngCellPx);
+    const ls = pngLegendScale;
+    const swatch = Math.round(18 * ls);
+    const rowH = Math.round(22 * ls);
+    const legendH = Math.round(40 * ls) + stats.length * rowH + Math.round(20 * ls);
     const out = document.createElement("canvas");
     out.width = bmp.width;
     out.height = bmp.height + legendH;
@@ -493,28 +536,29 @@ export function PontoCruzEditor() {
     ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, out.width, out.height);
     ctx.drawImage(bmp, 0, 0);
     // Legend
-    ctx.fillStyle = "#111"; ctx.font = "bold 20px system-ui";
+    ctx.fillStyle = "#111"; ctx.font = `bold ${Math.round(20 * ls)}px system-ui`;
     ctx.textAlign = "left"; ctx.textBaseline = "top";
-    ctx.fillText("Legenda de cores & meadas", 16, bmp.height + 12);
-    ctx.font = "16px system-ui";
+    ctx.fillText("Legenda de cores & meadas", Math.round(16 * ls), bmp.height + Math.round(12 * ls));
+    ctx.font = `${Math.round(16 * ls)}px system-ui`;
     stats.forEach((s, i) => {
-      const y = bmp.height + 40 + i * 22;
-      ctx.fillStyle = s.hex; ctx.fillRect(16, y, 18, 16);
-      ctx.strokeStyle = "#333"; ctx.lineWidth = 1; ctx.strokeRect(16, y, 18, 16);
+      const y = bmp.height + Math.round(40 * ls) + i * rowH;
+      ctx.fillStyle = s.hex; ctx.fillRect(Math.round(16 * ls), y, swatch, Math.round(16 * ls));
+      ctx.strokeStyle = "#333"; ctx.lineWidth = 1; ctx.strokeRect(Math.round(16 * ls), y, swatch, Math.round(16 * ls));
       ctx.fillStyle = "#111";
-      ctx.fillText(`${s.symbol}   DMC ${s.dmc.codigo}   Anchor ${s.anchor.codigo}   ${s.full + s.half} pts · ~${s.meadas} meada(s)`, 42, y);
+      ctx.fillText(`${s.symbol}   DMC ${s.dmc.codigo}   Anchor ${s.anchor.codigo}   ${s.full + s.half} pts · ~${s.meadas} meada(s)`, Math.round(16 * ls) + swatch + Math.round(8 * ls), y);
     });
     // Watermark overlay (canvas)
     if (wm.text.trim()) {
       ctx.save();
       ctx.globalAlpha = wm.opacity / 100;
       ctx.fillStyle = "#555";
+      const wmScale = Math.max(1, pngCellPx / 24);
       const spots = wmCoords(wm.pos, out.width, out.height, 40);
       for (const p of spots) {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((wm.angle * Math.PI) / 180);
-        ctx.font = `bold ${wm.size}px system-ui`;
+        ctx.font = `bold ${Math.round(wm.size * wmScale)}px system-ui`;
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText(wm.text, 0, 0);
         ctx.restore();
@@ -525,8 +569,8 @@ export function PontoCruzEditor() {
   };
 
   /** Renders the chart to an offscreen canvas at print resolution (shared by PDF/PNG). */
-  const renderPrintBitmap = (): HTMLCanvasElement => {
-    const PRINT_CELL = 24;
+  const renderPrintBitmap = (cellPx: number = 24): HTMLCanvasElement => {
+    const PRINT_CELL = Math.max(8, Math.round(cellPx));
     const off = document.createElement("canvas");
     off.width = chart.cols * PRINT_CELL;
     off.height = chart.rows * PRINT_CELL;
@@ -582,7 +626,7 @@ export function PontoCruzEditor() {
    * and optional diagonal watermark on every page.
    */
   const exportPdf = () => {
-    const off = renderPrintBitmap();
+    const off = renderPrintBitmap(24);
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageW = 210, pageH = 297, margin = 10;
@@ -654,6 +698,8 @@ export function PontoCruzEditor() {
       try {
         const c = jsonToChart(String(reader.result));
         setChart(c);
+        const pid = (c as unknown as { projectId?: string }).projectId;
+        if (pid) setProjectId(pid);
         toast.success("Gráfico importado.");
       } catch (e) { toast.error(String((e as Error).message)); }
     };
@@ -945,19 +991,36 @@ export function PontoCruzEditor() {
                     <Slider value={[wm.opacity]} min={0} max={100} step={1} onValueChange={(v) => setWmField("opacity", v[0])} />
                   </div>
                 </div>
-                {/* Live preview */}
+                {/* Live preview (deferred to avoid jank while sliding) */}
                 <svg viewBox="0 0 210 297" className="mt-1 h-40 w-full rounded border bg-white">
                   <rect x="0" y="0" width="210" height="297" fill="#fff" />
                   <rect x="10" y="10" width="190" height="120" fill="#f4f4f5" stroke="#ddd" />
-                  {wm.text.trim() && wmCoords(wm.pos, 210, 297, 10).map((p, i) => (
+                  {wmPreview.text.trim() && wmCoords(wmPreview.pos, 210, 297, 10).map((p, i) => (
                     <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
-                      transform={`rotate(${wm.angle} ${p.x} ${p.y})`}
-                      fill="#555" opacity={wm.opacity / 100}
-                      style={{ font: `bold ${Math.max(6, wm.size * 0.35)}px system-ui` }}>
-                      {wm.text}
+                      transform={`rotate(${wmPreview.angle} ${p.x} ${p.y})`}
+                      fill="#555" opacity={wmPreview.opacity / 100}
+                      style={{ font: `bold ${Math.max(6, wmPreview.size * 0.35)}px system-ui` }}>
+                      {wmPreview.text}
                     </text>
                   ))}
                 </svg>
+              </div>
+              <div className="rounded border p-2 space-y-2">
+                <div className="text-xs font-semibold">Resolução PNG</div>
+                <div>
+                  <Label className="text-[10px]">
+                    Célula ({pngCellPx}px) · ~{Math.round(pngCellPx * 25.4 / (2.54 * (chart.aidaCount / 14 * 5)))} DPI aprox.
+                  </Label>
+                  <Slider value={[pngCellPx]} min={12} max={64} step={2} onValueChange={(v) => setPngCellPx(v[0])} />
+                </div>
+                <div>
+                  <Label className="text-[10px]">Escala da legenda ({pngLegendScale.toFixed(2)}×)</Label>
+                  <Slider value={[Math.round(pngLegendScale * 100)]} min={50} max={300} step={10}
+                    onValueChange={(v) => setPngLegendScale(v[0] / 100)} />
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Aumenta a célula para impressão em maior formato. A legenda e a marca de água escalam para se manterem legíveis.
+                </p>
               </div>
               <div className="rounded border p-2 space-y-2">
                 <div className="text-xs font-semibold">Substituições de cores (por projeto)</div>
