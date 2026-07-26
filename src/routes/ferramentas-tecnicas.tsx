@@ -1140,6 +1140,22 @@ function TricotinTab() {
           A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
         </p>
       </div>
+      <TracePanel
+        onImport={(pts) => {
+          if (!pts.length) return;
+          pushHistory();
+          const imported: PtNode[] = pts.map((p, i) => ({
+            id: `t${Date.now().toString(36)}${i}`,
+            x: p.x,
+            y: p.y,
+            type: i === 0 ? "start" : "straight",
+          }));
+          setNodes(imported);
+          setIsClosedPath(false);
+        }}
+        fitW={W}
+        fitH={H}
+      />
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 0; }
