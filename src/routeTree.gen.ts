@@ -75,6 +75,7 @@ import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as AuthVerify2faRouteImport } from './routes/auth.verify-2fa'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
+import { Route as ReceitaTesterTricotTokenRouteImport } from './routes/receita-tester-tricot.$token'
 import { Route as ReceitaTesterTokenRouteImport } from './routes/receita-tester.$token'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 import { Route as ApiPublicWebhooksTwilioStatusRouteImport } from './routes/api/public/webhooks/twilio-status'
@@ -410,6 +411,12 @@ const MoodboardsIdRoute = MoodboardsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MoodboardsRoute,
 } as any)
+const ReceitaTesterTricotTokenRoute =
+  ReceitaTesterTricotTokenRouteImport.update({
+    id: '/receita-tester-tricot/$token',
+    path: '/receita-tester-tricot/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ReceitaTesterTokenRoute = ReceitaTesterTokenRouteImport.update({
   id: '/receita-tester/$token',
   path: '/receita-tester/$token',
@@ -500,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/whatsapp': typeof WhatsappRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
+  '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -572,6 +580,7 @@ export interface FileRoutesByTo {
   '/whatsapp': typeof WhatsappRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
+  '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -645,6 +654,7 @@ export interface FileRoutesById {
   '/whatsapp': typeof WhatsappRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
+  '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
+    | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -791,6 +802,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
+    | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -863,6 +875,7 @@ export interface FileRouteTypes {
     | '/whatsapp'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
+    | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -934,6 +947,7 @@ export interface RootRouteChildren {
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
+  ReceitaTesterTricotTokenRoute: typeof ReceitaTesterTricotTokenRoute
   ReceitaTesterTokenRoute: typeof ReceitaTesterTokenRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
   ApiPublicWebhooksTwilioStatusRoute: typeof ApiPublicWebhooksTwilioStatusRoute
@@ -1404,6 +1418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoodboardsIdRouteImport
       parentRoute: typeof MoodboardsRoute
     }
+    '/receita-tester-tricot/$token': {
+      id: '/receita-tester-tricot/$token'
+      path: '/receita-tester-tricot/$token'
+      fullPath: '/receita-tester-tricot/$token'
+      preLoaderRoute: typeof ReceitaTesterTricotTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/receita-tester/$token': {
       id: '/receita-tester/$token'
       path: '/receita-tester/$token'
@@ -1522,6 +1543,7 @@ const rootRouteChildren: RootRouteChildren = {
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
+  ReceitaTesterTricotTokenRoute: ReceitaTesterTricotTokenRoute,
   ReceitaTesterTokenRoute: ReceitaTesterTokenRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
   ApiPublicWebhooksTwilioStatusRoute: ApiPublicWebhooksTwilioStatusRoute,

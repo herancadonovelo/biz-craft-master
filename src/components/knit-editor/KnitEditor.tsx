@@ -31,6 +31,7 @@ import { GradingPanel } from "@/components/knit-editor/GradingPanel";
 import { ColorworkPanel } from "@/components/knit-editor/ColorworkPanel";
 import { ConstructionPanel } from "@/components/knit-editor/ConstructionPanel";
 import { WritingPanel } from "@/components/knit-editor/WritingPanel";
+import { TesterPanel } from "@/components/knit-editor/TesterPanel";
 import type { Marcador } from "@/lib/knit/construction";
 import { useStore, formatCurrency } from "@/lib/store";
 
@@ -377,41 +378,16 @@ export function KnitEditor() {
 
         {/* ================= 6. TESTADORES ================= */}
         <TabsContent value="tester" className="mt-4 space-y-4">
-          <Card>
-            <CardHeader><CardTitle className="text-base">Contador de carreiras</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-4">
-                <Button variant="outline" onClick={() => patch({ contador: { ...st.contador, atual: Math.max(1, st.contador.atual - 1) } })}>−</Button>
-                <div className="text-4xl font-mono w-24 text-center">{st.contador.atual}</div>
-                <Button onClick={() => patch({ contador: { ...st.contador, atual: st.contador.atual + 1 } })}>+</Button>
-                <Button size="sm" variant="ghost" onClick={() => patch({ contador: { atual: 1, destaque: 1 } })}>reset</Button>
-              </div>
-              <div>
-                <Label>Destacar carreira (highlighter)</Label>
-                <Slider value={[st.contador.destaque]} min={1} max={st.chart.rows}
-                  onValueChange={(v) => patch({ contador: { ...st.contador, destaque: v[0] } })} />
-              </div>
-              <div className="relative border rounded overflow-hidden max-h-64 overflow-y-auto">
-                {texto.map((linha, i) => (
-                  <div key={i}
-                    className={`px-3 py-1 text-sm font-mono ${i + 1 === st.contador.destaque ? "bg-yellow-200/60 dark:bg-yellow-500/20" : ""} ${i + 1 < st.contador.atual ? "opacity-40 line-through" : ""}`}>
-                    {linha}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base">Link para test knitters</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Partilha o JSON exportado abaixo com a tua equipa de testes — quando reenviarem,
-                os consumos reais actualizam o cálculo de custo.
-              </p>
-              <Button variant="outline" onClick={exportRavelry}>Gerar pacote de teste (JSON)</Button>
-            </CardContent>
-          </Card>
+          <TesterPanel
+            token={`chart-${st.chart.cols}x${st.chart.rows}`}
+            linhas={texto}
+            packagePayload={{
+              titulo: `Gráfico ${st.chart.cols}×${st.chart.rows}`,
+              linhas: texto,
+              gauge: st.gauge,
+              terminologia: st.terminologia,
+            }}
+          />
         </TabsContent>
 
         {/* ================= 7. CUSTO & EXPORT ================= */}
