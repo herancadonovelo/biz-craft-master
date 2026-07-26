@@ -3624,6 +3624,24 @@ function BordadoTab() {
             {bundleBusy ? "A gerar bundle…" : "Exportar bundle .zip"}
           </Button>
         </CardContent></Card>
+        {/* Fase 15 — Multi-bastidor com marcas de registo */}
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs font-semibold">Multi-bastidor (re-hoop)</Label>
+          <p className="text-[10px] text-muted-foreground">
+            Divide designs grandes em vários bastidores com sobreposição e cruzes de registo alinhadas para reposicionar o tecido sem desvio.
+          </p>
+          <div>
+            <Label className="text-[10px]">Sobreposição ({rehoopOverlapMm} mm)</Label>
+            <Slider value={[rehoopOverlapMm]} min={5} max={40} step={1} onValueChange={(v) => setRehoopOverlapMm(v[0])} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Margem interna ({rehoopMarginMm} mm)</Label>
+            <Slider value={[rehoopMarginMm]} min={0} max={20} step={1} onValueChange={(v) => setRehoopMarginMm(v[0])} />
+          </div>
+          <Button size="sm" onClick={exportarRehoop} disabled={rehoopBusy} className="w-full">
+            {rehoopBusy ? "A dividir…" : "Exportar tiles + guia SVG"}
+          </Button>
+        </CardContent></Card>
         {/* Fase 13 — Mapa de densidade + Relatório de qualidade */}
         <Card><CardContent className="space-y-2 p-3">
           <div className="flex items-center justify-between">
