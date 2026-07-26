@@ -16,7 +16,7 @@ export const Route = createFileRoute("/historico-faturas")({
 });
 
 export function HistoricoFaturasContent() {
-    const { faturas, clientes, perfilNegocio } = useStore();
+    const { faturas, clientes, perfilNegocio, design } = useStore();
     const [q, setQ] = useState("");
     const list = [...faturas]
       .sort((a, b) => (a.data < b.data ? 1 : -1))
@@ -45,7 +45,7 @@ export function HistoricoFaturasContent() {
                     <TableCell>{c?.nome ?? "—"}</TableCell>
                     <TableCell className="font-display">{formatEUR(total)}</TableCell>
                     <TableCell><Badge variant="outline">{f.estado}</Badge></TableCell>
-                    <TableCell className="text-right"><Button variant="ghost" size="sm" onClick={() => imprimirFatura(f, c, perfilNegocio)}><Printer className="mr-1 h-4 w-4" />Imprimir</Button></TableCell>
+                    <TableCell className="text-right"><Button variant="ghost" size="sm" onClick={() => imprimirFatura(f, c, perfilNegocio, design.moeda)}><Printer className="mr-1 h-4 w-4" />Imprimir</Button></TableCell>
                   </TableRow>
                 );
               })}
