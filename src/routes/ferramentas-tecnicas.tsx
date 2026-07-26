@@ -2739,6 +2739,42 @@ function BordadoTab() {
               })}
             </g>
           )}
+          {/* Fase 11 — simulador animado (sobrepõe o desenho ao vivo). */}
+          {simOn && simFlat.length > 0 && (
+            <g pointerEvents="none">
+              <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(255,255,255,0.85)" />
+              {(() => {
+                const parts: JSX.Element[] = [];
+                let curBlock = -1;
+                let d = "";
+                let curColor = "#111";
+                const flush = (key: string) => {
+                  if (d) parts.push(<path key={key} d={d} stroke={curColor} strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />);
+                  d = "";
+                };
+                for (let i = 0; i < simVisibleCount; i++) {
+                  const p = simFlat[i];
+                  if (p.blockIdx !== curBlock) {
+                    flush(`s-${curBlock}-${i}`);
+                    curBlock = p.blockIdx;
+                    curColor = orderedColorBlocks[curBlock]?.color ?? "#111";
+                    d = `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+                  } else {
+                    d += ` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+                  }
+                }
+                flush("s-final");
+                const cur = simFlat[Math.max(0, simVisibleCount - 1)];
+                if (cur) parts.push(
+                  <g key="needle">
+                    <circle cx={cur.x} cy={cur.y} r="4" fill="none" stroke="#111" strokeWidth="1" />
+                    <circle cx={cur.x} cy={cur.y} r="1.6" fill="#e11d48" />
+                  </g>
+                );
+                return parts;
+              })()}
+            </g>
+          )}
         </svg>
       </A4Stage>
       <div className="space-y-3">
