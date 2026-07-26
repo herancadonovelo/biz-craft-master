@@ -59,6 +59,7 @@ import { Phase18Panel } from "@/components/embroidery/Phase18Panel";
 import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
 import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
 import { Phase21Panel } from "@/components/embroidery/Phase21Panel";
+import { Phase22Panel } from "@/components/embroidery/Phase22Panel";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -3747,6 +3748,7 @@ function BordadoTab() {
           }))}
           hoopMm={{ w: 100, h: 100 }}
         />
+        <Phase22Panel projectId="bordado" />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />
       </div>
     </div>
