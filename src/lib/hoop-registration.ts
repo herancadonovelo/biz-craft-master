@@ -7,7 +7,9 @@
  * vizinhos. Assim quem borda pode alinhar o segundo hoop sobre a cruz que
  * já ficou bordada no primeiro, evitando desvios ao re-enfronhar o tecido.
  */
-import type { StitchBlock, StitchPoint } from "./dst";
+import type { StitchBlock } from "./dst";
+
+type StitchPoint = { x: number; y: number };
 
 export interface HoopTile {
   index: number;
@@ -93,7 +95,7 @@ export function splitByHoopWithRegistration(
       if (marks.length > 0) {
         const pts: StitchPoint[] = [];
         for (const m of marks) pts.push(...crossPoints(m.x, m.y, markSize));
-        localBlocks.push({ color: markColor, points: pts });
+        localBlocks.push({ color: markColor, label: "registo", points: pts });
       }
       if (localBlocks.length > 0 || marks.length > 0) {
         tiles.push({
