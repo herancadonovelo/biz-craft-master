@@ -207,6 +207,11 @@ function Verify2FAPage() {
                   Trocar de número
                 </button>
               </div>
+              {deliveryStatus && (
+                <div data-testid="twilio-delivery-status" className="text-[11px] text-muted-foreground">
+                  Estado do envio: <b>{deliveryStatus}</b>
+                </div>
+              )}
             </>
           )}
 
