@@ -954,6 +954,7 @@ export const useStore = create<State>()(
       contadores: [],
       receitasEditor: [],
       marketingInfo: { personaQuem: "", personaDificuldades: "", personaValoriza: "", mercadoNotas: "" },
+      producaoPlanos: [],
       add: (k, item) =>
         set((s) => ({ [k]: [...(s as any)[k], { ...item, id: uid() }] } as any)),
       update: (k, id, patch) =>
