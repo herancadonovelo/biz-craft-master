@@ -41,11 +41,19 @@ export const Route = createFileRoute("/ferramentas-tecnicas")({
 });
 
 function FerramentasPage() {
+  const TAB_KEY = "ferramentas-tecnicas-tab-v1";
+  const [tab, setTab] = React.useState<string>(() => {
+    if (typeof window === "undefined") return "instrucoes";
+    try { return window.localStorage.getItem(TAB_KEY) || "instrucoes"; } catch { return "instrucoes"; }
+  });
+  React.useEffect(() => {
+    try { window.localStorage.setItem(TAB_KEY, tab); } catch { /* noop */ }
+  }, [tab]);
   return (
     <div className="space-y-6">
       <PageHeader title="Ferramentas Técnicas"
         description="Os 5 editores partilham tela A4, marca d'água configurável e exportação para Biblioteca, PDF e Imprimir." />
-      <Tabs defaultValue="instrucoes">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="instrucoes">Instruções de uso</TabsTrigger>
           <TabsTrigger value="tricotin">Editor de Moldes: Tricotin/i-cord</TabsTrigger>
@@ -58,16 +66,18 @@ function FerramentasPage() {
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
           <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
         </TabsList>
-        <TabsContent value="instrucoes" className="mt-24"><InstrucoesTab /></TabsContent>
-        <TabsContent value="tricotin" className="mt-24"><TricotinTab /></TabsContent>
-        <TabsContent value="amigurumi" className="mt-24"><AmigurumiTab /></TabsContent>
-        <TabsContent value="costura" className="mt-24"><CosturaTab /></TabsContent>
-        <TabsContent value="ponto-cruz" className="mt-24"><PontoCruzTab /></TabsContent>
-        <TabsContent value="bordado" className="mt-24"><BordadoTab /></TabsContent>
-        <TabsContent value="editor-receita" className="mt-24"><EditorReceitaPage /></TabsContent>
-        <TabsContent value="editor-moodboards" className="mt-24"><EditorMoodboardsPage /></TabsContent>
-        <TabsContent value="conversor" className="mt-24"><ConversorPage /></TabsContent>
-        <TabsContent value="contador" className="mt-24"><ContadorPage /></TabsContent>
+        {/* forceMount keeps editor state (canvas, form, presets) alive when
+            switching tabs — Radix would otherwise unmount inactive content. */}
+        <TabsContent forceMount value="instrucoes" className="mt-24 data-[state=inactive]:hidden"><InstrucoesTab /></TabsContent>
+        <TabsContent forceMount value="tricotin" className="mt-24 data-[state=inactive]:hidden"><TricotinTab /></TabsContent>
+        <TabsContent forceMount value="amigurumi" className="mt-24 data-[state=inactive]:hidden"><AmigurumiTab /></TabsContent>
+        <TabsContent forceMount value="costura" className="mt-24 data-[state=inactive]:hidden"><CosturaTab /></TabsContent>
+        <TabsContent forceMount value="ponto-cruz" className="mt-24 data-[state=inactive]:hidden"><PontoCruzTab /></TabsContent>
+        <TabsContent forceMount value="bordado" className="mt-24 data-[state=inactive]:hidden"><BordadoTab /></TabsContent>
+        <TabsContent forceMount value="editor-receita" className="mt-24 data-[state=inactive]:hidden"><EditorReceitaPage /></TabsContent>
+        <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
+        <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
+        <TabsContent forceMount value="contador" className="mt-24 data-[state=inactive]:hidden"><ContadorPage /></TabsContent>
       </Tabs>
     </div>
   );
@@ -820,127 +830,6 @@ function TricotinTab() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
-        <button onClick={() => setMode("select")} className={`rounded border px-3 py-1.5 text-xs ${mode === "select" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Modo Seleção</button>
-        <button onClick={() => setMode("straight")} className={`rounded border px-3 py-1.5 text-xs ${mode === "straight" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Reto</button>
-        <button onClick={() => setMode("curve")} className={`rounded border px-3 py-1.5 text-xs ${mode === "curve" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Curvo</button>
-        {mode === "select" && nodes.length >= 2 && (
-          <button onClick={() => { pushHistory(); setIsClosedPath((v) => !v); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">
-            {isClosedPath ? "Abrir Molde" : "Fechar Molde"}
-          </button>
-        )}
-        <div className="ml-2 flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Espessura:</span>
-          <input type="range" min={5} max={35} value={lineWidthTricotin} onChange={(e) => setLineWidthTricotin(Number(e.target.value))} />
-          <span className="w-10 tabular-nums">{lineWidthTricotin}px</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <label className="flex items-center gap-1">
-            <input type="checkbox" checked={snapGridOn} onChange={(e) => setSnapGridOn(e.target.checked)} />
-            Snap grelha
-          </label>
-          <select
-            value={gridStepCm}
-            onChange={(e) => setGridStepCm(Number(e.target.value) as 0.5 | 1)}
-            disabled={!snapGridOn}
-            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
-          >
-            <option value={0.5}>0,5 cm</option>
-            <option value={1}>1 cm</option>
-          </select>
-          <label className="ml-2 flex items-center gap-1">
-            <input type="checkbox" checked={snapAngleOn} onChange={(e) => setSnapAngleOn(e.target.checked)} />
-            Snap ângulo
-          </label>
-          <select
-            value={angleStep}
-            onChange={(e) => setAngleStep(Number(e.target.value) as 15 | 45 | 90)}
-            disabled={!snapAngleOn}
-            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
-          >
-            <option value={15}>15°</option>
-            <option value={45}>45°</option>
-            <option value={90}>90°</option>
-          </select>
-        </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
-          <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
-          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted" title="Começar uma folha vazia">Criar novo molde</button>
-          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Folha do Editor</button>
-        </div>
-      </div>
-      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
-        <div className="relative bg-white">
-          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
-            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
-            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
-          </div>
-          <canvas
-          ref={canvasRef}
-          width={W}
-          height={H}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          className="block touch-none"
-          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
-          />
-          {/* Watermark overlay (renderizada em cima da folha) */}
-          <div className="pointer-events-none absolute inset-0">
-            <Watermark w={w} />
-          </div>
-        </div>
-      </div>
-      {/* Marca d'água da folha de desenho */}
-      <div className="rounded-lg border bg-card p-3 tricotin-no-print">
-        <div className="mb-2 text-xs font-medium text-muted-foreground">Marca d'água da folha de desenho</div>
-        <WatermarkControls w={w} set={setW} />
-      </div>
-      {/* Gestão do Molde (abaixo da folha de desenho) */}
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
-        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
-        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na Biblioteca</button>
-        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
-        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
-        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json"
-          className="hidden"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
-        />
-        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
-        {savedMolds.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">
-            <select
-              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
-              className="rounded border bg-background px-2 py-1 text-xs"
-              defaultValue=""
-            >
-              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
-              {savedMolds.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-            <select
-              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
-              className="rounded border bg-background px-2 py-1 text-xs"
-              defaultValue=""
-            >
-              <option value="" disabled>Apagar…</option>
-              {savedMolds.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-      <p className="text-xs text-muted-foreground tricotin-no-print">
-        Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
-      </p>
       {/* Lettering — Auto-script + Kerning + Text on Path */}
       <div className="space-y-3 rounded-lg border bg-card p-3 tricotin-no-print">
         <div className="flex items-center justify-between gap-3">
@@ -1102,6 +991,127 @@ function TricotinTab() {
           A guia tracejada azul no canvas mostra o traçado do texto (não é impressa). O texto é exportado com o molde no PNG e na impressão A4.
         </p>
       </div>
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
+        <button onClick={() => setMode("select")} className={`rounded border px-3 py-1.5 text-xs ${mode === "select" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Modo Seleção</button>
+        <button onClick={() => setMode("straight")} className={`rounded border px-3 py-1.5 text-xs ${mode === "straight" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Reto</button>
+        <button onClick={() => setMode("curve")} className={`rounded border px-3 py-1.5 text-xs ${mode === "curve" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>Adicionar Ponto Curvo</button>
+        {mode === "select" && nodes.length >= 2 && (
+          <button onClick={() => { pushHistory(); setIsClosedPath((v) => !v); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">
+            {isClosedPath ? "Abrir Molde" : "Fechar Molde"}
+          </button>
+        )}
+        <div className="ml-2 flex items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Espessura:</span>
+          <input type="range" min={5} max={35} value={lineWidthTricotin} onChange={(e) => setLineWidthTricotin(Number(e.target.value))} />
+          <span className="w-10 tabular-nums">{lineWidthTricotin}px</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <label className="flex items-center gap-1">
+            <input type="checkbox" checked={snapGridOn} onChange={(e) => setSnapGridOn(e.target.checked)} />
+            Snap grelha
+          </label>
+          <select
+            value={gridStepCm}
+            onChange={(e) => setGridStepCm(Number(e.target.value) as 0.5 | 1)}
+            disabled={!snapGridOn}
+            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+          >
+            <option value={0.5}>0,5 cm</option>
+            <option value={1}>1 cm</option>
+          </select>
+          <label className="ml-2 flex items-center gap-1">
+            <input type="checkbox" checked={snapAngleOn} onChange={(e) => setSnapAngleOn(e.target.checked)} />
+            Snap ângulo
+          </label>
+          <select
+            value={angleStep}
+            onChange={(e) => setAngleStep(Number(e.target.value) as 15 | 45 | 90)}
+            disabled={!snapAngleOn}
+            className="rounded border bg-background px-1 py-0.5 disabled:opacity-40"
+          >
+            <option value={15}>15°</option>
+            <option value={45}>45°</option>
+            <option value={90}>90°</option>
+          </select>
+        </div>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <button onClick={undo} disabled={undoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↶ Desfazer</button>
+          <button onClick={redo} disabled={redoRef.current.length === 0} className="rounded border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-40">↷ Refazer</button>
+          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted" title="Começar uma folha vazia">Criar novo molde</button>
+          <button onClick={() => { pushHistory(); setNodes([]); setIsClosedPath(false); }} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Limpar Folha do Editor</button>
+        </div>
+      </div>
+      <div className="overflow-auto rounded-lg border bg-white opacity-100 shadow-sm tricotin-no-print">
+        <div className="relative bg-white">
+          <div className="tricotin-no-print pointer-events-none absolute left-3 top-3 z-10 rounded-md border border-primary/30 bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur">
+            Arame Necessário: <span className="tabular-nums text-primary">{totalLengthCm.toFixed(1)} cm</span>
+            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(inclui +5% margem)</span>
+          </div>
+          <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          className="block touch-none"
+          style={{ width: "100%", maxWidth: `${W}px`, height: "auto", aspectRatio: `${W} / ${H}`, cursor: mode === "select" ? "grab" : "crosshair" }}
+          />
+          {/* Watermark overlay (renderizada em cima da folha) */}
+          <div className="pointer-events-none absolute inset-0">
+            <Watermark w={w} />
+          </div>
+        </div>
+      </div>
+      {/* Marca d'água da folha de desenho */}
+      <div className="rounded-lg border bg-card p-3 tricotin-no-print">
+        <div className="mb-2 text-xs font-medium text-muted-foreground">Marca d'água da folha de desenho</div>
+        <WatermarkControls w={w} set={setW} />
+      </div>
+      {/* Gestão do Molde (abaixo da folha de desenho) */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 tricotin-no-print">
+        <span className="text-xs font-medium text-muted-foreground">Gestão do Molde:</span>
+        <button onClick={saveToApp} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar na Biblioteca</button>
+        <button onClick={exportJSON} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.json)</button>
+        <button onClick={exportPNG} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Guardar no Dispositivo (.png)</button>
+        <button onClick={printMold} className="rounded border bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:opacity-90">Imprimir Molde (A4)</button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) importJSON(f); e.currentTarget.value = ""; }}
+        />
+        <button onClick={() => fileInputRef.current?.click()} className="rounded border px-3 py-1.5 text-xs hover:bg-muted">Importar .json</button>
+        {savedMolds.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <select
+              onChange={(e) => { if (e.target.value) loadSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Moldes guardados ({savedMolds.length})</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            <select
+              onChange={(e) => { if (e.target.value) deleteSaved(e.target.value); e.currentTarget.value = ""; }}
+              className="rounded border bg-background px-2 py-1 text-xs"
+              defaultValue=""
+            >
+              <option value="" disabled>Apagar…</option>
+              {savedMolds.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground tricotin-no-print">
+        Dica: no "Modo Seleção" arrasta os nós cinzentos para reposicionar, os pontos de controlo (cinza escuro) para ajustar a curvatura, ou arrasta diretamente um segmento da linha para mover toda essa secção. Os moldes guardados aparecem na Biblioteca › Tricotin. Atalhos: Ctrl/Cmd+Z (desfazer), Ctrl/Cmd+Shift+Z (refazer).
+      </p>
       <TracePanel
         onImport={(pts: TracePoint[]) => {
           if (!pts.length) return;
