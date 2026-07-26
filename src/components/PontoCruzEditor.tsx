@@ -157,6 +157,7 @@ export function PontoCruzEditor() {
   const [dragStart, setDragStart] = useState<{ r: number; c: number } | null>(null);
   const [wm, setWm] = useState<WmCfg>(DEFAULT_WM);
   const setWmField = <K extends keyof WmCfg>(k: K, v: WmCfg[K]) => setWm((s) => ({ ...s, [k]: v }));
+  const [wmPreviewZoom, setWmPreviewZoom] = useState<number>(1);
   // Deferred copy so the SVG live-preview re-renders less frequently than sliders.
   const wmPreview = useDeferredValue(wm);
   const [projectId, setProjectId] = useState<string>(chartProjectId || "default");
