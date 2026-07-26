@@ -1142,10 +1142,10 @@ function TricotinTab() {
         </p>
       </div>
       <TracePanel
-        onImport={(pts) => {
+        onImport={(pts: TracePoint[]) => {
           if (!pts.length) return;
           pushHistory();
-          const imported: PtNode[] = pts.map((p, i) => ({
+          const imported: PtNode[] = pts.map((p: TracePoint, i: number) => ({
             id: `t${Date.now().toString(36)}${i}`,
             x: p.x,
             y: p.y,
