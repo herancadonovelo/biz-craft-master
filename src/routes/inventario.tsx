@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertTriangle, Package, Truck, ShoppingCart, TrendingDown } from "lucide-react";
+import { CsvImportInventarioDialog } from "@/components/CsvImportInventarioDialog";
 
 export const Route = createFileRoute("/inventario")({
   head: () => ({
@@ -73,6 +74,7 @@ function InventarioOverview() {
         description="Resumo de fornecedores, custos por artigo e alertas de reposição."
         actions={
           <div className="flex flex-wrap gap-2">
+            <CsvImportInventarioDialog />
             <Button asChild variant="outline"><Link to="/stock">Ver stock</Link></Button>
             <Button asChild variant="outline"><Link to="/gestao-fornecedores">Fornecedores</Link></Button>
             <Button asChild><Link to="/lista-compras">Lista de compras</Link></Button>
