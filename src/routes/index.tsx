@@ -265,7 +265,6 @@ function buildSearchIndex(t: (k: string) => string): SearchItem[] {
     { label: "Ferramentas Técnicas", url: "/ferramentas-tecnicas", hint: "Tricotin, crochê, ponto cruz, amigurumi, costura" },
     { label: "Contador de carreiras", url: "/contador", hint: "Premium" },
     { label: "Conversor de cores (DMC/Anchor)", url: "/conversor-cores" },
-    { label: "Editor de receita", url: "/editor-receita" },
     { label: "Bloco De Notas", url: "/notas" },
     { label: "Craft & Relax Music", url: "/atelier-sounds", hint: "Creative Mood · Nature ASMR" },
     { label: "Mural De Inspiração", url: "/mural" },

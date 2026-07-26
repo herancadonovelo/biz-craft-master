@@ -25,7 +25,6 @@ import {
   Pen, Link2, Move, ZoomIn, ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
-import { EditorReceitaPage } from "./editor-receita";
 import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { AmigurumiEditor } from "@/components/amigurumi-editor/AmigurumiEditor";
@@ -33,6 +32,9 @@ import { ContadorPage } from "./contador";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
+// BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
+// enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
+// texturas de tecido e gestor de camadas simples.
 
 export const Route = createFileRoute("/ferramentas-tecnicas")({
   head: () => ({ meta: [{ title: "Ferramentas Técnicas" }] }),
@@ -47,7 +49,11 @@ function FerramentasPage() {
   const TAB_KEY = "ferramentas-tecnicas-tab-v1";
   const [tab, setTab] = React.useState<string>(() => {
     if (typeof window === "undefined") return "instrucoes";
-    try { return window.localStorage.getItem(TAB_KEY) || "instrucoes"; } catch { return "instrucoes"; }
+    try {
+      const raw = window.localStorage.getItem(TAB_KEY) || "instrucoes";
+      // "editor-receita" tab was removed — migrate silently.
+      return raw === "editor-receita" ? "instrucoes" : raw;
+    } catch { return "instrucoes"; }
   });
   React.useEffect(() => {
     try { window.localStorage.setItem(TAB_KEY, tab); } catch { /* noop */ }
@@ -64,7 +70,6 @@ function FerramentasPage() {
           <TabsTrigger value="costura">Editor de Moldes: Costura</TabsTrigger>
           <TabsTrigger value="ponto-cruz">Editor de Gráficos: Ponto Cruz</TabsTrigger>
           <TabsTrigger value="bordado">Editor de Padrões: Bordado</TabsTrigger>
-          <TabsTrigger value="editor-receita">Editor De Receitas</TabsTrigger>
           <TabsTrigger value="editor-moodboards">Editor De Moodboards</TabsTrigger>
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
           <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
@@ -77,7 +82,6 @@ function FerramentasPage() {
         <TabsContent forceMount value="costura" className="mt-24 data-[state=inactive]:hidden"><CosturaTab /></TabsContent>
         <TabsContent forceMount value="ponto-cruz" className="mt-24 data-[state=inactive]:hidden"><PontoCruzTab /></TabsContent>
         <TabsContent forceMount value="bordado" className="mt-24 data-[state=inactive]:hidden"><BordadoTab /></TabsContent>
-        <TabsContent forceMount value="editor-receita" className="mt-24 data-[state=inactive]:hidden"><EditorReceitaPage /></TabsContent>
         <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
         <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
         <TabsContent forceMount value="contador" className="mt-24 data-[state=inactive]:hidden"><ContadorPage /></TabsContent>
@@ -92,8 +96,7 @@ function InstrucoesTab() {
     { t: "Editor de Receitas: Amigurumis & Crochê", d: "Processador de texto e tabelas técnicas para escrever padrões, contar pontos linha-a-linha e adicionar notas de produção. Pensa em \"livro de receita\"." },
     { t: "Editor de Moldes: Costura", d: "Estúdio vetorial para moldes de vestuário, com linhas retas, curvas, introdução manual de medidas em cm e graduação por tamanhos (S, M, L, XL). Inclui cálculo financeiro." },
     { t: "Editor de Gráficos: Ponto Cruz", d: "Grelha pixel-art para criar gráficos quadriculados com cores DMC/Anchor. Permite alternar entre vista a cor e vista de símbolos a preto e branco para leitura em papel." },
-    { t: "Editor de Padrões: Bordado", d: "Canvas livre para importar imagens, traçar contornos e definir riscos para bordado à mão." },
-    { t: "Editor De Receitas", d: "Editor estruturado para criar e organizar receitas por secções e carreiras. Adiciona materiais, imagens de referência por secção, e o total de pontos é calculado automaticamente. Ideal para amigurumis, crochet e tricotin em formato \"livro\"." },
+    { t: "Editor de Padrões: Bordado", d: "Estúdio de bordado com bastidor virtual, camadas, grelha da regra dos terços, texturas de tecido, decalque de imagem, vetorização automática e exportação A4 pronta para transferir." },
     { t: "Editor De Moodboards", d: "Cria moodboards em tela A4 com imagens, texto, formas e paleta de cores. Arrasta, rodas e redimensiona elementos, associa a uma encomenda e exporta em PDF/imagem para partilhar com o cliente." },
     { t: "Conversor De Cores: DMC/ANCHOR", d: "Converte códigos de linhas entre marcas DMC ↔ Anchor. Pesquisa por código ou nome, vê equivalências aproximadas e adiciona diretamente ao stock ou à lista de compras." },
     { t: "Contador De Carreiras & Pontos", d: "Contadores digitais para acompanhar carreiras e pontos em tempo real durante o trabalho. Cria vários contadores por receita, incrementa/decrementa com um toque e guarda a última sessão automaticamente." },
@@ -1518,34 +1521,116 @@ function PontoCruzTab() {
 }
 
 /* ============================ BORDADO ============================ */
+/**
+ * Estúdio de Bordado — Fase 1.
+ * Sobre o desenho e vetorização originais adiciona:
+ *  - Simulador de bastidor (Redondo 15/20/25 cm, Oval 18×13 cm, Quadrado 15 cm)
+ *  - Grelha da regra dos terços (toggle)
+ *  - Texturas de tecido (algodão cru, linho, escuro)
+ *  - Gestor de camadas: adicionar, renomear, cor, espessura, visibilidade,
+ *    bloqueio, reordenar e apagar. Os traços entram na camada ativa e a
+ *    vetorização vai sempre para a camada "Risco".
+ *  - Decalque com controlo de opacidade.
+ * Fases 2–6 (pincéis satin/nó francês, paletas DMC/Anchor, texto circular,
+ * lightbox, export DST) serão adicionadas em iterações seguintes.
+ */
+type BordadoLayer = {
+  id: string; nome: string; visible: boolean; locked: boolean;
+  color: string; width: number; strokes: string[];
+};
+type HoopShape = "round15" | "round20" | "round25" | "oval" | "square";
+type FabricKind = "none" | "algodao" | "linho" | "escuro";
+
+const HOOP_PRESETS: { id: HoopShape; nome: string; wCm: number; hCm: number }[] = [
+  { id: "round15", nome: "Redondo 15 cm", wCm: 15, hCm: 15 },
+  { id: "round20", nome: "Redondo 20 cm", wCm: 20, hCm: 20 },
+  { id: "round25", nome: "Redondo 25 cm", wCm: 25, hCm: 25 },
+  { id: "oval",    nome: "Oval 18×13 cm",  wCm: 18, hCm: 13 },
+  { id: "square",  nome: "Quadrado 15 cm", wCm: 15, hCm: 15 },
+];
+const FABRIC_STYLES: Record<FabricKind, React.CSSProperties> = {
+  none: {},
+  algodao: {
+    backgroundColor: "#f4ecdd",
+    backgroundImage:
+      "repeating-linear-gradient(0deg, rgba(120,90,50,0.05) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(120,90,50,0.05) 0 1px, transparent 1px 3px)",
+  },
+  linho: {
+    backgroundColor: "#e8dfc8",
+    backgroundImage:
+      "repeating-linear-gradient(45deg, rgba(90,70,40,0.08) 0 2px, transparent 2px 6px), repeating-linear-gradient(-45deg, rgba(90,70,40,0.06) 0 2px, transparent 2px 6px)",
+  },
+  escuro: {
+    backgroundColor: "#2b2b30",
+    backgroundImage:
+      "repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 3px)",
+  },
+};
+
 function BordadoTab() {
   const ref = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [w, setW] = useMarcaDAgua();
   const sheet = useSheet();
-  const [paths, setPaths] = useState<string[]>([]);
   const [imagemFundo, setImagemFundo] = useState<string>("");
-  const [contornos, setContornos] = useState<string[]>([]);
+  const [imagemOpacidade, setImagemOpacidade] = useState(50);
   const [limiar, setLimiar] = useState(128);
-  const [suavizar, setSuavizar] = useState(1);          // iterações de Chaikin
-  const [minSeg, setMinSeg] = useState(4);              // px mínimos
-  const [separados, setSeparados] = useState(true);     // gerar caminhos separados ou unidos
+  const [suavizar, setSuavizar] = useState(1);
+  const [minSeg, setMinSeg] = useState(4);
+  const [separados, setSeparados] = useState(true);
   const [aTrabalhar, setATrabalhar] = useState(false);
   const drawing = useRef(false);
 
+  // Bastidor / fundo / grelha
+  const [hoopOn, setHoopOn] = useState(true);
+  const [hoop, setHoop] = useState<HoopShape>("round20");
+  const [thirds, setThirds] = useState(false);
+  const [fabric, setFabric] = useState<FabricKind>("none");
+
+  // Camadas
+  const [layers, setLayers] = useState<BordadoLayer[]>(() => [
+    { id: "l-esboco",   nome: "Esboço",   visible: true, locked: false, color: "#9ca3af", width: 1.2, strokes: [] },
+    { id: "l-risco",    nome: "Risco",    visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] },
+    { id: "l-decalque", nome: "Decalque", visible: true, locked: true,  color: "#1e88e5", width: 0.8, strokes: [] },
+  ]);
+  const [activeLayer, setActiveLayer] = useState("l-risco");
+  const active = layers.find((l) => l.id === activeLayer) ?? layers[0];
+
+  const patchLayer = (id: string, patch: Partial<BordadoLayer>) =>
+    setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+  const addLayer = () => {
+    const id = `l-${Date.now()}`;
+    setLayers((ls) => [...ls, { id, nome: `Camada ${ls.length + 1}`, visible: true, locked: false, color: "#111111", width: 1.5, strokes: [] }]);
+    setActiveLayer(id);
+  };
+  const removeLayer = (id: string) => setLayers((ls) => {
+    if (ls.length <= 1) { toast.error("Tens de manter pelo menos uma camada."); return ls; }
+    const next = ls.filter((l) => l.id !== id);
+    if (id === activeLayer) setActiveLayer(next[0].id);
+    return next;
+  });
+  const moveLayer = (id: string, dir: -1 | 1) => setLayers((ls) => {
+    const i = ls.findIndex((l) => l.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ls.length) return ls;
+    const copy = ls.slice(); [copy[i], copy[j]] = [copy[j], copy[i]]; return copy;
+  });
+
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!active || active.locked || !active.visible) { toast.error("Camada bloqueada ou oculta."); return; }
     drawing.current = true;
     const p = ponto(e, svgRef.current!);
-    setPaths((s) => [...s, `M ${p.x} ${p.y}`]);
+    patchLayer(active.id, { strokes: [...active.strokes, `M ${p.x} ${p.y}`] });
   };
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!drawing.current) return;
+    if (!drawing.current || !active) return;
     const p = ponto(e, svgRef.current!);
-    setPaths((s) => { const c = [...s]; c[c.length - 1] += ` L ${p.x} ${p.y}`; return c; });
+    const strokes = active.strokes.slice();
+    strokes[strokes.length - 1] += ` L ${p.x} ${p.y}`;
+    patchLayer(active.id, { strokes });
   };
   const onUp = () => { drawing.current = false; };
 
-  /** Vetorização: marching-squares simplificado sobre a luminância da imagem. */
   const vetorizar = async () => {
     if (!imagemFundo) { toast.error("Importa uma imagem primeiro."); return; }
     setATrabalhar(true);
@@ -1564,29 +1649,24 @@ function BordadoTab() {
         const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
         lum[i] = (0.299 * r + 0.587 * g + 0.114 * b) < limiar ? 1 : 0;
       }
-      // Deteção de aresta simples (Sobel binário): pixel é contorno se vizinhança difere
       const edge = new Uint8Array(W * H);
       for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
         const c = lum[y * W + x];
         if (c !== lum[y * W + x + 1] || c !== lum[(y + 1) * W + x]) edge[y * W + x] = 1;
       }
-      // Extrair segmentos contínuos de aresta linha-a-linha
       const sx = A4_W / W, sy = A4_H / H;
       type Seg = { x1: number; y1: number; x2: number; y2: number };
       const segs: Seg[] = [];
       for (let y = 0; y < H; y++) {
         let start = -1;
         for (let x = 0; x < W; x++) {
-          if (edge[y * W + x]) {
-            if (start < 0) start = x;
-          } else if (start >= 0) {
-            const len = x - start;
-            if (len >= minSeg) segs.push({ x1: start * sx, y1: y * sy, x2: (x - 1) * sx, y2: y * sy });
+          if (edge[y * W + x]) { if (start < 0) start = x; }
+          else if (start >= 0) {
+            if (x - start >= minSeg) segs.push({ x1: start * sx, y1: y * sy, x2: (x - 1) * sx, y2: y * sy });
             start = -1;
           }
         }
       }
-      // Suavização Chaikin (cada iteração corta cantos)
       const chaikin = (pts: { x: number; y: number }[], it: number) => {
         let p = pts;
         for (let k = 0; k < it; k++) {
@@ -1608,7 +1688,6 @@ function BordadoTab() {
       if (separados) {
         novos = segs.map(segToPath);
       } else {
-        // Encadear segmentos contíguos da mesma linha num único caminho
         const grouped = new Map<number, Seg[]>();
         segs.forEach((s) => {
           const row = Math.round(s.y1);
@@ -1625,33 +1704,144 @@ function BordadoTab() {
           if (d) novos.push(d);
         }
       }
-      setContornos(novos);
-      toast.success(`${novos.length} contorno(s) gerado(s).`);
+      setLayers((ls) => ls.map((l) => l.id === "l-risco" ? { ...l, strokes: [...l.strokes, ...novos] } : l));
+      toast.success(`${novos.length} contorno(s) gerado(s) na camada Risco.`);
     } catch (e) {
       toast.error("Falha na vetorização: " + (e as Error).message);
-    } finally {
-      setATrabalhar(false);
-    }
+    } finally { setATrabalhar(false); }
   };
+
+  // Overlay do bastidor
+  const hoopSpec = HOOP_PRESETS.find((h) => h.id === hoop)!;
+  const hoopWpx = hoopSpec.wCm * PX_PER_CM;
+  const hoopHpx = hoopSpec.hCm * PX_PER_CM;
+  const cx = A4_W / 2, cy = A4_H / 2;
+  const decalqueVisivel = layers.find((l) => l.id === "l-decalque")?.visible ?? true;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <A4Stage innerRef={ref} watermark={w} size={sheet.size} orientacao={sheet.orientacao}>
-        {imagemFundo && <img src={imagemFundo} className="absolute inset-0 h-full w-full object-contain opacity-50" />}
+        <div className="absolute inset-0" style={FABRIC_STYLES[fabric]} />
+        {imagemFundo && decalqueVisivel && (
+          <img src={imagemFundo}
+               className="absolute inset-0 h-full w-full object-contain pointer-events-none"
+               style={{ opacity: imagemOpacidade / 100 }} />
+        )}
         <svg ref={svgRef} viewBox="0 0 595 842" className="absolute inset-0 h-full w-full"
              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
-          {contornos.map((d, i) => <path key={`c${i}`} d={d} stroke="#1e88e5" strokeWidth="0.8" fill="none" />)}
-          {paths.map((d, i) => <path key={i} d={d} stroke="#111" strokeWidth="1.5" fill="none" strokeLinecap="round" />)}
+          {hoopOn && (
+            <>
+              <defs>
+                <mask id="hoop-mask">
+                  <rect x="0" y="0" width={A4_W} height={A4_H} fill="white" />
+                  {hoop === "square"
+                    ? <rect x={cx - hoopWpx / 2} y={cy - hoopHpx / 2} width={hoopWpx} height={hoopHpx} fill="black" />
+                    : <ellipse cx={cx} cy={cy} rx={hoopWpx / 2} ry={hoopHpx / 2} fill="black" />}
+                </mask>
+              </defs>
+              <rect x="0" y="0" width={A4_W} height={A4_H} fill="rgba(0,0,0,0.18)" mask="url(#hoop-mask)" />
+              {hoop === "square"
+                ? <rect x={cx - hoopWpx / 2} y={cy - hoopHpx / 2} width={hoopWpx} height={hoopHpx}
+                        fill="none" stroke="#8b5e34" strokeWidth="3" />
+                : <ellipse cx={cx} cy={cy} rx={hoopWpx / 2} ry={hoopHpx / 2}
+                           fill="none" stroke="#8b5e34" strokeWidth="3" />}
+            </>
+          )}
+          {thirds && (
+            <g stroke="rgba(59,130,246,0.45)" strokeWidth="0.5" strokeDasharray="4 3" pointerEvents="none">
+              <line x1={A4_W / 3} y1="0" x2={A4_W / 3} y2={A4_H} />
+              <line x1={(A4_W * 2) / 3} y1="0" x2={(A4_W * 2) / 3} y2={A4_H} />
+              <line x1="0" y1={A4_H / 3} x2={A4_W} y2={A4_H / 3} />
+              <line x1="0" y1={(A4_H * 2) / 3} x2={A4_W} y2={(A4_H * 2) / 3} />
+            </g>
+          )}
+          {layers.map((layer) => layer.visible && (
+            <g key={layer.id} opacity={layer.locked ? 0.7 : 1}>
+              {layer.strokes.map((d, i) => (
+                <path key={`${layer.id}-${i}`} d={d} stroke={layer.color} strokeWidth={layer.width}
+                      fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              ))}
+            </g>
+          ))}
         </svg>
       </A4Stage>
       <div className="space-y-3">
         <SheetControls {...sheet} />
         <Card><CardContent className="space-y-2 p-3">
-          <Label className="text-xs">Imagem de referência</Label>
+          <Label className="text-xs font-semibold">Bastidor virtual</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Mostrar bastidor</Label>
+            <Button size="sm" variant={hoopOn ? "default" : "outline"} onClick={() => setHoopOn((v) => !v)}>
+              {hoopOn ? "Ligado" : "Desligado"}
+            </Button>
+          </div>
+          <Select value={hoop} onValueChange={(v) => setHoop(v as HoopShape)}>
+            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {HOOP_PRESETS.map((h) => <SelectItem key={h.id} value={h.id}>{h.nome}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Regra dos terços</Label>
+            <Button size="sm" variant={thirds ? "default" : "outline"} onClick={() => setThirds((v) => !v)}>
+              {thirds ? "Sim" : "Não"}
+            </Button>
+          </div>
+          <Label className="text-xs">Tecido de fundo</Label>
+          <Select value={fabric} onValueChange={(v) => setFabric(v as FabricKind)}>
+            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Nenhum</SelectItem>
+              <SelectItem value="algodao">Algodão cru</SelectItem>
+              <SelectItem value="linho">Linho</SelectItem>
+              <SelectItem value="escuro">Tecido escuro</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Camadas</Label>
+            <Button size="sm" variant="outline" onClick={addLayer}><Plus className="h-3 w-3" /></Button>
+          </div>
+          <div className="space-y-1">
+            {layers.slice().reverse().map((l) => (
+              <div key={l.id}
+                   className={`flex items-center gap-1 rounded border px-2 py-1 ${activeLayer === l.id ? "border-primary bg-primary/5" : "border-border"}`}>
+                <button className="text-xs" onClick={() => patchLayer(l.id, { visible: !l.visible })} title="Visibilidade">
+                  {l.visible ? "👁" : "—"}
+                </button>
+                <button className="text-xs" onClick={() => patchLayer(l.id, { locked: !l.locked })} title="Bloquear">
+                  {l.locked ? "🔒" : "🔓"}
+                </button>
+                <Input value={l.nome} onChange={(e) => patchLayer(l.id, { nome: e.target.value })}
+                       className="h-6 flex-1 text-xs" onFocus={() => setActiveLayer(l.id)} />
+                <input type="color" value={l.color} onChange={(e) => patchLayer(l.id, { color: e.target.value })}
+                       className="h-6 w-6 cursor-pointer rounded border" />
+                <button className="text-xs" onClick={() => moveLayer(l.id, 1)} title="Subir">▲</button>
+                <button className="text-xs" onClick={() => moveLayer(l.id, -1)} title="Descer">▼</button>
+                <button className="text-xs text-destructive" onClick={() => removeLayer(l.id)} title="Apagar">
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div>
+            <Label className="text-xs">Espessura da camada ativa ({active.width.toFixed(1)} px)</Label>
+            <Slider value={[active.width]} min={0.4} max={4} step={0.1}
+                    onValueChange={(v) => patchLayer(active.id, { width: v[0] })} />
+            <p className="text-[10px] text-muted-foreground mt-1">Sugestão: 0.4 px ≈ 1 fio · 0.8 px ≈ 3 fios · 1.4 px ≈ 6 fios.</p>
+          </div>
+        </CardContent></Card>
+        <Card><CardContent className="space-y-2 p-3">
+          <Label className="text-xs">Imagem de referência (decalque)</Label>
           <Input type="file" accept="image/*" onChange={(e) => {
             const f = e.target.files?.[0]; if (!f) return;
             const r = new FileReader(); r.onload = () => setImagemFundo(r.result as string); r.readAsDataURL(f);
           }} />
+          <div>
+            <Label className="text-xs">Opacidade do decalque ({imagemOpacidade}%)</Label>
+            <Slider value={[imagemOpacidade]} min={0} max={100} step={5} onValueChange={(v) => setImagemOpacidade(v[0])} />
+          </div>
           <div>
             <Label className="text-xs">Limiar de contraste ({limiar})</Label>
             <Slider value={[limiar]} min={40} max={220} step={5} onValueChange={(v) => setLimiar(v[0])} />
@@ -1673,8 +1863,9 @@ function BordadoTab() {
           <Button size="sm" onClick={vetorizar} disabled={aTrabalhar || !imagemFundo}>
             <Sparkles className="mr-1 h-3 w-3" />{aTrabalhar ? "A vetorizar..." : "Vetorizar imagem"}
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setContornos([])}>Limpar contornos</Button>
-          <Button size="sm" variant="ghost" onClick={() => setPaths([])}><Eraser className="mr-1 h-3 w-3" />Limpar traços</Button>
+          <Button size="sm" variant="ghost" onClick={() => patchLayer(active.id, { strokes: [] })}>
+            <Eraser className="mr-1 h-3 w-3" />Limpar camada ativa
+          </Button>
         </CardContent></Card>
         <WatermarkControls w={w} set={setW} />
         <ExportPanel targetRef={ref} defaultArea="Bordado" defaultTitulo="Padrão Bordado" size={sheet.size} orientacao={sheet.orientacao} />

@@ -26,7 +26,6 @@ const FAQ: { q: string; a: string }[] = [
   { q: "Como carrego dados de demonstração?", a: "Configurações → ‘Dados locais’ → ‘Carregar dados de demonstração’. Enche todas as categorias com exemplos." },
   { q: "Como apago todos os dados locais?", a: "Configurações → ‘Dados locais’ → ‘Apagar todos os dados’. Confirma para recomeçar do zero." },
   { q: "Como faço backup dos meus dados?", a: "Configurações → Backup & Restauro. Podes exportar tudo em JSON/CSV e restaurar mais tarde." },
-  { q: "Como uso o Editor de Receitas?", a: "Editor de Receitas: cria projeto, define categoria (amigurumi/crochê/tricotin), adiciona materiais, secções e carreiras. Guarda ou exporta em PDF." },
   { q: "Como uso o Editor de Moodboards?", a: "Editor de Moodboards: escolhe fundo, arrasta imagens/textos/decorações para a folha A4, ajusta com IA e exporta em PNG ou imprime." },
   { q: "Como uso o Conversor de Cores DMC/Anchor?", a: "Conversor de Cores: escreve o código DMC ou Anchor e obtens o equivalente na outra marca com pré-visualização." },
   { q: "Como uso o Contador de Carreiras & Pontos?", a: "Contador: cria contadores nomeados, incrementa/decrementa com um toque e mantém o registo entre sessões." },
