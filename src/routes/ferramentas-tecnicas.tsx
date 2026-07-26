@@ -37,6 +37,7 @@ import {
   splitSubpaths, resample, orderNearest, encodeDst, type StitchBlock,
 } from "@/lib/dst";
 import { encodePes, splitByHoop } from "@/lib/pes";
+import { generateFill, estimateFillStitches, type FillOptions } from "@/lib/fill-stitches";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
