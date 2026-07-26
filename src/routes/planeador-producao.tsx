@@ -10,13 +10,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Trash2, Calendar as CalIcon, Download, Filter } from "lucide-react";
+import { Plus, Trash2, Calendar as CalIcon, Download, Filter, Upload, Eye } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { downloadICS, type IcsOptions } from "@/lib/ics";
+import {
+  downloadICS, planoToICS, parseICS, applyIcsToPlano, type IcsOptions,
+} from "@/lib/ics";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -61,6 +63,35 @@ function PlaneadorProducaoPage() {
     taskDurationDays: 1,
   });
   const [icsOpen, setIcsOpen] = useState(false);
+  const [icsPreviewOpen, setIcsPreviewOpen] = useState(false);
+  const icsImportRef = useRef<HTMLInputElement>(null);
+
+  const icsPreview = useMemo(() => (plano ? planoToICS(plano, icsOpts) : ""), [plano, icsOpts]);
+  const icsSummary = useMemo(() => {
+    if (!plano) return { etapas: 0, tarefas: 0, comData: 0 };
+    const etapas = plano.etapas.length;
+    const tarefas = plano.etapas.reduce((n, e) => n + e.tarefas.length, 0);
+    const comData = plano.etapas.filter((e) => e.inicio).length
+      + plano.etapas.reduce((n, e) => n + e.tarefas.filter((t) => t.prazo).length, 0);
+    return { etapas, tarefas, comData };
+  }, [plano]);
+
+  const importarICS = async (file: File) => {
+    if (!plano) return;
+    try {
+      const text = await file.text();
+      const parsed = parseICS(text);
+      const { plano: novo, result } = applyIcsToPlano(plano, parsed);
+      patch({ etapas: novo.etapas });
+      toast.success(
+        `.ics importado — etapas: +${result.etapasCriadas}/~${result.etapasAtualizadas}, ` +
+        `tarefas: +${result.tarefasCriadas}/~${result.tarefasAtualizadas}` +
+        (result.ignoradas ? ` (${result.ignoradas} ignoradas)` : ""),
+      );
+    } catch (e: any) {
+      toast.error("Falha ao importar .ics: " + (e?.message ?? e));
+    }
+  };
 
   const criarPlano = () => {
     const novo: Omit<ProducaoPlano, "id"> = {
