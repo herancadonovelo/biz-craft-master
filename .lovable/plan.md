@@ -1,64 +1,56 @@
-# Editor de Padrões: Bordado — Roadmap Fases 16–22
+# Editor de Gráficos: Tricô
 
-Analisei a lista. Já estão implementadas (Fases 1–15): canvas + tecidos, ferramentas de desenho, simulação de pontos, paleta DMC/Anchor, foto→ponto-cruz, encoders DST/PES/EXP, satim/tatami com underlay+pull-comp, lettering/monograma/aplique, 3D preview, PDF, DST importer, heatmap+análise, bundle .zip, multi-hoop com marcas de registo.
+Adicionar novo separador **"Editor de Gráficos: Tricô"** dentro de `/ferramentas-tecnicas`, gated por Premium (mesma proteção dos restantes editores técnicos). Dado o volume (~40 funcionalidades), entrego em 7 fases correspondentes às 7 categorias do pedido — cada fase é um commit funcional independente, com painel dedicado e testes.
 
-Faltam **38 pedidos**. Agrupei-os em **7 fases** por afinidade técnica (cada uma testável isoladamente):
+## Arquitetura (comum a todas as fases)
 
-## Fase 16 — Camadas, paleta rápida & persistência
-- Paleta de troca rápida por camada (múltiplos traços por cor + preview)
-- Reordenar/escalar camadas do aplique (Colocar/Fixar/Cobrir) antes do export
-- Persistência: settings de simulação + seleções DMC/Anchor por camada
-- Auto-save no navegador com recuperação após reload
-- Presets de bordado por projeto (hoop, contorno, underlay, satim/tatami)
-- Biblioteca persistente de motivos/fontes com upload SVG + tags
+- `src/lib/knit/` — motor puro (sem React):
+  - `dicionario.ts` — símbolos standard + PT/US/UK + auto-complete
+  - `chart.ts` — modelo `Chart` (grelha, WS rows escondidas, repeats)
+  - `chart-to-text.ts` — tradução gráfico → texto por carreira
+  - `gauge.ts` — matemática de tensão / escalonamento / múltiplos
+  - `colorwork.ts` — pixel-art, contagem por cor, float tracker, inversão
+  - `construction.ts` — top-down raglan, sock wizard, marcadores
+  - `presets-fios.ts` — paletas Drops / Rowan / Malabrigo
+  - `export.ts` — PDF printer-friendly, SVG vetorial, Ravelry JSON
+- `src/components/knit-editor/KnitEditor.tsx` — shell com sub-tabs (uma por categoria)
+- `src/components/knit-editor/Chart*.tsx`, `Grading*.tsx`, `Colorwork*.tsx`, etc.
+- Novo tab em `src/routes/ferramentas-tecnicas.tsx` (Premium-gated via `PremiumRoute`).
+- Persistência: `localStorage` chave `cbm:knit-editor:<projectId>` + sync opcional via `SupabaseSync`.
+- i18n: chaves novas em `src/lib/i18n.ts` (PT/EN/ES/FR).
+- Moeda: preços via `formatCurrency` global (nunca símbolos hardcoded).
 
-## Fase 17 — Edição manual & undo/redo
-- Edição manual de células no Aida (pintar/apagar/trocar cor)
-- Edição manual de pontos/linhas (arrastar âncoras, recalcular fill no ato)
-- Undo/redo para Fase 3 (stitch selector + thread estimator) com atalhos
-- Tutorial passo-a-passo + mapa de atalhos das ferramentas
-- Modo de revisão por cor (destaca blocos + score de qualidade)
+## Fase 1 — Editor de Gráficos Visuais (Charts & Lace)
+Grelha SVG interativa, biblioteca de símbolos drag-and-drop, Cable Creator, tradução gráfico→texto, ocultar WS rows, seleção de repeats com moldura vermelha, símbolos personalizáveis persistidos.
 
-## Fase 18 — Calibração, estimativas & inventário
-- Calibração de escala do hoop em cm (grelha e chart batem certo)
-- Calibração de escala do SVG (grelha mm sempre correta)
-- Thread-estimator com calibração de densidade + custo via preços do fornecedor
-- Consumo de linha + custo por cor via stitch-analysis+heatmap
-- Consumo automático de inventário ao confirmar shopping list + alertas de reposição
+## Fase 2 — Matemática e Escalonamento
+Gauge Math, Auto-Grading multi-tamanho (XS–XXL), parênteses dinâmicos, validador de simetria de diminuições, calculadora de cavas/decotes, verificador de múltiplos, buttonhole spacing.
 
-## Fase 19 — Preview de percurso & simulação avançada
-- Preview do percurso de costura (ordem/direção) antes do export DST
-- Simulação de pontos no browser com zoom, seleção de cor e contador
-- Preview da rota estimada + densidade + contagem de cores para lettering/aplique
-- Screenshot/PNG da preview 3D com fundo e escala configuráveis
+## Fase 3 — Colorwork / Fair Isle
+Pixel-art grid, consumo de lã por cor via gauge, float tracker (>N malhas seguidas), inversão instantânea, paletas Drops/Rowan/Malabrigo com swatches reais.
 
-## Fase 20 — Máquina, presets & validação pré-export
-- Painel de parâmetros da máquina (bastidor, escala, densidade, compensação) → recalcula DST
-- Presets por modelo de máquina influenciam geração PES
-- Validações pré-export PES (limite de cores, tamanho, densidade, fora do hoop)
-- Validação pré-export do bundle .zip (camadas, ordem de cores, unidades) com bloqueio
-- Validação/assistente do DST importado (centro, rotação, unidades)
-- Marcas de alinhamento + numeração automática no tiling multi-bastidor do PES
-- Controlos avançados (underlay/overlap/pull-comp/spacing) para lettering+aplique no export
+## Fase 4 — Construção e Acessórios
+Wizard Top-Down Raglan, Sock Wizard por tamanho de pé, toggle Circular/Reta a reescrever direção, gestão de marcadores com contagem entre eles.
 
-## Fase 21 — Relatórios & PDFs configuráveis
-- Relatório de produção junto do DST (pontos/cor, tempo, comprimento total)
-- Métricas do DST importado (pontos, comprimento, tempo/cor, resumo)
-- Timeline de trocas de cor/agulha + paragens ao exportar PES
-- PDF configurável (A4/Letter, margens, escala, orientação)
-- PDF com anotações (largura/altura mm, área, linhas de referência)
-- PDF com grelha + lista de cores + estatísticas (imprimir/enviar ao atelier)
-- Configurar conteúdo do PDF de padrão no bundle (escala, margens, grelha, stats)
-- Export CSV cruzando quantidades por cor com Inventário
-- Export unificado: cross-stitch chart + shopping list DMC num único PDF
-- Checklist de preparação/inspeção final baseada nas métricas
+## Fase 5 — Escrita e Dicionários
+Auto-complete PT, gerador de legenda que varre o texto, conversor mm↔US↔UK, dicionário PT/US/UK (bind off vs cast off), organizador de fases (accordion), formatação `*...*` para repetições.
 
-## Fase 22 — Auto-digitize inteligente & monograma
-- Card no Studio: foto → N cores → largura mm → preview vetorizado antes do export
-- Auto-digitize: seleção automática satim/tatami + underlay + pull-comp
-- Painel de Monograma (iniciais, moldura círculo/hex/quadrado/flor, margem, preview 2D)
+## Fase 6 — Testadores e Experiência do Cliente
+Modo "Contador de Carreiras" mobile-friendly (progresso persistido), Row Highlighter, formulário público para testers (rota `/receita-tester-tricot/$token`) que agrega consumos reais.
 
-## Resposta direta
-**7 fases** para cobrir os 38 pedidos em falta. Entrego uma por iteração, sequencialmente (16 → 22), cada uma testável no editor sem quebrar as anteriores.
+## Fase 7 — Custo, Stock e Exportação
+Preificador cruzando horas + custo de meadas do inventário, PDF printer-friendly (P&B, sem fotos), export SVG vetorial, JSON compatível com Ravelry, links/QR para vídeos de técnicas, simulador de textura (mohair/seda), capa automática com dificuldade em estrelas, dark mode dedicado para gráficos.
 
-Confirmas o faseamento e começo já pela **Fase 16**?
+## Testes (por fase)
+- Unit (Vitest): motor puro (`chart-to-text`, `gauge`, `float tracker`, conversores).
+- E2E (Playwright) em `e2e/editors/knit.spec.ts`: abrir tab, gate Premium, desenhar 3 símbolos → texto gerado, exportar PDF/SVG sem erros, contador de carreiras persiste.
+- CI: acrescentar à suite existente `.github/workflows/e2e.yml`.
+
+## Detalhes técnicos relevantes
+- Grelha renderizada em SVG (não canvas) para exportação vetorial nativa e zoom sem pixelização.
+- `useDeferredValue` na tradução gráfico→texto para grelhas grandes.
+- PDF via `pdf-lib` (já usado no projeto), reaproveitando helpers de `src/lib/amigurumi/pdf.ts`.
+- Símbolos como componentes SVG puros para permitir dark-mode via `currentColor`.
+
+## Confirmação
+Confirmas que avanço fase-a-fase (começando pela Fase 1) com commits separados? Se preferires um subset (ex: só Fases 1–3 agora), diz qual.
