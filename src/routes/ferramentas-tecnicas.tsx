@@ -60,6 +60,9 @@ import { Phase19Panel } from "@/components/embroidery/Phase19Panel";
 import { Phase20Panel } from "@/components/embroidery/Phase20Panel";
 import { Phase21Panel } from "@/components/embroidery/Phase21Panel";
 import { Phase22Panel } from "@/components/embroidery/Phase22Panel";
+import { Phase23Panel } from "@/components/embroidery/Phase23Panel";
+import type { DigitizedLayer } from "@/lib/auto-digitize";
+import type { SmartLayerRule } from "@/lib/embroidery-phase22";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
