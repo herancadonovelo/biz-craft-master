@@ -36,6 +36,7 @@ import { DMC_PALETTE, nearestDmc, type DmcColor } from "@/lib/dmc-palette";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
+import { useStore } from "@/lib/store";
 // BordadoStudio será usado em iterações futuras; a Fase 1 mantém BordadoTab
 // enriquecido inline com o simulador de bastidor, grelha da regra dos terços,
 // texturas de tecido e gestor de camadas simples.
@@ -1973,6 +1974,142 @@ function BordadoTab() {
     });
   }, [layers]);
   const totalCmMargem = linhaStats.reduce((s, x) => s + x.cmComMargem, 0);
+
+  // ---------- Fase 4: modo ponto cruz + grelha Aida + conversão foto→gráfico ----------
+  /** Contagem Aida (crosses por polegada). 0 desliga a grelha. */
+  const [aidaCount, setAidaCount] = useState<0 | 11 | 14 | 16 | 18>(0);
+  const [chartCells, setChartCells] = useState<{ gx: number; gy: number; dmc: string; hex: string }[]>([]);
+  const [nCores, setNCores] = useState(12);
+  const [convertendo, setConvertendo] = useState(false);
+  const [carrinhoOpen, setCarrinhoOpen] = useState(false);
+
+  /** Tamanho em px de cada célula (1 cruz) na grelha Aida corrente. */
+  const cellPx = aidaCount ? (2.54 / aidaCount) * PX_PER_CM : 0;
+  /** Origem da grelha centrada na página. */
+  const chartArea = useMemo(() => {
+    if (!aidaCount) return null;
+    // Restringe ao bastidor quando visível, caso contrário ao A4 completo com 2 cm de margem.
+    const wCm = hoopOn ? hoopSpec.wCm : 21 - 4;
+    const hCm = hoopOn ? hoopSpec.hCm : 29.7 - 4;
+    const wPx = wCm * PX_PER_CM, hPx = hCm * PX_PER_CM;
+    const nx = Math.floor(wPx / cellPx), ny = Math.floor(hPx / cellPx);
+    const x0 = A4_W / 2 - (nx * cellPx) / 2;
+    const y0 = A4_H / 2 - (ny * cellPx) / 2;
+    return { x0, y0, nx, ny, cellPx };
+  }, [aidaCount, hoopOn, hoopSpec.wCm, hoopSpec.hCm, cellPx]);
+
+  /** Converte a imagem de decalque para um gráfico de ponto cruz na grelha Aida atual. */
+  const converterParaPontoCruz = async () => {
+    if (!chartArea) { toast.error("Ativa uma grelha Aida primeiro."); return; }
+    if (!imagemFundo) { toast.error("Importa uma imagem de decalque primeiro."); return; }
+    setConvertendo(true);
+    try {
+      const img = new Image();
+      img.src = imagemFundo;
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error("img")); });
+      const { nx, ny } = chartArea;
+      // Downsample em canvas para uma cor média por célula.
+      const cvs = document.createElement("canvas");
+      cvs.width = nx; cvs.height = ny;
+      const ctx = cvs.getContext("2d")!;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(img, 0, 0, nx, ny);
+      const { data } = ctx.getImageData(0, 0, nx, ny);
+
+      // Selecionar as N cores mais representativas do universo DMC nesta imagem.
+      const contagem = new Map<string, number>();
+      for (let i = 0; i < nx * ny; i++) {
+        const a = data[i * 4 + 3];
+        if (a < 40) continue; // transparente
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        const hex = "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+        const near = nearestDmc(hex);
+        contagem.set(near.code, (contagem.get(near.code) ?? 0) + 1);
+      }
+      const topCodes = new Set(
+        [...contagem.entries()].sort((a, b) => b[1] - a[1]).slice(0, Math.max(2, nCores)).map(([k]) => k)
+      );
+      const paletaFiltrada = DMC_PALETTE.filter((c) => topCodes.has(c.code));
+
+      const cells: { gx: number; gy: number; dmc: string; hex: string }[] = [];
+      for (let y = 0; y < ny; y++) {
+        for (let x = 0; x < nx; x++) {
+          const i = (y * nx + x) * 4;
+          const a = data[i + 3];
+          if (a < 40) continue;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          // Mais próxima dentro da paleta reduzida (evita ruído colorido).
+          let best = paletaFiltrada[0], bd = Infinity;
+          for (const c of paletaFiltrada) {
+            const cr = parseInt(c.hex.slice(1, 3), 16);
+            const cg = parseInt(c.hex.slice(3, 5), 16);
+            const cb = parseInt(c.hex.slice(5, 7), 16);
+            const d = (r - cr) ** 2 + (g - cg) ** 2 + (b - cb) ** 2;
+            if (d < bd) { bd = d; best = c; }
+          }
+          cells.push({ gx: x, gy: y, dmc: best.code, hex: best.hex });
+        }
+      }
+      setChartCells(cells);
+      toast.success(`Gráfico gerado: ${cells.length} cruzes em ${paletaFiltrada.length} cores DMC.`);
+    } catch (e) {
+      toast.error("Falha na conversão: " + (e as Error).message);
+    } finally { setConvertendo(false); }
+  };
+
+  /** Lista de compras DMC agregada (gráfico ponto cruz + camadas com DMC). */
+  const materiais = useStore((s) => s.materiais);
+  const listaCompras = useMemo(() => {
+    // agregar cruzes por DMC (1 cruz ≈ ~2 × diagonal da célula × 2 passagens)
+    const contagem = new Map<string, { hex: string; stitches: number; cm: number }>();
+    for (const c of chartCells) {
+      const prev = contagem.get(c.dmc);
+      const cellCm = cellPx / PX_PER_CM || 0.15;
+      const cmPorCruz = cellCm * 2 * Math.SQRT2 * 1.15; // ida+volta em cada perna
+      const add = { hex: c.hex, stitches: 1, cm: cmPorCruz };
+      contagem.set(c.dmc, prev
+        ? { hex: c.hex, stitches: prev.stitches + 1, cm: prev.cm + add.cm }
+        : add);
+    }
+    // adicionar as camadas com DMC definido usando os cm estimados dos traços
+    for (const s of linhaStats) {
+      if (!s.dmc) continue;
+      const layer = layers.find((l) => l.id === s.id);
+      if (!layer) continue;
+      const hex = layer.color;
+      const prev = contagem.get(s.dmc);
+      contagem.set(s.dmc, prev
+        ? { hex, stitches: prev.stitches, cm: prev.cm + s.cmComMargem }
+        : { hex, stitches: 0, cm: s.cmComMargem });
+    }
+    const rows = [...contagem.entries()].map(([code, v]) => {
+      const dmc = DMC_PALETTE.find((d) => d.code === code);
+      const emStock = materiais.find(
+        (m) => (m.marca || "").toUpperCase() === "DMC" && (m.codigoCor || "") === code
+      );
+      return {
+        code, nome: dmc?.name ?? "—", anchor: dmc?.anchor,
+        hex: v.hex, stitches: v.stitches, cm: v.cm,
+        temStock: !!emStock, stock: emStock?.stock ?? 0, unidade: emStock?.unidade ?? "",
+      };
+    }).sort((a, b) => b.cm - a.cm);
+    return rows;
+  }, [chartCells, cellPx, linhaStats, layers, materiais]);
+
+  const exportarListaCsv = () => {
+    const linhas = [
+      "DMC;Nome;Anchor;Cruzes;Linha estimada (cm);Em stock;Quantidade em stock;Unidade",
+      ...listaCompras.map((r) =>
+        [r.code, r.nome.replace(/;/g, ","), r.anchor ?? "", r.stitches, r.cm.toFixed(1), r.temStock ? "sim" : "não", r.stock, r.unidade].join(";")
+      ),
+    ].join("\n");
+    const blob = new Blob([linhas], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "lista-linhas-dmc.csv"; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Lista exportada em CSV.");
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
