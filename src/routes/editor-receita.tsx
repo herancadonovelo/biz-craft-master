@@ -96,12 +96,99 @@ function Page() {
   const importarJSON = async (file: File) => {
     try {
       const data = JSON.parse(await file.text());
+      const norm = (s: string) => String(s ?? "").trim().toLowerCase();
+      const existente = receitasEditor.find((x) => norm(x.nome) === norm(data.nome));
+      const mesclar =
+        existente &&
+        typeof window !== "undefined" &&
+        window.confirm(
+          `Já existe uma receita "${existente.nome}". OK = mesclar (materiais, preços, horas/margem). Cancelar = criar nova.`,
+        );
+
+      const materiaisImportados = Array.isArray(data.materiais)
+        ? data.materiais.map((m: any) => ({
+            id: m.id ?? uid(),
+            nome: String(m.nome ?? ""),
+            quantidade: String(m.quantidade ?? ""),
+            precoUnitario:
+              typeof m.precoUnitario === "number"
+                ? m.precoUnitario
+                : typeof m.precoCompra === "number"
+                ? m.precoCompra
+                : undefined,
+          }))
+        : [];
+
+      if (mesclar && existente) {
+        const mapExist = new Map(existente.materiais.map((m) => [norm(m.nome), m]));
+        let precosAtualizados = 0;
+        let materiaisNovos = 0;
+        const mergedMats = [...existente.materiais];
+        for (const im of materiaisImportados) {
+          const key = norm(im.nome);
+          const cur = mapExist.get(key);
+          if (cur) {
+            const idx = mergedMats.findIndex((m) => m.id === cur.id);
+            const antigoPreco = cur.precoUnitario;
+            const novoPreco = im.precoUnitario ?? antigoPreco;
+            if (im.precoUnitario != null && im.precoUnitario !== antigoPreco) precosAtualizados++;
+            mergedMats[idx] = {
+              ...cur,
+              quantidade: im.quantidade || cur.quantidade,
+              precoUnitario: novoPreco,
+            };
+          } else {
+            mergedMats.push(im);
+            materiaisNovos++;
+          }
+        }
+
+        const seccoesImportadas = Array.isArray(data.seccoes) ? data.seccoes : [];
+        const mapSec = new Map(existente.seccoes.map((s) => [norm(s.nome), s]));
+        const mergedSec = [...existente.seccoes];
+        for (const s of seccoesImportadas) {
+          if (!mapSec.has(norm(s.nome))) {
+            mergedSec.push({
+              id: s.id ?? uid(),
+              nome: String(s.nome ?? "Secção"),
+              imagem: s.imagem,
+              carreiras: Array.isArray(s.carreiras)
+                ? s.carreiras.map((c: any) => ({
+                    id: c.id ?? uid(),
+                    texto: String(c.texto ?? ""),
+                    totalPontos: typeof c.totalPontos === "number" ? c.totalPontos : undefined,
+                  }))
+                : [],
+            });
+          }
+        }
+
+        const horas =
+          typeof data.horasEstimadas === "number"
+            ? Math.max(existente.horasEstimadas ?? 0, data.horasEstimadas)
+            : existente.horasEstimadas;
+        const tags = Array.from(new Set([...(existente.tags ?? []), ...(Array.isArray(data.tags) ? data.tags.map(String) : [])]));
+
+        update("receitasEditor", existente.id, {
+          materiais: mergedMats,
+          seccoes: mergedSec,
+          horasEstimadas: horas,
+          tags,
+          notas: data.notas ? `${existente.notas ?? ""}\n---\n${data.notas}`.trim() : existente.notas,
+        });
+        setEditId(existente.id);
+        toast.success(
+          `Mesclado: +${materiaisNovos} materiais, ${precosAtualizados} preços atualizados${
+            horas !== existente.horasEstimadas ? `, horas → ${horas}h` : ""
+          }`,
+        );
+        return;
+      }
+
       const clean: Omit<ReceitaEditor, "id"> = {
         nome: data.nome ?? "Receita importada",
         categoria: (["amigurumi", "crochet", "tricotin"].includes(data.categoria) ? data.categoria : "amigurumi"),
-        materiais: Array.isArray(data.materiais) ? data.materiais.map((m: any) => ({
-          id: m.id ?? uid(), nome: String(m.nome ?? ""), quantidade: String(m.quantidade ?? ""),
-        })) : [],
+        materiais: materiaisImportados,
         seccoes: Array.isArray(data.seccoes) ? data.seccoes.map((s: any) => ({
           id: s.id ?? uid(), nome: String(s.nome ?? "Secção"),
           imagem: s.imagem,
