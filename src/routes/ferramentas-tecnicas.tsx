@@ -2387,37 +2387,6 @@ function BordadoTab() {
     }
   };
 
-  // ---------- Fase 11: simulador animado ----------
-  /** Achata os stitch blocks em pontos absolutos + índice de bloco (para cor). */
-  const simFlat = useMemo(() => {
-    const arr: { x: number; y: number; blockIdx: number; jump: boolean }[] = [];
-    orderedColorBlocks.forEach((b, bi) => {
-      b.points.forEach((p, pi) => arr.push({ x: p.x, y: p.y, blockIdx: bi, jump: pi === 0 && bi > 0 }));
-    });
-    return arr;
-  }, [orderedColorBlocks]);
-
-  useEffect(() => {
-    if (!simPlaying || !simOn || simFlat.length === 0) return;
-    let raf = 0;
-    let last = performance.now();
-    const tick = (t: number) => {
-      const dt = (t - last) / 1000;
-      last = t;
-      setSimProgress((p) => {
-        const total = simFlat.length;
-        const stepFrac = (simSpeed * dt) / total;
-        const next = p + stepFrac;
-        if (next >= 1) { setSimPlaying(false); return 1; }
-        return next;
-      });
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [simPlaying, simOn, simFlat, simSpeed]);
-
-  const simVisibleCount = Math.round(simProgress * simFlat.length);
 
   // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
   /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
