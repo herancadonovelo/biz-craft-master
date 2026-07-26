@@ -1,135 +1,46 @@
-# Plano de implementação
 
----
+# Editor de Receitas: Amigurumis & Crochê — Expansão Pro
 
-## Backlog Editor Tricotin/i-cord (a implementar por fases)
+Escopo enorme (60+ funcionalidades em 6 categorias). Proponho entregar em **fases incrementais**, cada uma testável e utilizável, em vez de tudo num só bloco (o que arriscaria quebrar o editor atual e tornaria o code-review impossível).
 
-Feito nesta iteração: **Lettering — Auto-script + Kerning + Text on Path** (linha reta, arco, círculo) com guia visual e exportação PNG/A4.
+## Fase 0 — Fundação (obrigatória antes de tudo)
 
-Feito na iteração seguinte: **Fase 1 — Vetorização + Exportação SVG/DXF + E2E**.
-- `src/lib/trace.ts` — pipeline Otsu → binário → Zhang-Suen → extract paths → stitch → RDP.
-- `TracePanel` no editor Tricotin: upload, limiar auto/manual, inverter, ε, preview, importar para molde, exportar SVG (1× `<polyline>`) e DXF (1× `POLYLINE` R12).
-- `e2e/tricotin-trace-export.spec.ts` valida um único traço no SVG/DXF.
+Refatorar `src/routes/editor-receita.tsx` (atualmente ~160 linhas monolíticas) para um módulo em `src/components/amigurumi-editor/`:
+- `AmigurumiEditor.tsx` (shell + abas)
+- `hooks/useReceitaHistory.ts` (undo/redo + autosave versões)
+- `lib/pontos-dicionario.ts` (abreviaturas PT/US/UK + auto-complete)
+- `lib/math-engine.ts` (calculadora automática de pontos por carreira)
+- `lib/geradores.ts` (esfera, escalonamento, clonagem espelhada)
 
-### Fila (por ordem sugerida de entrega)
-1. ~~**Vetorização + Exportação SVG/DXF + E2E**~~ — concluído.
-2. ~~**Webhook Twilio de entregas**~~ — `/api/public/webhooks/twilio-status` com verificação X-Twilio-Signature (HMAC-SHA1 base64), persistência em `webhook_events`, e polling no `/auth/verify-2fa` com badge de estado.
-3. ~~**Desenho — Suavização & Simplificação**~~ — Chaikin + RDP em `src/lib/tricotin-pro.ts`.
-4. ~~**Simulação de volume**~~ — `drawVolume` com diâmetro configurável, bump lateral e Ghost View.
-5. ~~**Guias de produção**~~ — `drawGuides` com setas numeradas, marcadores S/F e alerta de ângulos críticos.
-6. ~~**Cálculos automáticos**~~ — `yarnEstimateMeters`, `resizeProportional`, `materialCost` expostos no Toolbox Pro.
-7. ~~**Camadas + Snap + Mirror**~~ — `mirror`, `snapToObjects` no Toolbox Pro.
-8. ~~**Impressão avançada**~~ — `computeA4Tiles` com preview de plano N×M.
-9. ~~**Vetorial avançado**~~ — `offsetPolyline`, `fuse` (boolean fusão por endpoint mais próximo).
-10. ~~**Simulação física**~~ — `centroid`, `tensionScores` (0..1) por nó.
-11. ~~**Exportação industrial**~~ — `exportGCode` (G21/G90 + M30), `nestRects` (shelf-packing), `textileMetadata` (CMYK/FOGRA39, batchId).
-12. ~~**Nuvem**~~ — `src/lib/cloud-templates.ts` com templates (coração, estrela, espiral) e paletas Pantone/DMC/Lang Yarns.
+Store: estender `ReceitaEditor` com `versoes[]`, `tensao`, `enchimento`, `arame`, `olhos`, `fotos[]`, `graficos[]`, `paleta[]`, `videos[]`, `abaAtiva`.
 
-Todas as fases 2–12 concluídas. Entregas:
-- `src/routes/api/public/webhooks/twilio-status.ts`
-- `src/lib/tricotin-pro.ts`
-- `src/lib/cloud-templates.ts`
-- `src/components/TricotinProPanel.tsx` (integrado em `ferramentas-tecnicas.tsx`)
-- `src/routes/auth.verify-2fa.tsx` (polling + badge)
-- `e2e/tricotin-pro.spec.ts`
+## Fase 1 — Escrita Inteligente (categoria 1)
+Auto-complete, math engine, formatação de carreiras, blocos `[..] x N`, conversor PT/US/UK, gerador de abreviaturas, organizador de peças (abas), tensão, enchimento/arame, guia olhos.
 
-Cada fase entrega: código + testes E2E + docs mínimas no editor.
+## Fase 2 — Visuais (categoria 2)
+Fotos por carreira, anotações canvas nas fotos, construtor gráfico drag&drop com biblioteca de símbolos SVG, pixel-art C2C/tapestry, extrator de paleta, QR/vídeo.
 
----
+## Fase 3 — Integração CBM (categoria 3)
+Selector de fios do stock, calculadora consumo (peso→metragem), cronómetro, precificador (usa `/calculadora`), gerador de kit → lista de compras.
 
-## Plano original abaixo
+## Fase 4 — Modo Tester (categoria 4)
+Link partilhável (rota pública `/receita-tester/$token`), comentários por carreira, tracker de correções, histórico de versões (já da Fase 0).
 
+## Fase 5 — Design & PDF (categoria 5)
+4 templates, printer-friendly, índice, capa dinâmica, watermark, password (via pdf-lib), header/rodapé, página obrigado. Substituir `window.print()` atual.
 
-Duas frentes independentes, entregues na mesma vaga. Cada uma tem testes E2E próprios.
+## Fase 6 — Extras (categoria 6)
+Checklist leitura, contador virtual, redimensionamento por agulha, dicionário pop-up, export Ravelry/Etsy .zip, modo foco, gerador de esfera, clonagem espelhada, escalonamento, matriz tapestry, mudança de cor, validador agulha/fio, cálculo cabelo, mistura de fios, granny layout, frog raveling.
 
----
+## Detalhes técnicos-chave
+- **Math engine**: parser dos tokens (`6 pb`, `6 aum`, `[1 pb, 1 aum] x 6`, `dim`, `mpa`, `pa`) → produz total esperado. Compara com total escrito pela artesã, marca em vermelho.
+- **PT↔US↔UK**: tabela em `pontos-dicionario.ts`. Toggle no header do preview.
+- **PDF**: `pdf-lib` (já Worker-compat) — substitui print. Watermark via low-opacity draw em cada página.
+- **Persistência**: tudo no Zustand store (`useStore`) + Supabase sync via `SupabaseSync`.
+- **Testes E2E**: adicionar spec em `e2e/editors/` por fase (math engine, PT/US toggle, PDF export).
 
-## Parte A — 2FA obrigatório (Supabase Phone Auth nativo)
+## O que peço confirmar
 
-Fluxo: email/password → se `profiles.phone_verified = false` → força enrolamento de telemóvel → envia OTP SMS → valida → cria sessão "2FA-completa". Utilizadores existentes ficam bloqueados no próximo login até associarem telemóvel.
+Vou executar **Fase 0 + Fase 1 nesta iteração** (base + Escrita Inteligente completa). É o núcleo funcional; sem isto as outras fases não fazem sentido. Depois entrego Fase 2–6 uma a uma nos pedidos seguintes.
 
-### Schema (migração)
-- `profiles`: adicionar `phone TEXT`, `phone_verified BOOLEAN DEFAULT false`, `phone_verified_at TIMESTAMPTZ`, `last_2fa_at TIMESTAMPTZ`.
-- Tabela `auth_otp_attempts` (rate-limit / lockout): `user_id`, `kind` (login|enroll), `attempted_at`, `success`. RLS: só o próprio user lê; INSERT via server fn.
-- RPC `mark_phone_verified(_phone text)` SECURITY DEFINER: grava telemóvel + `phone_verified=true` no profile do `auth.uid()`.
-- Trigger em `auth.users` — NÃO tocamos (schema auth é intocável). Em vez disso, `AuthGate` faz o check pós-login.
-
-### Server functions (`src/lib/auth-2fa.functions.ts` — thin wrapper)
-- `sendLoginOtpFn({ phone? })` — usa `supabaseAdmin.auth.admin` para enviar OTP SMS via Supabase Phone Auth. Rate-limit: máx 3 envios / 10min por user (consulta `auth_otp_attempts`).
-- `verifyLoginOtpFn({ token })` — chama `supabase.auth.verifyOtp({ type: 'sms' })`, marca `last_2fa_at`, retorna sessão.
-- `sendPhoneEnrollOtpFn({ phone })` — para enrolamento inicial ou troca de número. Validação E.164.
-- `confirmPhoneEnrollFn({ phone, token })` — verifica OTP e chama `mark_phone_verified`.
-
-Erros amigáveis mapeados: `invalid_otp`, `expired_otp`, `rate_limited`, `sms_provider_offline`, `phone_invalid_format`, `phone_already_taken`. Helper `mapOtpError(e)` em `src/lib/auth-2fa.server.ts`.
-
-### UI
-- **`/auth/verify-2fa`** (rota pública): input 6 dígitos (auto-advance + paste), contador de reenvio 60s, botão "Reenviar código", link "Trocar de número" (só se `phone_verified=false`). Bloqueia navegação para outras rotas até verificar.
-- **`AuthGate`**: após login, se `phone_verified=false` → `/auth/verify-2fa?enroll=1` (mostra input de telemóvel primeiro). Se `phone_verified=true` mas sem `last_2fa_at` na sessão atual → mesma rota sem `enroll`.
-- **`/configuracoes` → Segurança & Conta**: novo bloco "Número de telemóvel (WhatsApp / 2FA)" com input + botão "Enviar código" + input OTP + "Confirmar". Mostra número atual mascarado (`+351 •• •• 406`).
-
-### Config
-- Documentar em chat que o user precisa activar Phone provider no Supabase Auth (dashboard interno da Cloud) e configurar Twilio/MessageBird lá — sem código.
-
-### Testes E2E
-- `e2e/2fa-enroll-forced.spec.ts`: user existente sem telemóvel → é redirecionado para enrolamento após login; não consegue chegar a `/dashboard` até verificar.
-- `e2e/2fa-otp-resend-lockout.spec.ts`: reenviar antes do contador → bloqueado; 5 tentativas erradas → mensagem de lockout.
-- `e2e/2fa-happy-path.spec.ts`: user com telemóvel → recebe OTP mock → verifica → chega ao dashboard. (Usa hook de dev que expõe OTP no header em ambiente de teste.)
-
----
-
-## Parte B — Hardening do i18n (erro serverFn 500-char)
-
-### B1. Erro detalhado no runtime
-- `translateBatch` retorna, quando falha validação, `{ ok: false, error: 'string_too_long', offending: [{ index, length, preview }] }` em vez de crashar.
-- Cliente (`src/lib/i18n.ts` — `translateStrings`) captura e loga: `[i18n] String too long — key="quem-somos.paragrafo3", ns="page", file="src/routes/quem-somos.tsx", length=1247, limit=5000`. Toast dev-only.
-- Para isto, o wrapper `t()` que chama `translateStrings` passa metadata `{ key, ns, source }` num Map paralelo aos strings enviados.
-
-### B2. Split automático transparente
-- Novo helper `splitLongString(s, limit=4800)` corta em chunks respeitando limites de frase (`. `, `\n\n`, `\n`, espaço).
-- `translateStrings` deteta strings > limit, envia como N entradas numeradas `key__part_1`, `key__part_2`… e recombina no cache com `.join(' ')` antes de devolver.
-- Transparente para os componentes — recebem uma única string traduzida.
-
-### B3. Validação build-time
-- Script `scripts/i18n-length-check.mjs`: percorre `src/lib/i18n.ts` dicionário PT/EN + strings literais em `<Trans>` / `t()` + conteúdos JSX longos em rotas listadas. Falha com exit 1 se algum string > 5000 chars, imprimindo `key`, `file:line`, comprimento.
-- `package.json`: `"i18n:check": "node scripts/i18n-length-check.mjs"`.
-- `.github/workflows/i18n-audit.yml`: adicionar step `bun run i18n:check` ao job existente.
-
-### B4. E2E fresh-account
-- `e2e/i18n-no-serverfn-errors.spec.ts`: cria conta descartável → percorre `/quem-somos`, `/planos`, `/configuracoes`, `/dashboard` em PT e EN → afirma zero requests para `/_serverFn/*` com status 400/500 → afirma zero `console.error` matching `too_big|String must contain`.
-
----
-
-## Detalhes técnicos
-
-**Ficheiros novos**
-```
-src/lib/auth-2fa.functions.ts
-src/lib/auth-2fa.server.ts
-src/routes/auth.verify-2fa.tsx
-scripts/i18n-length-check.mjs
-e2e/2fa-enroll-forced.spec.ts
-e2e/2fa-otp-resend-lockout.spec.ts
-e2e/2fa-happy-path.spec.ts
-e2e/i18n-no-serverfn-errors.spec.ts
-```
-
-**Ficheiros editados**
-```
-src/lib/translate.functions.ts   (error shape rico)
-src/lib/i18n.ts                  (split, metadata, log detalhado)
-src/components/AuthGate.tsx      (gate 2FA)
-src/routes/configuracoes.tsx     (bloco telemóvel + OTP)
-src/routes/auth.tsx              (banner "verifica telemóvel")
-package.json                     (i18n:check script)
-.github/workflows/i18n-audit.yml (step novo)
-```
-
-**Migração SQL** (schema-only; RLS + GRANTs em cada tabela nova).
-
-**Não incluído** (fora do pedido explícito):
-- Recovery codes para 2FA (posso adicionar depois se pedires).
-- TOTP/Authenticator app — só SMS conforme decisão.
-
----
-
-Confirmas para eu implementar? Assim que aprovares, entrego tudo numa passagem.
+Confirmas este faseamento? Ou preferes que ataque outra fase primeiro (ex: Fase 5 PDF, que é mais visível para clientes)?
