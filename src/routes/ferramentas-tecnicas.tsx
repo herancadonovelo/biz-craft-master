@@ -2327,6 +2327,33 @@ function BordadoTab() {
     toast.success("Lista exportada em CSV.");
   };
 
+  // ---------- Fase 10: folha de padrão PDF ----------
+  const exportarPatternSheetPdf = async () => {
+    if (!svgRef.current) { toast.error("SVG não disponível."); return; }
+    setPdfBusy(true);
+    try {
+      const chartPngDataUrl = await svgToPngDataUrl(svgRef.current, 1600);
+      const dimensaoCm = { w: A4_W / PX_PER_CM, h: A4_H / PX_PER_CM };
+      const totalStitches = listaCompras.reduce((s, r) => s + r.stitches, 0);
+      const bytes = await buildPatternSheetPdf({
+        titulo: pdfTitulo || "Padrão de Bordado",
+        autor: pdfAutor || undefined,
+        hoop: hoopOn ? `${hoop === "square" ? "Quadrado" : "Redondo"} ${(hoopWpx / PX_PER_CM).toFixed(0)}×${(hoopHpx / PX_PER_CM).toFixed(0)} cm` : undefined,
+        aida: aidaCount || undefined,
+        dimensaoCm,
+        totalStitches,
+        totalColors: listaCompras.length,
+        linhas: listaCompras,
+        chartPngDataUrl,
+        watermark: w?.texto || undefined,
+      });
+      downloadPdf(bytes, `padrao-bordado-${Date.now()}.pdf`);
+      toast.success("Folha de padrão PDF gerada.");
+    } catch (e) {
+      toast.error("Falha ao gerar PDF: " + (e as Error).message);
+    } finally { setPdfBusy(false); }
+  };
+
   // ---------- Fase 5: exportação DST + sequência de máquina + texto circular ----------
   /** Reduz camadas visíveis a blocos de pontos (um bloco por camada, com re-amostragem). */
   const buildStitchBlocks = (): StitchBlock[] => {
