@@ -199,6 +199,81 @@ export function applyOverrides(rules: SmartLayerRule[], overrides: LayerOverride
   return rules.map((r, i) => overrides[i] ? { ...r, ...overrides[i] } : r);
 }
 
+// ─── Correção automática (auto-fix) ─────────────────────────────────
+
+export interface AutoFixResult {
+  overrides: LayerOverrideMap;
+  changes: Array<{ layerIndex: number; field: keyof LayerOverride; from: unknown; to: unknown; reason: string }>;
+  unresolved: string[];
+}
+
+/**
+ * Ajusta parâmetros das camadas para eliminar cada alerta do relatório QA.
+ * Combina-se com os overrides existentes; devolve o mapa final + lista de alterações.
+ *
+ * Regras:
+ *  - `density-high` (tatami > 6 pts/mm) → densidade = 5.5, spacing = 1/5.5
+ *  - `density-low`  (tatami < 3 pts/mm) → densidade = 4.0, spacing = 1/4
+ *  - `satin-too-wide` (satim min > 8 mm) → passa a `tatami`, underlay `double`, densidade 4
+ *  - `run-too-large` (corrida > 25 mm²) → passa a `tatami`, underlay `edge`, densidade 4
+ *  - Se um satim tem underlay `none` mas devia ter algum, activa `edge`.
+ *  - Se pull-comp de satim > 1 mm, limita a 0.4 mm (evita distorção).
+ */
+export function autoFixOverrides(
+  rules: SmartLayerRule[],
+  existing: LayerOverrideMap = {},
+): AutoFixResult {
+  const next: LayerOverrideMap = { ...existing };
+  const changes: AutoFixResult["changes"] = [];
+  const unresolved: string[] = [];
+
+  const patch = (i: number, field: keyof LayerOverride, value: unknown, reason: string) => {
+    const current = { ...(rules[i] as unknown as Record<string, unknown>), ...(next[i] ?? {}) };
+    if (current[field] === value) return;
+    next[i] = { ...(next[i] ?? {}), [field]: value } as LayerOverride;
+    changes.push({ layerIndex: i, field, from: current[field], to: value, reason });
+  };
+
+  rules.forEach((r, i) => {
+    const eff = { ...r, ...(next[i] ?? {}) } as SmartLayerRule;
+    const shortest = Math.min(eff.widthMm, eff.heightMm);
+
+    if (eff.stitch === "tatami" && eff.density > 6) {
+      patch(i, "density", 5.5, "density-high");
+      patch(i, "spacingMm", 1 / 5.5, "density-high");
+    }
+    if (eff.stitch === "tatami" && eff.density < 3) {
+      patch(i, "density", 4, "density-low");
+      patch(i, "spacingMm", 1 / 4, "density-low");
+    }
+    if (eff.stitch === "satin" && shortest > 8) {
+      patch(i, "stitch", "tatami", "satin-too-wide");
+      patch(i, "underlay", "double", "satin-too-wide");
+      patch(i, "density", 4, "satin-too-wide");
+      patch(i, "spacingMm", 1 / 4, "satin-too-wide");
+      patch(i, "pullCompMm", 0.15, "satin-too-wide");
+    }
+    if (eff.stitch === "run" && eff.areaMm2 > 25) {
+      patch(i, "stitch", "tatami", "run-too-large");
+      patch(i, "underlay", "edge", "run-too-large");
+      patch(i, "density", 4, "run-too-large");
+      patch(i, "spacingMm", 1 / 4, "run-too-large");
+    }
+    if ((eff.stitch === "satin" || eff.stitch === "tatami") && eff.underlay === "none") {
+      patch(i, "underlay", eff.stitch === "satin" ? "edge" : "edge", "underlay-missing");
+    }
+    if (eff.stitch === "satin" && eff.pullCompMm > 1) {
+      patch(i, "pullCompMm", 0.4, "pullcomp-excess");
+    }
+  });
+
+  // Alertas fora do controlo das camadas (avisar o utilizador):
+  // outOfHoop, longJumps, colorCount > agulhas → precisam de ação manual.
+  // A UI trata destes casos após a correção.
+
+  return { overrides: next, changes, unresolved };
+}
+
 // ─── Persistência ────────────────────────────────────────────────────
 
 const OVR_KEY = "embroidery-phase23-overrides";
