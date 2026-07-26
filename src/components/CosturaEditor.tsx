@@ -220,10 +220,53 @@ export function CosturaEditor() {
   const [tool, setTool] = useState<Tool>("line");
   const [polys, setPolys] = useState<Poly[]>([]);
   const [history, setHistory] = useState<Poly[][]>([]);
+  const [future, setFuture] = useState<Poly[][]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [liveMirror, setLiveMirror] = useState(false);
   const [snapIntersect, setSnapIntersect] = useState(true);
+  const [snapEndpoints, setSnapEndpoints] = useState(true);
+  const [snapAlign, setSnapAlign] = useState(true);
   const [gridOn, setGridOn] = useState(true);
+  const [gridCm, setGridCm] = useState(1);
+  const [annotate, setAnnotate] = useState(true);
+
+  // Autosave & versioning
+  const AUTOSAVE_KEY = "costura:autosave";
+  const VERSIONS_KEY = "costura:versions";
+  const [versions, setVersions] = useState<{ ts: number; polys: Poly[] }[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem(VERSIONS_KEY) || "[]"); } catch { return []; }
+  });
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (hydrated.current) return;
+    hydrated.current = true;
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Poly[];
+        if (Array.isArray(parsed) && parsed.length) setPolys(parsed);
+      }
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const t = setTimeout(() => {
+      try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(polys)); } catch { /* quota */ }
+    }, 700);
+    return () => clearTimeout(t);
+  }, [polys]);
+  function snapshotVersion() {
+    const v = [{ ts: Date.now(), polys }, ...versions].slice(0, 12);
+    setVersions(v);
+    try { localStorage.setItem(VERSIONS_KEY, JSON.stringify(v)); } catch { /* quota */ }
+    toast.success("Versão guardada.");
+  }
+  function restoreVersion(i: number) {
+    const v = versions[i]; if (!v) return;
+    push(v.polys);
+    toast.success("Versão restaurada.");
+  }
 
   // Decalque (image underlay)
   const [underlay, setUnderlay] = useState<string>("");
@@ -258,25 +301,56 @@ export function CosturaEditor() {
   const intersections = useMemo(() => allIntersections(polys), [polys]);
 
   function push(next: Poly[]) {
-    setHistory((h) => [...h.slice(-49), polys]);
+    setHistory((h) => [...h.slice(-99), polys]);
+    setFuture([]);
     setPolys(next);
   }
   function undo() {
     setHistory((h) => {
       if (!h.length) return h;
       const prev = h[h.length - 1];
+      setFuture((f) => [polys, ...f].slice(0, 99));
       setPolys(prev);
       return h.slice(0, -1);
     });
   }
+  function redo() {
+    setFuture((f) => {
+      if (!f.length) return f;
+      const nxt = f[0];
+      setHistory((h) => [...h.slice(-99), polys]);
+      setPolys(nxt);
+      return f.slice(1);
+    });
+  }
 
   function snap(p: Pt): Pt {
-    if (!snapIntersect) return p;
+    const candidates: Pt[] = [];
+    if (snapIntersect) candidates.push(...intersections);
+    if (snapEndpoints) {
+      for (const pl of polys) {
+        if (pl.pts.length) {
+          candidates.push(pl.pts[0], pl.pts[pl.pts.length - 1]);
+        }
+      }
+    }
     let best: Pt | null = null; let bd = 8;
-    for (const q of intersections) {
+    for (const q of candidates) {
       const d = dist(p, q); if (d < bd) { bd = d; best = q; }
     }
-    return best ?? p;
+    if (best) return best;
+    if (snapAlign) {
+      let sx = p.x, sy = p.y; let fx = false, fy = false;
+      for (const pl of polys) {
+        for (const q of [pl.pts[0], pl.pts[pl.pts.length - 1]]) {
+          if (!q) continue;
+          if (!fx && Math.abs(q.x - p.x) < 5) { sx = q.x; fx = true; }
+          if (!fy && Math.abs(q.y - p.y) < 5) { sy = q.y; fy = true; }
+        }
+      }
+      if (fx || fy) return { x: sx, y: sy };
+    }
+    return p;
   }
 
   function addPoly(kind: PolyKind, pts: Pt[], extra: Partial<Poly> = {}) {
@@ -348,6 +422,7 @@ export function CosturaEditor() {
       setSelectedId(null);
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") undo();
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) redo();
   };
   const onDoubleClick = () => {
     if (tool === "spline" && splinePts.length >= 2) {
