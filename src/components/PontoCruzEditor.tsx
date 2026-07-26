@@ -688,6 +688,53 @@ export function PontoCruzEditor() {
                 <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} className="h-8 w-10 rounded border" />
                 <Button size="sm" onClick={() => doReplace(cor)}>Aplicar</Button>
               </div>
+              <Dialog open={paletteOpen} onOpenChange={setPaletteOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="secondary"><Palette className="mr-1 h-3 w-3" />Gerir paleta</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>Paleta de linhas</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex items-center gap-2">
+                    <Select value={palettePick} onValueChange={(v: string) => setPalettePick(v as Marca)}>
+                      <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DMC">DMC</SelectItem>
+                        <SelectItem value="Anchor">Anchor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="Procurar por código ou nome…" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} className="h-8" />
+                  </div>
+                  <div className="max-h-80 overflow-auto rounded border">
+                    {(palettePick === "DMC" ? getDMC() : getAnchor())
+                      .filter((c: Cor) => {
+                        const q = paletteQuery.trim().toLowerCase();
+                        if (!q) return true;
+                        return c.codigo.toLowerCase().includes(q) || (c.nome ?? "").toLowerCase().includes(q);
+                      })
+                      .slice(0, 200)
+                      .map((c: Cor) => (
+                        <button
+                          key={`${c.marca}-${c.codigo}`}
+                          type="button"
+                          onClick={() => { setCor(c.hex); setPaletteOpen(false); }}
+                          className="flex w-full items-center gap-2 border-b px-2 py-1 text-left text-xs hover:bg-accent"
+                        >
+                          <span className="inline-block h-4 w-4 rounded border" style={{ background: c.hex }} />
+                          <span className="font-mono">{c.marca} {c.codigo}</span>
+                          <span className="text-muted-foreground">{c.nome ?? ""}</span>
+                          <span className="ml-auto text-muted-foreground">{c.hex}</span>
+                        </button>
+                      ))}
+                  </div>
+                  <DialogFooter>
+                    <Button size="sm" variant="outline" onClick={() => { setChart((ch) => ({ ...ch, paletteMax: Math.max(ch.paletteMax, stats.length) })); toast.success("Máx. de cores atualizado."); }}>
+                      Atualizar máx. de cores ({stats.length})
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardContent></Card>
           </TabsContent>
 
@@ -747,6 +794,10 @@ export function PontoCruzEditor() {
 
           <TabsContent value="io">
             <Card><CardContent className="space-y-2 p-3">
+              <div>
+                <Label className="text-xs">Marca de água (PDF)</Label>
+                <Input value={watermark} onChange={(e) => setWatermark(e.target.value)} placeholder="ex.: Amostra — Craft Business Master" className="h-8" />
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={exportPng}><Download className="mr-1 h-3 w-3" />PNG</Button>
                 <Button size="sm" variant="outline" onClick={exportPdf}><FileDown className="mr-1 h-3 w-3" />PDF + Legenda</Button>
