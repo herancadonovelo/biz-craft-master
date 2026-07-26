@@ -326,6 +326,7 @@ function snap(v: number, on: boolean, step = PX_PER_CM / 2) {
 
 function TricotinTab() {
   const addToStore = useStore((s) => s.add);
+  const perfilNegocio = useStore((s) => s.perfilNegocio);
   type NodeType = "start" | "straight" | "curve";
   type PtNode = { id: string; x: number; y: number; type: NodeType; ctrlX?: number; ctrlY?: number };
   type Mode = "select" | "straight" | "curve";
