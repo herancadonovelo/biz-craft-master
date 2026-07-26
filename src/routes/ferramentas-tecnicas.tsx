@@ -2404,6 +2404,97 @@ function BordadoTab() {
           )}
         </CardContent></Card>
         <Card><CardContent className="space-y-2 p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Modo ponto cruz (Aida)</Label>
+            <Button size="sm" variant="outline" onClick={() => setCarrinhoOpen(true)}>
+              Lista de compras
+            </Button>
+          </div>
+          <Label className="text-xs">Contagem Aida</Label>
+          <Select value={String(aidaCount)} onValueChange={(v) => setAidaCount(Number(v) as 0 | 11 | 14 | 16 | 18)}>
+            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Desligada</SelectItem>
+              <SelectItem value="11">Aida 11 ct (≈2.31 mm)</SelectItem>
+              <SelectItem value="14">Aida 14 ct (≈1.81 mm)</SelectItem>
+              <SelectItem value="16">Aida 16 ct (≈1.59 mm)</SelectItem>
+              <SelectItem value="18">Aida 18 ct (≈1.41 mm)</SelectItem>
+            </SelectContent>
+          </Select>
+          {chartArea && (
+            <p className="text-[10px] text-muted-foreground">
+              Grelha: {chartArea.nx} × {chartArea.ny} cruzes · célula {(chartArea.cellPx / PX_PER_CM * 10).toFixed(1)} mm
+            </p>
+          )}
+          <div>
+            <Label className="text-xs">Cores DMC no gráfico ({nCores})</Label>
+            <Slider value={[nCores]} min={2} max={40} step={1} onValueChange={(v) => setNCores(v[0])} />
+          </div>
+          <div className="grid grid-cols-2 gap-1">
+            <Button size="sm" onClick={converterParaPontoCruz} disabled={convertendo || !aidaCount || !imagemFundo}>
+              <Sparkles className="mr-1 h-3 w-3" />{convertendo ? "A converter…" : "Foto → Cruz"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setChartCells([])}>
+              <Eraser className="mr-1 h-3 w-3" />Limpar cruzes
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            Cria uma grelha Aida centrada e converte a imagem de decalque em cruzes DMC. Ajusta o número de cores para simplificar o gráfico.
+          </p>
+        </CardContent></Card>
+        <Dialog open={carrinhoOpen} onOpenChange={setCarrinhoOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader><DialogTitle>Lista de linhas DMC</DialogTitle></DialogHeader>
+            {listaCompras.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Sem linhas ainda. Atribui uma cor DMC a cada camada ou gera um gráfico de ponto cruz para veres a lista.
+              </p>
+            ) : (
+              <>
+                <div className="max-h-[420px] overflow-y-auto rounded border">
+                  <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-muted/70 text-left">
+                      <tr>
+                        <th className="p-2">DMC</th><th className="p-2">Nome</th>
+                        <th className="p-2 text-right">Cruzes</th>
+                        <th className="p-2 text-right">Linha (cm)</th>
+                        <th className="p-2">Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listaCompras.map((r) => (
+                        <tr key={r.code} className="border-t">
+                          <td className="p-2">
+                            <div className="flex items-center gap-2">
+                              <span className="h-4 w-4 rounded border" style={{ backgroundColor: r.hex }} />
+                              <span className="font-medium">{r.code}</span>
+                              {r.anchor && <span className="text-muted-foreground">A{r.anchor}</span>}
+                            </div>
+                          </td>
+                          <td className="p-2">{r.nome}</td>
+                          <td className="p-2 text-right tabular-nums">{r.stitches || "—"}</td>
+                          <td className="p-2 text-right tabular-nums">{r.cm.toFixed(1)}</td>
+                          <td className="p-2">
+                            {r.temStock
+                              ? <span className="text-emerald-600">✓ {r.stock} {r.unidade}</span>
+                              : <span className="text-destructive">Em falta</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={exportarListaCsv}>Exportar CSV</Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  O stock é procurado no Inventário por marca "DMC" + código de cor igual. Para ligar automaticamente, garante que os teus fios têm esses campos preenchidos.
+                </p>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+        <Card><CardContent className="space-y-2 p-3">
           <Label className="text-xs">Imagem de referência (decalque)</Label>
           <Input type="file" accept="image/*" onChange={(e) => {
             const f = e.target.files?.[0]; if (!f) return;
