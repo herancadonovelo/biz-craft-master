@@ -21,7 +21,7 @@ function readImage(file: File): Promise<string> {
 }
 
 export const Route = createFileRoute("/cursos")({
-  head: () => ({ meta: [{ title: "Cursos" }] }),
+  head: () => ({ meta: [{ title: "Academia Criativa de Artesanato: Cursos" }] }),
   component: () => {
     const { cursos, alunos, add, remove, update } = useStore();
     const [form, setForm] = useState({ nome: "", descricao: "", preco: 0, linkCompra: "", grupos: "", paginas: "", imagem: "" });
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/cursos")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Cursos"
+        <PageHeader title="Academia Criativa de Artesanato: Cursos"
           description={`${cursos.length} cursos · ${alunos.length} alunos.`}
           actions={<Button variant="outline" onClick={() => toast.info("Sincronização manual: liga a tua plataforma de cursos em Contas & Passwords e importa lista de alunos por CSV.")}><RefreshCw className="mr-1 h-4 w-4" />Sincronizar (manual)</Button>} />
 
