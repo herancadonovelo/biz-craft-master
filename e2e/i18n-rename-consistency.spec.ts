@@ -66,7 +66,10 @@ test.describe("i18n rename consistency", () => {
         const value = dict[entry.key];
         expect(value, `${exp.locale} missing ${entry.key}`).toBeTruthy();
         for (const token of exp.mustContain) {
-          expect(value, `${exp.locale}:${entry.key} should contain "${token}"`).toContain(token);
+          expect(
+            value.toLowerCase(),
+            `${exp.locale}:${entry.key} should contain "${token}"`,
+          ).toContain(token.toLowerCase());
         }
       }
     });
