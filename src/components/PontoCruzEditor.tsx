@@ -140,6 +140,28 @@ export function PontoCruzEditor() {
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo]);
 
+  // ----- Named snapshots (versões) -----
+  const pid = chartProjectId || "default";
+  const [snaps, setSnaps] = useState<PcSnapshot[]>(() => listSnapshots(pid));
+  const [snapOpen, setSnapOpen] = useState(false);
+  const [snapName, setSnapName] = useState("");
+  useEffect(() => { setSnaps(listSnapshots(pid)); }, [pid]);
+  const doSaveSnapshot = () => {
+    saveSnapshot(pid, snapName, chart);
+    setSnaps(listSnapshots(pid));
+    setSnapName("");
+    toast.success("Versão guardada.");
+  };
+  const doRestore = (s: PcSnapshot) => {
+    commit(restoreSnapshot(s));
+    setSnapOpen(false);
+    toast.success(`Restaurada "${s.nome}".`);
+  };
+  const doDeleteSnap = (id: string) => {
+    deleteSnapshot(pid, id);
+    setSnaps(listSnapshots(pid));
+  };
+
   const [tool, setTool] = useState<Tool>("pencil");
   const [cor, setCor] = useState("#C8102E");
   const [cor2, setCor2] = useState<string | null>(null);
