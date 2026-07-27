@@ -11,7 +11,11 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
     // Pinta pelo menos uma célula com cor no separador 1 para gerar consumo.
     await page.getByRole("tab", { name: /1\. Gráfico/i }).click();
     const colorInput = page.locator('input[type="color"]').first();
-    await colorInput.fill("#ff0000");
+    await colorInput.evaluate((el: HTMLInputElement) => {
+      el.value = "#ff0000";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
     // Clica uma célula do gráfico (segundo botão da grelha).
     const grelha = page.locator('button[title^="C1, malha"]').first();
     await grelha.click();
