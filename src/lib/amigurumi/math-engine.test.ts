@@ -31,7 +31,8 @@ describe("parseCarreira", () => {
     const r = parseCarreira("am 6 pb");
     expect(r.temAnelMagico).toBe(true);
     expect(r.produz).toBe(6);
-    expect(r.usa).toBe(0);
+    // 'am' apenas marca a flag; validateCarreira é que ignora usa.
+    expect(r.usa).toBe(6);
   });
 
   it("marca desconhecidos sem falhar", () => {
