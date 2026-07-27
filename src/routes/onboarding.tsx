@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,11 +13,27 @@ export const Route = createFileRoute("/onboarding")({
   component: () => {
     const aplicarPreset = useStore((s) => s.aplicarPreset);
     const setOnboardingFeito = useStore((s) => s.setOnboardingFeito);
+    const { user } = useAuth();
     const nav = useNavigate();
-    const escolher = (p: "essencial" | "padrao" | "completo") => {
-      aplicarPreset(p);
+    const marcarConcluido = async () => {
       setOnboardingFeito(true);
+      if (user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ onboarding_concluido: true })
+          .eq("user_id", user.id);
+        if (error) toast.error("Não foi possível guardar a preferência de onboarding: " + error.message);
+      }
+    };
+    const escolher = async (p: "essencial" | "padrao" | "completo") => {
+      aplicarPreset(p);
+      await marcarConcluido();
       toast.success("Pronto! Podes ajustar em Módulos ativos.");
+      nav({ to: "/" });
+    };
+    const saltar = async () => {
+      await marcarConcluido();
+      toast.info("Podes escolher um preset mais tarde em Módulos ativos.");
       nav({ to: "/" });
     };
     const opts = [
@@ -52,6 +70,9 @@ export const Route = createFileRoute("/onboarding")({
               </CardContent>
             </Card>
           ))}
+        </div>
+        <div className="flex justify-center pt-2">
+          <Button variant="ghost" onClick={saltar}>Saltar este passo</Button>
         </div>
       </div>
     );
