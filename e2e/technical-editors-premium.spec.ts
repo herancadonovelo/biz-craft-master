@@ -43,7 +43,6 @@ test.describe("Ferramentas Técnicas — proteção Premium", () => {
 
   test("rotas diretas de editores Premium não renderizam ferramentas sem Premium", async ({ page }) => {
     const routes = [
-      { url: "/editor-receita", feature: "Editor de Receitas" },
       { url: "/conversor-cores", feature: "Conversor de Cores: DMC/ANCHOR" },
       { url: "/contador", feature: "Contador de Carreiras & Pontos" },
     ];

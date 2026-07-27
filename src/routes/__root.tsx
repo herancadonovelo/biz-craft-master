@@ -162,9 +162,10 @@ function RootComponent() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", design.modo === "dark");
-    const accent = `oklch(${design.accent})`;
+    const accentRaw = design.accent ?? "0.7 0.15 258";
+    const accent = `oklch(${accentRaw})`;
     // Determine readable foreground based on luminance (first oklch component)
-    const lum = Number(design.accent.split(/\s+/)[0]) || 0.7;
+    const lum = Number(accentRaw.split(/\s+/)[0]) || 0.7;
     const fg = lum > 0.6 ? "oklch(0.18 0.03 258)" : "oklch(0.985 0.003 247)";
     root.style.setProperty("--accent", accent);
     root.style.setProperty("--accent-foreground", fg);
@@ -174,7 +175,7 @@ function RootComponent() {
     root.style.setProperty("--sidebar-primary", accent);
     root.style.setProperty("--sidebar-primary-foreground", fg);
     root.style.setProperty("--sidebar-ring", accent);
-    root.style.setProperty("--radius", `${design.raio}rem`);
+    root.style.setProperty("--radius", `${design.raio ?? 0.5}rem`);
     // Sidebar background + contrasting tokens
     // Se o utilizador definiu L/C/H personalizado, gera oklch a partir daí
     const sb = (design.sidebarL != null || design.sidebarC != null || design.sidebarH != null)
