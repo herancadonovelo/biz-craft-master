@@ -32,6 +32,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
     await openEditorTab(page, /tricotin/i);
 
     // Open the "Exportação industrial" details panel that hosts the preview.
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     const preview = page.getByTestId("arc-tolerance-preview");
     await preview.scrollIntoViewIfNeeded();
     await expect(preview).toBeVisible();
@@ -87,6 +88,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
       );
     });
     await openEditorTab(page, /tricotin/i);
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     await page.getByTestId("arc-tolerance-preview").scrollIntoViewIfNeeded();
     await expect(page.getByTestId("arc-export-blocked")).toBeVisible();
     await expect(page.getByTestId("export-gcode-arcs")).toBeDisabled();
@@ -94,6 +96,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
 
   test("tolerância e presets persistem por projeto ao mudar de scope", async ({ page }) => {
     await openEditorTab(page, /tricotin/i);
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Folha & Histórico/i }).click();
     // Seed distinct configs for two projects and confirm the panel reloads them.
     await page.evaluate(() => {
       window.localStorage.setItem("tricotin-pro-tol-v1:proj-a", JSON.stringify(0.08));
@@ -105,10 +108,13 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
     await projectInput.fill("proj-a");
     await projectInput.blur();
     // Tolerance input is the number field with min=0.02 / step=0.05.
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     const tol = page.locator('input[type="number"][step="0.05"][min="0.02"]');
     await expect(tol).toHaveValue("0.08");
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Folha & Histórico/i }).click();
     await projectInput.fill("proj-b");
     await projectInput.blur();
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     await expect(tol).toHaveValue("0.42");
     await expect(page.getByTestId("max-discontinuities")).toHaveValue("5");
   });
