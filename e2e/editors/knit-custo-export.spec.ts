@@ -44,7 +44,8 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
     await expect(panel.getByText("#ff0000", { exact: false })).toBeVisible();
 
     // Breakdown reage a alterações de margem.
-    await panel.getByLabel("Margem %").fill("100");
+    const margem = panel.locator('label:has-text("Margem %") + input, label:has-text("Margem %") ~ input').first();
+    await margem.fill("100");
     await expect(panel.getByText(/Preço com IVA/i)).toBeVisible();
 
     // Alerta "sem material mapeado" aparece porque não há inventário.
@@ -59,7 +60,9 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
     await page.reload();
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
     await page.getByRole("tab", { name: /Custo & Export/i }).click();
-    await expect(page.getByTestId("knit-custo-panel").getByLabel("Margem %")).toHaveValue("100");
+    const margem2 = page.getByTestId("knit-custo-panel")
+      .locator('label:has-text("Margem %") + input, label:has-text("Margem %") ~ input').first();
+    await expect(margem2).toHaveValue("100");
 
     expect(errors).toEqual([]);
   });
