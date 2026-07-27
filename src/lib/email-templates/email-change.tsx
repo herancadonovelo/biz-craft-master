@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailBrandingFooter } from './_footer'
 
 interface EmailChangeEmailProps {
   siteName: string
@@ -57,6 +58,7 @@ export const EmailChangeEmail = ({
           If you didn't request this change, please secure your account
           immediately.
         </Text>
+        <EmailBrandingFooter />
       </Container>
     </Body>
   </Html>

@@ -10,6 +10,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailBrandingFooter } from './_footer'
 
 interface MagicLinkEmailProps {
   siteName: string
@@ -36,6 +37,7 @@ export const MagicLinkEmail = ({
         <Text style={footer}>
           If you didn't request this link, you can safely ignore this email.
         </Text>
+        <EmailBrandingFooter />
       </Container>
     </Body>
   </Html>
