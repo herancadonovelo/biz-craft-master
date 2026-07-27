@@ -12,7 +12,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Bem-vindo(a) ao Craft Business Master! 🎉 Confirma o teu acesso',
+  signup: 'Bem-vindo(a) à tua nova casa criativa! 🧵✨',
   invite: '📩 Convite: Simplifica a gestão do teu negócio no Craft Business Master 🧶 🌸 🧵',
   magiclink: 'O teu link de acesso ao Craft Business Master',
   recovery: 'Esqueceste-te da palavra-passe? Nós ajudamos! 🔐',
