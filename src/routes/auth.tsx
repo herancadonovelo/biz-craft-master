@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, LogIn } from "lucide-react";
 import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
@@ -124,16 +123,6 @@ function AuthPage() {
       const target = consumeIntendedPath();
       nav({ to: (target as any) || "/" });
     }
-  };
-  const signUp = async () => {
-    setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email, password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    setBusy(false);
-    if (error) toast.error(mapEmailError(error.message));
-    else toast.success("Conta criada — verifica o teu email se necessário");
   };
   const signInGoogle = async () => {
     setBusy(true);
@@ -250,26 +239,30 @@ function AuthPage() {
               </div>
             </div>
           ) : (
-          <Tabs defaultValue="login">
-            <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="login">Entrar</TabsTrigger><TabsTrigger value="signup">Registar</TabsTrigger></TabsList>
-            <TabsContent value="login" className="space-y-3 pt-3">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-              <div><Label>Palavra-passe</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+          <div className="space-y-3">
+            <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+            <div><Label>Palavra-passe</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+            <button
+              type="button"
+              onClick={() => { setResetEmail(email); setShowReset(true); }}
+              className="text-xs text-muted-foreground underline hover:text-foreground"
+            >
+              Esqueci-me da password de login
+            </button>
+            <Button className="w-full" onClick={signIn} disabled={busy}>
+              {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Entrar
+            </Button>
+            <p className="pt-2 text-center text-sm text-muted-foreground">
+              Ainda não tem conta?{" "}
               <button
                 type="button"
-                onClick={() => { setResetEmail(email); setShowReset(true); }}
-                className="text-xs text-muted-foreground underline hover:text-foreground"
+                onClick={() => nav({ to: "/registo" })}
+                className="font-medium text-primary underline underline-offset-2"
               >
-                Esqueci-me da password de login
+                Registe-se aqui
               </button>
-              <Button className="w-full" onClick={signIn} disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Entrar</Button>
-            </TabsContent>
-            <TabsContent value="signup" className="space-y-3 pt-3">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-              <div><Label>Palavra-passe</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" /></div>
-              <Button className="w-full" onClick={signUp} disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Criar conta</Button>
-            </TabsContent>
-          </Tabs>
+            </p>
+          </div>
           )}
         </CardContent>
       </Card>

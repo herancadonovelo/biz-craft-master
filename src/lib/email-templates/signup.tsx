@@ -22,44 +22,59 @@ interface SignupEmailProps {
 
 export const SignupEmail = ({
   confirmationUrl,
-}: SignupEmailProps) => (
-  <Html lang="pt" dir="ltr">
-    <Head />
-    <Preview>Bem-vindo(a) ao Craft Business Master 🎉 Confirma o teu acesso</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Bem-vindo(a) ao Craft Business Master 🎉</Heading>
-        <Text style={text}>Olá!</Text>
-        <Text style={text}>
-          Que bom ver-te por aqui. Estás a um pequeno passo de simplificar toda a gestão
-          das tuas criações, despesas e vendas.
-        </Text>
-        <Text style={text}>
-          Para entrares oficialmente na plataforma, clica no botão abaixo para validar a
-          tua conta de email:
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Validar Conta e Começar
-        </Button>
-        <Text style={{ ...text, fontSize: '12px', color: '#888' }}>
-          Link alternativo:{' '}
-          <Link href={confirmationUrl} style={link}>
-            {confirmationUrl}
-          </Link>
-        </Text>
-        <Text style={text}>
-          Mal podemos esperar para ver o teu negócio crescer de forma organizada.
-        </Text>
-        <Text style={footer}>
-          Um abraço,
-          <br />
-          A equipa Art Fusion
-        </Text>
-        <EmailBrandingFooter />
-      </Container>
-    </Body>
-  </Html>
-)
+  recipient,
+}: SignupEmailProps) => {
+  const firstName = (recipient || '').split('@')[0] || ''
+  const saudacao = firstName ? `Olá ${firstName},` : 'Olá,'
+  return (
+    <Html lang="pt" dir="ltr">
+      <Head />
+      <Preview>Bem-vindo(a) à tua nova casa criativa 🧵✨</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={h1}>Bem-vindo(a) à tua nova casa criativa! 🧵✨</Heading>
+          <Text style={text}>{saudacao}</Text>
+          <Text style={text}>
+            Oficialmente, bem-vindo(a) ao Craft Business Master! 🧶 🌸 🧵
+          </Text>
+          <Text style={text}>
+            Sabemos que o trabalho manual é feito com o coração, mas que a parte de trás do palco —
+            os orçamentos, as faturas e o inventário — pode ser uma verdadeira dor de cabeça. 😵‍💫💰⚖️
+          </Text>
+          <Text style={text}>
+            Foi exatamente por isso que construímos este espaço. A partir de hoje, podes deixar a
+            Gestão de Números & Fios e o Arquivo de Faturas & Recibos conosco, num ambiente limpo,
+            organizado e pensado exclusivamente para quem cria com as próprias mãos. 🙌🏻🛠️
+          </Text>
+          <Text style={text}>
+            O teu foco principal deve estar na arte; nós ajudamos-te a cuidar do negócio. 🥰🌈
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            Explorar o Craft Business Master
+          </Button>
+          <Text style={{ ...text, fontSize: '12px', color: '#888' }}>
+            Link alternativo:{' '}
+            <Link href={confirmationUrl} style={link}>
+              {confirmationUrl}
+            </Link>
+          </Text>
+          <Text style={text}>
+            Mal podemos esperar para ver os laços que vais criar com a tua Rede de Clientes do
+            Ateliê. Sente-te em casa! 📝💞🏠
+          </Text>
+          <Text style={footer}>
+            Um abraço caloroso,
+            <br />
+            Sara Afonso
+            <br />
+            Fundadora da Art Fusion 🎨✨
+          </Text>
+          <EmailBrandingFooter />
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default SignupEmail
 

@@ -65,6 +65,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
+import { Route as RegistoRouteImport } from './routes/registo'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
@@ -364,6 +365,11 @@ const QuemSomosRoute = QuemSomosRouteImport.update({
   path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistoRoute = RegistoRouteImport.update({
+  id: '/registo',
+  path: '/registo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -516,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
@@ -592,6 +599,7 @@ export interface FileRoutesByTo {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
@@ -669,6 +677,7 @@ export interface FileRoutesById {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
@@ -747,6 +756,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
@@ -823,6 +833,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
@@ -899,6 +910,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
@@ -976,6 +988,7 @@ export interface RootRouteChildren {
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   QuemSomosRoute: typeof QuemSomosRoute
+  RegistoRoute: typeof RegistoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
@@ -1388,6 +1401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registo': {
+      id: '/registo'
+      path: '/registo'
+      fullPath: '/registo'
+      preLoaderRoute: typeof RegistoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1596,6 +1616,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   QuemSomosRoute: QuemSomosRoute,
+  RegistoRoute: RegistoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
