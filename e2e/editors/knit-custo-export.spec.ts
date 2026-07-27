@@ -12,7 +12,10 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
     await page.getByRole("tab", { name: /1\. Gráfico/i }).click();
     const colorInput = page.locator('input[type="color"]').first();
     await colorInput.evaluate((el: HTMLInputElement) => {
-      el.value = "#ff0000";
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype, "value",
+      )!.set!;
+      setter.call(el, "#ff0000");
       el.dispatchEvent(new Event("input", { bubbles: true }));
       el.dispatchEvent(new Event("change", { bubbles: true }));
     });
