@@ -50,6 +50,7 @@ import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MoedaRouteImport } from './routes/moeda'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
@@ -74,10 +75,14 @@ import { Route as StockRouteImport } from './routes/stock'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthVerify2faRouteImport } from './routes/auth.verify-2fa'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ReceitaTesterTricotTokenRouteImport } from './routes/receita-tester-tricot.$token'
 import { Route as ReceitaTesterTokenRouteImport } from './routes/receita-tester.$token'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 import { Route as ApiPublicWebhooksTwilioStatusRouteImport } from './routes/api/public/webhooks/twilio-status'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
@@ -290,6 +295,11 @@ const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
   path: '/marketing-conteudo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModulosRoute = ModulosRouteImport.update({
   id: '/modulos',
   path: '/modulos',
@@ -410,6 +420,18 @@ const WhatsappRoute = WhatsappRouteImport.update({
   path: '/whatsapp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthVerify2faRoute = AuthVerify2faRouteImport.update({
   id: '/verify-2fa',
   path: '/verify-2fa',
@@ -431,6 +453,17 @@ const ReceitaTesterTokenRoute = ReceitaTesterTokenRouteImport.update({
   path: '/receita-tester/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
   id: '/api/public/webhooks/etsy',
   path: '/api/public/webhooks/etsy',
@@ -507,6 +540,7 @@ export interface FileRoutesByFullPath {
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
+  '/mcp': typeof McpRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -531,10 +565,14 @@ export interface FileRoutesByFullPath {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -584,6 +622,7 @@ export interface FileRoutesByTo {
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
+  '/mcp': typeof McpRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -608,10 +647,14 @@ export interface FileRoutesByTo {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -662,6 +705,7 @@ export interface FileRoutesById {
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
+  '/mcp': typeof McpRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -686,10 +730,14 @@ export interface FileRoutesById {
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/verify-2fa': typeof AuthVerify2faRoute
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -741,6 +789,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/marketing-campanhas'
     | '/marketing-conteudo'
+    | '/mcp'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -765,10 +814,14 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -818,6 +871,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/marketing-campanhas'
     | '/marketing-conteudo'
+    | '/mcp'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -842,10 +896,14 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -895,6 +953,7 @@ export interface FileRouteTypes {
     | '/marketing'
     | '/marketing-campanhas'
     | '/marketing-conteudo'
+    | '/mcp'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -919,10 +978,14 @@ export interface FileRouteTypes {
     | '/todo'
     | '/vendas'
     | '/whatsapp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/verify-2fa'
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -973,6 +1036,7 @@ export interface RootRouteChildren {
   MarketingRoute: typeof MarketingRoute
   MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
+  McpRoute: typeof McpRoute
   ModulosRoute: typeof ModulosRoute
   MoedaRoute: typeof MoedaRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
@@ -997,8 +1061,12 @@ export interface RootRouteChildren {
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ReceitaTesterTricotTokenRoute: typeof ReceitaTesterTricotTokenRoute
   ReceitaTesterTokenRoute: typeof ReceitaTesterTokenRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
   ApiPublicWebhooksTwilioStatusRoute: typeof ApiPublicWebhooksTwilioStatusRoute
   ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
@@ -1296,6 +1364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingConteudoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/modulos': {
       id: '/modulos'
       path: '/modulos'
@@ -1464,6 +1539,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/verify-2fa': {
       id: '/auth/verify-2fa'
       path: '/verify-2fa'
@@ -1490,6 +1579,20 @@ declare module '@tanstack/react-router' {
       path: '/receita-tester/$token'
       fullPath: '/receita-tester/$token'
       preLoaderRoute: typeof ReceitaTesterTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/webhooks/etsy': {
@@ -1601,6 +1704,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingRoute: MarketingRoute,
   MarketingCampanhasRoute: MarketingCampanhasRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
+  McpRoute: McpRoute,
   ModulosRoute: ModulosRoute,
   MoedaRoute: MoedaRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,
@@ -1625,8 +1729,13 @@ const rootRouteChildren: RootRouteChildren = {
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ReceitaTesterTricotTokenRoute: ReceitaTesterTricotTokenRoute,
   ReceitaTesterTokenRoute: ReceitaTesterTokenRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
   ApiPublicWebhooksTwilioStatusRoute: ApiPublicWebhooksTwilioStatusRoute,
   ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
@@ -1637,3 +1746,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
