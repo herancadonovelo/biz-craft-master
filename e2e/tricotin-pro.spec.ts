@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ensurePremium } from "./editors/_helpers";
 
 // Smoke test that the Toolbox Pro panel (phases 3–12) renders inside the
 // Tricotin editor and the industrial G-Code export button is wired.
