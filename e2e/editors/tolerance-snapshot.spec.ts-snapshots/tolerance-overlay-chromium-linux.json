@@ -1,0 +1,20 @@
+{
+  "viewBox": [
+    192,
+    192,
+    296,
+    46
+  ],
+  "polylines": [
+    {
+      "stroke": "#94a3b8",
+      "dash": "3 3",
+      "points": 8
+    },
+    {
+      "stroke": "#2563eb",
+      "dash": "solid",
+      "points": 8
+    }
+  ]
+}

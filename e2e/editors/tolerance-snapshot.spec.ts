@@ -45,7 +45,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
       avg: await page.getByTestId("metric-avg").innerText(),
     };
     testInfo.attach("metrics.json", { body: JSON.stringify(metrics, null, 2), contentType: "application/json" });
-    expect(metrics).toMatchSnapshot("tolerance-metrics.json");
+    expect(JSON.stringify(metrics, null, 2)).toMatchSnapshot("tolerance-metrics.json");
 
     // Snapshot the overlay SVG's serialized structure (independent of pixels).
     const svgOutline = await preview.locator("svg").first().evaluate((el) => {
@@ -58,7 +58,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
       const vb = (el.getAttribute("viewBox") ?? "").split(/\s+/).map(round);
       return { viewBox: vb, polylines };
     });
-    expect(svgOutline).toMatchSnapshot("tolerance-overlay.json");
+    expect(JSON.stringify(svgOutline, null, 2)).toMatchSnapshot("tolerance-overlay.json");
 
     // Element-level screenshot as an additional visual guard.
     expect(await preview.screenshot()).toMatchSnapshot("tolerance-preview.png", {
@@ -72,9 +72,13 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
     await page.addInitScript(() => {
       const project = "e2e-block";
       window.localStorage.setItem("tricotin-pro-active-project", project);
-      // Force a very strict limit so any real path exceeds it.
-      window.localStorage.setItem(`tricotin-pro-max-disc-v1:${project}`, JSON.stringify(0));
-      window.localStorage.setItem(`tricotin-pro-tol-v1:${project}`, JSON.stringify(0.05));
+      // Force a very strict limit so any real path exceeds it. The panel
+      // reads/writes scoped by `project`, but its SSR-hydrated default is
+      // "default"; seed BOTH scopes so whichever wins we still block export.
+      for (const p of [project, "default"]) {
+        window.localStorage.setItem(`tricotin-pro-max-disc-v1:${p}`, JSON.stringify(0));
+        window.localStorage.setItem(`tricotin-pro-tol-v1:${p}`, JSON.stringify(0.05));
+      }
       window.localStorage.setItem("ferramentas-tecnicas-tab-v1", "tricotin");
       const nodes = [
         { id: "a", x: 100, y: 100, type: "start" },
