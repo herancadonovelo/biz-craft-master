@@ -230,7 +230,7 @@ function RegistoPage() {
                     mode="single"
                     selected={form.birthDate}
                     onSelect={(d) => set("birthDate", d as Date | undefined)}
-                    captionLayout="dropdown-buttons"
+                    captionLayout="dropdown"
                     fromYear={1920}
                     toYear={new Date().getFullYear()}
                     initialFocus
