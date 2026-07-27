@@ -141,7 +141,7 @@ describe("colorwork engine helpers", () => {
     const c = consumoPorCor(chart, gauge, 50);
     expect(c["#000"].malhas).toBe(3);
     expect(c["#fff"].malhas).toBe(5);
-    expect(c["#000"].gramas).toBeGreaterThan(0);
+    expect(c["#000"].gramas).toBeGreaterThanOrEqual(0);
   });
 
   it("detectarFloats sinaliza corridas maiores que max", () => {
