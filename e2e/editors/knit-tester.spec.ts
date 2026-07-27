@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { trackConsoleErrors } from "./_helpers";
+import { trackConsoleErrors, ensurePremium } from "./_helpers";
 
 test.describe("Editor de Tricô — Fase 6 (Testadores & UX)", () => {
   test("contador persiste, atalhos, notas por carreira e link público", async ({ page, context }) => {

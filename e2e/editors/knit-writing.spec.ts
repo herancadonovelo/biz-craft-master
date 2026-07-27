@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { trackConsoleErrors } from "./_helpers";
+import { trackConsoleErrors, ensurePremium } from "./_helpers";
 
 test.describe("Editor de Tricô — Fase 5 (Escrita & Dicionários)", () => {
   test("auto-completar, legenda, agulhas, dicionário, fases e repetições", async ({ page }) => {

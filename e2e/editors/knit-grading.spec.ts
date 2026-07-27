@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ensurePremium } from "./_helpers";
 
 // Fase 2 — Editor de Gráficos: Tricô · Matemática e Escalonamento.
 // Verifica que o painel Grading abre, calcula os 6 tamanhos e formata em parênteses.

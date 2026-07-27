@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { trackConsoleErrors } from "./_helpers";
+import { trackConsoleErrors, ensurePremium } from "./_helpers";
 
 test.describe("Editor de Gráficos: Tricô", () => {
   test("abre o separador sem erros e mostra a grelha", async ({ page }) => {

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ensurePremium } from "./_helpers";
 
 // Fase 3 — Editor de Gráficos: Tricô · Colorwork / Fair Isle.
 test.describe("Knit editor · Colorwork (Fase 3)", () => {
