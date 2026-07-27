@@ -6,7 +6,7 @@ import { ensurePremium } from "./_helpers";
 test.describe("Knit editor · Grading (Fase 2)", () => {
   test("mostra tabela XS–XXL e string em parênteses", async ({ page }) => {
     await ensurePremium(page);
-    await page.goto(\"/ferramentas-tecnicas\");
+    await page.goto("/ferramentas-tecnicas");
     // Abre o tab do editor de tricô (pode não estar visível para não-Premium: teste tolerante).
     const tab = page.getByRole("tab", { name: /Tricô/i });
     if (!(await tab.isVisible().catch(() => false))) test.skip(true, "Editor Tricô oculto (sem Premium)");

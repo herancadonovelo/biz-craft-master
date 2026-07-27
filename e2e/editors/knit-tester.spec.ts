@@ -5,7 +5,7 @@ test.describe("Editor de Tricô — Fase 6 (Testadores & UX)", () => {
   test("contador persiste, atalhos, notas por carreira e link público", async ({ page, context }) => {
     const { errors } = trackConsoleErrors(page);
     await ensurePremium(page);
-    await page.goto(\"/ferramentas-tecnicas\");
+    await page.goto("/ferramentas-tecnicas");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
     await page.getByRole("tab", { name: /Testadores/i }).click();
 

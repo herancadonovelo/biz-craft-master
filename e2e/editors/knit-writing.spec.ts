@@ -5,7 +5,7 @@ test.describe("Editor de Tricô — Fase 5 (Escrita & Dicionários)", () => {
   test("auto-completar, legenda, agulhas, dicionário, fases e repetições", async ({ page }) => {
     const { errors } = trackConsoleErrors(page);
     await ensurePremium(page);
-    await page.goto(\"/ferramentas-tecnicas\");
+    await page.goto("/ferramentas-tecnicas");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
     await page.getByRole("tab", { name: /Escrita/ }).click();
 

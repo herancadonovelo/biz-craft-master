@@ -5,7 +5,7 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
   test("BOM, breakdown de preço e exportações", async ({ page }) => {
     const { errors } = trackConsoleErrors(page);
     await ensurePremium(page);
-    await page.goto(\"/ferramentas-tecnicas\");
+    await page.goto("/ferramentas-tecnicas");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
 
     // Pinta pelo menos uma célula com cor no separador 1 para gerar consumo.
