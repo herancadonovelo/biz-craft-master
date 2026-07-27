@@ -14,6 +14,8 @@ test.describe("Tricotin Toolbox Pro (fases 3–12)", () => {
     // the guard is in place (covered by other specs) and skip the check.
     await page.getByRole("tab", { name: /Tricotin/i }).click().catch(() => {});
     await expect(page.getByTestId("tricotin-pro")).toBeVisible({ timeout: 10_000 });
+    // O botão vive no subtab "Exportação" do painel Pro.
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     await expect(page.getByTestId("export-gcode")).toBeVisible();
   });
 });
