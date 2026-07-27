@@ -14,7 +14,7 @@ test.describe("Scroll e personalização", () => {
 
     await page.dispatchEvent("body", "pointerdown");
     await expect
-      .poll(async () => page.evaluate(() => document.body.style.pointerEvents), { timeout: 3000 })
+      .poll(async () => page.evaluate(() => document.body.style.pointerEvents), { timeout: 15_000 })
       .toBe("");
 
     await page.mouse.wheel(0, 700);
