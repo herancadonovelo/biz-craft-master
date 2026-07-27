@@ -14,6 +14,11 @@ const REDIRECT_KEY = "cbm:postLoginRedirect";
 function canRenderWithoutSession(pathname: string) {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
   if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY)) return true;
+  // E2E: automated browsers (Playwright/WebDriver) don't carry a Supabase
+  // session, but tests still need to hit protected routes to assert paywalls
+  // and locked screens. Treat webdriver as "no session, no redirect": pages
+  // render, and Premium gating still shows Light users the locked UI.
+  if (import.meta.env.DEV && typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver) return true;
   return false;
 }
 
