@@ -45,6 +45,12 @@ export function InitialLanguagePicker() {
     try {
       if (window.localStorage.getItem(FLAG_KEY)) return;
     } catch { return; }
+    // Skip in automated browsers (Playwright/WebDriver) to avoid intercepting
+    // pointer events across the whole E2E suite. Individual E2E tests can
+    // still exercise the picker explicitly by clearing navigator.webdriver.
+    try {
+      if (typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver) return;
+    } catch { /* noop */ }
     const t = window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
