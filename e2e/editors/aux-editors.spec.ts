@@ -14,8 +14,8 @@ test.describe("Editores auxiliares — abrem sem erros no hub", () => {
       await expect(page).toHaveURL(/\/ferramentas-tecnicas$/);
       // Every embedded editor should render some interactive control OR heading.
       const anyControl = page
-        .locator('[role="tabpanel"]')
-        .locator('button, input, [role="combobox"], [role="textbox"], h1, h2')
+        .locator('[role="tabpanel"][data-state="active"]')
+        .locator('button:visible, input:visible, [role="combobox"]:visible, h1:visible, h2:visible')
         .first();
       await expect(anyControl).toBeVisible();
       expect(errors).toEqual([]);
