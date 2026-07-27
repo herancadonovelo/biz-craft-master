@@ -26,7 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Safety net: if getSession never resolves (e.g. network blocked in tests
     // or offline preview), flush the loading state so the app can render.
     const t = window.setTimeout(() => setLoading(false), 1500);
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(t);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return <Ctx.Provider value={{ session, user: session?.user ?? null, loading }}>{children}</Ctx.Provider>;
