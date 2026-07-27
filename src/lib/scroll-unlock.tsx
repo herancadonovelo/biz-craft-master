@@ -98,9 +98,23 @@ export function ScrollUnlockWatcher() {
     };
     window.addEventListener("popstate", onNav);
     window.addEventListener("lovable:navigation", onNav);
-    window.addEventListener("wheel", unlock, { passive: true, capture: true });
-    window.addEventListener("touchmove", unlock, { passive: true, capture: true });
-    window.addEventListener("pointerdown", unlock, { passive: true, capture: true });
+    // If the user is actually interacting (wheel/touch/pointerdown) any residual
+    // body-level pointer-events:none or overflow:hidden is by definition stale —
+    // force-clear it regardless of Radix overlay heuristics.
+    const onUserIntent = () => {
+      forceUnlock();
+      // Also drop stray focus-guards that can capture events
+      document.querySelectorAll<HTMLElement>(
+        '[data-radix-dismissable-layer],[data-radix-focus-guard]'
+      ).forEach((n) => {
+        if (!n.closest('[data-state="open"]') && !n.querySelector('[data-state="open"]')) {
+          n.remove();
+        }
+      });
+    };
+    window.addEventListener("wheel", onUserIntent, { passive: true, capture: true });
+    window.addEventListener("touchmove", onUserIntent, { passive: true, capture: true });
+    window.addEventListener("pointerdown", onUserIntent, { passive: true, capture: true });
     // Quando a janela recupera foco ou fica visível novamente, garante que
     // nenhum bloqueio (overflow/pointer-events/backdrop) ficou pendurado
     // — típico ao voltar do chat, de um separador, ou da tab de background.
@@ -123,9 +137,9 @@ export function ScrollUnlockWatcher() {
       window.history.replaceState = originalReplaceState;
       window.removeEventListener("popstate", onNav);
       window.removeEventListener("lovable:navigation", onNav);
-      window.removeEventListener("wheel", unlock, { capture: true });
-      window.removeEventListener("touchmove", unlock, { capture: true });
-      window.removeEventListener("pointerdown", unlock, { capture: true });
+      window.removeEventListener("wheel", onUserIntent, { capture: true });
+      window.removeEventListener("touchmove", onUserIntent, { capture: true });
+      window.removeEventListener("pointerdown", onUserIntent, { capture: true });
       window.removeEventListener("focus", onRefocus);
       window.removeEventListener("pageshow", onRefocus);
       document.removeEventListener("visibilitychange", onRefocus);

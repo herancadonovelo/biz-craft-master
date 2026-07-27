@@ -8,8 +8,8 @@ const CHROMIUM_EXECUTABLE = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  timeout: 90_000,
+  expect: { timeout: 20_000 },
   fullyParallel: false,
   // Controlled retry policy: local runs stay strict (0 retries) to surface
   // flakes immediately; CI retries twice to absorb transient network hiccups

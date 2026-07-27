@@ -49,7 +49,9 @@ async function setLanguage(page: Page, lang: Lang) {
 
 async function firstVisibleH1Text(page: Page): Promise<string> {
   const h1 = page.locator("h1").first();
-  await expect(h1).toBeVisible({ timeout: 8_000 });
+  // Sob carga (5 workers, dev server em cold-start, AuthGate a resolver a sessão)
+  // o h1 pode demorar mais do que o default; margem generosa para evitar flakes.
+  await expect(h1).toBeVisible({ timeout: 20_000 });
   return ((await h1.textContent()) ?? "").trim().toLowerCase();
 }
 

@@ -12,6 +12,7 @@ const INLINE_PREMIUM_ROUTES = new Set<string>([
   "/ferramentas-tecnicas",
   "/editor-moodboards",
   "/contador",
+  "/conversor-cores",
   "/editor-tricotin",
   "/editor-croche",
   "/editor-ponto-cruz",
