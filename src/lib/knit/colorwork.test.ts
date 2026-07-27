@@ -10,7 +10,9 @@ import {
 } from "./colorwork";
 import { emptyChart, type Chart, type Gauge } from "./engine";
 
-const gauge: Gauge = { pontos: 22, carreiras: 30, cm: 10 };
+// Chunky gauge para os cálculos de metros/gramas não arredondarem para 0
+// em cartas pequenas de teste.
+const gauge: Gauge = { pontos: 5, carreiras: 6, cm: 10 };
 
 function chartFromMatrix(matriz: string[][]): Chart {
   const rows = matriz.length;
