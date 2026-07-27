@@ -48,7 +48,7 @@ const passwordSchema = z.string()
 const registoSchema = z.object({
   firstName: z.string().trim().min(1, "Nome próprio é obrigatório.").max(80),
   lastName: z.string().trim().min(1, "Apelido é obrigatório.").max(80),
-  birthDate: z.date({ required_error: "Data de nascimento é obrigatória." }),
+  birthDate: z.date({ error: "Data de nascimento é obrigatória." }),
   company: z.string().trim().max(120).optional().or(z.literal("")),
   nationality: z.string().min(1, "Nacionalidade é obrigatória."),
   country: z.string().min(1, "País é obrigatório."),
@@ -56,8 +56,8 @@ const registoSchema = z.object({
   password: passwordSchema,
   confirmPassword: z.string(),
   marketingOptIn: z.boolean(),
-  termsAccepted: z.literal(true, { errorMap: () => ({ message: "Tem de aceitar os Termos e Condições." }) }),
-  privacyAccepted: z.literal(true, { errorMap: () => ({ message: "Tem de aceitar a Política de Privacidade." }) }),
+  termsAccepted: z.literal(true, { error: "Tem de aceitar os Termos e Condições." }),
+  privacyAccepted: z.literal(true, { error: "Tem de aceitar a Política de Privacidade." }),
 }).refine((d) => d.password === d.confirmPassword, {
   message: "As palavras-passe não coincidem.",
   path: ["confirmPassword"],
