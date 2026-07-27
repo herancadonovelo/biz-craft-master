@@ -4,10 +4,8 @@ import { trackConsoleErrors, ensurePremium } from "./_helpers";
 test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
   test("BOM, breakdown de preço e exportações", async ({ page }) => {
     const { errors } = trackConsoleErrors(page);
-    await page.goto("/ferramentas-tecnicas");
-    if (await page.getByText(/Premium|Desbloquear/i).first().isVisible().catch(() => false)) {
-      test.skip(true, "premium-gated");
-    }
+    await ensurePremium(page);
+    await page.goto(\"/ferramentas-tecnicas\");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
 
     // Pinta pelo menos uma célula com cor no separador 1 para gerar consumo.

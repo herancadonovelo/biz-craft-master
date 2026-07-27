@@ -4,10 +4,8 @@ import { trackConsoleErrors, ensurePremium } from "./_helpers";
 test.describe("Editor de Gráficos: Tricô", () => {
   test("abre o separador sem erros e mostra a grelha", async ({ page }) => {
     const { errors } = trackConsoleErrors(page);
-    await page.goto("/ferramentas-tecnicas");
-    if (await page.getByText(/Premium|Desbloquear/i).first().isVisible().catch(() => false)) {
-      test.skip(true, "premium-gated — coberto por technical-editors-premium.spec");
-    }
+    await ensurePremium(page);
+    await page.goto(\"/ferramentas-tecnicas\");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
     await expect(page.getByTestId("knit-editor")).toBeVisible({ timeout: 10_000 });
     // Sanity check das sub-abas

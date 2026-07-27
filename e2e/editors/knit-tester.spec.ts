@@ -4,10 +4,8 @@ import { trackConsoleErrors, ensurePremium } from "./_helpers";
 test.describe("Editor de Tricô — Fase 6 (Testadores & UX)", () => {
   test("contador persiste, atalhos, notas por carreira e link público", async ({ page, context }) => {
     const { errors } = trackConsoleErrors(page);
-    await page.goto("/ferramentas-tecnicas");
-    if (await page.getByText(/Premium|Desbloquear/i).first().isVisible().catch(() => false)) {
-      test.skip(true, "premium-gated");
-    }
+    await ensurePremium(page);
+    await page.goto(\"/ferramentas-tecnicas\");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
     await page.getByRole("tab", { name: /Testadores/i }).click();
 
