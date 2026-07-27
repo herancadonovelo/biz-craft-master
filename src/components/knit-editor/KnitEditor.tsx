@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Grid3x3, Palette, Ruler, Shirt, BookOpen, Timer, Package } from "lucide-react";
 import { Undo2, Redo2, Trash2, Pencil } from "lucide-react";
@@ -473,6 +474,45 @@ export function KnitEditor() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+        <DialogContent className="max-w-md" data-testid="knit-symbols-manager">
+          <DialogHeader><DialogTitle>Símbolos personalizados</DialogTitle></DialogHeader>
+          {st.customSymbols.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Ainda não criaste nenhum símbolo personalizado.</p>
+          ) : (
+            <ul className="space-y-2 max-h-[50vh] overflow-auto">
+              {st.customSymbols.map((s) => (
+                <li key={s.id} className="flex items-center gap-2 rounded border p-2">
+                  <span className="grid h-9 w-9 place-items-center rounded border text-lg font-mono">{s.simbolo}</span>
+                  <Input
+                    value={s.nome}
+                    onChange={(e) => patch({ customSymbols: st.customSymbols.map((x) => x.id === s.id ? { ...x, nome: e.target.value } : x) })}
+                  />
+                  <Input
+                    className="w-16 text-center font-mono"
+                    value={s.simbolo}
+                    maxLength={2}
+                    onChange={(e) => patch({ customSymbols: st.customSymbols.map((x) => x.id === s.id ? { ...x, simbolo: e.target.value || "?" } : x) })}
+                  />
+                  <Button size="icon" variant="ghost" title="Remover" onClick={() => {
+                    patch({
+                      customSymbols: st.customSymbols.filter((x) => x.id !== s.id),
+                      activePonto: st.activePonto === s.id ? "meia" : st.activePonto,
+                    });
+                    toast.success(`Símbolo "${s.nome}" removido.`);
+                  }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
