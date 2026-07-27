@@ -10,6 +10,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailBrandingFooter } from './_footer'
 
 interface RecoveryEmailProps {
   siteName: string
@@ -49,6 +50,7 @@ export const RecoveryEmail = ({
           A tua palavra-passe atual continuará a funcionar normalmente.
         </Text>
         <Text style={footer}>Um abraço, A equipa Art Fusion. 🧶 🌸 🧵</Text>
+        <EmailBrandingFooter />
       </Container>
     </Body>
   </Html>

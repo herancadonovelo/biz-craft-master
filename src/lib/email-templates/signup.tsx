@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailBrandingFooter } from './_footer'
 
 interface SignupEmailProps {
   siteName: string
@@ -54,6 +55,7 @@ export const SignupEmail = ({
           <br />
           A equipa Art Fusion
         </Text>
+        <EmailBrandingFooter />
       </Container>
     </Body>
   </Html>
