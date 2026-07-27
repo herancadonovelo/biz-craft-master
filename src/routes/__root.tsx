@@ -303,16 +303,9 @@ function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["de
   const { user, loading } = useAuth();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isPublic = PUBLIC_ROUTES_SET.has(pathname);
-  // E2E: Playwright never carries a real Supabase session. Treat webdriver
-  // as "no session, no loading gate" so protected route content still renders
-  // for paywall / navigation smoke assertions.
-  const isWebdriver =
-    import.meta.env.DEV &&
-    typeof navigator !== "undefined" &&
-    (navigator as { webdriver?: boolean }).webdriver === true;
 
   // Sem sessão numa rota pública (auth, callback, sessão expirada) → apenas o Outlet centrado, sem menu lateral.
-  if (!user && (isPublic || !loading || isWebdriver)) {
+  if (!user && (isPublic || !loading)) {
     return (
       <div className="flex min-h-screen w-full items-start justify-center bg-background px-4 py-8">
         <div className="w-full max-w-[560px]">
