@@ -81,6 +81,7 @@ import { Route as AuthVerify2faRouteImport } from './routes/auth.verify-2fa'
 import { Route as MoodboardsIdRouteImport } from './routes/moodboards.$id'
 import { Route as ReceitaTesterTricotTokenRouteImport } from './routes/receita-tester-tricot.$token'
 import { Route as ReceitaTesterTokenRouteImport } from './routes/receita-tester.$token'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 import { Route as ApiPublicWebhooksTwilioStatusRouteImport } from './routes/api/public/webhooks/twilio-status'
@@ -452,6 +453,11 @@ const ReceitaTesterTokenRoute = ReceitaTesterTokenRouteImport.update({
   path: '/receita-tester/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -565,6 +571,7 @@ export interface FileRoutesByFullPath {
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -646,6 +653,7 @@ export interface FileRoutesByTo {
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -728,6 +736,7 @@ export interface FileRoutesById {
   '/moodboards/$id': typeof MoodboardsIdRoute
   '/receita-tester-tricot/$token': typeof ReceitaTesterTricotTokenRoute
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
@@ -811,6 +820,7 @@ export interface FileRouteTypes {
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -892,6 +902,7 @@ export interface FileRouteTypes {
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -973,6 +984,7 @@ export interface FileRouteTypes {
     | '/moodboards/$id'
     | '/receita-tester-tricot/$token'
     | '/receita-tester/$token'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
@@ -1053,6 +1065,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ReceitaTesterTricotTokenRoute: typeof ReceitaTesterTricotTokenRoute
   ReceitaTesterTokenRoute: typeof ReceitaTesterTokenRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
   ApiPublicWebhooksTwilioStatusRoute: typeof ApiPublicWebhooksTwilioStatusRoute
@@ -1568,6 +1581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReceitaTesterTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -1714,6 +1734,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ReceitaTesterTricotTokenRoute: ReceitaTesterTricotTokenRoute,
   ReceitaTesterTokenRoute: ReceitaTesterTokenRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
   ApiPublicWebhooksTwilioStatusRoute: ApiPublicWebhooksTwilioStatusRoute,
