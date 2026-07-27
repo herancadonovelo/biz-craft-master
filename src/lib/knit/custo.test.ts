@@ -27,8 +27,8 @@ describe("calcularLinhasCusto", () => {
   });
 
   it("buffer aumenta gramas e novelos", () => {
-    const a = calcularLinhasCusto({ chart: chart2Cores(), gauge, gramasPor100m: 50, bufferPct: 0 });
-    const b = calcularLinhasCusto({ chart: chart2Cores(), gauge, gramasPor100m: 50, bufferPct: 100 });
+    const a = calcularLinhasCusto({ chart: chart2Cores(), gauge, gramasPor100m: 5000, bufferPct: 0 });
+    const b = calcularLinhasCusto({ chart: chart2Cores(), gauge, gramasPor100m: 5000, bufferPct: 100 });
     expect(b[0].gramasComBuffer).toBeGreaterThan(a[0].gramasComBuffer);
   });
 
