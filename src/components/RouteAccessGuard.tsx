@@ -9,6 +9,7 @@ import { requiredPlanFor } from "@/lib/access-control";
 // dedicado na página, e os testes E2E deixam de conseguir asserir o
 // paywall inline.
 const INLINE_PREMIUM_ROUTES = new Set<string>([
+  "/ferramentas-tecnicas",
   "/editor-moodboards",
   "/contador",
   "/editor-tricotin",
