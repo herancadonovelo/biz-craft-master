@@ -53,6 +53,7 @@ function canOpenWithoutSession(pathname: string) {
   if (pathname.startsWith("/auth") || pathname.startsWith("/sessao-expirada")) return true;
   if (pathname === "/reset-password") return true;
   if (import.meta.env.DEV && typeof window !== "undefined" && window.localStorage.getItem(E2E_PLAN_OVERRIDE_KEY)) return true;
+  if (import.meta.env.DEV && IS_WEBDRIVER) return true;
   return false;
 }
 
