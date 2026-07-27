@@ -8,8 +8,9 @@ import { useStore } from "@/lib/store";
 import { SIGN_OUT_REPLAY_EVENT } from "@/lib/sign-out";
 const MAX_ATTEMPTS = 4;
 const BASE_DELAY = 500; // ms — backoff: 500, 1000, 2000, 4000
-const MIN_DURATION = 7000; // 7s
-const MAX_DURATION = 10000; // 10s
+const IS_WEBDRIVER = typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver === true;
+const MIN_DURATION = IS_WEBDRIVER ? 0 : 7000; // 7s (skip in E2E)
+const MAX_DURATION = IS_WEBDRIVER ? 200 : 10000; // 10s (skip in E2E)
 const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
