@@ -12,6 +12,10 @@ import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import type { Material, Fornecedor } from "@/lib/store";
 import { parseCsv, autoMap, validateRows, CAMPOS, type Campo, type ValidatedRow } from "@/lib/csv-import";
+import {
+  recordImportBatch, listMappingTemplates, saveMappingTemplate, deleteMappingTemplate,
+  type CsvMappingTemplate,
+} from "@/lib/csv-import-history";
 
 type Step = "upload" | "map" | "preview";
 
@@ -29,6 +33,10 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
   const [mapping, setMapping] = useState<Partial<Record<Campo, string>>>({});
   const [criarFornecedores, setCriarFornecedores] = useState(true);
   const [modoStock, setModoStock] = useState<"substituir" | "somar">("substituir");
+  const [fileName, setFileName] = useState<string | undefined>(undefined);
+  const [templates, setTemplates] = useState<CsvMappingTemplate[]>(() => listMappingTemplates());
+  const [tplNome, setTplNome] = useState("");
+  const [tplFornecedor, setTplFornecedor] = useState("");
 
   const reset = () => {
     setStep("upload"); setCsvText(""); setHeaders([]); setRows([]); setMapping({});
@@ -36,6 +44,7 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
 
   const handleFile = async (file: File) => {
     const text = await file.text();
+    setFileName(file.name);
     setCsvText(text);
     parseText(text);
   };
@@ -77,6 +86,8 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
   const aplicar = () => {
     const fornecedorPorNome = new Map<string, Fornecedor>();
     fornecedores.forEach((f) => fornecedorPorNome.set(f.nome.toLowerCase(), f));
+    const fornecedoresCriados: string[] = [];
+    const preSnapshot = new Map(materiais.map((m) => [m.id, m] as const));
 
     const resolveFornecedor = (nome?: string): string | undefined => {
       if (!nome) return undefined;
@@ -89,11 +100,18 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
       add("fornecedores", novo);
       // Read back the newly-created supplier from the store snapshot.
       const created = useStore.getState().fornecedores.find((f) => f.nome === nome);
-      if (created) { fornecedorPorNome.set(k, created); return created.id; }
+      if (created) {
+        fornecedorPorNome.set(k, created);
+        fornecedoresCriados.push(created.id);
+        return created.id;
+      }
       return undefined;
     };
 
     let nNovos = 0, nUpd = 0;
+    const criados: string[] = [];
+    const atualizados: { id: string; before: Partial<Material> }[] = [];
+    const beforeIds = new Set(materiais.map((m) => m.id));
     for (const r of plano.novos) {
       const fornecedorId = resolveFornecedor(r.fornecedor);
       const material: Omit<Material, "id"> = {
@@ -111,6 +129,10 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
       };
       add("materiais", material);
       nNovos++;
+    }
+    // Discover created material ids by diffing against pre-import snapshot.
+    for (const m of useStore.getState().materiais) {
+      if (!beforeIds.has(m.id)) criados.push(m.id);
     }
     for (const { row: r, material } of plano.updates) {
       const patch: Partial<Material> = {};
@@ -132,12 +154,49 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
       } else if (fornecedorId && !material.fornecedorId) {
         patch.fornecedorId = fornecedorId;
       }
+      // Snapshot the fields we're about to touch so undo can restore them.
+      const before: Partial<Material> = {};
+      for (const k of Object.keys(patch) as (keyof Material)[]) {
+        (before as Record<string, unknown>)[k] = (preSnapshot.get(material.id) ?? material)[k];
+      }
+      atualizados.push({ id: material.id, before });
       update("materiais", material.id, patch);
       nUpd++;
     }
+    recordImportBatch({
+      file: fileName,
+      criados,
+      atualizados,
+      fornecedoresCriados,
+      totals: { novos: nNovos, updates: nUpd, ignorados: plano.invalidos.length },
+    });
     toast.success(`Importação concluída: ${nNovos} novos · ${nUpd} atualizados${plano.invalidos.length ? ` · ${plano.invalidos.length} ignorados` : ""}`);
     setOpen(false);
     reset();
+  };
+
+  const applyTemplate = (tpl: CsvMappingTemplate) => {
+    // Only keep mappings whose source header exists in the current CSV.
+    const filtered: Partial<Record<Campo, string>> = {};
+    for (const [k, v] of Object.entries(tpl.mapping) as [Campo, string][]) {
+      if (v && headers.includes(v)) filtered[k] = v;
+    }
+    setMapping(filtered);
+    toast.success(`Template "${tpl.nome}" aplicado.`);
+  };
+
+  const saveCurrentAsTemplate = () => {
+    const nome = tplNome.trim() || (tplFornecedor.trim() ? `${tplFornecedor.trim()} — mapeamento` : "");
+    if (!nome) return toast.error("Dá um nome ao template.");
+    saveMappingTemplate({ nome, fornecedor: tplFornecedor.trim() || undefined, mapping });
+    setTemplates(listMappingTemplates());
+    setTplNome("");
+    toast.success("Template guardado.");
+  };
+
+  const removeTemplate = (id: string) => {
+    deleteMappingTemplate(id);
+    setTemplates(listMappingTemplates());
   };
 
   const templateCsv = "nome;codigo;unidade;stock;stockMinimo;precoCompra;fornecedor;categoria;marca;codigoCor\nLã merino;MAT-001;novelo;24;5;4.50;Retrosaria Central;fios;;\nMulinê 310;DMC-310;meada;10;3;1.20;DMC Portugal;meadas;DMC;310\n";
@@ -188,6 +247,21 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
             <p className="text-sm text-muted-foreground">
               Associa cada campo do inventário à coluna correspondente do CSV. Detetámos automaticamente o que pudemos.
             </p>
+            {templates.length > 0 && (
+              <div className="rounded-md border p-3">
+                <Label className="text-xs">Templates de mapeamento guardados</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {templates.map((t) => (
+                    <div key={t.id} className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs">
+                      <button className="hover:underline" onClick={() => applyTemplate(t)}>
+                        {t.nome}{t.fornecedor ? ` · ${t.fornecedor}` : ""}
+                      </button>
+                      <button className="text-muted-foreground hover:text-destructive" onClick={() => removeTemplate(t.id)} title="Apagar">×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="grid gap-2 sm:grid-cols-2">
               {CAMPOS.map(({ key, label, required }) => (
                 <div key={key} className="grid gap-1">
@@ -201,6 +275,19 @@ export function CsvImportInventarioDialog({ trigger }: { trigger?: React.ReactNo
                   </Select>
                 </div>
               ))}
+            </div>
+            <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-[1fr_1fr_auto]">
+              <div>
+                <Label className="text-xs">Nome do template</Label>
+                <Input className="h-8" value={tplNome} onChange={(e) => setTplNome(e.target.value)} placeholder="ex.: DMC · muliné" />
+              </div>
+              <div>
+                <Label className="text-xs">Fornecedor (opcional)</Label>
+                <Input className="h-8" value={tplFornecedor} onChange={(e) => setTplFornecedor(e.target.value)} placeholder="ex.: DMC Portugal" />
+              </div>
+              <div className="flex items-end">
+                <Button size="sm" variant="outline" onClick={saveCurrentAsTemplate} disabled={!mapping.nome}>Guardar mapeamento</Button>
+              </div>
             </div>
             <div className="grid gap-3 rounded-md border p-3 sm:grid-cols-2">
               <div>
