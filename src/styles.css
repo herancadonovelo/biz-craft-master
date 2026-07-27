@@ -64,7 +64,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 1.35rem;
   /* Slate & Steel — light */
   --background: oklch(0.985 0.003 247);
   --foreground: oklch(0.22 0.03 257);
@@ -72,7 +72,7 @@
   --card-foreground: oklch(0.22 0.03 257);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.03 257);
-  --primary: oklch(0.36 0.035 258);
+  --primary: oklch(0.65 0.15 290);
   --primary-foreground: oklch(0.985 0.003 247);
   --secondary: oklch(0.94 0.01 252);
   --secondary-foreground: oklch(0.3 0.03 258);
