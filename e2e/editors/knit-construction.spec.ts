@@ -18,7 +18,7 @@ test.describe("Editor Tricô — Construção", () => {
 
     // Distribuir 4 marcadores
     await page.getByRole("button", { name: /^Distribuir$/i }).click();
-    const marcadores = page.locator("li:has-text('m ')");
+    const marcadores = page.locator("li:has(span.font-mono)");
     await expect(marcadores).toHaveCount(4);
 
     // Limpar
