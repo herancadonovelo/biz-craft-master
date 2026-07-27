@@ -72,9 +72,13 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
     await page.addInitScript(() => {
       const project = "e2e-block";
       window.localStorage.setItem("tricotin-pro-active-project", project);
-      // Force a very strict limit so any real path exceeds it.
-      window.localStorage.setItem(`tricotin-pro-max-disc-v1:${project}`, JSON.stringify(0));
-      window.localStorage.setItem(`tricotin-pro-tol-v1:${project}`, JSON.stringify(0.05));
+      // Force a very strict limit so any real path exceeds it. The panel
+      // reads/writes scoped by `project`, but its SSR-hydrated default is
+      // "default"; seed BOTH scopes so whichever wins we still block export.
+      for (const p of [project, "default"]) {
+        window.localStorage.setItem(`tricotin-pro-max-disc-v1:${p}`, JSON.stringify(0));
+        window.localStorage.setItem(`tricotin-pro-tol-v1:${p}`, JSON.stringify(0.05));
+      }
       window.localStorage.setItem("ferramentas-tecnicas-tab-v1", "tricotin");
       const nodes = [
         { id: "a", x: 100, y: 100, type: "start" },
