@@ -3,6 +3,7 @@
 // notas por carreira, atalhos de teclado e geração de link público para testers.
 
 import * as React from "react";
+import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, RotateCcw, Minus, Plus, CheckCircle2 } from "lucide-react";
+import { Copy, Link2, RotateCcw, Minus, Plus, CheckCircle2, Users } from "lucide-react";
 import {
   loadProgress, newProgress, saveProgress, stepRow, addNote,
   pctCompleto, encodePackage, type TesterProgress, type TesterNote,
@@ -188,6 +189,11 @@ export function TesterPanel({ token, linhas, packagePayload, onProgressChange }:
         <CardContent className="flex flex-wrap gap-2">
           <Button onClick={gerarLink}><Link2 className="mr-2 h-4 w-4" /> Copiar link público</Button>
           <Button variant="outline" onClick={exportarFeedback}><Copy className="mr-2 h-4 w-4" /> Exportar feedback (JSON)</Button>
+          <Button asChild variant="secondary" data-testid="knit-tester-consolidate-cta">
+            <Link to="/consolidar-feedback">
+              <Users className="mr-2 h-4 w-4" /> Consolidar feedback
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     </div>

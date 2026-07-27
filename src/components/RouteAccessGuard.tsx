@@ -20,6 +20,7 @@ const INLINE_PREMIUM_ROUTES = new Set<string>([
   "/editor-costura",
   "/editor-bordado",
   "/editor-tricot-graficos",
+  "/consolidar-feedback",
 ]);
 
 /**
