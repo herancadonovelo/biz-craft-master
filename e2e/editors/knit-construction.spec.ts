@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { openEditorTab } from "./_helpers";
 
 // Fase 4 — Construção & Acessórios (Raglan, Meia, Agulhas, Marcadores)
 test.describe("Editor Tricô — Construção", () => {
   test("mostra wizards, agulha recomendada e gere marcadores", async ({ page }) => {
-    await page.goto("/knit-editor");
+    await openEditorTab(page, /Editor de Gráficos: Tric[oô]/i);
     await page.getByRole("tab", { name: /construção/i }).click();
     await expect(page.getByTestId("construction-panel")).toBeVisible();
 
