@@ -16,6 +16,7 @@ import {
   Replace as ReplaceIcon, Upload, Download, FileDown, Image as ImageIcon, Layers, Palette, Blend,
   Undo2, Redo2, Minus, Square, BoxSelect,
 } from "lucide-react";
+import { History, Save, Trash2 } from "lucide-react";
 import {
   emptyChart, imageToChart, textToCells, floodFill, mirror, replaceColor,
   chartStats, fabricSizeCm, chartToJson, jsonToChart, chartToOxs,
@@ -23,6 +24,7 @@ import {
   type ChartDoc, type Cell, type BackstitchEdge, type FrenchKnot,
 } from "@/lib/ponto-cruz";
 import { getDMC, getAnchor, type Marca, type Cor } from "@/lib/cores-linhas";
+import { listSnapshots, saveSnapshot, deleteSnapshot, restoreSnapshot, type PcSnapshot } from "@/lib/ponto-cruz-versions";
 
 type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop" | "line" | "rect" | "select";
 
