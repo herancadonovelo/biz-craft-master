@@ -45,7 +45,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
       avg: await page.getByTestId("metric-avg").innerText(),
     };
     testInfo.attach("metrics.json", { body: JSON.stringify(metrics, null, 2), contentType: "application/json" });
-    expect(metrics).toMatchSnapshot("tolerance-metrics.json");
+    expect(JSON.stringify(metrics, null, 2)).toMatchSnapshot("tolerance-metrics.json");
 
     // Snapshot the overlay SVG's serialized structure (independent of pixels).
     const svgOutline = await preview.locator("svg").first().evaluate((el) => {
@@ -58,7 +58,7 @@ test.describe("Editor · Tricotin — snapshot de tolerância G-code", () => {
       const vb = (el.getAttribute("viewBox") ?? "").split(/\s+/).map(round);
       return { viewBox: vb, polylines };
     });
-    expect(svgOutline).toMatchSnapshot("tolerance-overlay.json");
+    expect(JSON.stringify(svgOutline, null, 2)).toMatchSnapshot("tolerance-overlay.json");
 
     // Element-level screenshot as an additional visual guard.
     expect(await preview.screenshot()).toMatchSnapshot("tolerance-preview.png", {
