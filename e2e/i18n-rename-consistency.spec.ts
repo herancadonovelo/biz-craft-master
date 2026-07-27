@@ -24,7 +24,7 @@ const RENAMES: Array<{
       { locale: "en", mustContain: ["Academy", "Courses"] },
       { locale: "es", mustContain: ["Academia", "Cursos"] },
       { locale: "fr", mustContain: ["Académie", "Cours"] },
-      { locale: "de", mustContain: ["Akademie", "Kurse"] },
+      { locale: "de", mustContain: ["akademie", "Kurse"] },
       { locale: "it", mustContain: ["Accademia", "Corsi"] },
     ],
   },
