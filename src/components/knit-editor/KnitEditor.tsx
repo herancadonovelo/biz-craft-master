@@ -15,8 +15,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Grid3x3, Palette, Ruler, Shirt, BookOpen, Timer, Package } from "lucide-react";
+import { Undo2, Redo2, Trash2, Pencil } from "lucide-react";
 import {
   PONTOS_TRICOT, agulhaConverter, converterExpressoes, suggestions, findPonto,
   type Terminologia, type PontoTricot,
@@ -114,7 +116,39 @@ function defaultState(): EditorState {
 
 export function KnitEditor() {
   const [st, setSt] = React.useState<EditorState>(loadState);
-  const patch = React.useCallback((p: Partial<EditorState>) => setSt((s) => ({ ...s, ...p })), []);
+  const past = React.useRef<Chart[]>([]);
+  const future = React.useRef<Chart[]>([]);
+  const [, forceTick] = React.useState(0);
+  const patch = React.useCallback((p: Partial<EditorState>) => setSt((s) => {
+    if ("chart" in p && p.chart && p.chart !== s.chart) {
+      past.current.push(s.chart);
+      if (past.current.length > 80) past.current.shift();
+      future.current = [];
+      forceTick((x) => x + 1);
+    }
+    return { ...s, ...p };
+  }), []);
+  const undoChart = React.useCallback(() => {
+    const prev = past.current.pop();
+    if (!prev) return;
+    setSt((s) => { future.current.push(s.chart); forceTick((x) => x + 1); return { ...s, chart: prev }; });
+  }, []);
+  const redoChart = React.useCallback(() => {
+    const nxt = future.current.pop();
+    if (!nxt) return;
+    setSt((s) => { past.current.push(s.chart); forceTick((x) => x + 1); return { ...s, chart: nxt }; });
+  }, []);
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const k = e.key.toLowerCase();
+      if (k === "z" && !e.shiftKey) { e.preventDefault(); undoChart(); }
+      else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); redoChart(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undoChart, redoChart]);
+  const [manageOpen, setManageOpen] = React.useState(false);
   React.useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); } catch { /* ignore */ }
   }, [st]);
@@ -207,6 +241,17 @@ export function KnitEditor() {
   // ================= UI =================
   return (
     <div className="space-y-4" data-testid="knit-editor">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="outline" onClick={undoChart} disabled={past.current.length === 0} title="Desfazer (Ctrl+Z)" data-testid="knit-undo">
+          <Undo2 className="mr-1 h-4 w-4" />Desfazer
+        </Button>
+        <Button size="sm" variant="outline" onClick={redoChart} disabled={future.current.length === 0} title="Refazer (Ctrl+Y)" data-testid="knit-redo">
+          <Redo2 className="mr-1 h-4 w-4" />Refazer
+        </Button>
+        <span className="text-xs text-muted-foreground">
+          Histórico: {past.current.length} / {past.current.length + future.current.length + 1}
+        </span>
+      </div>
       <Tabs defaultValue="chart">
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="chart"><Grid3x3 className="mr-2 h-4 w-4" />1. Gráfico</TabsTrigger>
@@ -242,6 +287,11 @@ export function KnitEditor() {
                 <Button size="sm" variant="outline" className="w-full" onClick={addCustomSymbol}>
                   + Símbolo personalizado
                 </Button>
+                {st.customSymbols.length > 0 && (
+                  <Button size="sm" variant="ghost" className="w-full" onClick={() => setManageOpen(true)} data-testid="knit-manage-symbols">
+                    Gerir símbolos personalizados ({st.customSymbols.length})
+                  </Button>
+                )}
                 <div className="pt-2 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span>Cor activa</span>
@@ -424,6 +474,45 @@ export function KnitEditor() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+        <DialogContent className="max-w-md" data-testid="knit-symbols-manager">
+          <DialogHeader><DialogTitle>Símbolos personalizados</DialogTitle></DialogHeader>
+          {st.customSymbols.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Ainda não criaste nenhum símbolo personalizado.</p>
+          ) : (
+            <ul className="space-y-2 max-h-[50vh] overflow-auto">
+              {st.customSymbols.map((s) => (
+                <li key={s.id} className="flex items-center gap-2 rounded border p-2">
+                  <span className="grid h-9 w-9 place-items-center rounded border text-lg font-mono">{s.simbolo}</span>
+                  <Input
+                    value={s.nome}
+                    onChange={(e) => patch({ customSymbols: st.customSymbols.map((x) => x.id === s.id ? { ...x, nome: e.target.value } : x) })}
+                  />
+                  <Input
+                    className="w-16 text-center font-mono"
+                    value={s.simbolo}
+                    maxLength={2}
+                    onChange={(e) => patch({ customSymbols: st.customSymbols.map((x) => x.id === s.id ? { ...x, simbolo: e.target.value || "?" } : x) })}
+                  />
+                  <Button size="icon" variant="ghost" title="Remover" onClick={() => {
+                    patch({
+                      customSymbols: st.customSymbols.filter((x) => x.id !== s.id),
+                      activePonto: st.activePonto === s.id ? "meia" : st.activePonto,
+                    });
+                    toast.success(`Símbolo "${s.nome}" removido.`);
+                  }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

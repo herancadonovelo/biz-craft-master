@@ -16,6 +16,7 @@ import {
   Replace as ReplaceIcon, Upload, Download, FileDown, Image as ImageIcon, Layers, Palette, Blend,
   Undo2, Redo2, Minus, Square, BoxSelect,
 } from "lucide-react";
+import { History, Save, Trash2 } from "lucide-react";
 import {
   emptyChart, imageToChart, textToCells, floodFill, mirror, replaceColor,
   chartStats, fabricSizeCm, chartToJson, jsonToChart, chartToOxs,
@@ -23,6 +24,7 @@ import {
   type ChartDoc, type Cell, type BackstitchEdge, type FrenchKnot,
 } from "@/lib/ponto-cruz";
 import { getDMC, getAnchor, type Marca, type Cor } from "@/lib/cores-linhas";
+import { listSnapshots, saveSnapshot, deleteSnapshot, restoreSnapshot, type PcSnapshot } from "@/lib/ponto-cruz-versions";
 
 type Tool = "pencil" | "eraser" | "bucket" | "half" | "backstitch" | "knot" | "text" | "replace" | "eyedrop" | "line" | "rect" | "select";
 
@@ -137,6 +139,28 @@ export function PontoCruzEditor() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo]);
+
+  // ----- Named snapshots (versões) -----
+  const pid = chartProjectId || "default";
+  const [snaps, setSnaps] = useState<PcSnapshot[]>(() => listSnapshots(pid));
+  const [snapOpen, setSnapOpen] = useState(false);
+  const [snapName, setSnapName] = useState("");
+  useEffect(() => { setSnaps(listSnapshots(pid)); }, [pid]);
+  const doSaveSnapshot = () => {
+    saveSnapshot(pid, snapName, chart);
+    setSnaps(listSnapshots(pid));
+    setSnapName("");
+    toast.success("Versão guardada.");
+  };
+  const doRestore = (s: PcSnapshot) => {
+    commit(restoreSnapshot(s));
+    setSnapOpen(false);
+    toast.success(`Restaurada "${s.nome}".`);
+  };
+  const doDeleteSnap = (id: string) => {
+    deleteSnapshot(pid, id);
+    setSnaps(listSnapshots(pid));
+  };
 
   const [tool, setTool] = useState<Tool>("pencil");
   const [cor, setCor] = useState("#C8102E");
@@ -1046,6 +1070,10 @@ export function PontoCruzEditor() {
             <Button size="sm" variant="outline" onClick={redo} disabled={future.current.length === 0} title="Refazer (Ctrl+Y)">
               <Redo2 className="h-4 w-4" />
             </Button>
+            <Button size="sm" variant="outline" onClick={() => setSnapOpen(true)} title="Versões guardadas" data-testid="pc-versions-btn">
+              <History className="h-4 w-4" />
+              <span className="ml-1 hidden sm:inline">Versões ({snaps.length})</span>
+            </Button>
             <span className="mx-1 h-5 w-px bg-border" />
             <ToolButton icon={<Pencil className="h-4 w-4" />} label="Lápis" active={tool === "pencil"} onClick={() => setTool("pencil")} />
             <ToolButton icon={<Eraser className="h-4 w-4" />} label="Apagar" active={tool === "eraser"} onClick={() => setTool("eraser")} />
@@ -1094,6 +1122,36 @@ export function PontoCruzEditor() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={snapOpen} onOpenChange={setSnapOpen}>
+        <DialogContent className="max-w-lg" data-testid="pc-versions-dialog">
+          <DialogHeader><DialogTitle>Versões guardadas — {pid}</DialogTitle></DialogHeader>
+          <div className="flex gap-2">
+            <Input placeholder="Nome da versão (opcional)" value={snapName} onChange={(e) => setSnapName(e.target.value)} />
+            <Button onClick={doSaveSnapshot} data-testid="pc-versions-save"><Save className="mr-1 h-4 w-4" />Guardar atual</Button>
+          </div>
+          {snaps.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Ainda não guardaste versões deste projeto.</p>
+          ) : (
+            <ul className="max-h-[45vh] space-y-1 overflow-auto">
+              {snaps.slice().reverse().map((s) => (
+                <li key={s.id} className="flex items-center justify-between gap-2 rounded border p-2 text-sm">
+                  <div className="min-w-0">
+                    <div className="truncate font-medium">{s.nome}</div>
+                    <div className="text-xs text-muted-foreground">{new Date(s.ts).toLocaleString()}</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => doRestore(s)}>Restaurar</Button>
+                    <Button size="icon" variant="ghost" onClick={() => doDeleteSnap(s.id)} title="Apagar">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

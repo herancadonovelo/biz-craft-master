@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertTriangle, Package, Truck, ShoppingCart, TrendingDown } from "lucide-react";
 import { CsvImportInventarioDialog } from "@/components/CsvImportInventarioDialog";
+import { CsvImportHistoryDialog } from "@/components/CsvImportHistoryDialog";
 
 export const Route = createFileRoute("/inventario")({
   head: () => ({
@@ -75,6 +76,7 @@ function InventarioOverview() {
         actions={
           <div className="flex flex-wrap gap-2">
             <CsvImportInventarioDialog />
+            <CsvImportHistoryDialog />
             <Button asChild variant="outline"><Link to="/stock">Ver stock</Link></Button>
             <Button asChild variant="outline"><Link to="/gestao-fornecedores">Fornecedores</Link></Button>
             <Button asChild><Link to="/lista-compras">Lista de compras</Link></Button>
