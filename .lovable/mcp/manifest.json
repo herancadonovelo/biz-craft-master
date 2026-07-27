@@ -12,7 +12,7 @@
   "mcp": {
     "server": {
       "name": "craft-business-master-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "Craft Business Master"
     },
     "tools": [
@@ -55,6 +55,406 @@
           },
           "required": [
             "code"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_suppliers",
+        "title": "List suppliers",
+        "description": "List every supplier (fornecedor) in the signed-in user's account, including contact info and any active discount code.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_supplier_discount_code",
+        "title": "Create or update a supplier discount code",
+        "description": "Attach a discount code to a supplier. Provide either supplier_id or supplier_name (case-insensitive). The code becomes redeemable via validate_supplier_discount_code.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "supplier_id": {
+              "description": "Supplier ID.",
+              "type": "string"
+            },
+            "supplier_name": {
+              "description": "Supplier name (used if supplier_id is omitted).",
+              "type": "string"
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Discount code, e.g. WELCOME10."
+            },
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Discount value."
+            },
+            "type": {
+              "default": "percentagem",
+              "description": "percentagem = %, fixo = flat amount.",
+              "type": "string",
+              "enum": [
+                "percentagem",
+                "fixo"
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "value"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "validate_supplier_discount_code",
+        "title": "Validate a supplier discount code",
+        "description": "Look up a supplier discount code and return the matching supplier plus the discount value and type. Case-insensitive.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_supplier_discount_codes",
+        "title": "List supplier discount codes with usage",
+        "description": "List every active supplier discount code and how many of the user's orders were placed after the code was attached (best-effort usage/limit view).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_orders",
+        "title": "List orders with status and materials",
+        "description": "List orders (encomendas) with status, deadline, price, client, and materials used (resolved from the linked project).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Optional filter by order status.",
+              "type": "string",
+              "enum": [
+                "pendente",
+                "em_producao",
+                "pronta",
+                "entregue",
+                "cancelada"
+              ]
+            },
+            "limit": {
+              "default": 50,
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_order",
+        "title": "Get order status and material breakdown",
+        "description": "Return a single order with full material breakdown (name, unit, quantity, unit cost, total cost) and the linked client/project.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "order_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_material_prices",
+        "title": "Get supplier prices per material",
+        "description": "List every material and the prices offered by each linked supplier (primary + extras). Optionally filter by material name.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "material_name": {
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_material_price",
+        "title": "Update material price / supplier terms",
+        "description": "Update purchase price, primary supplier, or an extra supplier price for a material. If supplier_id is provided and differs from the primary supplier, the price is stored/updated in the extras list.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "material_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "price": {
+              "description": "New price (per unit).",
+              "type": "number",
+              "minimum": 0
+            },
+            "supplier_id": {
+              "description": "Supplier the price applies to. Defaults to the material's primary supplier.",
+              "type": "string"
+            },
+            "set_as_primary": {
+              "description": "If true and supplier_id is set, mark this supplier as the primary supplier.",
+              "type": "boolean"
+            },
+            "reference": {
+              "description": "Supplier reference/SKU for this material.",
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "material_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_stock",
+        "title": "Get material stock and availability",
+        "description": "Return the current stock for every material, the linked suppliers, and whether stock is below the configured minimum. Optionally filter by material name or low-stock only.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "material_name": {
+              "type": "string"
+            },
+            "low_stock_only": {
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_todo",
+        "title": "Create a task",
+        "description": "Create a task (to-do) for the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "priority": {
+              "default": "media",
+              "type": "string",
+              "enum": [
+                "baixa",
+                "media",
+                "alta"
+              ]
+            },
+            "deadline": {
+              "description": "ISO date (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "reminder": {
+              "description": "ISO datetime for reminder.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_todos",
+        "title": "List tasks",
+        "description": "List tasks (to-dos) for the signed-in user. Filter by status, project, or completion.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "por_fazer",
+                "em_progresso",
+                "concluida"
+              ]
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "include_done": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_todo",
+        "title": "Update a task",
+        "description": "Update fields on an existing task (title, priority, deadline, project, reminder, status).",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "title": {
+              "type": "string"
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "baixa",
+                "media",
+                "alta"
+              ]
+            },
+            "deadline": {
+              "type": "string"
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "reminder": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "por_fazer",
+                "em_progresso",
+                "concluida"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "complete_todo",
+        "title": "Mark a task as complete",
+        "description": "Mark a task as done (estado = concluida, feito = true).",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id"
           ]
         },
         "outputSchema": null
