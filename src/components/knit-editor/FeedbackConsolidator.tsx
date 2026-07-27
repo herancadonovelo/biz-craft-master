@@ -135,7 +135,7 @@ export function FeedbackConsolidator() {
             <CardHeader><CardTitle className="text-base">Feedbacks individuais</CardTitle></CardHeader>
             <CardContent className="space-y-2">
               {items.map((p, i) => (
-                <div key={i} className="rounded border p-3 text-sm">
+                <div key={i} className="rounded border p-3 text-sm" data-testid={`feedback-item-${i}`}>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <FileJson className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +146,7 @@ export function FeedbackConsolidator() {
                         {typeof p.consumoRealG === "number" ? ` · ${p.consumoRealG}g` : ""}
                       </span>
                     </div>
-                    <Button size="sm" variant="ghost" onClick={() => remover(i)}>
+                    <Button size="sm" variant="ghost" onClick={() => remover(i)} data-testid={`feedback-item-${i}-remove`}>
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
