@@ -26,7 +26,7 @@ describe("consumoAvancado", () => {
       ["#000", "#000", "#fff"],
       ["#000", "#fff", "#fff"],
     ]);
-    const linhas = consumoAvancado(c, gauge);
+    const linhas = consumoAvancado(c, gauge, { gramasPor100m: 5000 });
     expect(linhas).toHaveLength(2);
     expect(linhas[0].malhas).toBeGreaterThanOrEqual(linhas[1].malhas);
     for (const l of linhas) {
@@ -41,8 +41,8 @@ describe("consumoAvancado", () => {
       ["#000", "#000", "#000", "#000"],
       ["#000", "#000", "#000", "#fff"],
     ]);
-    const semFloat = consumoAvancado(c, gauge, { floatMultiplier: 1 });
-    const comFloat = consumoAvancado(c, gauge, { floatMultiplier: 3 });
+    const semFloat = consumoAvancado(c, gauge, { floatMultiplier: 1, gramasPor100m: 5000 });
+    const comFloat = consumoAvancado(c, gauge, { floatMultiplier: 3, gramasPor100m: 5000 });
     const branco = (arr: typeof semFloat) => arr.find((l) => l.cor === "#fff")!;
     const preto = (arr: typeof semFloat) => arr.find((l) => l.cor === "#000")!;
     // cor dominante não muda
