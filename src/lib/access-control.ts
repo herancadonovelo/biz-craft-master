@@ -33,6 +33,7 @@ export const ROUTE_ACCESS: Record<string, Plan> = {
   "/whatsapp": "premium",
   "/instagram": "premium",
   "/notificacoes": "premium",
+  "/consolidar-feedback": "premium",
 };
 
 /** Rotas sempre acessíveis (sistema/config/auth/planos). */
