@@ -22,7 +22,9 @@ test.describe("2FA is opt-in, not mandatory", () => {
     // In enroll mode we must NOT claim a code was already sent.
     await expect(page.getByText(/Enviámos um código de 6 dígitos/i)).toHaveCount(0);
     // Code input should not exist until the user actually sends.
-    await expect(page.getByPlaceholder("123456")).toHaveCount(0);
+    // { exact: true } — the phone input placeholder "+351912345678" contains
+    // "123456" as a substring, which would otherwise match the OTP input.
+    await expect(page.getByPlaceholder("123456", { exact: true })).toHaveCount(0);
   });
 
   test("challenge mode: does not fabricate a 'code sent' message before a real send", async ({ page }) => {
@@ -32,14 +34,14 @@ test.describe("2FA is opt-in, not mandatory", () => {
     // is present (i.e. user can trigger the send themselves).
     await page.goto("http://localhost:8080/auth/verify-2fa");
     await page.waitForTimeout(600);
-    const codeInputCount = await page.getByPlaceholder("123456").count();
+    const codeInputCount = await page.getByPlaceholder("123456", { exact: true }).count();
     if (codeInputCount === 0) {
       // No send happened → the "we sent a code" copy must not be shown.
       await expect(page.getByText(/Enviámos um código de 6 dígitos por SMS\./i)).toHaveCount(0);
       await expect(page.getByRole("button", { name: /enviar código/i })).toBeVisible();
     } else {
       // A send happened → the code input and success toast copy are OK.
-      await expect(page.getByPlaceholder("123456")).toBeVisible();
+      await expect(page.getByPlaceholder("123456", { exact: true })).toBeVisible();
     }
   });
 

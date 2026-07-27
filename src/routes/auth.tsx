@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -22,6 +22,11 @@ function AuthPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
   const search = useRouterState({ select: (r) => r.location.search as Record<string, unknown> });
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  // `/auth/verify-2fa` and any future child of /auth is a nested route that
+  // renders through <Outlet />. Without this, the parent login form would
+  // eat the child render and the URL would be lying about what's shown.
+  if (pathname !== "/auth") return <Outlet />;
   const showExpiredBanner = search?.expired === "1" || search?.expired === 1 || search?.expired === true;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

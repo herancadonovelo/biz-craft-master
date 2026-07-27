@@ -13,6 +13,7 @@ test.describe("Editor · Tricotin/i-cord", () => {
 
     // Pro panel + tolerance preview render without navigating away.
     await expect(page.getByTestId("tricotin-pro")).toBeVisible();
+    await page.getByTestId("tricotin-pro").getByRole("tab", { name: /Exportação/i }).click();
     await expect(page.getByTestId("arc-tolerance-preview")).toBeVisible();
     await expect(page.getByTestId("export-gcode")).toBeVisible();
     await expect(page.getByTestId("export-gcode-arcs")).toBeVisible();
