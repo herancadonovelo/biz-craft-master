@@ -60,6 +60,17 @@ export function SupabaseSync() {
         await supabase.from("app_state").upsert({ user_id: user.id, state: cur });
         toast.success("Conta criada — dados locais carregados na nuvem");
       }
+      // Sincroniza o estado do onboarding a partir da tabela profiles.
+      // A DB é a fonte de verdade — para o utilizador não voltar a ver a janela
+      // de configuração inicial em novos dispositivos ou sessões.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_concluido")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile && typeof (profile as any).onboarding_concluido === "boolean") {
+        useStore.setState({ onboardingFeito: (profile as any).onboarding_concluido } as any);
+      }
       hydrated.current = true;
       setStatus("synced");
     })();
