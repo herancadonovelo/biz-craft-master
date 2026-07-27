@@ -23,6 +23,7 @@ import { Route as CashflowRouteImport } from './routes/cashflow'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ConsolidarFeedbackRouteImport } from './routes/consolidar-feedback'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ContadorRouteImport } from './routes/contador'
 import { Route as ContasRouteImport } from './routes/contas'
@@ -158,6 +159,11 @@ const ClientesRoute = ClientesRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConsolidarFeedbackRoute = ConsolidarFeedbackRouteImport.update({
+  id: '/consolidar-feedback',
+  path: '/consolidar-feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactoRoute = ContactoRouteImport.update({
@@ -513,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/consolidar-feedback': typeof ConsolidarFeedbackRoute
   '/contacto': typeof ContactoRoute
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
@@ -595,6 +602,7 @@ export interface FileRoutesByTo {
   '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/consolidar-feedback': typeof ConsolidarFeedbackRoute
   '/contacto': typeof ContactoRoute
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
@@ -678,6 +686,7 @@ export interface FileRoutesById {
   '/catalogo': typeof CatalogoRoute
   '/clientes': typeof ClientesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/consolidar-feedback': typeof ConsolidarFeedbackRoute
   '/contacto': typeof ContactoRoute
   '/contador': typeof ContadorRoute
   '/contas': typeof ContasRoute
@@ -762,6 +771,7 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/clientes'
     | '/configuracoes'
+    | '/consolidar-feedback'
     | '/contacto'
     | '/contador'
     | '/contas'
@@ -844,6 +854,7 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/clientes'
     | '/configuracoes'
+    | '/consolidar-feedback'
     | '/contacto'
     | '/contador'
     | '/contas'
@@ -926,6 +937,7 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/clientes'
     | '/configuracoes'
+    | '/consolidar-feedback'
     | '/contacto'
     | '/contador'
     | '/contas'
@@ -1009,6 +1021,7 @@ export interface RootRouteChildren {
   CatalogoRoute: typeof CatalogoRoute
   ClientesRoute: typeof ClientesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ConsolidarFeedbackRoute: typeof ConsolidarFeedbackRoute
   ContactoRoute: typeof ContactoRoute
   ContadorRoute: typeof ContadorRoute
   ContasRoute: typeof ContasRoute
@@ -1173,6 +1186,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/consolidar-feedback': {
+      id: '/consolidar-feedback'
+      path: '/consolidar-feedback'
+      fullPath: '/consolidar-feedback'
+      preLoaderRoute: typeof ConsolidarFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contacto': {
@@ -1677,6 +1697,7 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogoRoute: CatalogoRoute,
   ClientesRoute: ClientesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  ConsolidarFeedbackRoute: ConsolidarFeedbackRoute,
   ContactoRoute: ContactoRoute,
   ContadorRoute: ContadorRoute,
   ContasRoute: ContasRoute,
