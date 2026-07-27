@@ -5,6 +5,18 @@ test.describe("Editor de Tricô — Fase 7 (Custo, Stock & Export)", () => {
   test("BOM, breakdown de preço e exportações", async ({ page }) => {
     const { errors } = trackConsoleErrors(page);
     await ensurePremium(page);
+    // Seed the knit editor with an active red color so any click on the grid
+    // paints "#ff0000" regardless of whether the <input type="color"> managed
+    // to dispatch a React onChange event under headless Chromium.
+    await page.addInitScript(() => {
+      try {
+        const key = "cbm:knit-editor:v1";
+        const raw = window.localStorage.getItem(key);
+        const st = raw ? JSON.parse(raw) : {};
+        st.activeCor = "#ff0000";
+        window.localStorage.setItem(key, JSON.stringify(st));
+      } catch { /* ignore */ }
+    });
     await page.goto("/ferramentas-tecnicas");
     await page.getByRole("tab", { name: /Editor de Gráficos: Tricô/i }).click();
 
