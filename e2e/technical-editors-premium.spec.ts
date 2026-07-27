@@ -64,8 +64,8 @@ test.describe("Ferramentas Técnicas — proteção Premium", () => {
     const tabs = [
       { name: /tricotin/i, control: /adicionar ponto reto/i },
       { name: /amigurumis|crochê/i, control: /carreira/i },
-      { name: /costura/i, control: /adicionar linha por medida/i },
-      { name: /ponto cruz/i, control: /símbolos/i },
+      { name: /costura/i, control: /snap extremos/i },
+      { name: /ponto cruz/i, control: /limpar tudo/i },
     ];
 
     for (const tab of tabs) {
