@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { ensurePremium } from "./_helpers";
 
 // Fase 2 — Editor de Gráficos: Tricô · Matemática e Escalonamento.
 // Verifica que o painel Grading abre, calcula os 6 tamanhos e formata em parênteses.
 test.describe("Knit editor · Grading (Fase 2)", () => {
   test("mostra tabela XS–XXL e string em parênteses", async ({ page }) => {
+    await ensurePremium(page);
     await page.goto("/ferramentas-tecnicas");
     // Abre o tab do editor de tricô (pode não estar visível para não-Premium: teste tolerante).
     const tab = page.getByRole("tab", { name: /Tricô/i });

@@ -14,7 +14,7 @@ test.describe("Editor de Tricô — undo/redo + símbolos personalizados", () =>
       window.prompt = () => answers.shift() ?? "";
     });
 
-    await openEditorTab(page, /tric[oô]/i);
+    await openEditorTab(page, /Editor de Gráficos: Tricô/i);
 
     const editor = page.getByTestId("knit-editor");
     await expect(editor).toBeVisible();

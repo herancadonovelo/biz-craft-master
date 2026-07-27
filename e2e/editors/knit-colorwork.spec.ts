@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { ensurePremium } from "./_helpers";
 
 // Fase 3 — Editor de Gráficos: Tricô · Colorwork / Fair Isle.
 test.describe("Knit editor · Colorwork (Fase 3)", () => {
   test("mostra paleta, tabela de consumo e alertas de float", async ({ page }) => {
+    await ensurePremium(page);
     await page.goto("/ferramentas-tecnicas");
     const tab = page.getByRole("tab", { name: /Tricô/i });
     if (!(await tab.isVisible().catch(() => false))) test.skip(true, "Editor Tricô oculto (sem Premium)");
