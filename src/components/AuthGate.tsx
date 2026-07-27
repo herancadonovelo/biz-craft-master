@@ -143,7 +143,7 @@ export function AuthGate() {
         role="status"
         aria-live="polite"
         aria-label="A verificar sessão"
-        className="fixed inset-0 z-[90] flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm"
+        className="pointer-events-none fixed inset-0 z-[90] flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm"
       >
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">A verificar a tua sessão…</p>
