@@ -133,13 +133,17 @@ function QuemSomos() {
             frente do seu tempo: no final dos anos 40, em Portugal, separou-se
             do marido e assumiu o sustento da casa, cuidando de netos e
             bisnetas enquanto costurava para toda a família. Embora tenha
-            partido cinco anos antes de eu nascer, o seu legado de
+            partido 11 anos antes de eu nascer (1983), o seu legado de
             resiliência e amor chegou até mim de forma intacta.
           </p>
           <p>
             Foi a sua filha, a minha avó Albina, quem me passou a agulha e a
             linha para as mãos. Nas semanas que passávamos juntas na minha
-            infância, ensinou-me a bordar, costurar e a fazer croché. Até aos
+            infância, ensinou-me a bordar, a costurar (apenas a parte teórica,
+            por receio de que eu me magoasse ou danificasse a antiga máquina
+            de costura Singer de pedal, já com muitos problemas), a fazer
+            ponto-cruz, tricô e croché — além de me ensinar a fazer as bonecas
+            de pano, em cujas tarefas eu ajudava ocasionalmente. Até aos
             75 anos, altura em que a saúde lhe exigiu descanso, manteve o seu
             negócio de venda destas bonecas de pano e encheu a nossa vida de
             vestidos e mantas feitas à mão. Foi ela que plantou em mim a
