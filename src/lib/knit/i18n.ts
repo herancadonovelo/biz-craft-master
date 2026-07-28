@@ -51,6 +51,7 @@ const ROWS: Row[] = [
   ["Carreiras", "Rows", "Vueltas", "Rangs"],
   ["Carreiras totais", "Total rows", "Vueltas totales", "Rangs au total"],
   ["Malhas", "Stitches", "Puntos", "Mailles"],
+  ["Grelha", "Grid", "Cuadrícula", "Grille"],
   ["Instruções", "Instructions", "Instrucciones", "Instructions"],
 
   // ----- Matemática / grading -----
