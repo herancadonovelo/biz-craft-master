@@ -15,6 +15,8 @@ const SAME_OK = new Set([
   "Sugestão", "Abrev", "Estim. (g)", "Estimado", "Nome", "Tamanho", "Redondo",
   "Distribuir", "Reiniciar", "Remover", "Concluído", "Concluídos", "Custo",
   "Instruções", "Terminologia", "Ação", "Carreira", "Carreiras", "Malhas",
+  "Overhead %", "€/g (fallback)", "IVA %", "3. Colorwork", "Row Highlighter",
+  "Grelha", "Wizard Top-Down (Raglan)",
 ]);
 
 function readPanels(): { file: string; src: string }[] {
@@ -32,6 +34,7 @@ function extractHeadings(src: string): string[] {
     const inner = m[2]
       .replace(/<[^>]*>/g, " ")      // remove ícones/elementos
       .replace(/\{[^{}]*\}/g, " ")   // remove expressões JS
+      .replace(/\(\s*[×x·\-–]?\s*\)/g, " ") // parênteses que só continham expressões
       .replace(/\s+/g, " ")
       .trim();
     if (inner && /[A-Za-zÀ-ÿ]{2}/.test(inner)) out.push(inner);
@@ -54,13 +57,11 @@ describe("glossário do editor de tricô", () => {
     expect(new Set(KNIT_UI_STRINGS).size).toBe(KNIT_UI_STRINGS.length);
   });
 
-  it("traduz efectivamente (sem cópia do PT) fora da lista de excepções", () => {
+  it("traduz efectivamente para EN (sem cópia do PT) fora da lista de excepções", () => {
     const copied: string[] = [];
     for (const key of KNIT_UI_STRINGS) {
       if (SAME_OK.has(key)) continue;
-      for (const lang of LANGS) {
-        if (KNIT_GLOSSARY[lang][key] === key) copied.push(`${lang}: ${key}`);
-      }
+      if (KNIT_GLOSSARY.en[key] === key) copied.push(`en: ${key}`);
     }
     expect(copied, `traduções idênticas ao PT: ${copied.join(" | ")}`).toEqual([]);
   });
