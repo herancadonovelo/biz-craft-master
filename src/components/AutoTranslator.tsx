@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useStore } from "@/lib/store";
 import { translateBatch, TRANSLATE_STRING_LIMIT } from "@/lib/translate.functions";
+import { KNIT_GLOSSARY } from "@/lib/knit/i18n";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
 
@@ -94,7 +95,12 @@ export function AutoTranslator() {
     // public routes / while the session is still loading — otherwise the
     // server fn 401s with "Unauthorized: No authorization header provided".
     if (loading || !user) return;
-    const getLangCache = (): Record<string, string> => ((useStore.getState().traducoes as any) || {})[lang] || {};
+    // Glossário estático (offline, instantâneo) + cache do utilizador/IA.
+    // O cache dinâmico tem prioridade para permitir correcções manuais.
+    const getLangCache = (): Record<string, string> => ({
+      ...((KNIT_GLOSSARY as Record<string, Record<string, string>>)[lang] || {}),
+      ...(((useStore.getState().traducoes as any) || {})[lang] || {}),
+    });
 
     const flush = async () => {
       timerRef.current = null;
@@ -154,6 +160,8 @@ export function AutoTranslator() {
     };
 
     const enqueue = (source: string, apply: (t: string) => void) => {
+      // Sem sessão só conseguimos servir o glossário estático / cache local.
+      if (!user) return;
       // Short-circuit: never send an over-limit string to the server — split
       // it locally first so the server call always succeeds. This is the
       // "seamless" fallback promised in the plan.
