@@ -91,10 +91,10 @@ export function AutoTranslator() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // translateBatch requires an authenticated session. Skip entirely on
-    // public routes / while the session is still loading — otherwise the
-    // server fn 401s with "Unauthorized: No authorization header provided".
-    if (loading || !user) return;
+    // translateBatch requires an authenticated session, mas o glossário
+    // estático funciona offline — por isso continuamos a observar o DOM e
+    // apenas bloqueamos as chamadas ao servidor quando não há sessão.
+    if (loading) return;
     // Glossário estático (offline, instantâneo) + cache do utilizador/IA.
     // O cache dinâmico tem prioridade para permitir correcções manuais.
     const getLangCache = (): Record<string, string> => ({
@@ -160,6 +160,8 @@ export function AutoTranslator() {
     };
 
     const enqueue = (source: string, apply: (t: string) => void) => {
+      // Sem sessão só conseguimos servir o glossário estático / cache local.
+      if (!user) return;
       // Short-circuit: never send an over-limit string to the server — split
       // it locally first so the server call always succeeds. This is the
       // "seamless" fallback promised in the plan.
