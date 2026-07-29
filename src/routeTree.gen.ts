@@ -43,6 +43,7 @@ import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digita
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as GestaoReembolsosRouteImport } from './routes/gestao-reembolsos'
+import { Route as GuiaPrecificacaoRouteImport } from './routes/guia-precificacao'
 import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
 import { Route as HorasRouteImport } from './routes/horas'
 import { Route as IdiomaRouteImport } from './routes/idioma'
@@ -75,6 +76,7 @@ import { Route as RegistoRouteImport } from './routes/registo'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as TermosRouteImport } from './routes/termos'
@@ -271,6 +273,11 @@ const GestaoReembolsosRoute = GestaoReembolsosRouteImport.update({
   path: '/gestao-reembolsos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuiaPrecificacaoRoute = GuiaPrecificacaoRouteImport.update({
+  id: '/guia-precificacao',
+  path: '/guia-precificacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
   id: '/historico-faturas',
   path: '/historico-faturas',
@@ -429,6 +436,11 @@ const SessaoExpiradaRoute = SessaoExpiradaRouteImport.update({
 const SincronizacaoRoute = SincronizacaoRouteImport.update({
   id: '/sincronizacao',
   path: '/sincronizacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
@@ -602,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -634,6 +647,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -695,6 +709,7 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -727,6 +742,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -789,6 +805,7 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -821,6 +838,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -884,6 +902,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -916,6 +935,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -977,6 +997,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1009,6 +1030,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -1070,6 +1092,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1102,6 +1125,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -1164,6 +1188,7 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
   GestaoReembolsosRoute: typeof GestaoReembolsosRoute
+  GuiaPrecificacaoRoute: typeof GuiaPrecificacaoRoute
   HistoricoFaturasRoute: typeof HistoricoFaturasRoute
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
@@ -1196,6 +1221,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
   StockRoute: typeof StockRoute
   TermosRoute: typeof TermosRoute
@@ -1461,6 +1487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestaoReembolsosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guia-precificacao': {
+      id: '/guia-precificacao'
+      path: '/guia-precificacao'
+      fullPath: '/guia-precificacao'
+      preLoaderRoute: typeof GuiaPrecificacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historico-faturas': {
       id: '/historico-faturas'
       path: '/historico-faturas'
@@ -1683,6 +1716,13 @@ declare module '@tanstack/react-router' {
       path: '/sincronizacao'
       fullPath: '/sincronizacao'
       preLoaderRoute: typeof SincronizacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/spotify-callback': {
@@ -1920,6 +1960,7 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
   GestaoReembolsosRoute: GestaoReembolsosRoute,
+  GuiaPrecificacaoRoute: GuiaPrecificacaoRoute,
   HistoricoFaturasRoute: HistoricoFaturasRoute,
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
@@ -1952,6 +1993,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
   StockRoute: StockRoute,
   TermosRoute: TermosRoute,

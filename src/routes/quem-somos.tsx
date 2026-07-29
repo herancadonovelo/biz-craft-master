@@ -11,7 +11,9 @@ export const Route = createFileRoute("/quem-somos")({
       { property: "og:description", content: "A história por trás do Craft Business Master, uma herança de amor pelo artesanato." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/quem-somos" },
     ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/quem-somos" }],
   }),
   component: QuemSomos,
 });

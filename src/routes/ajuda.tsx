@@ -70,7 +70,39 @@ const FAQ: { q: string; a: string }[] = [
 ];
 
 export const Route = createFileRoute("/ajuda")({
-  head: () => ({ meta: [{ title: "Ajuda (FAQ)" }] }),
+  head: () => ({
+    meta: [
+      { title: "Ajuda (FAQ) — Craft Business Master" },
+      {
+        name: "description",
+        content:
+          "Respostas às perguntas frequentes sobre o Craft Business Master: encomendas, stock, preços, faturação e subscrições.",
+      },
+      { property: "og:title", content: "Ajuda (FAQ) — Craft Business Master" },
+      {
+        property: "og:description",
+        content: "Perguntas frequentes sobre o funcionamento do Craft Business Master.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/ajuda" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/ajuda" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQ.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
+    ],
+  }),
   component: AjudaPage,
 });
 

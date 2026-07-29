@@ -25,9 +25,23 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Painel — Atelier Tricotin" },
-      { name: "description", content: "Painel de gestão do atelier de tricotin, crochê e amigurumi." },
+      { title: "Craft Business Master — Gestão de Artesanato" },
+      {
+        name: "description",
+        content:
+          "Faça a gestão do seu atelier de artesanato: encomendas, stock, custos, preços e faturação num só painel.",
+      },
+      { property: "og:title", content: "Craft Business Master — Gestão de Artesanato" },
+      {
+        property: "og:description",
+        content:
+          "Faça a gestão do seu atelier de artesanato: encomendas, stock, custos, preços e faturação num só painel.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/" },
+      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/" }],
   }),
   component: Dashboard,
 });
@@ -177,7 +191,7 @@ function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="font-display">Cash flow recente</CardTitle>
+            <CardTitle as="h2" className="font-display text-lg">Cash flow recente</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -228,7 +242,7 @@ function Dashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-display">Projetos em curso</CardTitle>
+          <CardTitle as="h2" className="font-display text-lg">Projetos em curso</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2">
           {projetos.map((p) => (

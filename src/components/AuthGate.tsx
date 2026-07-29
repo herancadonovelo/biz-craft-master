@@ -17,6 +17,8 @@ const PUBLIC_ROUTES = [
   "/termos",
   "/reembolsos",
   "/privacidade",
+  "/quem-somos",
+  "/guia-precificacao",
 ];
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
 const E2E_2FA_BYPASS_KEY = "atelier-e2e-2fa-bypass";

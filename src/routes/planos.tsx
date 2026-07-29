@@ -17,10 +17,18 @@ import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/store";
 
 export const Route = createFileRoute("/planos")({
-  head: () => ({ meta: [
-    { title: "Planos e Subscrições — Atelier Tricotin" },
-    { name: "description", content: "Escolhe o plano que melhor se adapta ao teu atelier. 14 dias grátis em qualquer plano pago." },
-  ]}),
+  head: () => ({
+    meta: [
+      { title: "Planos e Subscrições — Craft Business Master" },
+      { name: "description", content: "Escolhe o plano que melhor se adapta ao teu atelier. 14 dias grátis em qualquer plano pago." },
+      { property: "og:title", content: "Planos e Subscrições — Craft Business Master" },
+      { property: "og:description", content: "Compara os planos Light, Base e Premium. 14 dias grátis em qualquer plano pago." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/planos" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/planos" }],
+  }),
   component: PlanosPage,
 });
 
