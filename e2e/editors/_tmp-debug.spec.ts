@@ -6,6 +6,8 @@ test("debug paint", async ({ page }) => {
   const cv = panel.locator("canvas").first();
   const box = (await cv.boundingBox())!;
   console.log("BOX", JSON.stringify(box));
+  const top = await page.evaluate(([x, y]) => { const el = document.elementFromPoint(x, y) as HTMLElement | null; return el ? el.tagName + "." + el.className : "none"; }, [box.x + 20, box.y + 20]);
+  console.log("TOPEL", top);
   await page.mouse.move(box.x + 20, box.y + 20);
   await page.mouse.down();
   await page.mouse.up();
