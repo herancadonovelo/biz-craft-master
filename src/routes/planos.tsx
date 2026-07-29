@@ -7,7 +7,7 @@ import { Check, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from
 import { PLANS, useSubscription, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { paddlePriceIdFor, getPaddleEnvironment } from "@/lib/paddle";
-import { createPortalSession } from "@/utils/payments.functions";
+import { createPortalSession, changeSubscriptionPlan } from "@/utils/payments.functions";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/lib/auth-state";
 import { useRef, useState } from "react";
@@ -81,9 +81,27 @@ function PlanosPage() {
     if (id !== "base" && id !== "premium") return;
     setBusy(id);
     const chosen = overrideCycle ?? cycle;
+    const targetPriceId = paddlePriceIdFor(id, chosen);
     try {
+      // Se ja existe subscricao ativa, trata-se de upgrade/downgrade: alteracao
+      // imediata com faturacao proporcional em vez de novo checkout.
+      const change = await changeSubscriptionPlan({
+        data: { environment: getPaddleEnvironment(), priceId: targetPriceId },
+      });
+      if (change.ok) {
+        toast.success(change.message);
+        return;
+      }
+      if (change.code === "same_plan") {
+        toast.info(change.message);
+        return;
+      }
+      if (change.code !== "no_subscription") {
+        toast.error(change.message);
+        return;
+      }
       await openCheckout({
-        priceId: paddlePriceIdFor(id, chosen),
+        priceId: targetPriceId,
         customerEmail: user.email ?? undefined,
         customData: { userId: user.id },
         successUrl: `${window.location.origin}/planos?checkout=success`,
