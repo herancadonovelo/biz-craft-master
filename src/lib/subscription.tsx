@@ -107,7 +107,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   const isLifetime = plan === "premium_vitalicio";
   const trialActive = !isLifetime && !!(trialEnds && trialEnds.getTime() > Date.now());
-  const effectivePlan: Plan = isLifetime ? "premium_vitalicio" : (trialActive ? "premium" : plan);
+  // Durante um teste, o acesso é o do plano em teste (Base ou Premium),
+  // nunca automaticamente Premium.
+  const effectivePlan: Plan = isLifetime
+    ? "premium_vitalicio"
+    : trialActive
+      ? (plan === "light" ? "base" : plan)
+      : plan;
 
   const refresh = async () => {
     const devOverride = readDevPlanOverride();
@@ -165,9 +171,21 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
     if (next === "light") {
+      type CancelRes = { ok: boolean; accessUntil?: string | null; immediate?: boolean };
+      let res: CancelRes | null = null;
       try {
-        await cancelSubscriptionFn();
-      } catch { toast.error("Falha a cancelar plano"); return; }
+        res = (await cancelSubscriptionFn()) as unknown as CancelRes;
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Falha a cancelar plano");
+        return;
+      }
+      if (res?.accessUntil) {
+        await refresh();
+        toast.success("Subscrição cancelada.", {
+          description: `Mantens o acesso até ${new Date(res.accessUntil).toLocaleDateString("pt-PT")}.`,
+        });
+        return;
+      }
       setPlanState("light"); setTrialEnds(null); setBillingCycle(cycle);
       toast.success("Subscrição cancelada — voltaste ao plano Light.");
       return;

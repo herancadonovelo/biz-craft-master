@@ -20,6 +20,38 @@ function getSupabase() {
   return _supabase;
 }
 
+/**
+ * Ambientes de teste (sandbox) só podem alterar o acesso real quando o webhook
+ * chega a um domínio de pré-visualização/desenvolvimento. No site publicado,
+ * apenas pagamentos reais (live) alteram o plano do utilizador.
+ */
+function isPreviewOrigin(origin: string) {
+  return (
+    origin.includes("localhost") ||
+    origin.includes("127.0.0.1") ||
+    origin.includes("-dev.lovable.app") ||
+    origin.includes("id-preview--") ||
+    origin.includes(".lovableproject.com")
+  );
+}
+
+function canGrantAccess(env: PaddleEnv, origin: string) {
+  return env === "live" || isPreviewOrigin(origin);
+}
+
+/** Evita processar o mesmo evento duas vezes (o Paddle reenvia eventos). */
+async function alreadyProcessed(eventId: string | undefined, eventType: string, env: PaddleEnv) {
+  if (!eventId) return false;
+  const { error } = await getSupabase()
+    .from("paddle_webhook_events")
+    .insert({ event_id: eventId, event_type: eventType, environment: env });
+  if (!error) return false;
+  // 23505 = unique_violation → já foi processado
+  if ((error as { code?: string }).code === "23505") return true;
+  console.error("[webhook] idempotency check failed", error);
+  return false;
+}
+
 /** Mapeia o produto do Paddle para o plano interno da app. */
 function planFromProduct(productId: string): "base" | "premium" | null {
   if (productId === "premium_plan") return "premium";
@@ -37,9 +69,9 @@ async function syncProfilePlan(
   productId: string,
   priceId: string,
   active: boolean,
+  origin: string,
 ) {
-  // O ambiente de teste nunca altera o acesso real do utilizador.
-  if (env !== "live") return;
+  if (!canGrantAccess(env, origin)) return;
   const { data: profile } = await getSupabase()
     .from("profiles")
     .select("subscription_status")
@@ -92,7 +124,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv, origin: stri
     { onConflict: "paddle_subscription_id" },
   );
 
-  await syncProfilePlan(userId, env, productId, priceId, ["active", "trialing", "past_due"].includes(status));
+  await syncProfilePlan(userId, env, productId, priceId, ["active", "trialing", "past_due"].includes(status), origin);
 
   await logBillingEvent({
     userId,
@@ -156,6 +188,7 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv, origin: stri
     row.product_id,
     row.price_id,
     ["active", "trialing", "past_due"].includes(status),
+    origin,
   );
 
   const planChanged =
@@ -204,7 +237,7 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv, origin: str
     | undefined;
   if (!row) return;
   const stillInPeriod = !!row.current_period_end && new Date(row.current_period_end).getTime() > Date.now();
-  await syncProfilePlan(row.user_id, env, row.product_id, row.price_id, stillInPeriod);
+  await syncProfilePlan(row.user_id, env, row.product_id, row.price_id, stillInPeriod, origin);
 
   await logBillingEvent({
     userId: row.user_id,
@@ -461,11 +494,19 @@ async function handleAdjustment(data: any, env: PaddleEnv, origin: string) {
 
 async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   const event = await verifyWebhook(req, env);
+  if (await alreadyProcessed((event as { eventId?: string }).eventId, event.eventType, env)) {
+    console.log("[webhook] evento repetido ignorado:", event.eventType);
+    return;
+  }
   switch (event.eventType) {
     case EventName.SubscriptionCreated:
       await handleSubscriptionCreated(event.data, env, origin);
       break;
     case EventName.SubscriptionUpdated:
+    case "subscription.paused" as any:
+    case "subscription.resumed" as any:
+    case "subscription.past_due" as any:
+    case "subscription.activated" as any:
       await handleSubscriptionUpdated(event.data, env, origin);
       break;
     case EventName.SubscriptionCanceled:

@@ -22,6 +22,22 @@ export const resolvePaddlePrice = createServerFn({ method: "GET" })
   });
 
 /** Cria uma sessao do portal do cliente (gerir/cancelar subscricao, faturas). */
+export const resolvePaddleDiscount = createServerFn({ method: "GET" })
+  .inputValidator((d) =>
+    z.object({ code: z.string().min(1).max(64), environment: envSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { gatewayFetch } = await import("@/lib/paddle.server");
+    const res = await gatewayFetch(
+      data.environment,
+      `/discounts?code=${encodeURIComponent(data.code.trim().toUpperCase())}&status=active`,
+    );
+    if (!res.ok) return { ok: false as const, discountId: null };
+    const result = await res.json();
+    const id = result.data?.[0]?.id as string | undefined;
+    return id ? { ok: true as const, discountId: id } : { ok: false as const, discountId: null };
+  });
+
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ environment: envSchema }).parse(d))

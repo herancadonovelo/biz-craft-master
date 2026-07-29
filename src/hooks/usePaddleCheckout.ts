@@ -10,6 +10,7 @@ export function usePaddleCheckout() {
     customerEmail?: string;
     customData?: Record<string, string>;
     successUrl?: string;
+    discountId?: string | null;
   }) => {
     setLoading(true);
     try {
@@ -19,6 +20,7 @@ export function usePaddleCheckout() {
         items: [{ priceId: paddlePriceId, quantity: options.quantity ?? 1 }],
         customer: options.customerEmail ? { email: options.customerEmail } : undefined,
         customData: options.customData,
+        ...(options.discountId ? { discountId: options.discountId } : {}),
         settings: {
           displayMode: "overlay",
           successUrl: options.successUrl || `${window.location.origin}/planos?checkout=success`,
