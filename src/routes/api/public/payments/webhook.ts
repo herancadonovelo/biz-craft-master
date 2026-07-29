@@ -373,7 +373,7 @@ async function handleAdjustment(data: any, env: PaddleEnv, origin: string) {
       origin,
       env,
       userId: row.user_id,
-      templateName: "refund-processed" as any,
+      templateName: "refund-processed",
       idempotencyKey: `refund:${adjustmentId}`,
       templateData: { valor: `${valor} ${currency}` },
     });
