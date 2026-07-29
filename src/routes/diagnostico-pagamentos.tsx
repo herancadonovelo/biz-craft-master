@@ -69,9 +69,9 @@ function DiagnosticoPagamentosPage() {
   async function run(target: "sandbox" | "live") {
     setLoading(true);
     try {
-      const r = await runDiagnostics({ data: { environment: target } });
+      const r = (await runDiagnostics({ data: { environment: target } })) as PaddleDiagnostics;
       setResult(r);
-      if (!r.connection.ok) {
+      if (!r?.connection.ok) {
         toast.error("Não foi possível ligar ao processador de pagamentos", {
           description: r.connection.error ?? `Estado ${r.connection.status ?? "desconhecido"}`,
         });
