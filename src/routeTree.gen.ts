@@ -84,6 +84,7 @@ import { Route as ReceitaTesterTricotTokenRouteImport } from './routes/receita-t
 import { Route as ReceitaTesterTokenRouteImport } from './routes/receita-tester.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicWebhooksEtsyRouteImport } from './routes/api/public/webhooks/etsy'
 import { Route as ApiPublicWebhooksTwilioStatusRouteImport } from './routes/api/public/webhooks/twilio-status'
 import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
@@ -470,6 +471,12 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksEtsyRoute = ApiPublicWebhooksEtsyRouteImport.update({
   id: '/api/public/webhooks/etsy',
   path: '/api/public/webhooks/etsy',
@@ -580,6 +587,7 @@ export interface FileRoutesByFullPath {
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -663,6 +671,7 @@ export interface FileRoutesByTo {
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -747,6 +756,7 @@ export interface FileRoutesById {
   '/receita-tester/$token': typeof ReceitaTesterTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/webhooks/etsy': typeof ApiPublicWebhooksEtsyRoute
   '/api/public/webhooks/twilio-status': typeof ApiPublicWebhooksTwilioStatusRoute
   '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
@@ -832,6 +842,7 @@ export interface FileRouteTypes {
     | '/receita-tester/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/payments/webhook'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -915,6 +926,7 @@ export interface FileRouteTypes {
     | '/receita-tester/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/payments/webhook'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -998,6 +1010,7 @@ export interface FileRouteTypes {
     | '/receita-tester/$token'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/payments/webhook'
     | '/api/public/webhooks/etsy'
     | '/api/public/webhooks/twilio-status'
     | '/api/public/webhooks/whatsapp'
@@ -1080,6 +1093,7 @@ export interface RootRouteChildren {
   ReceitaTesterTokenRoute: typeof ReceitaTesterTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicWebhooksEtsyRoute: typeof ApiPublicWebhooksEtsyRoute
   ApiPublicWebhooksTwilioStatusRoute: typeof ApiPublicWebhooksTwilioStatusRoute
   ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
@@ -1615,6 +1629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/etsy': {
       id: '/api/public/webhooks/etsy'
       path: '/api/public/webhooks/etsy'
@@ -1757,6 +1778,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReceitaTesterTokenRoute: ReceitaTesterTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicWebhooksEtsyRoute: ApiPublicWebhooksEtsyRoute,
   ApiPublicWebhooksTwilioStatusRoute: ApiPublicWebhooksTwilioStatusRoute,
   ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
