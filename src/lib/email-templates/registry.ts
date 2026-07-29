@@ -20,9 +20,11 @@ export interface TemplateEntry {
 import { template as subscriptionWelcome } from './subscription-welcome'
 import { template as subscriptionCanceled } from './subscription-canceled'
 import { template as paymentFailed } from './payment-failed'
+import { template as refundProcessed } from './refund-processed'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'subscription-welcome': subscriptionWelcome,
   'subscription-canceled': subscriptionCanceled,
   'payment-failed': paymentFailed,
+  'refund-processed': refundProcessed,
 }
