@@ -142,6 +142,12 @@ function PlanosPage() {
           {trialActive && !isLifetime && trialEnds && (
             <p className="text-sm text-muted-foreground">Teste termina em <strong>{trialEnds.toLocaleDateString("pt-PT")}</strong></p>
           )}
+          {!isLifetime && (
+            <Button variant="outline" size="sm" disabled={portalBusy} onClick={onOpenPortal}>
+              {portalBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Gerir subscrição
+            </Button>
+          )}
         </CardContent></Card>
       )}
 
