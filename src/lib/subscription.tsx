@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
 import { cancelSubscriptionFn, startSubscriptionTrialFn, redeemPromoCodeFn } from "@/lib/subscription.functions";
+import { readPendingPromoCode, clearPendingPromoCode } from "@/lib/pending-promo";
 
 export type Plan = "light" | "base" | "premium" | "premium_vitalicio";
 const RANK: Record<Plan, number> = { light: 0, base: 1, premium: 2, premium_vitalicio: 3 };
