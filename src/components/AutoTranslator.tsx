@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useStore } from "@/lib/store";
 import { translateBatch, TRANSLATE_STRING_LIMIT } from "@/lib/translate.functions";
 import { KNIT_GLOSSARY } from "@/lib/knit/i18n";
+import { EDITORS_GLOSSARY } from "@/lib/editors/i18n";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
 
@@ -99,6 +100,7 @@ export function AutoTranslator() {
     // O cache dinâmico tem prioridade para permitir correcções manuais.
     const getLangCache = (): Record<string, string> => ({
       ...((KNIT_GLOSSARY as Record<string, Record<string, string>>)[lang] || {}),
+      ...((EDITORS_GLOSSARY as Record<string, Record<string, string>>)[lang] || {}),
       ...(((useStore.getState().traducoes as any) || {})[lang] || {}),
     });
 
