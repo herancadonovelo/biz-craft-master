@@ -18,6 +18,7 @@ import {
   Truck,
   Wand2,
   Receipt,
+  CreditCard,
   Megaphone,
   ListChecks,
   Users,
