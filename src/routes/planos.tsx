@@ -92,6 +92,21 @@ function PlanosPage() {
     } finally { setBusy(null); }
   };
 
+  const onOpenPortal = async () => {
+    setPortalBusy(true);
+    try {
+      const res = await createPortalSession({ data: { environment: getPaddleEnvironment() } });
+      if (!res.ok || !res.url) {
+        toast.error(res.message ?? "Ainda não tens uma subscrição para gerir.");
+        return;
+      }
+      window.open(res.url, "_blank", "noopener");
+    } catch (e) {
+      console.error("[portal]", e);
+      toast.error("Não foi possível abrir a gestão da subscrição.");
+    } finally { setPortalBusy(false); }
+  };
+
   const onStartTrial = async (id: Plan) => {
     if (!user) { toast.error("Inicia sessão para começar o teste"); return; }
     setBusy(id);
