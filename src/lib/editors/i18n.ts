@@ -327,7 +327,6 @@ const ROWS: Row[] = [
   ["apagar peça selecionada", "delete selected piece", "eliminar pieza seleccionada", "supprimer la pièce sélectionnée"],
   ["Carreiras", "Rows", "Vueltas", "Rangs"],
   ["Carreira", "Row", "Vuelta", "Rang"],
-  ["Pontos", "Stitches", "Puntos", "Mailles"],
   ["Ponto", "Stitch", "Punto", "Point"],
   ["Fotos por carreira", "Photos per row", "Fotos por vuelta", "Photos par rang"],
   ["Material", "Material", "Material", "Matériau"],
