@@ -87,7 +87,8 @@ export async function sendBillingEmail(opts: {
     | "subscription-welcome"
     | "subscription-canceled"
     | "payment-failed"
-    | "refund-processed";
+    | "refund-processed"
+    | "payment-receipt";
   templateData: Record<string, unknown>;
   idempotencyKey?: string;
 }) {
