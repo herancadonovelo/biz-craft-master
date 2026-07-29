@@ -52,7 +52,7 @@ export function ConfiguracoesContent() {
         <SecurityAndAccountCard />
         <TwoFactorCard />
         <Card><CardContent className="space-y-3 p-4">
-          <h3 className="font-display text-lg flex items-center gap-2"><Eye className="h-5 w-5" />Modo Preview</h3>
+          <h2 className="font-display text-lg flex items-center gap-2"><Eye className="h-5 w-5" />Modo Preview</h2>
           <p className="text-sm text-muted-foreground">
             Vê a aplicação cheia de dados de demonstração sem alterar nem enviar nada para a tua conta. Ao sair, os teus dados reais voltam exatamente como estavam.
           </p>
@@ -69,7 +69,7 @@ export function ConfiguracoesContent() {
           </div>
         </CardContent></Card>
         <Card><CardContent className="space-y-3 p-4">
-          <h3 className="font-display text-lg flex items-center gap-2"><Database className="h-5 w-5" />Dados locais</h3>
+          <h2 className="font-display text-lg flex items-center gap-2"><Database className="h-5 w-5" />Dados locais</h2>
           <p className="text-sm text-muted-foreground">A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar.</p>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => {
@@ -166,9 +166,9 @@ function SecurityAndAccountCard() {
   return (
     <Card>
       <CardContent className="space-y-6 p-4">
-        <h3 className="font-display text-lg flex items-center gap-2">
+        <h2 className="font-display text-lg flex items-center gap-2">
           <ShieldCheck className="h-5 w-5" /> Segurança & Conta
-        </h3>
+        </h2>
         <p className="text-sm text-muted-foreground">Sessão ativa: <strong>{user?.email ?? "—"}</strong></p>
 
         <div className="space-y-3 rounded-lg border p-3">
@@ -310,9 +310,9 @@ function TwoFactorCard() {
   return (
     <Card>
       <CardContent className="space-y-4 p-4">
-        <h3 className="font-display text-lg flex items-center gap-2">
+        <h2 className="font-display text-lg flex items-center gap-2">
           <Smartphone className="h-5 w-5" /> Telemóvel (WhatsApp & 2FA)
-        </h3>
+        </h2>
         <p className="text-sm text-muted-foreground">
           Estado: {status.verified ? <>verificado ({status.masked ?? "—"}) <span className="text-primary">✓</span></> : <span className="text-destructive">não verificado</span>}
         </p>
