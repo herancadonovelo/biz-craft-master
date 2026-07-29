@@ -75,6 +75,7 @@ import { Route as RegistoRouteImport } from './routes/registo'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as TermosRouteImport } from './routes/termos'
@@ -431,6 +432,11 @@ const SincronizacaoRoute = SincronizacaoRouteImport.update({
   path: '/sincronizacao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
   id: '/spotify-callback',
   path: '/spotify-callback',
@@ -634,6 +640,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -727,6 +734,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -821,6 +829,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
@@ -916,6 +925,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -1009,6 +1019,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -1102,6 +1113,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
+    | '/sitemap.xml'
     | '/spotify-callback'
     | '/stock'
     | '/termos'
@@ -1196,6 +1208,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
   StockRoute: typeof StockRoute
   TermosRoute: typeof TermosRoute
@@ -1685,6 +1698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SincronizacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/spotify-callback': {
       id: '/spotify-callback'
       path: '/spotify-callback'
@@ -1952,6 +1972,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
   StockRoute: StockRoute,
   TermosRoute: TermosRoute,
