@@ -160,6 +160,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: "Recibos & Comprovativos", url: "/recibos", icon: Receipt },
       { title: "Estado dos Pagamentos", url: "/pagamentos", icon: CreditCard },
       { title: "Os Meus Reembolsos", url: "/meus-reembolsos", icon: Coins },
+      { title: "Diagnóstico de Pagamentos", url: "/diagnostico-pagamentos", icon: CreditCard },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
     ],
   },
