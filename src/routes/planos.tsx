@@ -7,7 +7,7 @@ import { Check, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from
 import { PLANS, useSubscription, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { paddlePriceIdFor, getPaddleEnvironment } from "@/lib/paddle";
-import { createPortalSession, changeSubscriptionPlan } from "@/utils/payments.functions";
+import { createPortalSession, changeSubscriptionPlan, resolvePaddleDiscount } from "@/utils/payments.functions";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/lib/auth-state";
 import { useRef, useState } from "react";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/planos")({
 
 function PlanosPage() {
   const { user } = useAuth();
-  const { plan, trialEnds, trialActive, startTrial, setPlan, loading, redeemPromoCode } = useSubscription();
+  const { plan, trialEnds, trialActive, setPlan, loading, redeemPromoCode } = useSubscription();
   const { openCheckout } = usePaddleCheckout();
   const [busy, setBusy] = useState<Plan | null>(null);
   const [portalBusy, setPortalBusy] = useState(false);
@@ -35,6 +35,7 @@ function PlanosPage() {
   const [promoBusy, setPromoBusy] = useState(false);
   const [promoFeedback, setPromoFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [promoDiscount, setPromoDiscount] = useState<{ code: string; pct: number } | null>(null);
+  const [cancelBusy, setCancelBusy] = useState(false);
   const isLifetime = plan === "premium_vitalicio";
   const promoInflight = useRef<Promise<unknown> | null>(null);
 
@@ -100,10 +101,26 @@ function PlanosPage() {
         toast.error(change.message);
         return;
       }
+      // Código promocional válido → aplica o desconto real no checkout.
+      let discountId: string | null = null;
+      if (promoDiscount) {
+        try {
+          const d = await resolvePaddleDiscount({
+            data: { code: promoDiscount.code, environment: getPaddleEnvironment() },
+          });
+          discountId = d.discountId;
+          if (!d.ok) {
+            toast.warning("O código foi validado na app, mas não está configurado no checkout. O pagamento avança sem desconto.");
+          }
+        } catch {
+          discountId = null;
+        }
+      }
       await openCheckout({
         priceId: targetPriceId,
         customerEmail: user.email ?? undefined,
         customData: { userId: user.id },
+        discountId,
         successUrl: `${window.location.origin}/planos?checkout=success`,
       });
     } catch (e) {
@@ -127,10 +144,13 @@ function PlanosPage() {
     } finally { setPortalBusy(false); }
   };
 
-  const onStartTrial = async (id: Plan) => {
-    if (!user) { toast.error("Inicia sessão para começar o teste"); return; }
-    setBusy(id);
-    try { await startTrial(id, cycle); } finally { setBusy(null); }
+  // O teste de 14 dias é agora concedido pelo processador de pagamentos:
+  // abre o checkout normal (não há cobrança durante o período experimental).
+  const onStartTrial = (id: Plan) => onSubscribe(id);
+
+  const onCancel = async () => {
+    setCancelBusy(true);
+    try { await setPlan("light"); } finally { setCancelBusy(false); }
   };
 
   return (
