@@ -21,10 +21,12 @@ import { template as subscriptionWelcome } from './subscription-welcome'
 import { template as subscriptionCanceled } from './subscription-canceled'
 import { template as paymentFailed } from './payment-failed'
 import { template as refundProcessed } from './refund-processed'
+import { template as paymentReceipt } from './payment-receipt'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'subscription-welcome': subscriptionWelcome,
   'subscription-canceled': subscriptionCanceled,
   'payment-failed': paymentFailed,
   'refund-processed': refundProcessed,
+  'payment-receipt': paymentReceipt,
 }
