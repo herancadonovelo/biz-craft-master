@@ -54,6 +54,7 @@ import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MeusReembolsosRouteImport } from './routes/meus-reembolsos'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MoedaRouteImport } from './routes/moeda'
 import { Route as MoodboardsRouteImport } from './routes/moodboards'
@@ -326,6 +327,11 @@ const MarketingConteudoRoute = MarketingConteudoRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeusReembolsosRoute = MeusReembolsosRouteImport.update({
+  id: '/meus-reembolsos',
+  path: '/meus-reembolsos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModulosRoute = ModulosRouteImport.update({
@@ -625,6 +631,7 @@ export interface FileRoutesByFullPath {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
+  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -720,6 +727,7 @@ export interface FileRoutesByTo {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
+  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -816,6 +824,7 @@ export interface FileRoutesById {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
+  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
   '/moodboards': typeof MoodboardsRouteWithChildren
@@ -913,6 +922,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
+    | '/meus-reembolsos'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -1008,6 +1018,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
+    | '/meus-reembolsos'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -1103,6 +1114,7 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
+    | '/meus-reembolsos'
     | '/modulos'
     | '/moeda'
     | '/moodboards'
@@ -1199,6 +1211,7 @@ export interface RootRouteChildren {
   MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   McpRoute: typeof McpRoute
+  MeusReembolsosRoute: typeof MeusReembolsosRoute
   ModulosRoute: typeof ModulosRoute
   MoedaRoute: typeof MoedaRoute
   MoodboardsRoute: typeof MoodboardsRouteWithChildren
@@ -1562,6 +1575,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meus-reembolsos': {
+      id: '/meus-reembolsos'
+      path: '/meus-reembolsos'
+      fullPath: '/meus-reembolsos'
+      preLoaderRoute: typeof MeusReembolsosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modulos': {
@@ -1971,6 +1991,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingCampanhasRoute: MarketingCampanhasRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
   McpRoute: McpRoute,
+  MeusReembolsosRoute: MeusReembolsosRoute,
   ModulosRoute: ModulosRoute,
   MoedaRoute: MoedaRoute,
   MoodboardsRoute: MoodboardsRouteWithChildren,

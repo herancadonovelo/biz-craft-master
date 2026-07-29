@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { imprimirRecibo } from "@/lib/print-recibo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/recibos")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ref: typeof search.ref === "string" && search.ref ? search.ref : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Recibos e comprovativos — Craft Business Master" },
@@ -67,6 +70,7 @@ function dateLabel(iso: string) {
 
 function RecibosPage() {
   const { user } = useAuth();
+  const { ref } = Route.useSearch();
   const [rows, setRows] = useState<BillingRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -96,6 +100,16 @@ function RecibosPage() {
     };
   }, [user]);
 
+  const visiveis = useMemo(
+    () =>
+      ref
+        ? rows.filter(
+            (r) => r.metadata?.transactionId === ref || r.metadata?.invoiceNumber === ref,
+          )
+        : rows,
+    [rows, ref],
+  );
+
   const print = (r: BillingRow) => {
     const ok = imprimirRecibo({
       numero: r.metadata?.receiptNumber ?? r.id.slice(0, 8).toUpperCase(),
@@ -116,17 +130,33 @@ function RecibosPage() {
         description="Cada pagamento gera um recibo enviado automaticamente por email e disponível aqui para imprimir ou guardar em PDF."
       />
 
+      {ref && (
+        <Card>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+            <p className="text-sm text-muted-foreground">
+              A mostrar apenas o recibo associado ao reembolso <strong>{ref}</strong>.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recibos" search={{ ref: undefined }}>
+                Ver todos os recibos
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {loading ? (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> A carregar recibos…
         </div>
-      ) : rows.length === 0 ? (
+      ) : visiveis.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <Receipt className="h-8 w-8 text-muted-foreground" />
             <p className="text-muted-foreground">
-              Ainda não existem recibos. Assim que fizeres um pagamento, o recibo aparece aqui e
-              chega também ao teu email.
+              {ref
+                ? "Não encontrámos um recibo para este reembolso. O recibo original pode ter sido emitido noutro ambiente de pagamento."
+                : "Ainda não existem recibos. Assim que fizeres um pagamento, o recibo aparece aqui e chega também ao teu email."}
             </p>
             <Button asChild variant="outline">
               <Link to="/planos">Ver planos</Link>
@@ -135,7 +165,7 @@ function RecibosPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {rows.map((r) => (
+          {visiveis.map((r) => (
             <Card key={r.id}>
               <CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
                 <div className="space-y-1">
