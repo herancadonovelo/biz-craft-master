@@ -4,7 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
-import { PLANS, useSubscription, handleGooglePlayPurchase, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
+import { PLANS, useSubscription, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { paddlePriceIdFor } from "@/lib/paddle";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/lib/auth-state";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/planos")({
 function PlanosPage() {
   const { user } = useAuth();
   const { plan, trialEnds, trialActive, startTrial, setPlan, loading, redeemPromoCode } = useSubscription();
+  const { openCheckout } = usePaddleCheckout();
   const [busy, setBusy] = useState<Plan | null>(null);
   const [cycle, setCycle] = useState<BillingCycle>("mensal");
   const [promoInput, setPromoInput] = useState("");
@@ -72,17 +76,19 @@ function PlanosPage() {
 
   const onSubscribe = async (id: Plan, overrideCycle?: BillingCycle) => {
     if (!user) { toast.error("Inicia sessão para subscrever"); return; }
+    if (id !== "base" && id !== "premium") return;
     setBusy(id);
     const chosen = overrideCycle ?? cycle;
     try {
-      // Placeholder: futura ligação ao Google Play
-      const res = await handleGooglePlayPurchase(id, chosen);
-      if (!res.ok) {
-        // sem billing ligado ainda — fluxo de demonstração: inicia o trial
-        await startTrial(id, chosen);
-      } else {
-        await setPlan(id, chosen);
-      }
+      await openCheckout({
+        priceId: paddlePriceIdFor(id, chosen),
+        customerEmail: user.email ?? undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/planos?checkout=success`,
+      });
+    } catch (e) {
+      console.error("[checkout]", e);
+      toast.error("Não foi possível abrir o pagamento. Tenta novamente.");
     } finally { setBusy(null); }
   };
 
@@ -94,6 +100,7 @@ function PlanosPage() {
 
   return (
     <div className="space-y-6">
+      <PaymentTestModeBanner />
       <PageHeader
         title="Planos e Subscrições"
         description="Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso."
@@ -240,7 +247,7 @@ function PlanosPage() {
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Pagamentos serão processados via Google Play assim que a integração estiver ativa. Podes cancelar a qualquer momento.
+        Pagamento seguro processado no checkout integrado. Podes cancelar a qualquer momento.
       </p>
 
       <Card>
