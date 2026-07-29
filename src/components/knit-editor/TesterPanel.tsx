@@ -14,7 +14,9 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Link2, RotateCcw, Minus, Plus, CheckCircle2, Users } from "lucide-react";
+import { Copy, Link2, RotateCcw, Minus, Plus, CheckCircle2, Users, CloudUpload } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { registerTesterLink, submitTesterFeedback } from "@/lib/tester-feedback.functions";
 import {
   loadProgress, newProgress, saveProgress, stepRow, addNote,
   pctCompleto, encodePackage, type TesterProgress, type TesterNote,
@@ -36,6 +38,9 @@ export function TesterPanel({ token, linhas, packagePayload, onProgressChange }:
   const [nota, setNota] = React.useState("");
   const [tipo, setTipo] = React.useState<TesterNote["tipo"]>("sugestao");
   const [autor, setAutor] = React.useState(progress.autor);
+  const [aEnviar, setAEnviar] = React.useState(false);
+  const registarLink = useServerFn(registerTesterLink);
+  const enviarFeedback = useServerFn(submitTesterFeedback);
 
   React.useEffect(() => { saveProgress(progress); onProgressChange?.(progress); }, [progress, onProgressChange]);
 
@@ -62,11 +67,42 @@ export function TesterPanel({ token, linhas, packagePayload, onProgressChange }:
     toast.success(`Nota gravada na carreira C${progress.atual}.`);
   };
 
-  const gerarLink = () => {
+  const gerarLink = async () => {
     if (typeof window === "undefined") return;
     const packed = encodePackage(packagePayload);
     const url = `${window.location.origin}/receita-tester-tricot/${token}#pkg=${packed}`;
-    navigator.clipboard.writeText(url).then(() => toast.success("Link copiado — envia à tua equipa de testes."));
+    const titulo = (packagePayload as { titulo?: string } | null)?.titulo ?? null;
+    try {
+      await registarLink({ data: { token, titulo, totalRows } });
+    } catch {
+      toast.error("Link copiado, mas não foi possível registá-lo na nuvem. As testers ainda podem exportar JSON.");
+    }
+    await navigator.clipboard.writeText(url);
+    toast.success("Link copiado — envia à tua equipa de testes.");
+  };
+
+  const enviarParaAutora = async () => {
+    setAEnviar(true);
+    try {
+      const res = await enviarFeedback({
+        data: {
+          token,
+          autor: autor?.trim() || "tester",
+          atual: progress.atual,
+          totalRows: progress.totalRows,
+          concluido: !!progress.concluido,
+          consumoRealG: progress.consumoRealG ?? null,
+          tamanhoUsado: progress.tamanhoUsado ?? null,
+          notas: progress.notas,
+        },
+      });
+      if (!res.ok) toast.error("Este link de teste ainda não foi registado pela autora. Exporta o JSON e envia-lho.");
+      else toast.success("Feedback enviado à autora. Podes atualizar sempre que quiseres.");
+    } catch {
+      toast.error("Não foi possível enviar o feedback. Tenta novamente ou exporta o JSON.");
+    } finally {
+      setAEnviar(false);
+    }
   };
 
   const exportarFeedback = () => {
@@ -187,7 +223,10 @@ export function TesterPanel({ token, linhas, packagePayload, onProgressChange }:
       <Card>
         <CardHeader><CardTitle className="text-base">Partilhar com testers</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Button onClick={gerarLink}><Link2 className="mr-2 h-4 w-4" /> Copiar link público</Button>
+          <Button onClick={() => void gerarLink()}><Link2 className="mr-2 h-4 w-4" /> Copiar link público</Button>
+          <Button variant="default" disabled={aEnviar} onClick={() => void enviarParaAutora()} data-testid="knit-tester-submit-cloud">
+            <CloudUpload className="mr-2 h-4 w-4" /> Enviar feedback à autora
+          </Button>
           <Button variant="outline" onClick={exportarFeedback}><Copy className="mr-2 h-4 w-4" /> Exportar feedback (JSON)</Button>
           <Button asChild variant="secondary" data-testid="knit-tester-consolidate-cta">
             <Link to="/consolidar-feedback">

@@ -149,6 +149,89 @@ export type Database = {
         }
         Relationships: []
       }
+      knit_tester_feedback: {
+        Row: {
+          atual: number
+          autor: string
+          concluido: boolean
+          consumo_real_g: number | null
+          created_at: string
+          id: string
+          link_id: string
+          notas: Json
+          tamanho_usado: string | null
+          token: string
+          total_rows: number
+          updated_at: string
+        }
+        Insert: {
+          atual?: number
+          autor?: string
+          concluido?: boolean
+          consumo_real_g?: number | null
+          created_at?: string
+          id?: string
+          link_id: string
+          notas?: Json
+          tamanho_usado?: string | null
+          token: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Update: {
+          atual?: number
+          autor?: string
+          concluido?: boolean
+          consumo_real_g?: number | null
+          created_at?: string
+          id?: string
+          link_id?: string
+          notas?: Json
+          tamanho_usado?: string | null
+          token?: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knit_tester_feedback_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "knit_tester_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knit_tester_links: {
+        Row: {
+          created_at: string
+          id: string
+          titulo: string | null
+          token: string
+          total_rows: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          titulo?: string | null
+          token: string
+          total_rows?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          titulo?: string | null
+          token?: string
+          total_rows?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"]

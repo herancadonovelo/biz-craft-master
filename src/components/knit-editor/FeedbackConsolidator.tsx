@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Trash2, Upload, FileJson } from "lucide-react";
+import { Trash2, Upload, FileJson, CloudDownload } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { listTesterFeedback, deleteTesterFeedback } from "@/lib/tester-feedback.functions";
 import { agregarFeedback, type TesterProgress } from "@/lib/knit/tester";
 
 function isTesterProgress(v: unknown): v is TesterProgress {
@@ -21,11 +23,43 @@ function isTesterProgress(v: unknown): v is TesterProgress {
 }
 
 export function FeedbackConsolidator() {
-  const [items, setItems] = React.useState<TesterProgress[]>([]);
+  const [items, setItems] = React.useState<(TesterProgress & { dbId?: string })[]>([]);
+  const [aCarregar, setACarregar] = React.useState(false);
+  const carregarNuvem = useServerFn(listTesterFeedback);
+  const apagarNuvem = useServerFn(deleteTesterFeedback);
+
+  const importarNuvem = async () => {
+    setACarregar(true);
+    try {
+      const { rows } = await carregarNuvem({ data: {} } as never);
+      const mapped: (TesterProgress & { dbId?: string })[] = rows.map((r) => ({
+        dbId: r.id,
+        token: r.token,
+        autor: r.autor,
+        atual: r.atual,
+        totalRows: r.total_rows,
+        iniciado: 0,
+        ultimo: new Date(r.updated_at).getTime(),
+        concluido: r.concluido,
+        notas: (Array.isArray(r.notas) ? r.notas : []) as unknown as TesterProgress["notas"],
+        consumoRealG: r.consumo_real_g == null ? undefined : Number(r.consumo_real_g),
+        tamanhoUsado: r.tamanho_usado ?? undefined,
+      }));
+      setItems((prev) => {
+        const semNuvem = prev.filter((p) => !p.dbId);
+        return [...mapped, ...semNuvem];
+      });
+      toast.success(mapped.length ? `${mapped.length} feedback(s) sincronizado(s) da nuvem.` : "Ainda não há feedback enviado pelas testers.");
+    } catch {
+      toast.error("Não foi possível carregar o feedback da nuvem.");
+    } finally {
+      setACarregar(false);
+    }
+  };
 
   const addFiles = async (files: FileList | null) => {
     if (!files?.length) return;
-    const novos: TesterProgress[] = [];
+    const novos: (TesterProgress & { dbId?: string })[] = [];
     for (const file of Array.from(files)) {
       try {
         const parsed = JSON.parse(await file.text());
@@ -38,7 +72,15 @@ export function FeedbackConsolidator() {
     toast.success(`${novos.length} feedback(s) importado(s).`);
   };
 
-  const remover = (idx: number) => setItems((prev) => prev.filter((_, i) => i !== idx));
+  const remover = (idx: number) => {
+    const alvo = items[idx];
+    if (alvo?.dbId) {
+      void apagarNuvem({ data: { id: alvo.dbId } })
+        .then(() => toast.success("Feedback removido da nuvem."))
+        .catch(() => toast.error("Não foi possível remover o feedback da nuvem."));
+    }
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  };
   const limpar = () => setItems([]);
 
   const resumo = React.useMemo(() => agregarFeedback(items), [items]);
@@ -61,6 +103,9 @@ export function FeedbackConsolidator() {
               onChange={(e) => addFiles(e.target.files)}
             />
           </label>
+          <Button size="sm" variant="outline" disabled={aCarregar} onClick={() => void importarNuvem()} data-testid="feedback-load-cloud">
+            <CloudDownload className="mr-2 h-4 w-4" /> Carregar feedback da nuvem
+          </Button>
           {items.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">{items.length} feedback(s) carregado(s)</span>
