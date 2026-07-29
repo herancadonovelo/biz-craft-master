@@ -73,6 +73,7 @@ import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as StockRouteImport } from './routes/stock'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
@@ -416,6 +417,11 @@ const StockRoute = StockRouteImport.update({
   path: '/stock',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TodoRoute = TodoRouteImport.update({
   id: '/todo',
   path: '/todo',
@@ -602,6 +608,7 @@ export interface FileRoutesByFullPath {
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -690,6 +697,7 @@ export interface FileRoutesByTo {
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -779,6 +787,7 @@ export interface FileRoutesById {
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -869,6 +878,7 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -957,6 +967,7 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -1045,6 +1056,7 @@ export interface FileRouteTypes {
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -1134,6 +1146,7 @@ export interface RootRouteChildren {
   SincronizacaoRoute: typeof SincronizacaoRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
   StockRoute: typeof StockRoute
+  TermosRoute: typeof TermosRoute
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
@@ -1606,6 +1619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StockRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/todo': {
       id: '/todo'
       path: '/todo'
@@ -1850,6 +1870,7 @@ const rootRouteChildren: RootRouteChildren = {
   SincronizacaoRoute: SincronizacaoRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
   StockRoute: StockRoute,
+  TermosRoute: TermosRoute,
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
