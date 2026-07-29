@@ -62,6 +62,51 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_events: {
+        Row: {
+          amount_cents: number | null
+          currency: string | null
+          environment: string
+          event_type: string
+          id: string
+          metadata: Json
+          occurred_at: string
+          paddle_subscription_id: string | null
+          price_id: string | null
+          product_id: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          currency?: string | null
+          environment?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          paddle_subscription_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          currency?: string | null
+          environment?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          paddle_subscription_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
