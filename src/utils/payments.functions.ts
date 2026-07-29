@@ -64,10 +64,10 @@ export const changeSubscriptionPlan = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!sub || !["active", "trialing", "past_due"].includes(sub.status)) {
-      return { ok: false as const, message: "Nao encontramos nenhuma subscricao ativa para alterar." };
+      return { ok: false as const, code: "no_subscription" as const, message: "Nao encontramos nenhuma subscricao ativa para alterar." };
     }
     if (sub.price_id === data.priceId) {
-      return { ok: false as const, message: "Ja estas nesse plano." };
+      return { ok: false as const, code: "same_plan" as const, message: "Ja estas nesse plano." };
     }
 
     const { gatewayFetch, getPaddleClient } = await import("@/lib/paddle.server");
@@ -76,11 +76,11 @@ export const changeSubscriptionPlan = createServerFn({ method: "POST" })
       `/prices?external_id=${encodeURIComponent(data.priceId)}`,
     );
     if (!lookup.ok) {
-      return { ok: false as const, message: "Nao foi possivel encontrar o plano escolhido." };
+      return { ok: false as const, code: "price_lookup_failed" as const, message: "Nao foi possivel encontrar o plano escolhido." };
     }
     const found = await lookup.json();
     const paddlePriceId = found.data?.[0]?.id as string | undefined;
-    if (!paddlePriceId) return { ok: false as const, message: "Plano indisponivel." };
+    if (!paddlePriceId) return { ok: false as const, code: "price_missing" as const, message: "Plano indisponivel." };
 
     const paddle = getPaddleClient(data.environment);
     await paddle.subscriptions.update(sub.paddle_subscription_id, {
