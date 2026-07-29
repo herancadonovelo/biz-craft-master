@@ -282,6 +282,7 @@ function formatAmount(cents: number | null, currency: string) {
 }
 
 async function handleTransactionCompleted(data: any, env: PaddleEnv, origin: string) {
+  await logTransactionState(data, env, "completed");
   const userId = data?.customData?.userId;
   if (!userId) return;
   const item = data?.items?.[0];
@@ -325,6 +326,34 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv, origin: str
       valor: formatAmount(amountCents, currency),
       data: formatDate(occurredAt),
       descricao,
+    },
+  });
+}
+
+/** Estado intermédio de uma transação (criada/à espera de pagamento). */
+async function logTransactionState(data: any, env: PaddleEnv, estado: "pendente" | "completed") {
+  if (estado === "completed") return; // o evento final é registado separadamente
+  const userId = data?.customData?.userId;
+  if (!userId) return;
+  const item = data?.items?.[0];
+  const priceId = item?.price?.importMeta?.externalId ?? null;
+  const productId = item?.product?.importMeta?.externalId ?? null;
+  const amountCents = data?.details?.totals?.total ? Number(data.details.totals.total) : null;
+  const descricao = `${PLAN_LABEL[productId] ?? "Subscrição"}${priceId ? ` (${cycleLabel(priceId)})` : ""}`;
+  await logBillingEvent({
+    userId,
+    eventType: "transaction_pending",
+    env,
+    subscriptionId: data?.subscriptionId ?? null,
+    productId,
+    priceId,
+    status: data?.status ?? "pending",
+    amountCents,
+    currency: data?.currencyCode ?? "EUR",
+    metadata: {
+      transactionId: data?.id ?? null,
+      descricao,
+      billedAt: data?.billedAt ?? data?.createdAt ?? new Date().toISOString(),
     },
   });
 }
@@ -444,6 +473,13 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
       break;
     case EventName.TransactionCompleted:
       await handleTransactionCompleted(event.data, env, origin);
+      break;
+    case EventName.TransactionCreated:
+    case EventName.TransactionUpdated:
+      // Só interessa enquanto o pagamento ainda não está fechado.
+      if (["draft", "ready", "billed", "past_due"].includes(String(event.data?.status ?? ""))) {
+        await logTransactionState(event.data, env, "pendente");
+      }
       break;
     case EventName.TransactionPaymentFailed:
       await handlePaymentFailed(event.data, env, origin);
