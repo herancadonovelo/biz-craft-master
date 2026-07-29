@@ -57,7 +57,7 @@ export interface RefundRecord {
   confirmed_at: string | null;
   accounted_at: string | null;
   created_at: string;
-  metadata?: Record<string, unknown> | null;
+  metadata?: Record<string, string | number | boolean | null> | null;
 }
 
 /** Estados que contam como valor comprometido (já devolvido ou a caminho). */
