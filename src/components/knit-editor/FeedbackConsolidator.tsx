@@ -41,7 +41,7 @@ export function FeedbackConsolidator() {
         iniciado: 0,
         ultimo: new Date(r.updated_at).getTime(),
         concluido: r.concluido,
-        notas: (Array.isArray(r.notas) ? r.notas : []) as TesterProgress["notas"],
+        notas: (Array.isArray(r.notas) ? r.notas : []) as unknown as TesterProgress["notas"],
         consumoRealG: r.consumo_real_g == null ? undefined : Number(r.consumo_real_g),
         tamanhoUsado: r.tamanho_usado ?? undefined,
       }));
