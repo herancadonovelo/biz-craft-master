@@ -143,7 +143,7 @@ export function ProjetosListContent() {
                         <SelectItem value="concluido">Concluído</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button variant="ghost" size="icon" onClick={() => remove("projetos", p.id)}><Trash2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Eliminar projeto ${p.nome ?? ""}`.trim()} onClick={() => remove("projetos", p.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </Card>
