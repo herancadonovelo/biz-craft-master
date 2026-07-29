@@ -68,6 +68,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
+import { Route as RecibosRouteImport } from './routes/recibos'
 import { Route as ReembolsosRouteImport } from './routes/reembolsos'
 import { Route as RegistoRouteImport } from './routes/registo'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -394,6 +395,11 @@ const QuemSomosRoute = QuemSomosRouteImport.update({
   path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecibosRoute = RecibosRouteImport.update({
+  id: '/recibos',
+  path: '/recibos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReembolsosRoute = ReembolsosRouteImport.update({
   id: '/reembolsos',
   path: '/reembolsos',
@@ -615,6 +621,7 @@ export interface FileRoutesByFullPath {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/recibos': typeof RecibosRoute
   '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -706,6 +713,7 @@ export interface FileRoutesByTo {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/recibos': typeof RecibosRoute
   '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -798,6 +806,7 @@ export interface FileRoutesById {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/recibos': typeof RecibosRoute
   '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -891,6 +900,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/recibos'
     | '/reembolsos'
     | '/registo'
     | '/reset-password'
@@ -982,6 +992,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/recibos'
     | '/reembolsos'
     | '/registo'
     | '/reset-password'
@@ -1073,6 +1084,7 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/recibos'
     | '/reembolsos'
     | '/registo'
     | '/reset-password'
@@ -1165,6 +1177,7 @@ export interface RootRouteChildren {
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   QuemSomosRoute: typeof QuemSomosRoute
+  RecibosRoute: typeof RecibosRoute
   ReembolsosRoute: typeof ReembolsosRoute
   RegistoRoute: typeof RegistoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -1610,6 +1623,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recibos': {
+      id: '/recibos'
+      path: '/recibos'
+      fullPath: '/recibos'
+      preLoaderRoute: typeof RecibosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reembolsos': {
       id: '/reembolsos'
       path: '/reembolsos'
@@ -1905,6 +1925,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   QuemSomosRoute: QuemSomosRoute,
+  RecibosRoute: RecibosRoute,
   ReembolsosRoute: ReembolsosRoute,
   RegistoRoute: RegistoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
