@@ -277,6 +277,27 @@ export type Database = {
         }
         Relationships: []
       }
+      paddle_webhook_events: {
+        Row: {
+          environment: string
+          event_id: string
+          event_type: string | null
+          processed_at: string
+        }
+        Insert: {
+          environment: string
+          event_id: string
+          event_type?: string | null
+          processed_at?: string
+        }
+        Update: {
+          environment?: string
+          event_id?: string
+          event_type?: string | null
+          processed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"]
@@ -714,6 +735,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      reconcile_expired_access: { Args: never; Returns: number }
       redeem_promo_code: { Args: { _code: string }; Returns: Json }
       refunded_cents_for_transaction: {
         Args: { _env: string; _txn_id: string }
