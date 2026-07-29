@@ -110,6 +110,8 @@ function extractHeadings(src: string): string[] {
       .replace(/<[^>]*>/g, " ")
       .replace(/\{[^{}]*\}/g, " ")
       .replace(/\(\s*[×x·\-–]?\s*\)/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .trim();
     if (inner && /[A-Za-zÀ-ÿ]{2}/.test(inner)) out.push(inner);
