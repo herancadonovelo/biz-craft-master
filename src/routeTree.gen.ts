@@ -43,6 +43,7 @@ import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digita
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
 import { Route as GestaoReembolsosRouteImport } from './routes/gestao-reembolsos'
+import { Route as GuiaPrecificacaoRouteImport } from './routes/guia-precificacao'
 import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
 import { Route as HorasRouteImport } from './routes/horas'
 import { Route as IdiomaRouteImport } from './routes/idioma'
@@ -270,6 +271,11 @@ const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
 const GestaoReembolsosRoute = GestaoReembolsosRouteImport.update({
   id: '/gestao-reembolsos',
   path: '/gestao-reembolsos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuiaPrecificacaoRoute = GuiaPrecificacaoRouteImport.update({
+  id: '/guia-precificacao',
+  path: '/guia-precificacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
@@ -608,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -702,6 +709,7 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -797,6 +805,7 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
   '/gestao-reembolsos': typeof GestaoReembolsosRoute
+  '/guia-precificacao': typeof GuiaPrecificacaoRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -893,6 +902,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -987,6 +997,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1081,6 +1092,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/gestao-fornecedores'
     | '/gestao-reembolsos'
+    | '/guia-precificacao'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1176,6 +1188,7 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
   GestaoReembolsosRoute: typeof GestaoReembolsosRoute
+  GuiaPrecificacaoRoute: typeof GuiaPrecificacaoRoute
   HistoricoFaturasRoute: typeof HistoricoFaturasRoute
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
@@ -1472,6 +1485,13 @@ declare module '@tanstack/react-router' {
       path: '/gestao-reembolsos'
       fullPath: '/gestao-reembolsos'
       preLoaderRoute: typeof GestaoReembolsosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guia-precificacao': {
+      id: '/guia-precificacao'
+      path: '/guia-precificacao'
+      fullPath: '/guia-precificacao'
+      preLoaderRoute: typeof GuiaPrecificacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico-faturas': {
@@ -1940,6 +1960,7 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
   GestaoReembolsosRoute: GestaoReembolsosRoute,
+  GuiaPrecificacaoRoute: GuiaPrecificacaoRoute,
   HistoricoFaturasRoute: HistoricoFaturasRoute,
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
