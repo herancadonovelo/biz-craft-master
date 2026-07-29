@@ -12,6 +12,9 @@ import { getPaddleEnvironment } from "@/lib/paddle";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pagamentos")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ref: typeof search.ref === "string" && search.ref ? search.ref : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Estado dos pagamentos — Craft Business Master" },
