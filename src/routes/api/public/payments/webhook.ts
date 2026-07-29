@@ -494,11 +494,19 @@ async function handleAdjustment(data: any, env: PaddleEnv, origin: string) {
 
 async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   const event = await verifyWebhook(req, env);
+  if (await alreadyProcessed((event as { eventId?: string }).eventId, event.eventType, env)) {
+    console.log("[webhook] evento repetido ignorado:", event.eventType);
+    return;
+  }
   switch (event.eventType) {
     case EventName.SubscriptionCreated:
       await handleSubscriptionCreated(event.data, env, origin);
       break;
     case EventName.SubscriptionUpdated:
+    case "subscription.paused" as any:
+    case "subscription.resumed" as any:
+    case "subscription.past_due" as any:
+    case "subscription.activated" as any:
       await handleSubscriptionUpdated(event.data, env, origin);
       break;
     case EventName.SubscriptionCanceled:
