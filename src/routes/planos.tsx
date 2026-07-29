@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, Star, Loader2, Ticket, Infinity as InfinityIcon } from "lucide-react";
 import { PLANS, useSubscription, ANNUAL_DISCOUNT_PCT, type Plan, type BillingCycle } from "@/lib/subscription";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
-import { paddlePriceIdFor } from "@/lib/paddle";
+import { paddlePriceIdFor, getPaddleEnvironment } from "@/lib/paddle";
+import { createPortalSession } from "@/utils/payments.functions";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { useAuth } from "@/lib/auth-state";
 import { useRef, useState } from "react";
@@ -28,6 +29,7 @@ function PlanosPage() {
   const { plan, trialEnds, trialActive, startTrial, setPlan, loading, redeemPromoCode } = useSubscription();
   const { openCheckout } = usePaddleCheckout();
   const [busy, setBusy] = useState<Plan | null>(null);
+  const [portalBusy, setPortalBusy] = useState(false);
   const [cycle, setCycle] = useState<BillingCycle>("mensal");
   const [promoInput, setPromoInput] = useState("");
   const [promoBusy, setPromoBusy] = useState(false);
