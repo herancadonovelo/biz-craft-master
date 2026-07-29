@@ -70,7 +70,8 @@ export function requirePlanAtLeast(required: ServerPlan) {
         : 0;
       const trialActive =
         raw !== "premium_vitalicio" && trialEnds > Date.now();
-      const effective: ServerPlan = trialActive ? "premium" : raw;
+      // O teste dá acesso ao plano em teste, não a Premium por omissão.
+      const effective: ServerPlan = trialActive ? (raw === "light" ? "base" : raw) : raw;
 
       if (RANK[effective] < RANK[required]) {
         throw new PlanRequiredError(required, effective);
