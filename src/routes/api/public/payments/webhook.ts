@@ -263,19 +263,69 @@ async function handlePaymentFailed(data: any, env: PaddleEnv, origin: string) {
   });
 }
 
-async function handleTransactionCompleted(data: any, env: PaddleEnv) {
+function receiptNumberFor(transactionId: string | null, occurredAt: string) {
+  const year = new Date(occurredAt).getFullYear();
+  const suffix = (transactionId ?? Math.random().toString(36).slice(2))
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(-8)
+    .toUpperCase();
+  return `REC-${year}-${suffix}`;
+}
+
+function formatAmount(cents: number | null, currency: string) {
+  if (cents === null) return "";
+  try {
+    return new Intl.NumberFormat("pt-PT", { style: "currency", currency }).format(cents / 100);
+  } catch {
+    return `${(cents / 100).toFixed(2)} ${currency}`;
+  }
+}
+
+async function handleTransactionCompleted(data: any, env: PaddleEnv, origin: string) {
   const userId = data?.customData?.userId;
   if (!userId) return;
   const item = data?.items?.[0];
+  const transactionId: string | null = data?.id ?? null;
+  const priceId = item?.price?.importMeta?.externalId ?? null;
+  const productId = item?.product?.importMeta?.externalId ?? null;
+  const amountCents = data?.details?.totals?.total ? Number(data.details.totals.total) : null;
+  const currency = data?.currencyCode ?? "EUR";
+  const occurredAt = data?.billedAt ?? data?.createdAt ?? new Date().toISOString();
+  const receiptNumber = receiptNumberFor(transactionId, occurredAt);
+  const descricao = `${PLAN_LABEL[productId] ?? "Subscrição"}${priceId ? ` (${cycleLabel(priceId)})` : ""}`;
+
   await logBillingEvent({
     userId,
     eventType: "transaction_completed",
     env,
     subscriptionId: data?.subscriptionId ?? null,
-    priceId: item?.price?.importMeta?.externalId ?? null,
+    productId,
+    priceId,
     status: data?.status ?? "completed",
-    amountCents: data?.details?.totals?.total ? Number(data.details.totals.total) : null,
-    currency: data?.currencyCode ?? null,
+    amountCents,
+    currency,
+    metadata: {
+      transactionId,
+      receiptNumber,
+      invoiceNumber: data?.invoiceNumber ?? null,
+      descricao,
+      billedAt: occurredAt,
+    },
+  });
+
+  // Recibo automático por email (apenas em ambiente live).
+  await sendBillingEmail({
+    origin,
+    env,
+    userId,
+    templateName: "payment-receipt",
+    idempotencyKey: `receipt:${transactionId ?? receiptNumber}`,
+    templateData: {
+      numeroRecibo: receiptNumber,
+      valor: formatAmount(amountCents, currency),
+      data: formatDate(occurredAt),
+      descricao,
+    },
   });
 }
 
@@ -393,7 +443,7 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
       await handleSubscriptionCanceled(event.data, env, origin);
       break;
     case EventName.TransactionCompleted:
-      await handleTransactionCompleted(event.data, env);
+      await handleTransactionCompleted(event.data, env, origin);
       break;
     case EventName.TransactionPaymentFailed:
       await handlePaymentFailed(event.data, env, origin);
