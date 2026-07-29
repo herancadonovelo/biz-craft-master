@@ -60,6 +60,7 @@ import { Route as MuralRouteImport } from './routes/mural'
 import { Route as NotasRouteImport } from './routes/notas'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as PlaneadorProducaoRouteImport } from './routes/planeador-producao'
 import { Route as PlanosRouteImport } from './routes/planos'
@@ -355,6 +356,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagamentosRoute = PagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
   id: '/perfil-negocio',
   path: '/perfil-negocio',
@@ -613,6 +619,7 @@ export interface FileRoutesByFullPath {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -705,6 +712,7 @@ export interface FileRoutesByTo {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -798,6 +806,7 @@ export interface FileRoutesById {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -892,6 +901,7 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
+    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -984,6 +994,7 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
+    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1076,6 +1087,7 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
+    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1169,6 +1181,7 @@ export interface RootRouteChildren {
   NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
+  PagamentosRoute: typeof PagamentosRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
   PlaneadorProducaoRoute: typeof PlaneadorProducaoRoute
   PlanosRoute: typeof PlanosRoute
@@ -1567,6 +1580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pagamentos': {
+      id: '/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof PagamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil-negocio': {
       id: '/perfil-negocio'
       path: '/perfil-negocio'
@@ -1917,6 +1937,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
+  PagamentosRoute: PagamentosRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
   PlaneadorProducaoRoute: PlaneadorProducaoRoute,
   PlanosRoute: PlanosRoute,
