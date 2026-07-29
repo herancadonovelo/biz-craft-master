@@ -53,6 +53,7 @@ export const ALWAYS_OPEN = new Set<string>([
   "/privacidade",
   "/termos",
   "/reembolsos",
+  "/gestao-reembolsos",
 ]);
 
 export function requiredPlanFor(path: string): Plan {
