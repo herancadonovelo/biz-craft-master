@@ -30,7 +30,7 @@ const SAME_OK = new Set([
   "Ponto atrás", "Nó francês", "½ ponto", "de fio", "sem match",
   "Sobreposição (mm)", "Bastidor L×A (mm)", "DPI de SVG", "Calibrar",
   "Fotos por carreira", "Modo Tester", "Padrão & Escrita", "Total linhas",
-  "Desfazer", "Refazer", "desfazer", "refazer",
+  "Desfazer", "Refazer", "desfazer", "refazer", "Granny square (layout)",
 ]);
 
 describe("glossário dos editores técnicos", () => {

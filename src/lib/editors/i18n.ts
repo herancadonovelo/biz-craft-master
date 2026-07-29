@@ -313,7 +313,7 @@ const ROWS: Row[] = [
   ["Linhas", "Rows", "Filas", "Lignes"],
   ["Colunas", "Columns", "Columnas", "Colonnes"],
   ["Grelha", "Grid", "Cuadrícula", "Grille"],
-  ["Tamanho", "Size", "Tamaño", "Taille"],
+  ["Tamanho", "Size", "Talla", "Taille"],
   ["Projeto", "Project", "Proyecto", "Projet"],
   ["Total", "Total", "Total", "Total"],
   ["Total:", "Total:", "Total:", "Total :"],
