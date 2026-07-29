@@ -114,6 +114,8 @@ export function FaturacaoCriarContent() {
                           <SelectItem value="rascunho">Rascunho</SelectItem>
                           <SelectItem value="emitida">Emitida</SelectItem>
                           <SelectItem value="paga">Paga</SelectItem>
+                          <SelectItem value="parcialmente_reembolsada">Parc. reembolsada</SelectItem>
+                          <SelectItem value="reembolsada">Reembolsada</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
