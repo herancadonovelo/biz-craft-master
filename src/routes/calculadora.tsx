@@ -151,7 +151,7 @@ export const Route = createFileRoute("/calculadora")({
                       <Label className="block">Subtotal</Label>
                       <span className="font-display">{formatEUR((m?.precoCompra ?? 0) * l.quantidade)}</span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => rm(l.id)}><Trash2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Remover material ${m?.nome ?? ""}`.trim()} onClick={() => rm(l.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 );
               })}
