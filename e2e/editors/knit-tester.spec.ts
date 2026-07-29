@@ -37,9 +37,12 @@ test.describe("Editor de Tricô — Fase 6 (Testadores & UX)", () => {
     // Link público — permite ao browser copiar sem prompt.
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.getByRole("button", { name: /Copiar link público/i }).click();
+    // A cópia é assíncrona (gera o pacote antes de escrever no clipboard):
+    // aguarda até o clipboard conter o link em vez de ler uma única vez.
+    await expect
+      .poll(async () => page.evaluate(() => navigator.clipboard.readText()), { timeout: 20_000 })
+      .toMatch(/\/receita-tester-tricot\/.*#pkg=/s);
     const url: string = await page.evaluate(() => navigator.clipboard.readText());
-    expect(url).toContain("/receita-tester-tricot/");
-    expect(url).toMatch(/#pkg=/);
 
     // A página pública abre com o pacote e mostra o contador.
     await page.goto(url.replace(/^https?:\/\/[^/]+/, ""));
