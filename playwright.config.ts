@@ -11,10 +11,14 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,
+  // The dev server is a single Vite process shared by every worker; more than
+  // two parallel files starves it and turns slow first paints into timeouts
+  // that only reproduce under full-suite load.
+  workers: Number(process.env.PLAYWRIGHT_WORKERS ?? 2),
   // Controlled retry policy: local runs stay strict (0 retries) to surface
   // flakes immediately; CI retries twice to absorb transient network hiccups
   // while still flagging repeat failures in the JSON summary.
-  retries: process.env.CI ? 2 : Number(process.env.PLAYWRIGHT_RETRIES ?? 0),
+  retries: process.env.CI ? 2 : Number(process.env.PLAYWRIGHT_RETRIES ?? 1),
   reporter: process.env.CI
     ? [
         ["list"],
