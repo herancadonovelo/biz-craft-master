@@ -156,6 +156,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: "Backup & Restauro", url: "/backup", icon: HardDriveDownload },
       { title: "Planos & Subscrições", url: "/planos", icon: Crown },
       { title: "Reembolsos & Cancelamentos", url: "/gestao-reembolsos", icon: Coins },
+      { title: "Recibos & Comprovativos", url: "/recibos", icon: Receipt },
       { title: t("nav.modules"), url: "/modulos", icon: ToggleLeft },
     ],
   },
