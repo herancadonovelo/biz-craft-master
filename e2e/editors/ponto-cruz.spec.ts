@@ -36,11 +36,9 @@ test.describe("Editor · Ponto Cruz", () => {
     const redo = panel.getByTitle(/Refazer/i).first();
     await expect(undo).toBeDisabled();
 
-    const box = (await canvas.boundingBox())!;
-    for (const [dx, dy] of [[20, 20], [40, 20], [60, 40]]) {
-      await page.mouse.move(box.x + dx, box.y + dy);
-      await page.mouse.down();
-      await page.mouse.up();
+    await canvas.scrollIntoViewIfNeeded();
+    for (const [x, y] of [[20, 20], [40, 20], [60, 40]]) {
+      await canvas.click({ position: { x, y } });
     }
 
     await expect(undo).toBeEnabled();
