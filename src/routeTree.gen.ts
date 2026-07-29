@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
+import { Route as AuditoriaPagamentosRouteImport } from './routes/auditoria-pagamentos'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as BackupRouteImport } from './routes/backup'
@@ -123,6 +124,11 @@ const AssistenteRoute = AssistenteRouteImport.update({
 const AtelierSoundsRoute = AtelierSoundsRouteImport.update({
   id: '/atelier-sounds',
   path: '/atelier-sounds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditoriaPagamentosRoute = AuditoriaPagamentosRouteImport.update({
+  id: '/auditoria-pagamentos',
+  path: '/auditoria-pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -596,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
+  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -693,6 +700,7 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
+  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -791,6 +799,7 @@ export interface FileRoutesById {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
+  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -890,6 +899,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
+    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -987,6 +997,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
+    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -1084,6 +1095,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
+    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -1182,6 +1194,7 @@ export interface RootRouteChildren {
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   AtelierSoundsRoute: typeof AtelierSoundsRoute
+  AuditoriaPagamentosRoute: typeof AuditoriaPagamentosRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   BackupRoute: typeof BackupRoute
@@ -1301,6 +1314,13 @@ declare module '@tanstack/react-router' {
       path: '/atelier-sounds'
       fullPath: '/atelier-sounds'
       preLoaderRoute: typeof AtelierSoundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auditoria-pagamentos': {
+      id: '/auditoria-pagamentos'
+      path: '/auditoria-pagamentos'
+      fullPath: '/auditoria-pagamentos'
+      preLoaderRoute: typeof AuditoriaPagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1970,6 +1990,7 @@ const rootRouteChildren: RootRouteChildren = {
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   AtelierSoundsRoute: AtelierSoundsRoute,
+  AuditoriaPagamentosRoute: AuditoriaPagamentosRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   BackupRoute: BackupRoute,
