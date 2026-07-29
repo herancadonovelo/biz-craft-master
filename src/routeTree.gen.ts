@@ -32,6 +32,7 @@ import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as DiagnosticoPagamentosRouteImport } from './routes/diagnostico-pagamentos'
 import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
@@ -217,6 +218,11 @@ const DesignRoute = DesignRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticoPagamentosRoute = DiagnosticoPagamentosRouteImport.update({
+  id: '/diagnostico-pagamentos',
+  path: '/diagnostico-pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorMoodboardsRoute = EditorMoodboardsRouteImport.update({
@@ -609,6 +615,7 @@ export interface FileRoutesByFullPath {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -705,6 +712,7 @@ export interface FileRoutesByTo {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -802,6 +810,7 @@ export interface FileRoutesById {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
+  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -900,6 +909,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -996,6 +1006,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -1092,6 +1103,7 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
+    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -1189,6 +1201,7 @@ export interface RootRouteChildren {
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
+  DiagnosticoPagamentosRoute: typeof DiagnosticoPagamentosRoute
   EditorMoodboardsRoute: typeof EditorMoodboardsRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
@@ -1421,6 +1434,13 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostico-pagamentos': {
+      id: '/diagnostico-pagamentos'
+      path: '/diagnostico-pagamentos'
+      fullPath: '/diagnostico-pagamentos'
+      preLoaderRoute: typeof DiagnosticoPagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor-moodboards': {
@@ -1969,6 +1989,7 @@ const rootRouteChildren: RootRouteChildren = {
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
+  DiagnosticoPagamentosRoute: DiagnosticoPagamentosRoute,
   EditorMoodboardsRoute: EditorMoodboardsRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
