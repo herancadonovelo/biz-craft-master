@@ -130,6 +130,7 @@ function agrupar(rows: BillingRow[]): Pagamento[] {
 
 function PagamentosPage() {
   const { user } = useAuth();
+  const { ref } = Route.useSearch();
   const [rows, setRows] = useState<BillingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [live, setLive] = useState(false);
@@ -186,9 +187,13 @@ function PagamentosPage() {
   }, [user, carregar]);
 
   const pagamentos = useMemo(() => agrupar(rows), [rows]);
-  const visiveis = useMemo(
+  const porFiltro = useMemo(
     () => (filtro === "todos" ? pagamentos : pagamentos.filter((p) => p.estado === filtro)),
     [pagamentos, filtro],
+  );
+  const visiveis = useMemo(
+    () => (ref ? pagamentos.filter((p) => p.key === ref || p.referencia === ref) : porFiltro),
+    [ref, pagamentos, porFiltro],
   );
 
   const resumo = useMemo(() => {
@@ -213,6 +218,21 @@ function PagamentosPage() {
           <RefreshCw className="mr-2 h-4 w-4" /> Atualizar
         </Button>
       </div>
+
+      {ref && (
+        <Card>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+            <p className="text-sm text-muted-foreground">
+              A mostrar apenas o pagamento associado ao reembolso <strong>{ref}</strong>.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/pagamentos" search={{}}>
+                Ver todos os pagamentos
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-3">
         {(["pendente", "pago", "falhado"] as Estado[]).map((e) => {
