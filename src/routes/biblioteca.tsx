@@ -124,7 +124,7 @@ function Grelha({ items, tt, remove, setAberto }: { items: any[]; tt: (s: string
         <Card key={b.id}><CardContent className="space-y-2 p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /><span className="font-display font-semibold">{tt(b.titulo)}</span></div>
-                <Button size="icon" variant="ghost" onClick={() => remove("biblioteca", b.id)}><Trash2 className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" aria-label={`Eliminar ${b.titulo}`} onClick={() => remove("biblioteca", b.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>
               {ehImagem(b.ficheiroBase64) && (
                 <button onClick={() => setAberto(b.id)} className="block w-full">
