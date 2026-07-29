@@ -171,9 +171,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const setPlan = async (next: Plan, cycle: BillingCycle = billingCycle) => {
     if (!user) { toast.error("Inicia sessão para alterar o plano"); return; }
     if (next === "light") {
-      let res: { ok: boolean; accessUntil?: string | null; immediate?: boolean } | null = null;
+      type CancelRes = { ok: boolean; accessUntil?: string | null; immediate?: boolean };
+      let res: CancelRes | null = null;
       try {
-        res = (await cancelSubscriptionFn()) as typeof res;
+        res = (await cancelSubscriptionFn()) as unknown as CancelRes;
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Falha a cancelar plano");
         return;
