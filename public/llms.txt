@@ -1,0 +1,21 @@
+# Craft Business Master
+
+> Aplicação de gestão para negócios de artesanato: encomendas, stock, custo de materiais, preços, faturação e portefólio.
+
+Craft Business Master ajuda ateliers de tricotin, crochê, ponto cruz, amigurumi e costura a gerir o negócio num só sítio: calcular preços justos, controlar stock e despesas, acompanhar encomendas e emitir faturas.
+
+## Pages
+
+- [Painel](/): Visão geral do negócio — cash flow, encomendas e projetos em curso.
+- [Quem Somos](/quem-somos): A história por trás do projeto.
+- [Planos](/planos): Planos Light, Base e Premium, com 14 dias grátis nos planos pagos.
+- [Guia de precificação](/guia-precificacao): Como precificar artesanato passo a passo.
+- [Portefólio](/portfolio): Galeria de projetos de artesanato.
+- [Ajuda (FAQ)](/ajuda): Perguntas frequentes sobre a aplicação.
+- [Contacto](/contacto): Suporte e parcerias.
+
+## Optional
+
+- [Termos e Condições](/termos): Condições de utilização do serviço.
+- [Política de Privacidade](/privacidade): Como tratamos os dados pessoais.
+- [Política de Reembolsos](/reembolsos): Regras de reembolso e cancelamento.
