@@ -264,8 +264,9 @@ function PlanosPage() {
 
                 <div className="mt-auto space-y-2 pt-2">
                   {isFree ? (
-                    <Button variant="outline" className="w-full" disabled={isCurrent} onClick={() => setPlan("light")}>
-                      {isCurrent ? "Plano atual" : "Usar plano gratuito"}
+                    <Button variant="outline" className="w-full" disabled={isCurrent || cancelBusy} onClick={onCancel}>
+                      {cancelBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      {isCurrent ? "Plano atual" : "Cancelar subscrição e usar plano gratuito"}
                     </Button>
                   ) : (
                     <div className="grid gap-2 sm:grid-cols-2">
@@ -299,6 +300,11 @@ function PlanosPage() {
                     >
                       Começar Teste Gratuito de 14 Dias
                     </Button>
+                  )}
+                  {p.trial && (
+                    <p className="text-center text-[11px] leading-snug text-muted-foreground">
+                      Cartão necessário. Nada é cobrado nos primeiros 14 dias e podes cancelar antes do fim.
+                    </p>
                   )}
                 </div>
               </CardContent>
