@@ -2,13 +2,14 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, UserPlus } from "lucide-react";
+import { CalendarIcon, Loader2, Ticket, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth-state";
 import { consumeIntendedPath } from "@/components/AuthGate";
 import { logSessionEvent } from "@/lib/session-telemetry";
+import { savePendingPromoCode, normalizePromoCode, PROMO_CODE_PATTERN } from "@/lib/pending-promo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,10 @@ const registoSchema = z.object({
   password: passwordSchema,
   confirmPassword: z.string(),
   marketingOptIn: z.boolean(),
+  promoCode: z.string().trim().toUpperCase()
+    .regex(PROMO_CODE_PATTERN, "Código inválido (3-40 caracteres: letras, números, - ou _).")
+    .optional()
+    .or(z.literal("")),
   termsAccepted: z.literal(true, { error: "Tem de aceitar os Termos e Condições." }),
   privacyAccepted: z.literal(true, { error: "Tem de aceitar a Política de Privacidade." }),
 }).refine((d) => d.password === d.confirmPassword, {
@@ -66,7 +71,7 @@ const registoSchema = z.object({
 type FormState = {
   firstName: string; lastName: string; birthDate?: Date; company: string;
   nationality: string; country: string; email: string; password: string;
-  confirmPassword: string; marketingOptIn: boolean;
+  confirmPassword: string; marketingOptIn: boolean; promoCode: string;
   termsAccepted: boolean; privacyAccepted: boolean;
 };
 
@@ -87,7 +92,7 @@ function RegistoPage() {
   const [form, setForm] = useState<FormState>({
     firstName: "", lastName: "", birthDate: undefined, company: "",
     nationality: "", country: "", email: "", password: "", confirmPassword: "",
-    marketingOptIn: false, termsAccepted: false, privacyAccepted: false,
+    marketingOptIn: false, promoCode: "", termsAccepted: false, privacyAccepted: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -133,6 +138,7 @@ function RegistoPage() {
           nationality: data.nationality,
           country: data.country,
           marketing_opt_in: data.marketingOptIn,
+          promo_code: data.promoCode || null,
           terms_accepted_at: nowIso,
           privacy_accepted_at: nowIso,
         },
@@ -150,8 +156,11 @@ function RegistoPage() {
       }
       return;
     }
+    if (data.promoCode) savePendingPromoCode(data.promoCode);
     toast.success("Registo efetuado!", {
-      description: "Se não receberes o email de confirmação nos próximos minutos, verifica a tua pasta de Spam.",
+      description: data.promoCode
+        ? "O teu código promocional será aplicado automaticamente no primeiro acesso. Se não receberes o email de confirmação nos próximos minutos, verifica a pasta de Spam."
+        : "Se não receberes o email de confirmação nos próximos minutos, verifica a tua pasta de Spam.",
       duration: 12000,
     });
     nav({ to: "/auth" });
@@ -300,6 +309,27 @@ function RegistoPage() {
               </li>
             ))}
           </ul>
+
+          <div>
+            <Label className="flex items-center gap-2">
+              <Ticket className="h-4 w-4" /> Código promocional (opcional)
+            </Label>
+            <Input
+              value={form.promoCode}
+              onChange={(e) => set("promoCode", normalizePromoCode(e.target.value))}
+              placeholder="Ex.: BEMVINDA2026"
+              maxLength={40}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {errors.promoCode ? (
+              <p className="mt-1 text-xs text-destructive">{errors.promoCode}</p>
+            ) : (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tens um código? Introduz aqui — é aplicado automaticamente no teu primeiro acesso.
+              </p>
+            )}
+          </div>
 
           <div className="space-y-2 rounded-md border border-border p-3">
             <label className="flex items-start gap-2 text-sm">
