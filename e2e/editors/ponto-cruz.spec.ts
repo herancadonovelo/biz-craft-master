@@ -29,10 +29,11 @@ test.describe("Editor · Ponto Cruz", () => {
     const { errors } = trackConsoleErrors(page);
     await openEditorTab(page, /ponto cruz/i);
 
-    const canvas = page.locator("canvas").first();
+    const panel = page.locator('[role="tabpanel"][data-state="active"]');
+    const canvas = panel.locator("canvas").first();
     await expect(canvas).toBeVisible();
-    const undo = page.getByTitle(/Desfazer/i);
-    const redo = page.getByTitle(/Refazer/i);
+    const undo = panel.getByTitle(/Desfazer/i).first();
+    const redo = panel.getByTitle(/Refazer/i).first();
     await expect(undo).toBeDisabled();
 
     const box = (await canvas.boundingBox())!;
