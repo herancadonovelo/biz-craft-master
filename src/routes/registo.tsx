@@ -317,6 +317,9 @@ function RegistoPage() {
                 onCheckedChange={(v) => set("termsAccepted", v === true)}
                 className="mt-0.5"
               />
+                onCheckedChange={(v) => set("termsAccepted", v === true)}
+                className="mt-0.5"
+              />
               <span>
                 Li e concordo com os{" "}
                 <a href={termosPdf.url} target="_blank" rel="noopener noreferrer" className="underline">Termos e Condições</a>{" "}
