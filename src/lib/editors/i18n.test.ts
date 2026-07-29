@@ -71,3 +71,60 @@ describe("glossário dos editores técnicos", () => {
     expect(editorTranslate("en", "string inexistente")).toBeUndefined();
   });
 });
+
+import fs from "node:fs";
+import path from "node:path";
+import { knitTranslate } from "../knit/i18n";
+
+/** Ficheiros dos editores técnicos (excepto o editor de tricô). */
+const SOURCES = [
+  "src/components/amigurumi-editor",
+  "src/components/embroidery",
+  "src/components/CosturaEditor.tsx",
+  "src/components/PontoCruzEditor.tsx",
+  "src/components/TricotinProPanel.tsx",
+];
+
+function readPanels(): { file: string; src: string }[] {
+  const out: { file: string; src: string }[] = [];
+  for (const entry of SOURCES) {
+    const abs = path.resolve(process.cwd(), entry);
+    if (!fs.existsSync(abs)) continue;
+    if (fs.statSync(abs).isDirectory()) {
+      for (const f of fs.readdirSync(abs)) {
+        if (f.endsWith(".tsx")) out.push({ file: f, src: fs.readFileSync(path.join(abs, f), "utf8") });
+      }
+    } else {
+      out.push({ file: path.basename(abs), src: fs.readFileSync(abs, "utf8") });
+    }
+  }
+  return out;
+}
+
+function extractHeadings(src: string): string[] {
+  const out: string[] = [];
+  const re = /<(CardTitle|TabsTrigger)\b[^>]*>([\s\S]*?)<\/\1>/g;
+  for (const m of src.matchAll(re)) {
+    const inner = m[2]
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\{[^{}]*\}/g, " ")
+      .replace(/\(\s*[×x·\-–]?\s*\)/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (inner && /[A-Za-zÀ-ÿ]{2}/.test(inner)) out.push(inner);
+  }
+  return out;
+}
+
+describe("cobertura dos painéis dos editores técnicos", () => {
+  it("traduz todos os títulos e separadores visíveis", () => {
+    const missing: string[] = [];
+    for (const { file, src } of readPanels()) {
+      for (const heading of extractHeadings(src)) {
+        if (editorTranslate("en", heading) || knitTranslate("en", heading)) continue;
+        missing.push(`${file}: "${heading}"`);
+      }
+    }
+    expect(missing, `sem tradução no glossário:\n${missing.join("\n")}`).toEqual([]);
+  });
+});
