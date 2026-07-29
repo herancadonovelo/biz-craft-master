@@ -22,7 +22,43 @@ function readImage(file: File): Promise<string> {
 }
 
 export const Route = createFileRoute("/portfolio")({
-  head: () => ({ meta: [{ title: "Portefólio" }] }),
+  head: () => ({
+    meta: [
+      { title: "Portefólio — Craft Business Master" },
+      {
+        name: "description",
+        content:
+          "Galeria de projetos de artesanato criados no atelier: técnicas, ano e cliente de cada peça.",
+      },
+      { property: "og:title", content: "Portefólio — Craft Business Master" },
+      {
+        property: "og:description",
+        content: "Galeria de projetos de artesanato criados no atelier.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/portfolio" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/portfolio" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Portefólio de projetos de artesanato",
+          description:
+            "Galeria de projetos de artesanato criados no atelier, com técnica, ano e cliente.",
+          url: "https://craftbusinessmaster.com/portfolio",
+          isPartOf: {
+            "@type": "WebSite",
+            name: "Craft Business Master",
+            url: "https://craftbusinessmaster.com",
+          },
+        }),
+      },
+    ],
+  }),
   component: () => {
     const { portfolio, add, remove, update, design } = useStore();
     const [form, setForm] = useState({ titulo: "", descricao: "", tecnica: "", ano: String(new Date().getFullYear()), cliente: "", imagem: "" });
