@@ -8,7 +8,25 @@ import { toast } from "sonner";
 const EMAIL = "craftbusinessmaster@gmail.com";
 
 export const Route = createFileRoute("/contacto")({
-  head: () => ({ meta: [{ title: "Contacte-nos" }] }),
+  head: () => ({
+    meta: [
+      { title: "Contacte-nos — Craft Business Master" },
+      {
+        name: "description",
+        content:
+          "Fale com a equipa do Craft Business Master para suporte, dúvidas sobre subscrições ou parcerias.",
+      },
+      { property: "og:title", content: "Contacte-nos — Craft Business Master" },
+      {
+        property: "og:description",
+        content: "Fale connosco para suporte ou parcerias.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftbusinessmaster.com/contacto" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftbusinessmaster.com/contacto" }],
+  }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Contacte-nos" description="Fale connosco para suporte ou parcerias." />
