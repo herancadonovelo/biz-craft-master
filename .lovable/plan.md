@@ -1,56 +1,26 @@
-# Editor de Gráficos: Tricô
+## Tarefa em pausa: páginas legais para ativar pagamentos reais
 
-Adicionar novo separador **"Editor de Gráficos: Tricô"** dentro de `/ferramentas-tecnicas`, gated por Premium (mesma proteção dos restantes editores técnicos). Dado o volume (~40 funcionalidades), entrego em 7 fases correspondentes às 7 categorias do pedido — cada fase é um commit funcional independente, com painel dedicado e testes.
+Estado atual verificado:
+- Os produtos (Base/Premium, mensal/anual), o checkout e os webhooks já funcionam em modo de teste.
+- A verificação do Paddle está bloqueada: falta publicar e falta o "readiness check", que exige três páginas públicas.
+- Existe `/privacidade`, mas está atrás do login e não cumpre os requisitos (não identifica o responsável pelos dados nem menciona o Paddle).
+- Não existe página de Termos e Condições nem de Política de Reembolsos.
 
-## Arquitetura (comum a todas as fases)
+## O que vou fazer
 
-- `src/lib/knit/` — motor puro (sem React):
-  - `dicionario.ts` — símbolos standard + PT/US/UK + auto-complete
-  - `chart.ts` — modelo `Chart` (grelha, WS rows escondidas, repeats)
-  - `chart-to-text.ts` — tradução gráfico → texto por carreira
-  - `gauge.ts` — matemática de tensão / escalonamento / múltiplos
-  - `colorwork.ts` — pixel-art, contagem por cor, float tracker, inversão
-  - `construction.ts` — top-down raglan, sock wizard, marcadores
-  - `presets-fios.ts` — paletas Drops / Rowan / Malabrigo
-  - `export.ts` — PDF printer-friendly, SVG vetorial, Ravelry JSON
-- `src/components/knit-editor/KnitEditor.tsx` — shell com sub-tabs (uma por categoria)
-- `src/components/knit-editor/Chart*.tsx`, `Grading*.tsx`, `Colorwork*.tsx`, etc.
-- Novo tab em `src/routes/ferramentas-tecnicas.tsx` (Premium-gated via `PremiumRoute`).
-- Persistência: `localStorage` chave `cbm:knit-editor:<projectId>` + sync opcional via `SupabaseSync`.
-- i18n: chaves novas em `src/lib/i18n.ts` (PT/EN/ES/FR).
-- Moeda: preços via `formatCurrency` global (nunca símbolos hardcoded).
+1. **Nova página `/termos`** — Termos e Condições: identificação do vendedor, declaração de que o Paddle é o Merchant of Record (vendedor oficial), uso aceitável, propriedade intelectual, suspensão de contas e lei aplicável.
+2. **Nova página `/reembolsos`** — Política de Reembolsos com prazo de 14 dias, processo de pedido e prazos de devolução. Sem linguagem do tipo "sem reembolsos".
+3. **Atualizar `/privacidade`** — identificar o vendedor como responsável pelo tratamento de dados, listar as categorias de dados recolhidos e nomear o Paddle como destinatário de dados.
+4. **Tornar as três páginas públicas** — acessíveis sem login (obrigatório para a revisão do Paddle) e ligadas no rodapé/menu de ajuda para o revisor as encontrar.
+5. **Metadados SEO** próprios em cada página e verificação de que abrem sem sessão iniciada.
 
-## Fase 1 — Editor de Gráficos Visuais (Charts & Lace)
-Grelha SVG interativa, biblioteca de símbolos drag-and-drop, Cable Creator, tradução gráfico→texto, ocultar WS rows, seleção de repeats com moldura vermelha, símbolos personalizáveis persistidos.
+Depois disto: publicar a app e preencher o formulário de verificação no separador Pagamentos (as restantes etapas são automáticas do lado do Paddle).
 
-## Fase 2 — Matemática e Escalonamento
-Gauge Math, Auto-Grading multi-tamanho (XS–XXL), parênteses dinâmicos, validador de simetria de diminuições, calculadora de cavas/decotes, verificador de múltiplos, buttonhole spacing.
+## Preciso de te confirmar antes de escrever
 
-## Fase 3 — Colorwork / Fair Isle
-Pixel-art grid, consumo de lã por cor via gauge, float tracker (>N malhas seguidas), inversão instantânea, paletas Drops/Rowan/Malabrigo com swatches reais.
+- Nome legal do vendedor (empresa registada ou o teu nome, se vendes como particular).
+- País/morada de faturação e email de apoio ao cliente a indicar nas páginas.
 
-## Fase 4 — Construção e Acessórios
-Wizard Top-Down Raglan, Sock Wizard por tamanho de pé, toggle Circular/Reta a reescrever direção, gestão de marcadores com contagem entre eles.
+## Notas técnicas
 
-## Fase 5 — Escrita e Dicionários
-Auto-complete PT, gerador de legenda que varre o texto, conversor mm↔US↔UK, dicionário PT/US/UK (bind off vs cast off), organizador de fases (accordion), formatação `*...*` para repetições.
-
-## Fase 6 — Testadores e Experiência do Cliente
-Modo "Contador de Carreiras" mobile-friendly (progresso persistido), Row Highlighter, formulário público para testers (rota `/receita-tester-tricot/$token`) que agrega consumos reais.
-
-## Fase 7 — Custo, Stock e Exportação
-Preificador cruzando horas + custo de meadas do inventário, PDF printer-friendly (P&B, sem fotos), export SVG vetorial, JSON compatível com Ravelry, links/QR para vídeos de técnicas, simulador de textura (mohair/seda), capa automática com dificuldade em estrelas, dark mode dedicado para gráficos.
-
-## Testes (por fase)
-- Unit (Vitest): motor puro (`chart-to-text`, `gauge`, `float tracker`, conversores).
-- E2E (Playwright) em `e2e/editors/knit.spec.ts`: abrir tab, gate Premium, desenhar 3 símbolos → texto gerado, exportar PDF/SVG sem erros, contador de carreiras persiste.
-- CI: acrescentar à suite existente `.github/workflows/e2e.yml`.
-
-## Detalhes técnicos relevantes
-- Grelha renderizada em SVG (não canvas) para exportação vetorial nativa e zoom sem pixelização.
-- `useDeferredValue` na tradução gráfico→texto para grelhas grandes.
-- PDF via `pdf-lib` (já usado no projeto), reaproveitando helpers de `src/lib/amigurumi/pdf.ts`.
-- Símbolos como componentes SVG puros para permitir dark-mode via `currentColor`.
-
-## Confirmação
-Confirmas que avanço fase-a-fase (começando pela Fase 1) com commits separados? Se preferires um subset (ex: só Fases 1–3 agora), diz qual.
+Novas rotas em `src/routes/termos.tsx` e `src/routes/reembolsos.tsx`, ambas adicionadas a `PUBLIC_ROUTES` em `src/components/AuthGate.tsx` juntamente com `/privacidade`. Design alinhado com `/quem-somos` (minimalista, tons pastel, tokens do tema).

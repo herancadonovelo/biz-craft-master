@@ -67,12 +67,14 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProjetoPersonalizadoRouteImport } from './routes/projeto-personalizado'
 import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
+import { Route as ReembolsosRouteImport } from './routes/reembolsos'
 import { Route as RegistoRouteImport } from './routes/registo'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SessaoExpiradaRouteImport } from './routes/sessao-expirada'
 import { Route as SincronizacaoRouteImport } from './routes/sincronizacao'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as StockRouteImport } from './routes/stock'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
@@ -386,6 +388,11 @@ const QuemSomosRoute = QuemSomosRouteImport.update({
   path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReembolsosRoute = ReembolsosRouteImport.update({
+  id: '/reembolsos',
+  path: '/reembolsos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegistoRoute = RegistoRouteImport.update({
   id: '/registo',
   path: '/registo',
@@ -414,6 +421,11 @@ const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
 const StockRoute = StockRouteImport.update({
   id: '/stock',
   path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TodoRoute = TodoRouteImport.update({
@@ -596,12 +608,14 @@ export interface FileRoutesByFullPath {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -684,12 +698,14 @@ export interface FileRoutesByTo {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -773,12 +789,14 @@ export interface FileRoutesById {
   '/projeto-personalizado': typeof ProjetoPersonalizadoRoute
   '/projetos': typeof ProjetosRoute
   '/quem-somos': typeof QuemSomosRoute
+  '/reembolsos': typeof ReembolsosRoute
   '/registo': typeof RegistoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sessao-expirada': typeof SessaoExpiradaRoute
   '/sincronizacao': typeof SincronizacaoRoute
   '/spotify-callback': typeof SpotifyCallbackRoute
   '/stock': typeof StockRoute
+  '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
@@ -863,12 +881,14 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reembolsos'
     | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -951,12 +971,14 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reembolsos'
     | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -1039,12 +1061,14 @@ export interface FileRouteTypes {
     | '/projeto-personalizado'
     | '/projetos'
     | '/quem-somos'
+    | '/reembolsos'
     | '/registo'
     | '/reset-password'
     | '/sessao-expirada'
     | '/sincronizacao'
     | '/spotify-callback'
     | '/stock'
+    | '/termos'
     | '/todo'
     | '/vendas'
     | '/whatsapp'
@@ -1128,12 +1152,14 @@ export interface RootRouteChildren {
   ProjetoPersonalizadoRoute: typeof ProjetoPersonalizadoRoute
   ProjetosRoute: typeof ProjetosRoute
   QuemSomosRoute: typeof QuemSomosRoute
+  ReembolsosRoute: typeof ReembolsosRoute
   RegistoRoute: typeof RegistoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SessaoExpiradaRoute: typeof SessaoExpiradaRoute
   SincronizacaoRoute: typeof SincronizacaoRoute
   SpotifyCallbackRoute: typeof SpotifyCallbackRoute
   StockRoute: typeof StockRoute
+  TermosRoute: typeof TermosRoute
   TodoRoute: typeof TodoRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
@@ -1564,6 +1590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reembolsos': {
+      id: '/reembolsos'
+      path: '/reembolsos'
+      fullPath: '/reembolsos'
+      preLoaderRoute: typeof ReembolsosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/registo': {
       id: '/registo'
       path: '/registo'
@@ -1604,6 +1637,13 @@ declare module '@tanstack/react-router' {
       path: '/stock'
       fullPath: '/stock'
       preLoaderRoute: typeof StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/todo': {
@@ -1844,12 +1884,14 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetoPersonalizadoRoute: ProjetoPersonalizadoRoute,
   ProjetosRoute: ProjetosRoute,
   QuemSomosRoute: QuemSomosRoute,
+  ReembolsosRoute: ReembolsosRoute,
   RegistoRoute: RegistoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SessaoExpiradaRoute: SessaoExpiradaRoute,
   SincronizacaoRoute: SincronizacaoRoute,
   SpotifyCallbackRoute: SpotifyCallbackRoute,
   StockRoute: StockRoute,
+  TermosRoute: TermosRoute,
   TodoRoute: TodoRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
