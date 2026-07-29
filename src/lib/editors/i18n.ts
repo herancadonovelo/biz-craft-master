@@ -332,6 +332,19 @@ const ROWS: Row[] = [
   ["Material", "Material", "Material", "Matériau"],
   ["Custo", "Cost", "Coste", "Coût"],
   ["Stock", "Stock", "Stock", "Stock"],
+  ["CBM · Stock & Preço", "CBM · Stock & Price", "CBM · Stock y Precio", "CBM · Stock & Prix"],
+  ["Enchimento / Arame", "Stuffing / Wire", "Relleno / Alambre", "Rembourrage / Fil de fer"],
+  ["Tapestry / Granny", "Tapestry / Granny", "Tapestry / Granny", "Tapestry / Granny"],
+  ["Modo Foco", "Focus mode", "Modo enfoque", "Mode concentration"],
+  ["Redimensionar por agulha", "Resize by hook", "Redimensionar por ganchillo", "Redimensionner par crochet"],
+  ["Matriz tapestry / C2C", "Tapestry / C2C matrix", "Matriz tapestry / C2C", "Matrice tapestry / C2C"],
+  ["Pacote Ravelry / Etsy", "Ravelry / Etsy bundle", "Paquete Ravelry / Etsy", "Pack Ravelry / Etsy"],
+  ["Partilha com testers", "Sharing with testers", "Compartir con testers", "Partage avec les testeuses"],
+  ["Pixel-art / C2C", "Pixel art / C2C", "Pixel art / C2C", "Pixel art / C2C"],
+  ["Pixel-art / C2C / Tapestry", "Pixel art / C2C / Tapestry", "Pixel art / C2C / Tapestry", "Pixel art / C2C / Tapestry"],
+  ["CAD", "CAD", "CAD", "CAO"],
+  ["Tecido & Legenda", "Fabric & Legend", "Tela y Leyenda", "Tissu & Légende"],
+  ["Importar/Exportar", "Import/Export", "Importar/Exportar", "Importer/Exporter"],
 ];
 
 export const EDITOR_UI_STRINGS: string[] = ROWS.map((r) => r[0]);
