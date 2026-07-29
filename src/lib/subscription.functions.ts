@@ -13,14 +13,35 @@ export const cancelSubscriptionFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { cancelUserPaddleSubscriptions } = await import("@/lib/billing.server");
+
+    // 1) Cancela a cobrança real no processador de pagamentos.
+    const res = await cancelUserPaddleSubscriptions(context.userId, "next_billing_period");
+    if (res.failed.length) {
+      throw new Error(
+        "Não foi possível cancelar a subscrição junto do processador de pagamentos. Tenta novamente ou usa a gestão de subscrição.",
+      );
+    }
+
+    // 2) Se ainda há período pago por usufruir, mantém o acesso até ao fim.
+    if (res.accessUntil && new Date(res.accessUntil).getTime() > Date.now()) {
+      return { ok: true, accessUntil: res.accessUntil, immediate: false };
+    }
+
+    // 3) Sem período pago pendente → volta já ao plano Light.
     const { error } = await supabaseAdmin
       .from("profiles")
       .update({ subscription_status: "light", subscription_trial_ends: null })
       .eq("user_id", context.userId);
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, accessUntil: null, immediate: true };
   });
 
+/**
+ * Teste gratuito legado (sem cartão). Descontinuado: o período experimental
+ * passou a ser gerido no checkout do processador de pagamentos, com cartão,
+ * convertendo automaticamente em subscrição no fim dos 14 dias.
+ */
 export const startSubscriptionTrialFn = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z.object({
@@ -29,30 +50,12 @@ export const startSubscriptionTrialFn = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("subscription_status,subscription_trial_ends")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (profile?.subscription_status === "premium_vitalicio") {
-      return { ok: false, message: "Já tens acesso vitalício." };
-    }
-    if (profile?.subscription_trial_ends && new Date(profile.subscription_trial_ends).getTime() > Date.now()) {
-      return { ok: false, message: "Já tens um teste ativo." };
-    }
-    const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        subscription_status: data.plan,
-        subscription_trial_ends: trialEnds,
-        billing_cycle: data.cycle,
-      })
-      .eq("user_id", context.userId);
-    if (error) throw new Error(error.message);
-    return { ok: true, trial_ends: trialEnds };
+  .handler(async () => {
+    return {
+      ok: false,
+      message:
+        "O teste de 14 dias é agora ativado no checkout, com cartão. Não é cobrado nada durante o período experimental e podes cancelar a qualquer momento.",
+    };
   });
 
 export const redeemPromoCodeFn = createServerFn({ method: "POST" })
