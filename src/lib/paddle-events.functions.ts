@@ -10,7 +10,7 @@ export interface PaddleEventRow {
   signature_verified: boolean;
   status: string;
   error_message: string | null;
-  summary: Record<string, unknown>;
+  summary: Record<string, string | number | boolean | null>;
   acknowledged_at: string | null;
   created_at: string;
 }
