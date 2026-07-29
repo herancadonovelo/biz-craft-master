@@ -299,6 +299,8 @@ function buildSearchIndex(t: (k: string) => string): SearchItem[] {
     { label: t("nav.help2"), url: "/ajuda" },
     { label: t("nav.contact"), url: "/contacto" },
     { label: t("nav.privacy"), url: "/privacidade" },
+    { label: "Termos e Condições", url: "/termos" },
+    { label: "Política de Reembolsos", url: "/reembolsos" },
     { label: "Quem Somos", url: "/quem-somos" },
   ];
   return raw.map((r) => ({
