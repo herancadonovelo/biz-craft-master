@@ -521,6 +521,7 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
       errorMessage: e instanceof Error ? e.message : String(e),
       summary,
     });
+    (e as { jaRegistado?: boolean }).jaRegistado = true;
     throw e;
   }
   await logPaddleEvent({
@@ -582,6 +583,9 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
         } catch (e) {
           console.error("Webhook error:", e);
           const message = e instanceof Error ? e.message : String(e);
+          if ((e as { jaRegistado?: boolean })?.jaRegistado) {
+            return new Response("Webhook error", { status: 400 });
+          }
           const assinatura = /signature|unmarshal|secret/i.test(message);
           await logPaddleEvent({
             environment: env,
