@@ -111,8 +111,12 @@ export interface Fatura {
   tipo?: "projeto" | "curso" | "outro";
   valor: number;
   iva: number;
-  estado: "rascunho" | "emitida" | "paga";
+  estado: "rascunho" | "emitida" | "paga" | "reembolsada" | "parcialmente_reembolsada";
   data: string;
+  /** Valor já devolvido ao cliente (reembolsos). */
+  valorReembolsado?: number;
+  /** Transação do processador de pagamentos associada, quando aplicável. */
+  paddleTransactionId?: string;
 }
 
 export interface Venda {
