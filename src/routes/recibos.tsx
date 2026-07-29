@@ -12,6 +12,9 @@ import { imprimirRecibo } from "@/lib/print-recibo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/recibos")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ref: typeof search.ref === "string" && search.ref ? search.ref : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Recibos e comprovativos — Craft Business Master" },
