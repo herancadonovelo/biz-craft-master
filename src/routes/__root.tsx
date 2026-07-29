@@ -297,7 +297,7 @@ function RootComponent() {
   );
 }
 
-const PUBLIC_ROUTES_SET = new Set(["/auth", "/auth/verify-2fa", "/auth-callback", "/sessao-expirada", "/reset-password"]);
+const PUBLIC_ROUTES_SET = new Set(["/auth", "/auth/verify-2fa", "/auth-callback", "/sessao-expirada", "/reset-password", "/registo"]);
 
 function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["design"] }) {
   const { user, loading } = useAuth();
