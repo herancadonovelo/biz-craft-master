@@ -134,7 +134,7 @@ export const ORDER_STATE_LABEL: Record<string, string> = {
 export function statusFromAdjustment(adjustmentStatus?: string | null): RefundStatus {
   switch (adjustmentStatus) {
     case "approved":
-ようcase "refunded" as never:
+    case "refunded":
       return "concluido";
     case "rejected":
       return "recusado";
