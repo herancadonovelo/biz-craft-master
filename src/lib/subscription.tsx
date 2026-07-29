@@ -219,6 +219,26 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return { ok: true, discountPercent: res.discount_percent, message: res.message };
   };
 
+  // Código introduzido no registo: aplica-se sozinho no primeiro acesso com sessão.
+  useEffect(() => {
+    if (authLoading || !user || loading) return;
+    const pending = readPendingPromoCode();
+    if (!pending) return;
+    let cancelled = false;
+    (async () => {
+      const res = await redeemPromoCode(pending);
+      if (cancelled) return;
+      clearPendingPromoCode();
+      if (res.ok && !res.lifetime) {
+        toast.success(`Código ${pending} aplicado.`, { description: res.message });
+      } else if (!res.ok) {
+        toast.error(`Código ${pending} não aplicado`, { description: res.message });
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, authLoading, loading]);
+
   return (
     <Ctx.Provider value={{ plan, billingCycle, trialEnds, trialActive, effectivePlan, loading, refresh, startTrial, setPlan, paywall, showPaywall, closePaywall, hasAccess, requireAccess, pendingRedirect, clearPendingRedirect, redeemPromoCode }}>
       {children}
