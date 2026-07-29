@@ -310,13 +310,31 @@ function RegistoPage() {
             ))}
           </ul>
 
+          <div>
+            <Label className="flex items-center gap-2">
+              <Ticket className="h-4 w-4" /> Código promocional (opcional)
+            </Label>
+            <Input
+              value={form.promoCode}
+              onChange={(e) => set("promoCode", normalizePromoCode(e.target.value))}
+              placeholder="Ex.: BEMVINDA2026"
+              maxLength={40}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {errors.promoCode ? (
+              <p className="mt-1 text-xs text-destructive">{errors.promoCode}</p>
+            ) : (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tens um código? Introduz aqui — é aplicado automaticamente no teu primeiro acesso.
+              </p>
+            )}
+          </div>
+
           <div className="space-y-2 rounded-md border border-border p-3">
             <label className="flex items-start gap-2 text-sm">
               <Checkbox
                 checked={form.termsAccepted}
-                onCheckedChange={(v) => set("termsAccepted", v === true)}
-                className="mt-0.5"
-              />
                 onCheckedChange={(v) => set("termsAccepted", v === true)}
                 className="mt-0.5"
               />
