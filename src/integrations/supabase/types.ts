@@ -277,6 +277,48 @@ export type Database = {
         }
         Relationships: []
       }
+      paddle_event_log: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          environment: string
+          error_message: string | null
+          event_id: string | null
+          event_type: string | null
+          id: string
+          signature_verified: boolean
+          status: string
+          summary: Json
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          environment?: string
+          error_message?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          signature_verified?: boolean
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          environment?: string
+          error_message?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          signature_verified?: boolean
+          status?: string
+          summary?: Json
+        }
+        Relationships: []
+      }
       paddle_webhook_events: {
         Row: {
           environment: string

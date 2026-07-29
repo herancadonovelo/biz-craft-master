@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
+import { logPaddleEvent, summarizeEvent } from "@/lib/paddle-events.server";
 import {
   logBillingEvent,
   sendBillingEmail,
@@ -494,10 +495,46 @@ async function handleAdjustment(data: any, env: PaddleEnv, origin: string) {
 
 async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   const event = await verifyWebhook(req, env);
-  if (await alreadyProcessed((event as { eventId?: string }).eventId, event.eventType, env)) {
+  const eventId = (event as { eventId?: string }).eventId ?? null;
+  const summary = summarizeEvent(event.eventType, event.data) as Record<string, unknown>;
+  if (await alreadyProcessed(eventId ?? undefined, event.eventType, env)) {
     console.log("[webhook] evento repetido ignorado:", event.eventType);
+    await logPaddleEvent({
+      eventId,
+      eventType: event.eventType,
+      environment: env,
+      signatureVerified: true,
+      status: "repetido",
+      summary,
+    });
     return;
   }
+  try {
+    await dispatchEvent(event, env, origin);
+  } catch (e) {
+    await logPaddleEvent({
+      eventId,
+      eventType: event.eventType,
+      environment: env,
+      signatureVerified: true,
+      status: "erro_processamento",
+      errorMessage: e instanceof Error ? e.message : String(e),
+      summary,
+    });
+    (e as { jaRegistado?: boolean }).jaRegistado = true;
+    throw e;
+  }
+  await logPaddleEvent({
+    eventId,
+    eventType: event.eventType,
+    environment: env,
+    signatureVerified: true,
+    status: "processado",
+    summary,
+  });
+}
+
+async function dispatchEvent(event: any, env: PaddleEnv, origin: string) {
   switch (event.eventType) {
     case EventName.SubscriptionCreated:
       await handleSubscriptionCreated(event.data, env, origin);
@@ -545,6 +582,18 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
           return Response.json({ received: true });
         } catch (e) {
           console.error("Webhook error:", e);
+          const message = e instanceof Error ? e.message : String(e);
+          if ((e as { jaRegistado?: boolean })?.jaRegistado) {
+            return new Response("Webhook error", { status: 400 });
+          }
+          const assinatura = /signature|unmarshal|secret/i.test(message);
+          await logPaddleEvent({
+            environment: env,
+            signatureVerified: false,
+            status: assinatura ? "assinatura_invalida" : "erro_processamento",
+            errorMessage: message,
+            summary: { origem: url.origin },
+          });
           return new Response("Webhook error", { status: 400 });
         }
       },
