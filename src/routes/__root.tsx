@@ -122,6 +122,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Craft Business Master" },
       { name: "twitter:description", content: "Craft Business Master is a comprehensive business management application for craft businesses." },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Craft Business Master",
+              url: "https://craftbusinessmaster.com",
+              description:
+                "Aplicação de gestão para negócios de artesanato: encomendas, stock, custos, preços e faturação.",
+              email: "craftbusinessmaster@gmail.com",
+            },
+            {
+              "@type": "WebSite",
+              name: "Craft Business Master",
+              url: "https://craftbusinessmaster.com",
+              inLanguage: "pt-PT",
+            },
+          ],
+        }),
+      },
+    ],
     links: [
       {
         rel: "stylesheet",
