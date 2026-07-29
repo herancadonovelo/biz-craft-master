@@ -297,6 +297,10 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
     case EventName.TransactionPaymentFailed:
       await handlePaymentFailed(event.data, env, origin);
       break;
+    case "adjustment.created" as any:
+    case "adjustment.updated" as any:
+      await handleAdjustment(event.data, env, origin);
+      break;
     default:
       console.log("Unhandled event:", event.eventType);
   }
