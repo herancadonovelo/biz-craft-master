@@ -423,6 +423,69 @@ export type Database = {
           },
         ]
       }
+      refunds: {
+        Row: {
+          accounted_at: string | null
+          amount_cents: number
+          confirmed_at: string | null
+          created_at: string
+          currency: string
+          environment: string
+          id: string
+          kind: string
+          metadata: Json
+          paddle_adjustment_id: string | null
+          paddle_subscription_id: string | null
+          paddle_transaction_id: string | null
+          reason_code: string
+          reason_note: string | null
+          requested_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accounted_at?: string | null
+          amount_cents?: number
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          kind: string
+          metadata?: Json
+          paddle_adjustment_id?: string | null
+          paddle_subscription_id?: string | null
+          paddle_transaction_id?: string | null
+          reason_code: string
+          reason_note?: string | null
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accounted_at?: string | null
+          amount_cents?: number
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          paddle_adjustment_id?: string | null
+          paddle_subscription_id?: string | null
+          paddle_transaction_id?: string | null
+          reason_code?: string
+          reason_note?: string | null
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       session_events: {
         Row: {
           created_at: string
@@ -528,6 +591,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_events: {
         Row: {
           external_id: string
@@ -604,6 +688,13 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       mark_2fa_completed: { Args: never; Returns: Json }
       mark_phone_verified: { Args: { _phone: string }; Returns: Json }
       move_to_dlq: {
@@ -624,6 +715,10 @@ export type Database = {
         }[]
       }
       redeem_promo_code: { Args: { _code: string }; Returns: Json }
+      refunded_cents_for_transaction: {
+        Args: { _env: string; _txn_id: string }
+        Returns: number
+      }
       reset_phone_verification: { Args: never; Returns: Json }
       start_subscription_trial: {
         Args: { _cycle?: string; _plan: string }
@@ -631,6 +726,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       billing_cycle: "mensal" | "anual"
       subscription_plan: "light" | "base" | "premium" | "premium_vitalicio"
     }
@@ -760,6 +856,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       billing_cycle: ["mensal", "anual"],
       subscription_plan: ["light", "base", "premium", "premium_vitalicio"],
     },

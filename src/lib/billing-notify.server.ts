@@ -83,7 +83,11 @@ export async function sendBillingEmail(opts: {
   origin: string;
   env: PaddleEnv;
   userId: string;
-  templateName: "subscription-welcome" | "subscription-canceled" | "payment-failed";
+  templateName:
+    | "subscription-welcome"
+    | "subscription-canceled"
+    | "payment-failed"
+    | "refund-processed";
   templateData: Record<string, unknown>;
   idempotencyKey?: string;
 }) {

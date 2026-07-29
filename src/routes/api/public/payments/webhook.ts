@@ -279,6 +279,107 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   });
 }
 
+/**
+ * Ajustes (reembolsos/créditos) emitidos no processador de pagamentos.
+ * Atualiza o histórico interno, avisa o cliente e regista o evento.
+ */
+async function handleAdjustment(data: any, env: PaddleEnv, origin: string) {
+  const adjustmentId: string | undefined = data?.id;
+  const transactionId: string | null = data?.transactionId ?? data?.transaction_id ?? null;
+  if (!adjustmentId) return;
+  if (data?.action && data.action !== "refund") return;
+
+  const rawStatus: string | undefined = data?.status;
+  const status =
+    rawStatus === "approved" || rawStatus === "refunded"
+      ? "concluido"
+      : rawStatus === "rejected"
+        ? "recusado"
+        : "pendente";
+  const amountCents = Number(data?.totals?.total ?? data?.payoutTotals?.total ?? 0) || null;
+  const currency = data?.currencyCode ?? data?.currency_code ?? "EUR";
+  const subscriptionId = data?.subscriptionId ?? data?.subscription_id ?? null;
+  const userId = data?.customData?.userId ?? null;
+
+  const supabase = getSupabase();
+
+  const { data: existing } = await supabase
+    .from("refunds")
+    .select("id,user_id,amount_cents,currency,paddle_subscription_id")
+    .eq("paddle_adjustment_id", adjustmentId)
+    .maybeSingle();
+
+  const patch: Record<string, any> = {
+    status,
+    confirmed_at: status === "concluido" ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  };
+
+  let row = existing as any;
+  if (row) {
+    await supabase.from("refunds").update(patch).eq("id", row.id);
+  } else {
+    // Reembolso emitido fora da app (ex.: painel do processador) — importa o registo.
+    let ownerId = userId;
+    if (!ownerId && subscriptionId) {
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("user_id")
+        .eq("paddle_subscription_id", subscriptionId)
+        .maybeSingle();
+      ownerId = (sub as any)?.user_id ?? null;
+    }
+    if (!ownerId) {
+      console.warn("[refunds] ajuste sem utilizador associado", adjustmentId);
+      return;
+    }
+    const { data: inserted } = await supabase
+      .from("refunds")
+      .insert({
+        user_id: ownerId,
+        paddle_subscription_id: subscriptionId,
+        paddle_transaction_id: transactionId,
+        paddle_adjustment_id: adjustmentId,
+        kind: "reembolso_parcial",
+        amount_cents: amountCents ?? 0,
+        currency,
+        reason_code: "outro",
+        reason_note: data?.reason ?? "Emitido fora da aplicação",
+        status,
+        confirmed_at: patch.confirmed_at,
+        environment: env,
+        metadata: { imported: true },
+      })
+      .select("id,user_id,amount_cents,currency,paddle_subscription_id")
+      .maybeSingle();
+    row = inserted;
+  }
+  if (!row) return;
+
+  await logBillingEvent({
+    userId: row.user_id,
+    eventType: status === "concluido" ? "refund_completed" : `refund_${status}`,
+    env,
+    subscriptionId: row.paddle_subscription_id ?? subscriptionId,
+    status,
+    amountCents: amountCents ?? row.amount_cents,
+    currency,
+    metadata: { adjustment_id: adjustmentId, transaction_id: transactionId },
+  });
+
+  if (status === "concluido") {
+    const valor = ((amountCents ?? row.amount_cents ?? 0) / 100).toFixed(2);
+    await sendBillingEmail({
+      origin,
+      env,
+      userId: row.user_id,
+      templateName: "refund-processed",
+      idempotencyKey: `refund:${adjustmentId}`,
+      templateData: { valor: `${valor} ${currency}` },
+    });
+  }
+}
+
 async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   const event = await verifyWebhook(req, env);
   switch (event.eventType) {
@@ -296,6 +397,10 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
       break;
     case EventName.TransactionPaymentFailed:
       await handlePaymentFailed(event.data, env, origin);
+      break;
+    case "adjustment.created" as any:
+    case "adjustment.updated" as any:
+      await handleAdjustment(event.data, env, origin);
       break;
     default:
       console.log("Unhandled event:", event.eventType);
