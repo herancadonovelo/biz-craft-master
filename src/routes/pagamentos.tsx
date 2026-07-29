@@ -226,7 +226,7 @@ function PagamentosPage() {
               A mostrar apenas o pagamento associado ao reembolso <strong>{ref}</strong>.
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link to="/pagamentos" search={{}}>
+              <Link to="/pagamentos" search={{ ref: undefined }}>
                 Ver todos os pagamentos
               </Link>
             </Button>
@@ -301,7 +301,7 @@ function PagamentosPage() {
                     <span className="font-semibold">{money(p.amount_cents, p.currency)}</span>
                     {p.estado === "pago" && (
                       <Button asChild variant="outline" size="sm">
-                        <Link to="/recibos">Recibo</Link>
+                        <Link to="/recibos" search={{ ref: undefined }}>Recibo</Link>
                       </Button>
                     )}
                     {p.estado === "falhado" && (

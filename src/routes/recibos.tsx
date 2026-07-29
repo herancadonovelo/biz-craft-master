@@ -137,7 +137,7 @@ function RecibosPage() {
               A mostrar apenas o recibo associado ao reembolso <strong>{ref}</strong>.
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link to="/recibos" search={{}}>
+              <Link to="/recibos" search={{ ref: undefined }}>
                 Ver todos os recibos
               </Link>
             </Button>

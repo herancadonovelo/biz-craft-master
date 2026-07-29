@@ -215,7 +215,7 @@ function MeusReembolsosPage() {
                   <Button asChild variant="outline" size="sm">
                     <Link
                       to="/pagamentos"
-                      search={r.paddle_transaction_id ? { ref: r.paddle_transaction_id } : {}}
+                      search={{ ref: r.paddle_transaction_id ?? undefined }}
                     >
                       <CreditCard className="mr-2 h-4 w-4" /> Pagamento
                     </Link>
@@ -223,7 +223,7 @@ function MeusReembolsosPage() {
                   <Button asChild variant="outline" size="sm">
                     <Link
                       to="/recibos"
-                      search={r.paddle_transaction_id ? { ref: r.paddle_transaction_id } : {}}
+                      search={{ ref: r.paddle_transaction_id ?? undefined }}
                     >
                       <Receipt className="mr-2 h-4 w-4" /> Recibo
                     </Link>
