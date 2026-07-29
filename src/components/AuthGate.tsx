@@ -5,7 +5,19 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logSessionEvent } from "@/lib/session-telemetry";
 
-const PUBLIC_ROUTES = ["/auth", "/auth-callback", "/sessao-expirada", "/reset-password", "/auth/verify-2fa", "/registo"];
+// As páginas legais têm de estar acessíveis sem sessão: é um requisito da
+// revisão de pagamentos (Paddle) e dos consumidores em geral.
+const PUBLIC_ROUTES = [
+  "/auth",
+  "/auth-callback",
+  "/sessao-expirada",
+  "/reset-password",
+  "/auth/verify-2fa",
+  "/registo",
+  "/termos",
+  "/reembolsos",
+  "/privacidade",
+];
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
 const E2E_2FA_BYPASS_KEY = "atelier-e2e-2fa-bypass";
 const REVALIDATE_INTERVAL_MS = 5 * 60 * 1000; // 5 min
