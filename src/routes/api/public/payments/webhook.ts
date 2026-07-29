@@ -124,7 +124,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv, origin: stri
     { onConflict: "paddle_subscription_id" },
   );
 
-  await syncProfilePlan(userId, env, productId, priceId, ["active", "trialing", "past_due"].includes(status));
+  await syncProfilePlan(userId, env, productId, priceId, ["active", "trialing", "past_due"].includes(status), origin);
 
   await logBillingEvent({
     userId,
@@ -188,6 +188,7 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv, origin: stri
     row.product_id,
     row.price_id,
     ["active", "trialing", "past_due"].includes(status),
+    origin,
   );
 
   const planChanged =
@@ -236,7 +237,7 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv, origin: str
     | undefined;
   if (!row) return;
   const stillInPeriod = !!row.current_period_end && new Date(row.current_period_end).getTime() > Date.now();
-  await syncProfilePlan(row.user_id, env, row.product_id, row.price_id, stillInPeriod);
+  await syncProfilePlan(row.user_id, env, row.product_id, row.price_id, stillInPeriod, origin);
 
   await logBillingEvent({
     userId: row.user_id,
