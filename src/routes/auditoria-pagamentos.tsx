@@ -71,10 +71,12 @@ function AuditoriaPagamentosPage() {
     setLoading(true);
     try {
       const r = await listEvents({ data: { environment: env, apenasFalhas, limite: 100 } });
-      setEvents(r.events);
-      setAlertas(r.alertasAbertos);
-      if (r.alertasAbertos > 0) {
-        toast.error(`${r.alertasAbertos} falha(s) de pagamento por resolver`, {
+      const events = r?.events ?? [];
+      const abertos = r?.alertasAbertos ?? 0;
+      setEvents(events as PaddleEventRow[]);
+      setAlertas(abertos);
+      if (abertos > 0) {
+        toast.error(`${abertos} falha(s) de pagamento por resolver`, {
           description: "Verifica as assinaturas e o processamento dos eventos.",
         });
       }
