@@ -56,6 +56,7 @@ export const ALWAYS_OPEN = new Set<string>([
   "/gestao-reembolsos",
   "/recibos",
   "/pagamentos",
+  "/meus-reembolsos",
 ]);
 
 export function requiredPlanFor(path: string): Plan {
