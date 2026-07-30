@@ -55,6 +55,7 @@ export function BibliotecaContent({ embedded = false }: { embedded?: boolean }) 
         {!embedded && (
           <PageHeader title="Biblioteca" description="Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos." />
         )}
+        )}
 
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-3">
           <Input placeholder="Título" value={novo.titulo} onChange={(e) => setNovo({ ...novo, titulo: e.target.value })} />
