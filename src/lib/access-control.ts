@@ -53,13 +53,7 @@ export const ALWAYS_OPEN = new Set<string>([
   "/privacidade",
   "/termos",
   "/reembolsos",
-  "/gestao-reembolsos",
   "/recibos",
-  "/pagamentos",
-  "/meus-reembolsos",
-  "/diagnostico-pagamentos",
-  "/auditoria-pagamentos",
-  "/guia-teste-live",
   "/minha-subscricao",
 ]);
 
