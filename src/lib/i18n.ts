@@ -102,3 +102,19 @@ export function useAutoText() {
     return tt(text);
   };
 }
+
+/**
+ * Dicionário estático pt→idioma usado pelo tradutor automático de DOM.
+ * Junta o dicionário de conteúdo com os pares (valor PT → valor traduzido)
+ * das chaves de UI. Se faltar uma entrada, o texto português é mantido.
+ */
+export function getStaticDict(lang: Idioma): Dict {
+  if (lang === "pt") return {};
+  const out: Dict = { ...(contentDicts[lang] ?? {}) };
+  const target = dicts[lang] ?? {};
+  for (const [key, ptValue] of Object.entries(dicts.pt)) {
+    const translated = target[key];
+    if (translated && ptValue && !out[ptValue]) out[ptValue] = translated;
+  }
+  return out;
+}
