@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-state";
-import { consumeIntendedPath } from "@/components/AuthGate";
+import { ensureProfileAndResolveDestination } from "@/lib/post-login";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -49,8 +49,10 @@ function AuthCallbackPage() {
           reason: "google_oauth_callback_user_ready",
           path: "/auth-callback",
         });
-        const target = consumeIntendedPath();
-        nav({ to: (target as any) || "/" });
+        setMessage("A preparar a tua conta…");
+        const target = await ensureProfileAndResolveDestination();
+        if (cancelled) return;
+        nav({ to: target as any });
         return;
       }
 
@@ -68,8 +70,10 @@ function AuthCallbackPage() {
             reason: "google_oauth_callback_session_ready",
             path: "/auth-callback",
           });
-          const target = consumeIntendedPath();
-          nav({ to: (target as any) || "/" });
+          setMessage("A preparar a tua conta…");
+          const target = await ensureProfileAndResolveDestination();
+          if (cancelled) return;
+          nav({ to: target as any });
           return;
         }
         await new Promise((resolve) => window.setTimeout(resolve, 250));
