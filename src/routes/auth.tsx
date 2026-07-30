@@ -46,6 +46,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  const [googleNotice, setGoogleNotice] = useState<{ text: string; kind: "error" | "info" } | null>(null);
   const isInIframe = typeof window !== "undefined" && window.self !== window.top;
 
   const openInNewTab = () => {
@@ -124,6 +125,7 @@ function AuthPage() {
   };
   const signInGoogle = async () => {
     setBusy(true);
+    setGoogleNotice(null);
     void logSessionEvent("oauth_start", {
       reason: "google_button_clicked",
       path: window.location.pathname,
@@ -148,6 +150,7 @@ function AuthPage() {
           reason: r.error.message || "unknown_provider_error",
           path: window.location.pathname,
         });
+        setGoogleNotice(mapped);
         if (mapped.kind === "info") toast.info(mapped.text);
         else toast.error(mapped.text);
         return;
@@ -159,7 +162,12 @@ function AuthPage() {
           reason: "session_not_ready_after_oauth",
           path: window.location.pathname,
         });
-        toast.error("Login Google concluído, mas a sessão ainda não ficou ativa. Tenta recarregar a página.");
+        const pending = {
+          text: "Login com Google concluído, mas a sessão ainda não ficou ativa. Recarrega a página ou tenta novamente.",
+          kind: "error" as const,
+        };
+        setGoogleNotice(pending);
+        toast.error(pending.text);
         return;
       }
 
@@ -172,6 +180,7 @@ function AuthPage() {
         reason: message,
         path: window.location.pathname,
       });
+      setGoogleNotice(mapped);
       if (mapped.kind === "info") toast.info(mapped.text);
       else toast.error(mapped.text);
     } finally {
@@ -220,6 +229,19 @@ function AuthPage() {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-4 w-4" />}
             Entrar com o Google
           </Button>
+          {googleNotice && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className={
+                googleNotice.kind === "error"
+                  ? "mt-3 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+                  : "mt-3 rounded-md border border-border bg-muted p-3 text-xs text-muted-foreground"
+              }
+            >
+              {googleNotice.text}
+            </div>
+          )}
           <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px flex-1 bg-border" /> ou email <div className="h-px flex-1 bg-border" />
           </div>
