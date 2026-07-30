@@ -80,6 +80,7 @@ import { Route as SpotifyCallbackRouteImport } from './routes/spotify-callback'
 import { Route as StockRouteImport } from './routes/stock'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as TodoRouteImport } from './routes/todo'
+import { Route as TraducoesPendentesRouteImport } from './routes/traducoes-pendentes'
 import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -457,6 +458,11 @@ const TodoRoute = TodoRouteImport.update({
   path: '/todo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TraducoesPendentesRoute = TraducoesPendentesRouteImport.update({
+  id: '/traducoes-pendentes',
+  path: '/traducoes-pendentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VendasRoute = VendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
@@ -645,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
+  '/traducoes-pendentes': typeof TraducoesPendentesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -739,6 +746,7 @@ export interface FileRoutesByTo {
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
+  '/traducoes-pendentes': typeof TraducoesPendentesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -834,6 +842,7 @@ export interface FileRoutesById {
   '/stock': typeof StockRoute
   '/termos': typeof TermosRoute
   '/todo': typeof TodoRoute
+  '/traducoes-pendentes': typeof TraducoesPendentesRoute
   '/vendas': typeof VendasRoute
   '/whatsapp': typeof WhatsappRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -930,6 +939,7 @@ export interface FileRouteTypes {
     | '/stock'
     | '/termos'
     | '/todo'
+    | '/traducoes-pendentes'
     | '/vendas'
     | '/whatsapp'
     | '/.mcp/list-tools'
@@ -1024,6 +1034,7 @@ export interface FileRouteTypes {
     | '/stock'
     | '/termos'
     | '/todo'
+    | '/traducoes-pendentes'
     | '/vendas'
     | '/whatsapp'
     | '/.mcp/list-tools'
@@ -1118,6 +1129,7 @@ export interface FileRouteTypes {
     | '/stock'
     | '/termos'
     | '/todo'
+    | '/traducoes-pendentes'
     | '/vendas'
     | '/whatsapp'
     | '/.mcp/list-tools'
@@ -1213,6 +1225,7 @@ export interface RootRouteChildren {
   StockRoute: typeof StockRoute
   TermosRoute: typeof TermosRoute
   TodoRoute: typeof TodoRoute
+  TraducoesPendentesRoute: typeof TraducoesPendentesRoute
   VendasRoute: typeof VendasRoute
   WhatsappRoute: typeof WhatsappRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -1733,6 +1746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/traducoes-pendentes': {
+      id: '/traducoes-pendentes'
+      path: '/traducoes-pendentes'
+      fullPath: '/traducoes-pendentes'
+      preLoaderRoute: typeof TraducoesPendentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vendas': {
       id: '/vendas'
       path: '/vendas'
@@ -1977,6 +1997,7 @@ const rootRouteChildren: RootRouteChildren = {
   StockRoute: StockRoute,
   TermosRoute: TermosRoute,
   TodoRoute: TodoRoute,
+  TraducoesPendentesRoute: TraducoesPendentesRoute,
   VendasRoute: VendasRoute,
   WhatsappRoute: WhatsappRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
