@@ -53,6 +53,20 @@ async function alreadyProcessed(eventId: string | undefined, eventType: string, 
   return false;
 }
 
+/**
+ * Liberta a marca de idempotência quando o processamento falhou, para que o
+ * reenvio do Paddle volte a processar o evento em vez de o ignorar.
+ */
+async function releaseProcessedMark(eventId: string | undefined, env: PaddleEnv) {
+  if (!eventId) return;
+  const { error } = await getSupabase()
+    .from("paddle_webhook_events")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("environment", env);
+  if (error) console.error("[webhook] failed to release idempotency mark", error);
+}
+
 /** Mapeia o produto do Paddle para o plano interno da app. */
 function planFromProduct(productId: string): "base" | "premium" | null {
   if (productId === "premium_plan") return "premium";
@@ -512,6 +526,7 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   try {
     await dispatchEvent(event, env, origin);
   } catch (e) {
+    await releaseProcessedMark(eventId ?? undefined, env);
     await logPaddleEvent({
       eventId,
       eventType: event.eventType,
