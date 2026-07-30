@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-state";
 import { ensureProfileAndResolveDestination } from "@/lib/post-login";
+import { mapOAuthError } from "@/lib/oauth-errors";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -29,12 +30,18 @@ function AuthCallbackPage() {
         path: "/auth-callback",
       });
       if (oauthError) {
-        void logSessionEvent("oauth_failed", {
+        const mapped = mapOAuthError(oauthError);
+        void logSessionEvent(mapped.kind === "info" ? "oauth_cancelled" : "oauth_failed", {
           reason: oauthError,
           path: "/auth-callback",
         });
-        toast.error(`Falha no login com Google: ${oauthError}`);
-        nav({ to: "/auth" });
+        if (mapped.kind === "info") toast.info(mapped.text);
+        else toast.error(mapped.text);
+        setMessage(mapped.text);
+        // Nunca terminamos a sessão existente: se já havia login válido,
+        // o utilizador continua dentro da app; caso contrário volta ao /auth.
+        const { data: current } = await supabase.auth.getSession();
+        nav({ to: current.session ? "/" : "/auth" });
         return;
       }
 
@@ -83,8 +90,11 @@ function AuthCallbackPage() {
         reason: "session_never_activated_after_callback",
         path: "/auth-callback",
       });
-      toast.error("Não foi possível ativar a sessão Google. Tenta entrar novamente.");
-      nav({ to: "/auth" });
+      const fallback = mapOAuthError("timeout");
+      setMessage(fallback.text);
+      toast.error(fallback.text);
+      const { data: current } = await supabase.auth.getSession();
+      nav({ to: current.session ? "/" : "/auth" });
     };
 
     void finish();
