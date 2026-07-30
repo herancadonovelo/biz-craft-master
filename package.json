@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "node scripts/i18n-length-check.mjs && vite build",
-    "build:dev": "node scripts/i18n-length-check.mjs && vite build --mode development",
+    "build": "node scripts/i18n-length-check.mjs && node scripts/i18n-coverage-check.mjs && vite build",
+    "build:dev": "node scripts/i18n-length-check.mjs && node scripts/i18n-coverage-check.mjs && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -18,7 +18,11 @@
     "i18n:audit:suggest": "node scripts/i18n-audit.mjs --dir src/routes --lang en --suggest",
     "i18n:audit:ci": "node scripts/i18n-audit.mjs --dir src/routes --lang en --ci",
     "i18n:length-check": "node scripts/i18n-length-check.mjs",
-    "currency:audit": "node scripts/currency-audit.mjs"
+    "currency:audit": "node scripts/currency-audit.mjs",
+    "i18n:scan": "node scripts/i18n-scan.mjs",
+    "i18n:extract": "node scripts/i18n-extract.mjs --write",
+    "i18n:coverage": "node scripts/i18n-coverage-check.mjs",
+    "i18n:coverage:baseline": "node scripts/i18n-coverage-check.mjs --update-baseline"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
