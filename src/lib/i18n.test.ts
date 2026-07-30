@@ -32,7 +32,7 @@ describe("fallback para português", () => {
   });
 
   it("interpola variáveis", () => {
-    expect(translate("pt", "{{n}} itens" as string, { n: 3 })).toBe("{{n}} itens");
+    expect(translate("pt", "{{n}} itens" as string, { n: 3 })).toBe("3 itens");
   });
 
   it("ignora traduções vazias no dicionário de conteúdo", () => {
