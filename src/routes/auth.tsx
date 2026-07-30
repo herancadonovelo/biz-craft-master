@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth-state";
 import { consumeIntendedPath } from "@/components/AuthGate";
 import { ensureProfileAndResolveDestination } from "@/lib/post-login";
+import { mapOAuthError } from "@/lib/oauth-errors";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -108,26 +109,6 @@ function AuthPage() {
     if (m.includes("rate limit") || m.includes("too many")) return "Demasiadas tentativas. Aguarda alguns minutos e tenta de novo.";
     if (m.includes("network")) return "Falha de rede. Verifica a tua ligação à internet.";
     return message;
-  };
-
-  const mapOAuthError = (message: string): { text: string; kind: "error" | "info" } => {
-    const m = (message || "").toLowerCase();
-    if (m.includes("cancel") || m.includes("closed") || m.includes("popup")) {
-      return { text: "Login com Google cancelado. Tenta novamente quando quiseres.", kind: "info" };
-    }
-    if (m.includes("network") || m.includes("failed to fetch")) {
-      return { text: "Falha de rede durante o login Google. Verifica a tua ligação e tenta de novo.", kind: "error" };
-    }
-    if (m.includes("redirect")) {
-      return { text: "URL de redirecionamento não autorizado. Contacta o suporte.", kind: "error" };
-    }
-    if (m.includes("provider is not enabled") || m.includes("unsupported provider")) {
-      return { text: "Login Google ainda não está ativado no servidor. Contacta o suporte.", kind: "error" };
-    }
-    if (m.includes("unauthorized") || m.includes("access_denied")) {
-      return { text: "Acesso negado pela conta Google. Verifica as permissões e tenta de novo.", kind: "error" };
-    }
-    return { text: `Falha no login com Google: ${message || "erro desconhecido"}. Tenta novamente ou usa email/palavra-passe.`, kind: "error" };
   };
 
   const signIn = async () => {
