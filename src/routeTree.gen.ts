@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AtelierSoundsRouteImport } from './routes/atelier-sounds'
-import { Route as AuditoriaPagamentosRouteImport } from './routes/auditoria-pagamentos'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as BackupRouteImport } from './routes/backup'
@@ -33,7 +32,6 @@ import { Route as CrescimentoRouteImport } from './routes/crescimento'
 import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as DespesasRouteImport } from './routes/despesas'
-import { Route as DiagnosticoPagamentosRouteImport } from './routes/diagnostico-pagamentos'
 import { Route as EditorMoodboardsRouteImport } from './routes/editor-moodboards'
 import { Route as EncomendasRouteImport } from './routes/encomendas'
 import { Route as EstadoEncomendasRouteImport } from './routes/estado-encomendas'
@@ -44,9 +42,7 @@ import { Route as FerramentasTecnicasRouteImport } from './routes/ferramentas-te
 import { Route as FicheirosDigitaisRouteImport } from './routes/ficheiros-digitais'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as GestaoFornecedoresRouteImport } from './routes/gestao-fornecedores'
-import { Route as GestaoReembolsosRouteImport } from './routes/gestao-reembolsos'
 import { Route as GuiaPrecificacaoRouteImport } from './routes/guia-precificacao'
-import { Route as GuiaTesteLiveRouteImport } from './routes/guia-teste-live'
 import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas'
 import { Route as HorasRouteImport } from './routes/horas'
 import { Route as IdiomaRouteImport } from './routes/idioma'
@@ -57,7 +53,6 @@ import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
 import { Route as MarketingConteudoRouteImport } from './routes/marketing-conteudo'
 import { Route as McpRouteImport } from './routes/mcp'
-import { Route as MeusReembolsosRouteImport } from './routes/meus-reembolsos'
 import { Route as MinhaSubscricaoRouteImport } from './routes/minha-subscricao'
 import { Route as ModulosRouteImport } from './routes/modulos'
 import { Route as MoedaRouteImport } from './routes/moeda'
@@ -66,7 +61,6 @@ import { Route as MuralRouteImport } from './routes/mural'
 import { Route as NotasRouteImport } from './routes/notas'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as PlaneadorProducaoRouteImport } from './routes/planeador-producao'
 import { Route as PlanosRouteImport } from './routes/planos'
@@ -126,11 +120,6 @@ const AssistenteRoute = AssistenteRouteImport.update({
 const AtelierSoundsRoute = AtelierSoundsRouteImport.update({
   id: '/atelier-sounds',
   path: '/atelier-sounds',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditoriaPagamentosRoute = AuditoriaPagamentosRouteImport.update({
-  id: '/auditoria-pagamentos',
-  path: '/auditoria-pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -228,11 +217,6 @@ const DespesasRoute = DespesasRouteImport.update({
   path: '/despesas',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DiagnosticoPagamentosRoute = DiagnosticoPagamentosRouteImport.update({
-  id: '/diagnostico-pagamentos',
-  path: '/diagnostico-pagamentos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EditorMoodboardsRoute = EditorMoodboardsRouteImport.update({
   id: '/editor-moodboards',
   path: '/editor-moodboards',
@@ -283,19 +267,9 @@ const GestaoFornecedoresRoute = GestaoFornecedoresRouteImport.update({
   path: '/gestao-fornecedores',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GestaoReembolsosRoute = GestaoReembolsosRouteImport.update({
-  id: '/gestao-reembolsos',
-  path: '/gestao-reembolsos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const GuiaPrecificacaoRoute = GuiaPrecificacaoRouteImport.update({
   id: '/guia-precificacao',
   path: '/guia-precificacao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuiaTesteLiveRoute = GuiaTesteLiveRouteImport.update({
-  id: '/guia-teste-live',
-  path: '/guia-teste-live',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoFaturasRoute = HistoricoFaturasRouteImport.update({
@@ -348,11 +322,6 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MeusReembolsosRoute = MeusReembolsosRouteImport.update({
-  id: '/meus-reembolsos',
-  path: '/meus-reembolsos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MinhaSubscricaoRoute = MinhaSubscricaoRouteImport.update({
   id: '/minha-subscricao',
   path: '/minha-subscricao',
@@ -391,11 +360,6 @@ const NotificacoesRoute = NotificacoesRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagamentosRoute = PagamentosRouteImport.update({
-  id: '/pagamentos',
-  path: '/pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
@@ -614,7 +578,6 @@ export interface FileRoutesByFullPath {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -634,7 +597,6 @@ export interface FileRoutesByFullPath {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
-  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -645,9 +607,7 @@ export interface FileRoutesByFullPath {
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
-  '/gestao-reembolsos': typeof GestaoReembolsosRoute
   '/guia-precificacao': typeof GuiaPrecificacaoRoute
-  '/guia-teste-live': typeof GuiaTesteLiveRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -658,7 +618,6 @@ export interface FileRoutesByFullPath {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
-  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/minha-subscricao': typeof MinhaSubscricaoRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
@@ -667,7 +626,6 @@ export interface FileRoutesByFullPath {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -714,7 +672,6 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -734,7 +691,6 @@ export interface FileRoutesByTo {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
-  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -745,9 +701,7 @@ export interface FileRoutesByTo {
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
-  '/gestao-reembolsos': typeof GestaoReembolsosRoute
   '/guia-precificacao': typeof GuiaPrecificacaoRoute
-  '/guia-teste-live': typeof GuiaTesteLiveRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -758,7 +712,6 @@ export interface FileRoutesByTo {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
-  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/minha-subscricao': typeof MinhaSubscricaoRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
@@ -767,7 +720,6 @@ export interface FileRoutesByTo {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -815,7 +767,6 @@ export interface FileRoutesById {
   '/ajuda': typeof AjudaRoute
   '/assistente': typeof AssistenteRoute
   '/atelier-sounds': typeof AtelierSoundsRoute
-  '/auditoria-pagamentos': typeof AuditoriaPagamentosRoute
   '/auth': typeof AuthRouteWithChildren
   '/auth-callback': typeof AuthCallbackRoute
   '/backup': typeof BackupRoute
@@ -835,7 +786,6 @@ export interface FileRoutesById {
   '/cursos': typeof CursosRoute
   '/design': typeof DesignRoute
   '/despesas': typeof DespesasRoute
-  '/diagnostico-pagamentos': typeof DiagnosticoPagamentosRoute
   '/editor-moodboards': typeof EditorMoodboardsRoute
   '/encomendas': typeof EncomendasRoute
   '/estado-encomendas': typeof EstadoEncomendasRoute
@@ -846,9 +796,7 @@ export interface FileRoutesById {
   '/ficheiros-digitais': typeof FicheirosDigitaisRoute
   '/fornecedores': typeof FornecedoresRoute
   '/gestao-fornecedores': typeof GestaoFornecedoresRoute
-  '/gestao-reembolsos': typeof GestaoReembolsosRoute
   '/guia-precificacao': typeof GuiaPrecificacaoRoute
-  '/guia-teste-live': typeof GuiaTesteLiveRoute
   '/historico-faturas': typeof HistoricoFaturasRoute
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
@@ -859,7 +807,6 @@ export interface FileRoutesById {
   '/marketing-campanhas': typeof MarketingCampanhasRoute
   '/marketing-conteudo': typeof MarketingConteudoRoute
   '/mcp': typeof McpRoute
-  '/meus-reembolsos': typeof MeusReembolsosRoute
   '/minha-subscricao': typeof MinhaSubscricaoRoute
   '/modulos': typeof ModulosRoute
   '/moeda': typeof MoedaRoute
@@ -868,7 +815,6 @@ export interface FileRoutesById {
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/onboarding': typeof OnboardingRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -917,7 +863,6 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
-    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -937,7 +882,6 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
-    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -948,9 +892,7 @@ export interface FileRouteTypes {
     | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
-    | '/gestao-reembolsos'
     | '/guia-precificacao'
-    | '/guia-teste-live'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -961,7 +903,6 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
-    | '/meus-reembolsos'
     | '/minha-subscricao'
     | '/modulos'
     | '/moeda'
@@ -970,7 +911,6 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
-    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1017,7 +957,6 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
-    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -1037,7 +976,6 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
-    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -1048,9 +986,7 @@ export interface FileRouteTypes {
     | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
-    | '/gestao-reembolsos'
     | '/guia-precificacao'
-    | '/guia-teste-live'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1061,7 +997,6 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
-    | '/meus-reembolsos'
     | '/minha-subscricao'
     | '/modulos'
     | '/moeda'
@@ -1070,7 +1005,6 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
-    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1117,7 +1051,6 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/assistente'
     | '/atelier-sounds'
-    | '/auditoria-pagamentos'
     | '/auth'
     | '/auth-callback'
     | '/backup'
@@ -1137,7 +1070,6 @@ export interface FileRouteTypes {
     | '/cursos'
     | '/design'
     | '/despesas'
-    | '/diagnostico-pagamentos'
     | '/editor-moodboards'
     | '/encomendas'
     | '/estado-encomendas'
@@ -1148,9 +1080,7 @@ export interface FileRouteTypes {
     | '/ficheiros-digitais'
     | '/fornecedores'
     | '/gestao-fornecedores'
-    | '/gestao-reembolsos'
     | '/guia-precificacao'
-    | '/guia-teste-live'
     | '/historico-faturas'
     | '/horas'
     | '/idioma'
@@ -1161,7 +1091,6 @@ export interface FileRouteTypes {
     | '/marketing-campanhas'
     | '/marketing-conteudo'
     | '/mcp'
-    | '/meus-reembolsos'
     | '/minha-subscricao'
     | '/modulos'
     | '/moeda'
@@ -1170,7 +1099,6 @@ export interface FileRouteTypes {
     | '/notas'
     | '/notificacoes'
     | '/onboarding'
-    | '/pagamentos'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1218,7 +1146,6 @@ export interface RootRouteChildren {
   AjudaRoute: typeof AjudaRoute
   AssistenteRoute: typeof AssistenteRoute
   AtelierSoundsRoute: typeof AtelierSoundsRoute
-  AuditoriaPagamentosRoute: typeof AuditoriaPagamentosRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   BackupRoute: typeof BackupRoute
@@ -1238,7 +1165,6 @@ export interface RootRouteChildren {
   CursosRoute: typeof CursosRoute
   DesignRoute: typeof DesignRoute
   DespesasRoute: typeof DespesasRoute
-  DiagnosticoPagamentosRoute: typeof DiagnosticoPagamentosRoute
   EditorMoodboardsRoute: typeof EditorMoodboardsRoute
   EncomendasRoute: typeof EncomendasRoute
   EstadoEncomendasRoute: typeof EstadoEncomendasRoute
@@ -1249,9 +1175,7 @@ export interface RootRouteChildren {
   FicheirosDigitaisRoute: typeof FicheirosDigitaisRoute
   FornecedoresRoute: typeof FornecedoresRoute
   GestaoFornecedoresRoute: typeof GestaoFornecedoresRoute
-  GestaoReembolsosRoute: typeof GestaoReembolsosRoute
   GuiaPrecificacaoRoute: typeof GuiaPrecificacaoRoute
-  GuiaTesteLiveRoute: typeof GuiaTesteLiveRoute
   HistoricoFaturasRoute: typeof HistoricoFaturasRoute
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
@@ -1262,7 +1186,6 @@ export interface RootRouteChildren {
   MarketingCampanhasRoute: typeof MarketingCampanhasRoute
   MarketingConteudoRoute: typeof MarketingConteudoRoute
   McpRoute: typeof McpRoute
-  MeusReembolsosRoute: typeof MeusReembolsosRoute
   MinhaSubscricaoRoute: typeof MinhaSubscricaoRoute
   ModulosRoute: typeof ModulosRoute
   MoedaRoute: typeof MoedaRoute
@@ -1271,7 +1194,6 @@ export interface RootRouteChildren {
   NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   OnboardingRoute: typeof OnboardingRoute
-  PagamentosRoute: typeof PagamentosRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
   PlaneadorProducaoRoute: typeof PlaneadorProducaoRoute
   PlanosRoute: typeof PlanosRoute
@@ -1340,13 +1262,6 @@ declare module '@tanstack/react-router' {
       path: '/atelier-sounds'
       fullPath: '/atelier-sounds'
       preLoaderRoute: typeof AtelierSoundsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auditoria-pagamentos': {
-      id: '/auditoria-pagamentos'
-      path: '/auditoria-pagamentos'
-      fullPath: '/auditoria-pagamentos'
-      preLoaderRoute: typeof AuditoriaPagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1482,13 +1397,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DespesasRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/diagnostico-pagamentos': {
-      id: '/diagnostico-pagamentos'
-      path: '/diagnostico-pagamentos'
-      fullPath: '/diagnostico-pagamentos'
-      preLoaderRoute: typeof DiagnosticoPagamentosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/editor-moodboards': {
       id: '/editor-moodboards'
       path: '/editor-moodboards'
@@ -1559,25 +1467,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GestaoFornecedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/gestao-reembolsos': {
-      id: '/gestao-reembolsos'
-      path: '/gestao-reembolsos'
-      fullPath: '/gestao-reembolsos'
-      preLoaderRoute: typeof GestaoReembolsosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/guia-precificacao': {
       id: '/guia-precificacao'
       path: '/guia-precificacao'
       fullPath: '/guia-precificacao'
       preLoaderRoute: typeof GuiaPrecificacaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guia-teste-live': {
-      id: '/guia-teste-live'
-      path: '/guia-teste-live'
-      fullPath: '/guia-teste-live'
-      preLoaderRoute: typeof GuiaTesteLiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico-faturas': {
@@ -1650,13 +1544,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/meus-reembolsos': {
-      id: '/meus-reembolsos'
-      path: '/meus-reembolsos'
-      fullPath: '/meus-reembolsos'
-      preLoaderRoute: typeof MeusReembolsosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/minha-subscricao': {
       id: '/minha-subscricao'
       path: '/minha-subscricao'
@@ -1711,13 +1598,6 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pagamentos': {
-      id: '/pagamentos'
-      path: '/pagamentos'
-      fullPath: '/pagamentos'
-      preLoaderRoute: typeof PagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil-negocio': {
@@ -2030,7 +1910,6 @@ const rootRouteChildren: RootRouteChildren = {
   AjudaRoute: AjudaRoute,
   AssistenteRoute: AssistenteRoute,
   AtelierSoundsRoute: AtelierSoundsRoute,
-  AuditoriaPagamentosRoute: AuditoriaPagamentosRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   BackupRoute: BackupRoute,
@@ -2050,7 +1929,6 @@ const rootRouteChildren: RootRouteChildren = {
   CursosRoute: CursosRoute,
   DesignRoute: DesignRoute,
   DespesasRoute: DespesasRoute,
-  DiagnosticoPagamentosRoute: DiagnosticoPagamentosRoute,
   EditorMoodboardsRoute: EditorMoodboardsRoute,
   EncomendasRoute: EncomendasRoute,
   EstadoEncomendasRoute: EstadoEncomendasRoute,
@@ -2061,9 +1939,7 @@ const rootRouteChildren: RootRouteChildren = {
   FicheirosDigitaisRoute: FicheirosDigitaisRoute,
   FornecedoresRoute: FornecedoresRoute,
   GestaoFornecedoresRoute: GestaoFornecedoresRoute,
-  GestaoReembolsosRoute: GestaoReembolsosRoute,
   GuiaPrecificacaoRoute: GuiaPrecificacaoRoute,
-  GuiaTesteLiveRoute: GuiaTesteLiveRoute,
   HistoricoFaturasRoute: HistoricoFaturasRoute,
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
@@ -2074,7 +1950,6 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingCampanhasRoute: MarketingCampanhasRoute,
   MarketingConteudoRoute: MarketingConteudoRoute,
   McpRoute: McpRoute,
-  MeusReembolsosRoute: MeusReembolsosRoute,
   MinhaSubscricaoRoute: MinhaSubscricaoRoute,
   ModulosRoute: ModulosRoute,
   MoedaRoute: MoedaRoute,
@@ -2083,7 +1958,6 @@ const rootRouteChildren: RootRouteChildren = {
   NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
   OnboardingRoute: OnboardingRoute,
-  PagamentosRoute: PagamentosRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
   PlaneadorProducaoRoute: PlaneadorProducaoRoute,
   PlanosRoute: PlanosRoute,
