@@ -14,7 +14,10 @@ import { ImagePicker } from "@/components/ImagePicker";
 
 export const Route = createFileRoute("/catalogo")({
   head: () => ({ meta: [{ title: "Catálogo" }] }),
-  component: () => {
+  component: () => <CatalogoContent />,
+});
+
+export function CatalogoContent({ embedded = false }: { embedded?: boolean }) {
     const { catalogo, add, remove, update } = useStore();
     const tt = useTT();
     const [novo, setNovo] = useState({ nome: "", descricao: "", precoVenda: 0, imagem: "" });
@@ -25,7 +28,9 @@ export const Route = createFileRoute("/catalogo")({
     };
     return (
       <div className="space-y-6">
-        <PageHeader title="Catálogo" description="Peças à venda. Liga-se à Calculadora para guardar o preço final como Preço de Venda." />
+        {!embedded && (
+          <PageHeader title="Catálogo" description="Peças à venda. Liga-se à Calculadora para guardar o preço final como Preço de Venda." />
+        )}
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-4">
           <Input placeholder="Nome" value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} />
           <Input type="number" min={0} step={0.5} placeholder="Preço (€)" value={novo.precoVenda || ""} onChange={(e) => setNovo({ ...novo, precoVenda: +e.target.value })} />
@@ -58,5 +63,4 @@ export const Route = createFileRoute("/catalogo")({
         </div>
       </div>
     );
-  },
-});
+}
