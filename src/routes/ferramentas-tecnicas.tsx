@@ -29,6 +29,7 @@ import { EditorMoodboardsPage } from "./editor-moodboards";
 import { ConversorPage } from "./conversor-cores";
 import { AmigurumiEditor } from "@/components/amigurumi-editor/AmigurumiEditor";
 import { ContadorPage } from "./contador";
+import { BibliotecaContent } from "./biblioteca";
 import { traceImage, toSVG, toDXF, polylineLength, type TracePoint, type TraceResult } from "@/lib/trace";
 import { PontoCruzEditor } from "@/components/PontoCruzEditor";
 import { CosturaEditor } from "@/components/CosturaEditor";
@@ -108,6 +109,7 @@ function FerramentasPage() {
           <TabsTrigger value="editor-moodboards">Editor De Moodboards</TabsTrigger>
           <TabsTrigger value="conversor">Conversor De Cores: DMC/ANCHOR</TabsTrigger>
           <TabsTrigger value="contador">Contador De Carreiras & Pontos</TabsTrigger>
+          <TabsTrigger value="biblioteca">Biblioteca</TabsTrigger>
         </TabsList>
         {/* forceMount keeps editor state (canvas, form, presets) alive when
             switching tabs — Radix would otherwise unmount inactive content. */}
@@ -121,6 +123,7 @@ function FerramentasPage() {
         <TabsContent forceMount value="editor-moodboards" className="mt-24 data-[state=inactive]:hidden"><EditorMoodboardsPage /></TabsContent>
         <TabsContent forceMount value="conversor" className="mt-24 data-[state=inactive]:hidden"><ConversorPage /></TabsContent>
         <TabsContent forceMount value="contador" className="mt-24 data-[state=inactive]:hidden"><ContadorPage /></TabsContent>
+        <TabsContent forceMount value="biblioteca" className="mt-24 data-[state=inactive]:hidden"><BibliotecaContent embedded /></TabsContent>
       </Tabs>
     </div>
   );
