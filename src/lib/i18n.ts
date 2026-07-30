@@ -61,7 +61,7 @@ export function translate(
   vars?: Record<string, string | number>,
 ) {
   const dict = dicts[idioma] ?? dicts.pt;
-  const value = dict[key] ?? dicts.pt[key] ?? key;
+  const value = pick(dict, key) ?? pick(dicts.pt, key) ?? key;
   return interpolate(value, vars);
 }
 
@@ -76,6 +76,12 @@ export function useT() {
  * Ordem: dicionário custom do utilizador → dicionário de conteúdo →
  * chave de UI equivalente → texto original em português (fallback).
  */
+/** Devolve o valor apenas se existir e não estiver vazio (fallback PT). */
+function pick(dict: Dict | undefined, text: string) {
+  const v = dict?.[text];
+  return v && v.trim() ? v : undefined;
+}
+
 export function useTT() {
   const idioma = useStore((s) => s.design.idioma);
   const custom = useStore((s) => s.traducoes);
@@ -83,9 +89,9 @@ export function useTT() {
     if (!text) return text ?? "";
     if (idioma === "pt") return text;
     return (
-      custom?.[idioma]?.[text] ??
-      contentDicts[idioma]?.[text] ??
-      dicts[idioma]?.[text] ??
+      pick(custom?.[idioma] as Dict | undefined, text) ??
+      pick(contentDicts[idioma], text) ??
+      pick(dicts[idioma], text) ??
       text
     );
   };
@@ -98,7 +104,8 @@ export function useAutoText() {
   return (text: string | undefined | null) => {
     if (!text) return text ?? "";
     const dict = dicts[idioma] ?? dicts.pt;
-    if (dict[text] ?? dicts.pt[text]) return dict[text] ?? dicts.pt[text];
+    const byKey = pick(dict, text) ?? pick(dicts.pt, text);
+    if (byKey) return byKey;
     return tt(text);
   };
 }
@@ -110,11 +117,14 @@ export function useAutoText() {
  */
 export function getStaticDict(lang: Idioma): Dict {
   if (lang === "pt") return {};
-  const out: Dict = { ...(contentDicts[lang] ?? {}) };
+  const out: Dict = {};
+  for (const [pt, v] of Object.entries(contentDicts[lang] ?? {})) {
+    if (v && v.trim()) out[pt] = v;
+  }
   const target = dicts[lang] ?? {};
   for (const [key, ptValue] of Object.entries(dicts.pt)) {
     const translated = target[key];
-    if (translated && ptValue && !out[ptValue]) out[ptValue] = translated;
+    if (translated?.trim() && ptValue && !out[ptValue]) out[ptValue] = translated;
   }
   return out;
 }
