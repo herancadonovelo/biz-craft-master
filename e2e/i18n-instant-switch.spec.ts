@@ -31,7 +31,7 @@ test("troca de idioma aplica-se instantaneamente sem reload", async ({ page }) =
   await expect(h1).toHaveText(/idioma/i);
 
   const initialUrl = page.url();
-  await page.getByRole("button", { name: /english/i }).first().click();
+  await page.getByText("English", { exact: true }).first().click();
 
   await expect(h1).toHaveText(/language/i, { timeout: 10_000 });
   expect(page.url()).toBe(initialUrl); // sem navegação/reload
