@@ -216,8 +216,16 @@ function AuthPage() {
               Se o login falhar, <button type="button" onClick={openInNewTab} className="underline font-medium">abre numa nova janela</button>.
             </div>
           )}
-          <Button variant="outline" className="w-full" onClick={signInGoogle} disabled={busy}>
-            Continuar com Google
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2"
+            onClick={signInGoogle}
+            disabled={busy}
+            aria-label="Entrar com o Google"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-4 w-4" />}
+            Entrar com o Google
           </Button>
           <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px flex-1 bg-border" /> ou email <div className="h-px flex-1 bg-border" />
