@@ -1,0 +1,9 @@
+{
+  "pendente": "en attente",
+  "em_producao": "en production",
+  "pronta": "prête",
+  "entregue": "livrée",
+  "cancelada": "annulée",
+  "Sem cliente": "Sans client",
+  "Vazio": "Vide"
+}

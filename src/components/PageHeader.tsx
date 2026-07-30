@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
+import { useAutoText } from "@/lib/i18n";
 
 export function PageHeader({
   title,
@@ -13,6 +14,9 @@ export function PageHeader({
 }) {
   const pathname = useLocation({ select: (l) => l.pathname });
   const design = useStore((s) => s.design);
+  const auto = useAutoText();
+  const tTitle = auto(title);
+  const tDescription = auto(description);
   const overrideFont = design.fontesPorPagina?.[pathname];
   const [liveHeaderFont, setLiveHeaderFont] = useState("var(--page-header-font, 'Playfair Display', Georgia, serif)");
 
@@ -31,11 +35,11 @@ export function PageHeader({
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card/80 p-5 shadow-sm sm:flex-row sm:items-end sm:justify-between" data-testid="page-header">
       <div style={{ fontFamily }}>
         <h1 className="italic font-bold tracking-tight text-foreground text-3xl sm:text-4xl leading-tight" style={{ fontFamily }} data-testid="page-header-title">
-          {title}
+          {tTitle}
         </h1>
         {description && (
           <p className="mt-2 italic text-base sm:text-lg text-foreground/80" style={{ fontFamily }} data-testid="page-header-description">
-            {description}
+            {tDescription}
           </p>
         )}
       </div>

@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store";
 import { translateBatch, TRANSLATE_STRING_LIMIT } from "@/lib/translate.functions";
 import { KNIT_GLOSSARY } from "@/lib/knit/i18n";
 import { EDITORS_GLOSSARY } from "@/lib/editors/i18n";
+import { getStaticDict } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-state";
 import { toast } from "sonner";
 
@@ -95,10 +96,11 @@ export function AutoTranslator() {
     // translateBatch requires an authenticated session. Skip entirely on
     // public routes / while the session is still loading — otherwise the
     // server fn 401s with "Unauthorized: No authorization header provided".
-    if (loading || !user) return;
+    if (loading) return;
     // Glossário estático (offline, instantâneo) + cache do utilizador/IA.
     // O cache dinâmico tem prioridade para permitir correcções manuais.
     const getLangCache = (): Record<string, string> => ({
+      ...getStaticDict(lang),
       ...((KNIT_GLOSSARY as Record<string, Record<string, string>>)[lang] || {}),
       ...((EDITORS_GLOSSARY as Record<string, Record<string, string>>)[lang] || {}),
       ...(((useStore.getState().traducoes as any) || {})[lang] || {}),
