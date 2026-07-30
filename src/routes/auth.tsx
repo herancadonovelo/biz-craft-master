@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth-state";
 import { consumeIntendedPath } from "@/components/AuthGate";
+import { ensureProfileAndResolveDestination } from "@/lib/post-login";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,8 +79,8 @@ function AuthPage() {
       reason: "google_oauth",
       path: window.location.pathname,
     });
-    const target = consumeIntendedPath();
-    nav({ to: (target as any) || "/" });
+    const target = await ensureProfileAndResolveDestination();
+    nav({ to: target as any });
   };
 
   const waitForSession = async () => {
