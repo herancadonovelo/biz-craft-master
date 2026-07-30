@@ -1,0 +1,21 @@
+{
+  "pendente": "pending",
+  "em_producao": "in production",
+  "pronta": "ready",
+  "entregue": "delivered",
+  "cancelada": "cancelled",
+  "rascunho": "draft",
+  "em_curso": "in progress",
+  "concluido": "completed",
+  "emitida": "issued",
+  "paga": "paid",
+  "mensal": "monthly",
+  "anual": "yearly",
+  "entrada": "income",
+  "saida": "expense",
+  "baixa": "low",
+  "media": "medium",
+  "alta": "high",
+  "Sem cliente": "No client",
+  "Vazio": "Empty"
+}

@@ -1,0 +1,9 @@
+{
+  "pendente": "ausstehend",
+  "em_producao": "in Produktion",
+  "pronta": "bereit",
+  "entregue": "geliefert",
+  "cancelada": "storniert",
+  "Sem cliente": "Kein Kunde",
+  "Vazio": "Leer"
+}
