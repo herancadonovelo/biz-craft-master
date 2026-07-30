@@ -17,7 +17,10 @@ const AREAS_BIB = ["Tricotin", "Amigurumi", "Crochê", "Costura", "Ponto cruz", 
 
 export const Route = createFileRoute("/biblioteca")({
   head: () => ({ meta: [{ title: "Biblioteca de moldes e receitas" }] }),
-  component: () => {
+  component: () => <BibliotecaContent />,
+});
+
+export function BibliotecaContent({ embedded = false }: { embedded?: boolean }) {
     const { biblioteca, add, remove } = useStore();
     const tt = useTT();
     const [q, setQ] = useState("");
@@ -49,7 +52,9 @@ export const Route = createFileRoute("/biblioteca")({
     const porArea = (area: string) => filtrados.filter((b) => (b.categoria || "").toLowerCase() === area.toLowerCase());
     return (
       <div className="space-y-6">
-        <PageHeader title="Biblioteca" description="Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos." />
+        {!embedded && (
+          <PageHeader title="Biblioteca" description="Repositório central. Cada aba lista os trabalhos guardados pelos Editores Técnicos." />
+        )}
 
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-3">
           <Input placeholder="Título" value={novo.titulo} onChange={(e) => setNovo({ ...novo, titulo: e.target.value })} />
@@ -111,8 +116,7 @@ export const Route = createFileRoute("/biblioteca")({
         </Dialog>
       </div>
     );
-  },
-});
+}
 
 function Grelha({ items, tt, remove, setAberto }: { items: any[]; tt: (s: string) => string; remove: any; setAberto: (id: string) => void }) {
   const ehImagem = (s?: string) => !!s && /^data:image\//i.test(s);
