@@ -13,6 +13,7 @@ import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjetoPersonalizadoContent } from "./projeto-personalizado";
+import { CatalogoContent } from "./catalogo";
 
 export const Route = createFileRoute("/projetos")({
   head: () => ({ meta: [{ title: "Projetos & Criação De Projeto" }] }),
@@ -25,11 +26,13 @@ function ProjetosHub() {
       <PageHeader title="Projetos & Criação De Projeto" description="Todos os teus projetos e o assistente para iniciar um projeto personalizado." />
       <Tabs defaultValue="projetos">
         <TabsList className="flex h-auto w-full flex-wrap">
-          <TabsTrigger value="projetos">Projetos</TabsTrigger>
+          <TabsTrigger value="projetos">Projetos Encomendados</TabsTrigger>
           <TabsTrigger value="personalizado">Iniciar Projeto Personalizado</TabsTrigger>
+          <TabsTrigger value="catalogo">Catálogo</TabsTrigger>
         </TabsList>
         <TabsContent value="projetos" className="mt-6"><ProjetosListContent /></TabsContent>
         <TabsContent value="personalizado" className="mt-6"><ProjetoPersonalizadoContent /></TabsContent>
+        <TabsContent value="catalogo" className="mt-6"><CatalogoContent embedded /></TabsContent>
       </Tabs>
     </div>
   );

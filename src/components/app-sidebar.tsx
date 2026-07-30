@@ -101,13 +101,10 @@ const getGroups = (t: (k: string) => string) => [
     items: [
       { title: "Encomendas", url: "/encomendas", icon: ShoppingBag },
       { title: "Projetos & Criação", url: "/projetos", icon: FolderPlus },
-      { title: "Planeador De Produção", url: "/planeador-producao", icon: ListChecks },
       { title: t("nav.calculator"), url: "/calculadora", icon: Calculator },
       { title: t("nav.hours"), url: "/horas", icon: Clock },
       { title: t("nav.todo"), url: "/todo", icon: ListChecks },
       { title: t("nav.portfolio"), url: "/portfolio", icon: ImageIcon },
-      { title: t("nav.catalog"), url: "/catalogo", icon: Layers },
-      { title: t("nav.library"), url: "/biblioteca", icon: BookOpen },
       { title: "Moodboards & Inspiração", url: "/moodboards", icon: PaletteIcon },
       { title: "Ateliê Digital", url: "/ferramentas-tecnicas", icon: Ruler },
       { title: "Bloco de Criação & Ideias", url: "/notas", icon: StickyNote },
