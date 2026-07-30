@@ -100,6 +100,9 @@ writeFileSync("src/i18n/pending.json", JSON.stringify(manifest, null, 2) + "\n")
 if (WRITE) {
   for (const e of entries) {
     contentPt[e.text] = e.text;
+  }
+  for (const t of Object.keys(contentEn)) {
+    if (!(t in contentPt)) contentPt[t] = t;
     if (!(e.text in contentEn)) contentEn[e.text] = "";
   }
   const sortObj = (o) => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));
