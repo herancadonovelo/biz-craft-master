@@ -526,6 +526,7 @@ async function handleWebhook(req: Request, env: PaddleEnv, origin: string) {
   try {
     await dispatchEvent(event, env, origin);
   } catch (e) {
+    await releaseProcessedMark(eventId ?? undefined, env);
     await logPaddleEvent({
       eventId,
       eventType: event.eventType,
