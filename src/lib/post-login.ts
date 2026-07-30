@@ -32,7 +32,7 @@ export async function ensureProfileAndResolveDestination(): Promise<string> {
   }
 
   // Completa nome em falta a partir dos dados da Google, sem sobrepor edições.
-  const patch: Record<string, string> = {};
+  const patch: { first_name?: string; last_name?: string } = {};
   if (!existing.first_name && ((meta.given_name as string) || metaFirst)) {
     patch.first_name = (meta.given_name as string) || metaFirst;
   }
