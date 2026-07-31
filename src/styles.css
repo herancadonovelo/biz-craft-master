@@ -318,3 +318,8 @@ button[data-variant="outline"],
 .has-btn-alpha button.border.border-input {
   background-color: color-mix(in oklab, var(--outline-bg, var(--background)) calc(var(--btn-outline-alpha, 1) * 100%), transparent) !important;
 }
+
+/* Splash já concluído nesta sessão: nunca reaparece em recargas técnicas. */
+html[data-splash-done] [data-testid="splash-screen"] {
+  display: none !important;
+}
