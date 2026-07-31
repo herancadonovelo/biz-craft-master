@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-31T04:33:50.398Z",
-  "total": 628,
+  "generatedAt": "2026-07-31T23:35:51.403Z",
+  "total": 629,
   "pending": 0,
   "byCategory": {
     "atelier": {
@@ -20,7 +20,7 @@
       "pending": 0
     },
     "editors": {
-      "total": 200,
+      "total": 201,
       "pending": 0
     },
     "marketing": {
@@ -2240,6 +2240,14 @@
       "key": "editors.guardar_na_aplicacao",
       "translated": true,
       "en": "Save to app"
+    },
+    {
+      "text": "Guias magnéticas",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.guias_magneticas",
+      "translated": true,
+      "en": "Magnetic guides"
     },
     {
       "text": "Horas acumuladas para preço:",

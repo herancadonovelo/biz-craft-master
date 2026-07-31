@@ -14,6 +14,19 @@ const MAX_DURATION = IS_WEBDRIVER ? 200 : 10000; // 10s (skip in E2E)
 const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
+// Marca de sessão: o splash só corre no arranque real da sessão do browser.
+// Recargas involuntárias (chunk novo, otimização de dependências, erro
+// recuperado) deixam de mandar o utilizador para o ecrã inicial.
+const SPLASH_SESSION_KEY = "cbm-splash-done";
+
+function splashJaCorreu() {
+  if (typeof window === "undefined") return false;
+  try { return window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "1"; }
+  catch { return false; }
+}
+function marcarSplashCorrido() {
+  try { window.sessionStorage.setItem(SPLASH_SESSION_KEY, "1"); } catch { /* ignore */ }
+}
 
 const SPLASH_STRINGS: Record<string, {
   loadingAria: string;
@@ -209,10 +222,17 @@ export function SplashScreen() {
   const navigate = useNavigate();
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
+  // Já correu nesta sessão? Esconde de imediato (após hidratação, para não
+  // provocar mismatch SSR) — recargas técnicas não voltam ao ecrã inicial.
+  useEffect(() => {
+    if (splashJaCorreu()) { setFading(false); setVisible(false); }
+  }, []);
+
   // Replay splash after logout so the transition mirrors the initial boot.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onReplay = () => {
+      try { window.sessionStorage.removeItem(SPLASH_SESSION_KEY); } catch { /* ignore */ }
       setError(null);
       setAttempt(0);
       setProgress(0);
@@ -274,7 +294,7 @@ export function SplashScreen() {
           navigate({ to: "/auth", replace: true });
         }
         setFading(true);
-        window.setTimeout(() => !cancelled && setVisible(false), 700);
+        window.setTimeout(() => { if (!cancelled) { marcarSplashCorrido(); setVisible(false); } }, 700);
       }, wait);
     };
 
@@ -284,7 +304,7 @@ export function SplashScreen() {
       if (!error) {
         setProgress(1);
         setFading(true);
-        window.setTimeout(() => !cancelled && setVisible(false), 700);
+        window.setTimeout(() => { if (!cancelled) { marcarSplashCorrido(); setVisible(false); } }, 700);
       }
     }, MAX_DURATION);
 
@@ -330,6 +350,7 @@ export function SplashScreen() {
   return (
     <div
       aria-hidden
+      data-testid="splash-screen"
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-700 ease-out ${
         fading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
