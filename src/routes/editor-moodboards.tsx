@@ -584,6 +584,28 @@ function EditorPage() {
           )}
         </CardContent></Card>
       </div>
+
+      {apresentacao && (
+        <div
+          data-testid="modo-apresentacao"
+          className="fixed inset-0 z-[95] grid place-items-center bg-black/90 p-6"
+          onClick={() => setApresentacao(false)}
+        >
+          <div
+            style={{
+              width: A4_W, height: A4_H,
+              transform: `scale(${Math.min((typeof window !== "undefined" ? window.innerHeight - 80 : A4_H) / A4_H, 1.2)})`,
+              background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
+              position: "relative", overflow: "hidden", boxShadow: "0 20px 80px rgba(0,0,0,.6)",
+            }}
+          >
+            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+              <ElementoView key={el.id} el={el} selecionado={false} onPointerDown={() => {}} onChange={() => {}} />
+            ))}
+          </div>
+          <span className="absolute bottom-4 text-xs text-white/70">Clica ou prime Esc para sair</span>
+        </div>
+      )}
     </div>
   );
 }
