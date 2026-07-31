@@ -165,13 +165,11 @@ function EditorPage() {
   /** Pan ao arrastar o fundo do canvas (ou com botão do meio). */
   const iniciarPan = (ev: React.PointerEvent) => {
     if (ev.button !== 0 && ev.button !== 1) return;
-    const start = { x: ev.clientX, y: ev.clientY, ...viewRef.current };
+    const startX = ev.clientX, startY = ev.clientY;
+    const origem = { x: viewRef.current.x, y: viewRef.current.y };
     const onMove = (e: PointerEvent) => {
-      setView((v) => ({ ...v, x: start.x0 + (e.clientX - start.x), y: start.y0 + (e.clientY - start.y) }));
+      setView((v) => ({ ...v, x: origem.x + (e.clientX - startX), y: origem.y + (e.clientY - startY) }));
     };
-    // guarda origem do pan
-    (start as any).x0 = viewRef.current.x;
-    (start as any).y0 = viewRef.current.y;
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
