@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
-import { buildTargets, snapRect, clampZoom, normalizeWheel, MIN_ZOOM, MAX_ZOOM } from "@/lib/moodboard-snap";
+import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import {
   sugerirTemaMoodboard, gerarTextosMoodboard, criticarComposicao, sugestaoContextual, removerFundoImagem,
 } from "@/lib/moodboard-ai.functions";
