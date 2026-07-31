@@ -51,11 +51,20 @@ test("nenhuma rota da app cai no splash screen", async ({ page }) => {
   const falhas: string[] = [];
   for (const rota of todas) {
     await page.goto(rota, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(250);
-    const estado = await page.evaluate(() => ({
-      splash: !!document.querySelector("[data-testid='splash-screen']"),
-      path: window.location.pathname,
-    }));
+    // O splash já correu nesta sessão: não pode voltar a ficar visível.
+    await page
+      .waitForFunction(() => {
+        const e = document.querySelector("[data-testid='splash-screen']");
+        return !e || getComputedStyle(e).display === "none";
+      }, undefined, { timeout: 4000 })
+      .catch(() => {});
+    const estado = await page.evaluate(() => {
+      const e = document.querySelector("[data-testid='splash-screen']");
+      return {
+        splash: !!e && getComputedStyle(e).display !== "none",
+        path: window.location.pathname,
+      };
+    });
     if (estado.splash) falhas.push(`${rota}: mostrou splash`);
     if (estado.path !== rota) falhas.push(`${rota}: redirecionou para ${estado.path}`);
   }
@@ -83,7 +92,10 @@ test("navegação por atalhos do menu mantém a sessão sem recarga", async ({ p
     await page.waitForTimeout(300);
     const estado = await page.evaluate(() => ({
       recarregou: !(window as any).__semRecarga,
-      splash: !!document.querySelector("[data-testid='splash-screen']"),
+      splash: (() => {
+        const e = document.querySelector("[data-testid='splash-screen']");
+        return !!e && getComputedStyle(e).display !== "none";
+      })(),
     }));
     if (estado.recarregou) {
       falhas.push(`${href}: recarga total`);
