@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-31T04:29:48.298Z",
+  "generatedAt": "2026-07-31T04:30:08.486Z",
   "total": 628,
-  "pending": 1,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 27,
@@ -29,7 +29,7 @@
     },
     "misc": {
       "total": 123,
-      "pending": 1
+      "pending": 0
     },
     "operations": {
       "total": 29,
@@ -4190,8 +4190,8 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.travar_marca_d_apos_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lock watermark"
     },
     {
       "text": "Últimas cotações",
