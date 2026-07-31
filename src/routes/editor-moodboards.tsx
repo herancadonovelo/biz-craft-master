@@ -417,30 +417,65 @@ function EditorPage() {
           </Tabs>
         </CardContent></Card>
 
-        {/* CENTRO: stage A4 */}
+        {/* CENTRO: canvas infinito com a folha A4 */}
         <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Label className="text-xs">Zoom</Label>
-            <Slider value={[zoom * 100]} min={25} max={150} step={5} onValueChange={([v]) => setZoom(v / 100)} className="max-w-xs" />
-            <span className="text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
+          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+            <Button size="sm" variant="outline" data-testid="zoom-out" onClick={() => zoomEmTorno(zoom / 1.25)} aria-label="Reduzir zoom"><ZoomOut className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant="outline" data-testid="zoom-in" onClick={() => zoomEmTorno(zoom * 1.25)} aria-label="Aumentar zoom"><ZoomIn className="h-3.5 w-3.5" /></Button>
+            <span data-testid="zoom-valor" className="min-w-14 text-center text-xs tabular-nums text-muted-foreground">{Math.round(zoom * 100)}%</span>
+            <Button size="sm" variant="outline" data-testid="zoom-fit" onClick={ajustar}><Maximize className="mr-1 h-3.5 w-3.5" /> Ajustar</Button>
+            <Button size="sm" variant="outline" onClick={() => setZoom(1)}>100%</Button>
+            <Button size="sm" variant={grelha ? "default" : "outline"} data-testid="toggle-grelha" onClick={() => setGrelha((v) => !v)} aria-label="Grelha"><Grid3X3 className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant={magnetico ? "default" : "outline"} data-testid="toggle-magnetico" onClick={() => setMagnetico((v) => !v)} aria-label="Guias magnéticas"><Magnet className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant="outline" data-testid="apresentar" onClick={() => setApresentacao(true)}><Play className="mr-1 h-3.5 w-3.5" /> Apresentar</Button>
           </div>
-          <div ref={stageRef} className="flex items-start justify-center overflow-auto rounded-lg border bg-muted/30 p-6" onClick={() => setSelId(null)}>
+          <div
+            ref={stageRef}
+            data-testid="canvas-viewport"
+            className="relative h-[70vh] min-h-[420px] touch-none overflow-hidden rounded-lg border bg-muted/30"
+            style={{
+              backgroundImage: grelha
+                ? "linear-gradient(to right, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px)"
+                : undefined,
+              backgroundSize: grelha ? `${24 * zoom}px ${24 * zoom}px` : undefined,
+              backgroundPosition: grelha ? `${view.x}px ${view.y}px` : undefined,
+              cursor: "grab",
+            }}
+            onPointerDown={(e) => { if (e.currentTarget === e.target) { setSelId(null); iniciarPan(e); } }}
+          >
             <div
-              data-stage-export
               style={{
-                width: A4_W * zoom, height: A4_H * zoom,
-                background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
-                position: "relative", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.08)",
+                position: "absolute", top: 0, left: 0,
+                transform: `translate(${view.x}px, ${view.y}px) scale(${zoom})`,
+                transformOrigin: "0 0",
               }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ width: A4_W, height: A4_H, transform: `scale(${zoom})`, transformOrigin: "top left", position: "relative" }}>
+              <div
+                ref={artRef}
+                data-stage-export
+                style={{
+                  width: A4_W, height: A4_H,
+                  background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
+                  position: "relative", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,.18)",
+                }}
+                onPointerDown={(e) => { if (e.currentTarget === e.target) setSelId(null); }}
+              >
                 {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
                   <ElementoView key={el.id} el={el} selecionado={el.id === selId} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
+                ))}
+                {/* guias magnéticas */}
+                {guias.v.map((x, i) => (
+                  <div key={`v${i}`} style={{ position: "absolute", left: x, top: 0, width: 1 / zoom, height: A4_H, background: "#e11d48", pointerEvents: "none" }} />
+                ))}
+                {guias.h.map((y, i) => (
+                  <div key={`h${i}`} style={{ position: "absolute", top: y, left: 0, height: 1 / zoom, width: A4_W, background: "#e11d48", pointerEvents: "none" }} />
                 ))}
               </div>
             </div>
           </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar
+          </p>
 
           {sel && (
             <Card className="mt-3"><CardContent className="p-3">
