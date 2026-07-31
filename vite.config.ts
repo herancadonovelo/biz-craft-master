@@ -20,6 +20,19 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    // Pré-otimiza as dependências pesadas dos editores: evita que a primeira
+    // abertura de um atalho dispare uma recarga total (que reabria o splash).
+    optimizeDeps: {
+      include: [
+        "html-to-image",
+        "recharts",
+        "date-fns",
+        "zod",
+        "sonner",
+        "lucide-react",
+        "@tanstack/react-query",
+      ],
+    },
     resolve: {
       alias: {
         "entities/lib/decode.js": path.resolve(process.cwd(), "node_modules/entities/lib/decode.js"),
