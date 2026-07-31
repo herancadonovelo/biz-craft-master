@@ -26,7 +26,20 @@ for (const lang of LANGS) {
   }
   const missing = Object.keys(pt).filter((k) => !dict[k]?.trim());
   if (missing.length) {
-    warnings.push(`${lang}.json: ${missing.length} chave(s) sem tradução — usa fallback PT (${missing.slice(0, 5).join(", ")}${missing.length > 5 ? "…" : ""})`);
+    const msg = `${lang}.json: ${missing.length} chave(s) sem tradução (${missing.slice(0, 5).join(", ")}${missing.length > 5 ? "…" : ""})`;
+    // Inglês é o idioma de referência: tem de estar a 100%.
+    if (lang === "en") errors.push(`${msg} — en.json tem de estar completo.`);
+    else warnings.push(`${msg} — usa fallback PT`);
+  }
+}
+
+// content/en.json também tem de cobrir todo o registo português.
+{
+  const cPt = existsSync("src/i18n/content/pt.json") ? read("src/i18n/content/pt.json") : {};
+  const cEn = read("src/i18n/content/en.json");
+  const gaps = Object.keys(cPt).filter((k) => !String(cEn[k] ?? "").trim());
+  if (gaps.length) {
+    errors.push(`content/en.json: ${gaps.length} frase(s) sem tradução inglesa (${gaps.slice(0, 3).join(" | ")}).`);
   }
 }
 
