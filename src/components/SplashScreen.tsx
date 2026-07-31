@@ -350,6 +350,7 @@ export function SplashScreen() {
   return (
     <div
       aria-hidden
+      data-testid="splash-screen"
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-700 ease-out ${
         fading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
