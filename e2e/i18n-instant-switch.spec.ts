@@ -35,8 +35,7 @@ test("troca de idioma aplica-se instantaneamente sem reload", async ({ page }) =
   await enCard.waitFor({ state: "visible", timeout: 20_000 });
   await enCard.click();
 
-  await expect(h1).toHaveText(/language|idioma/i, { timeout: 15_000 });
-  await expect(page.getByTestId("lang-en")).toBeVisible();
+  await expect(h1).toHaveText(/language/i, { timeout: 15_000 });
   expect(page.url()).toBe(initialUrl); // sem navegação/reload
 });
 
