@@ -65,7 +65,16 @@ function EditorPage() {
   const [titulo, setTitulo] = useState(existente?.titulo ?? "Novo Moodboard");
   const [design, setDesign] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
   const [selId, setSelId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.7);
+  // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
+  const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
+  const zoom = view.z;
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const [grelha, setGrelha] = useState(true);
+  const [magnetico, setMagnetico] = useState(true);
+  const [guias, setGuias] = useState<{ v: number[]; h: number[] }>({ v: [], h: [] });
+  const [apresentacao, setApresentacao] = useState(false);
+  const artRef = useRef<HTMLDivElement>(null);
   const [fundos, setFundos] = useState<FundoItem[]>(() => loadCustom("mb-fundos", FUNDOS_PADRAO));
   const [decor, setDecor] = useState<DecorItem[]>(() => loadCustom("mb-decor", DECOR_PADRAO));
   const [busy, setBusy] = useState<string | null>(null);
