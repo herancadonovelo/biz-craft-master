@@ -170,6 +170,15 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Marca o documento antes da hidratação: se o splash já correu nesta
+            sessão, o ecrã inicial não pisca em recargas técnicas nem ao abrir
+            um atalho diretamente pelo URL. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('cbm-splash-done')==='1')document.documentElement.setAttribute('data-splash-done','1')}catch(e){}",
+          }}
+        />
       </head>
       <body>
         {children}

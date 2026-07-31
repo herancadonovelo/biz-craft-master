@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { savePreferredLanguage } from "@/lib/post-login";
 
 export const Route = createFileRoute("/idioma")({
   head: () => ({ meta: [{ title: "Idioma" }] }),
@@ -19,7 +20,11 @@ export const Route = createFileRoute("/idioma")({
           {IDIOMAS.map((l) => (
             <Card key={l.code} data-testid={`lang-${l.code}`} role="button" aria-label={l.label}
               className={`cursor-pointer transition hover:border-primary ${idioma === l.code ? "border-primary" : ""}`}
-              onClick={() => { setDesign({ idioma: l.code }); toast.success(l.label); }}>
+              onClick={() => {
+                setDesign({ idioma: l.code });
+                void savePreferredLanguage(l.code);
+                toast.success(l.label);
+              }}>
               <CardContent className="flex items-center gap-3 p-4">
                 <span className="text-3xl">{l.flag}</span>
                 <div className="flex-1">

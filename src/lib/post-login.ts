@@ -1,18 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
 import { consumeIntendedPath } from "@/components/AuthGate";
-import { useStore } from "@/lib/store";
+import { useStore, type Idioma } from "@/lib/store";
 import { languageForCountry, languageFromBrowser } from "@/lib/country-language";
 
 const LANG_FLAG_KEY = "cbm-language-picked-v1";
 
-/** Define o idioma da app a partir do país do perfil (uma única vez). */
-function applyLanguageFromCountry(country?: string | null) {
-  try {
-    if (typeof window !== "undefined" && window.localStorage.getItem(LANG_FLAG_KEY)) return;
-  } catch { /* noop */ }
+/** Guarda o idioma preferido no perfil, para ser reaplicado em qualquer login. */
+export async function savePreferredLanguage(idioma: string) {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return;
+  await supabase.from("profiles").update({ preferred_language: idioma }).eq("user_id", data.user.id);
+}
+
+/**
+ * Aplica o idioma do perfil. Se ainda não existir, deriva-o do país (ou do
+ * browser) e persiste-o, para que qualquer login futuro use o mesmo idioma.
+ */
+async function applyPreferredLanguage(
+  userId: string,
+  saved?: string | null,
+  country?: string | null,
+) {
+  if (saved) {
+    useStore.getState().setDesign({ idioma: saved as Idioma });
+    try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
+    return;
+  }
   const idioma = country ? languageForCountry(country) : (languageFromBrowser() ?? "en");
   useStore.getState().setDesign({ idioma });
   try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
+  await supabase.from("profiles").update({ preferred_language: idioma }).eq("user_id", userId);
 }
 
 /**
@@ -32,24 +49,27 @@ export async function ensureProfileAndResolveDestination(): Promise<string> {
 
   const { data: existing } = await supabase
     .from("profiles")
-    .select("onboarding_concluido, first_name, last_name, country")
+    .select("onboarding_concluido, first_name, last_name, country, preferred_language")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (!existing) {
     const country = (meta.country as string) || null;
+    const idioma = country ? languageForCountry(country) : (languageFromBrowser() ?? "en");
     await supabase.from("profiles").insert({
       user_id: user.id,
       first_name: (meta.given_name as string) || metaFirst || null,
       last_name: (meta.family_name as string) || (metaRest.length ? metaRest.join(" ") : null),
       country,
+      preferred_language: idioma,
       onboarding_concluido: true,
     });
-    applyLanguageFromCountry(country);
+    useStore.getState().setDesign({ idioma });
+    try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
     return intended || "/";
   }
 
-  applyLanguageFromCountry(existing.country);
+  await applyPreferredLanguage(user.id, (existing as { preferred_language?: string | null }).preferred_language, existing.country);
 
   // Completa nome em falta a partir dos dados da Google, sem sobrepor edições.
   const patch: { first_name?: string; last_name?: string } = {};

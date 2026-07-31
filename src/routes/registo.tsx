@@ -139,6 +139,7 @@ function RegistoPage() {
           company: data.company || null,
           nationality: data.nationality,
           country: data.country,
+          preferred_language: languageForCountry(data.country),
           marketing_opt_in: data.marketingOptIn,
           promo_code: data.promoCode || null,
           terms_accepted_at: nowIso,
