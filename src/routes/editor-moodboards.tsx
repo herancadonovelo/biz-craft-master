@@ -508,6 +508,7 @@ function EditorPage() {
                 <span className="font-medium">{sel.tipo === "text" ? "Texto" : sel.tipo === "decor" ? "Decoração" : "Imagem"}</span>
                 <Button size="sm" variant="outline" onClick={() => trazerFrente(sel.id)}><ChevronUp className="h-3.5 w-3.5" /> Frente</Button>
                 <Button size="sm" variant="outline" onClick={() => enviarTras(sel.id)}><ChevronDown className="h-3.5 w-3.5" /> Trás</Button>
+                <Button size="sm" variant="outline" onClick={() => duplicarEl(sel.id)}><Copy className="mr-1 h-3.5 w-3.5" /> Duplicar</Button>
                 <Button size="sm" variant="destructive" onClick={() => remEl(sel.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 {(sel.tipo === "image" || sel.tipo === "decor") && (
                   <div className="flex items-center gap-2">
