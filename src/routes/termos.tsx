@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { LegalPage, LegalSection } from "@/components/LegalPage";
 
@@ -98,7 +98,7 @@ function Termos() {
             >
               Termos de Comprador da Paddle
             </a>{" "}
-            e a nossa <a className="underline" href="/reembolsos">Política de Reembolsos</a>.
+            e a nossa <Link className="underline" to="/reembolsos">Política de Reembolsos</Link>.
           </p>
         </LegalSection>
 
