@@ -17,7 +17,8 @@ export const Route = createFileRoute("/idioma")({
         <PageHeader title={t("nav.language")} description="Escolhe a língua da aplicação. A mudança é imediata." />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {IDIOMAS.map((l) => (
-            <Card key={l.code} className={`cursor-pointer transition hover:border-primary ${idioma === l.code ? "border-primary" : ""}`}
+            <Card key={l.code} data-testid={`lang-${l.code}`} role="button" aria-label={l.label}
+              className={`cursor-pointer transition hover:border-primary ${idioma === l.code ? "border-primary" : ""}`}
               onClick={() => { setDesign({ idioma: l.code }); toast.success(l.label); }}>
               <CardContent className="flex items-center gap-3 p-4">
                 <span className="text-3xl">{l.flag}</span>
