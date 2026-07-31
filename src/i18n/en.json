@@ -73,5 +73,6 @@
   "common.actions": "Actions",
   "app.subtitle": "management panel",
   "dashboard.searchPlaceholder": "Search the whole app: pages, categories, tabs…",
-  "nav.settingsAlias": "Settings"
+  "nav.settingsAlias": "Settings",
+  "nav.help": "Help & support"
 }
