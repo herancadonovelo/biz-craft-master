@@ -14,6 +14,19 @@ const MAX_DURATION = IS_WEBDRIVER ? 200 : 10000; // 10s (skip in E2E)
 const PHRASE_INTERVAL = 4000; // 4s
 const FADE_DURATION = 900; // ms — fade in/out das frases
 const E2E_PLAN_OVERRIDE_KEY = "atelier-e2e-plan-override";
+// Marca de sessão: o splash só corre no arranque real da sessão do browser.
+// Recargas involuntárias (chunk novo, otimização de dependências, erro
+// recuperado) deixam de mandar o utilizador para o ecrã inicial.
+const SPLASH_SESSION_KEY = "cbm-splash-done";
+
+function splashJaCorreu() {
+  if (typeof window === "undefined") return false;
+  try { return window.sessionStorage.getItem(SPLASH_SESSION_KEY) === "1"; }
+  catch { return false; }
+}
+function marcarSplashCorrido() {
+  try { window.sessionStorage.setItem(SPLASH_SESSION_KEY, "1"); } catch { /* ignore */ }
+}
 
 const SPLASH_STRINGS: Record<string, {
   loadingAria: string;
