@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, Sparkles, HardDriveDownload, FlaskConical, Eye, EyeOff, ShieldCheck, Mail, KeyRound, UserX, Loader2 } from "lucide-react";
+import { Languages, Palette, Lock, Bell, Database, Trash2, ToggleLeft, HardDriveDownload, FlaskConical, Eye, EyeOff, ShieldCheck, Mail, KeyRound, UserX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { loadDemoData } from "@/lib/seed-demo";
 import { enterPreviewMode, exitPreviewMode, usePreviewMode } from "@/lib/preview-mode";
@@ -29,7 +29,6 @@ export function ConfiguracoesContent() {
     const items = [
       { to: "/idioma", icon: Languages, title: "Idioma", desc: "Mudar a língua da app" },
       { to: "/modulos", icon: ToggleLeft, title: "Módulos ativos", desc: "Liga/desliga categorias do menu" },
-      { to: "/onboarding", icon: Sparkles, title: "Configuração inicial", desc: "Voltar ao assistente de setup" },
       { to: "/contas", icon: Lock, title: "Contas & PIN", desc: "Passwords e PIN de acesso" },
       { to: "/calendario", icon: Bell, title: "Alarmes & toques", desc: "Toque padrão e alertas" },
       { to: "/backup", icon: HardDriveDownload, title: "Backup & Restauro", desc: "Exportar JSON/CSV e restaurar" },

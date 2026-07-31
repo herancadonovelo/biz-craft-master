@@ -44,7 +44,6 @@ export const ALWAYS_OPEN = new Set<string>([
   "/perfil-negocio",
   "/configuracoes",
   "/modulos",
-  "/onboarding",
   "/idioma",
   "/design",
   "/contas",

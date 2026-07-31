@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
 
 export type ID = string;
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -877,51 +878,9 @@ const seed = (): Pick<
       emailUtilizador: "",
       emailAtivo: false,
     },
-    design: {
-      modo: "light",
-      accent: "0.65 0.15 290",
-      sidebarBg: "0.25 0.025 258",
-      raio: 1.35,
-      densidade: "confortavel",
-      nomeNegocio: "Craftme Business Master",
-      precoHoraBase: 7,
-      idioma: "en",
-      moeda: "EUR",
-      pinContas: "0000",
-      toqueAlarme: "ping",
-      imagemFundo: "",
-      fundoOpacidade: 0.85,
-      fonteTitulos: "Sora, system-ui, sans-serif",
-      corTitulos: "",
-      fonteTexto: "Manrope, system-ui, sans-serif",
-      corTexto: "",
-      fonteMenu: "Manrope, system-ui, sans-serif",
-      corMenu: "",
-      corMenuAtivo: "",
-      corMenuAtivoTexto: "",
-      fonteAbas: "Manrope, system-ui, sans-serif",
-      fonteCabecalho: "'Playfair Display', serif",
-      corAbas: "",
-      corAbaAtiva: "",
-      corFundo: "",
-      corCard: "",
-      corBorda: "",
-      corBotao: "",
-      corBotaoTexto: "",
-      corBotaoSecundario: "",
-      corBotaoSecundarioTexto: "",
-      corBotaoOutline: "",
-      corBotaoOutlineTexto: "",
-      corCabecalhoFundo: "",
-      corCabecalhoIcone: "",
-      corMuted: "",
-      fontSizeBase: 16,
-      fontSizeTitulos: 20,
-      fontSizeTexto: 14,
-      fontSizeMenu: 14,
-      fontSizeAbas: 14,
-      amazonMusicUrl: "",
-    },
+    // Único ponto de verdade do design "de fábrica" — igual para todos os
+    // utilizadores e em qualquer dispositivo (ver src/lib/design-defaults.ts).
+    design: { ...DESIGN_DEFAULTS },
   };
 };
 
@@ -1126,7 +1085,7 @@ export const useStore = create<State>()(
     }),
     {
       name: "atelier-store-v2",
-      version: 2,
+      version: 3,
       migrate: (persisted: any, version: number) => {
         if (!persisted) return persisted;
         if (version < 1) {
@@ -1149,6 +1108,20 @@ export const useStore = create<State>()(
               window.localStorage.setItem("cbm-language-picked-v1", "1");
             }
           } catch {}
+        }
+        if (version < 3) {
+          // O design visual atual passa a ser o default absoluto da app: o
+          // mesmo para contas novas, contas antigas e em qualquer dispositivo.
+          // Preservamos apenas as preferências que não são "visuais".
+          const d = (persisted.design ?? {}) as Record<string, unknown>;
+          persisted.design = {
+            ...DESIGN_DEFAULTS,
+            idioma: d.idioma ?? DESIGN_DEFAULTS.idioma,
+            moeda: d.moeda ?? DESIGN_DEFAULTS.moeda,
+            nomeNegocio: d.nomeNegocio ?? DESIGN_DEFAULTS.nomeNegocio,
+            precoHoraBase: d.precoHoraBase ?? DESIGN_DEFAULTS.precoHoraBase,
+            pinContas: d.pinContas ?? DESIGN_DEFAULTS.pinContas,
+          };
         }
         return persisted;
       },
