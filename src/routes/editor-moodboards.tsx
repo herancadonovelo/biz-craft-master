@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { PremiumRoute } from "@/components/PremiumRoute";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { z } from "zod";
 import { useStore, type MoodboardDesign, type MoodboardElement, type Moodboard } from "@/lib/store";
