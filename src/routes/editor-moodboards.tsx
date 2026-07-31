@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { PremiumRoute } from "@/components/PremiumRoute";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { z } from "zod";
 import { useStore, type MoodboardDesign, type MoodboardElement, type Moodboard } from "@/lib/store";
@@ -17,9 +17,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
+  ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
+import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import {
   sugerirTemaMoodboard, gerarTextosMoodboard, criticarComposicao, sugestaoContextual, removerFundoImagem,
 } from "@/lib/moodboard-ai.functions";
@@ -63,7 +65,16 @@ function EditorPage() {
   const [titulo, setTitulo] = useState(existente?.titulo ?? "Novo Moodboard");
   const [design, setDesign] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
   const [selId, setSelId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.7);
+  // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
+  const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
+  const zoom = view.z;
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const [grelha, setGrelha] = useState(true);
+  const [magnetico, setMagnetico] = useState(true);
+  const [guias, setGuias] = useState<{ v: number[]; h: number[] }>({ v: [], h: [] });
+  const [apresentacao, setApresentacao] = useState(false);
+  const artRef = useRef<HTMLDivElement>(null);
   const [fundos, setFundos] = useState<FundoItem[]>(() => loadCustom("mb-fundos", FUNDOS_PADRAO));
   const [decor, setDecor] = useState<DecorItem[]>(() => loadCustom("mb-decor", DECOR_PADRAO));
   const [busy, setBusy] = useState<string | null>(null);
@@ -93,6 +104,104 @@ function EditorPage() {
   const remEl = (id: string) => { setDesign((d) => ({ ...d, elementos: d.elementos.filter((e) => e.id !== id) })); setSelId(null); };
   const trazerFrente = (id: string) => { const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0); updEl(id, { zIndex: maxZ + 1 }); };
   const enviarTras = (id: string) => { const minZ = design.elementos.reduce((m, x) => Math.min(m, x.zIndex), 0); updEl(id, { zIndex: minZ - 1 }); };
+
+  const duplicarEl = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (!el) return;
+    const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0);
+    const novo: MoodboardElement = { ...el, id: uid(), x: el.x + 16, y: el.y + 16, zIndex: maxZ + 1 };
+    setDesign((d) => ({ ...d, elementos: [...d.elementos, novo] }));
+    setSelId(novo.id);
+  };
+
+  // === canvas infinito: zoom, pan, ajustar ===
+  const setZoom = (z: number) => zoomEmTorno(clampZoom(z));
+
+  /** Aplica um zoom mantendo fixo um ponto do viewport (por defeito, o centro). */
+  function zoomEmTorno(nz: number, px?: number, py?: number) {
+    const vp = stageRef.current?.getBoundingClientRect();
+    const cx = px ?? (vp ? vp.width / 2 : 0);
+    const cy = py ?? (vp ? vp.height / 2 : 0);
+    setView((v) => {
+      const z = clampZoom(nz);
+      const k = z / v.z;
+      return { z, x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k };
+    });
+  }
+
+  /** Enquadra a folha A4 no viewport. */
+  const ajustar = useCallback(() => {
+    const vp = stageRef.current?.getBoundingClientRect();
+    if (!vp || !vp.width) return;
+    const pad = 48;
+    const z = clampZoom(Math.min((vp.width - pad) / A4_W, (vp.height - pad) / A4_H));
+    setView({ z, x: (vp.width - A4_W * z) / 2, y: (vp.height - A4_H * z) / 2 });
+  }, []);
+
+  useEffect(() => { const t = setTimeout(ajustar, 60); return () => clearTimeout(t); }, [ajustar]);
+
+  // Roda do rato / trackpad: zoom ancorado no cursor; com shift/sem ctrl faz pan.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const dy = normalizeWheel(e.deltaY, e.deltaMode);
+      if (e.ctrlKey || e.metaKey || !e.shiftKey) {
+        const v = viewRef.current;
+        zoomEmTorno(v.z * Math.exp(-dy * 0.0018), px, py);
+      } else {
+        const dx = normalizeWheel(e.deltaX, e.deltaMode);
+        setView((v) => ({ ...v, x: v.x - dx, y: v.y - dy }));
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // Atalhos de teclado do canvas.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+      if (e.key === "Escape") { setApresentacao(false); setSelId(null); return; }
+      if (e.key === "0") { e.preventDefault(); ajustar(); return; }
+      if (e.key === "1") { e.preventDefault(); setZoom(1); return; }
+      if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
+      if (e.key === "-") { e.preventDefault(); zoomEmTorno(viewRef.current.z / 1.25); return; }
+      if (!selId) return;
+      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); remEl(selId); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") { e.preventDefault(); duplicarEl(selId); return; }
+      const passo = e.shiftKey ? 10 : 1;
+      const atual = design.elementos.find((x) => x.id === selId);
+      if (!atual) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); updEl(selId, { x: atual.x - passo }); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); updEl(selId, { x: atual.x + passo }); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); updEl(selId, { y: atual.y - passo }); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); updEl(selId, { y: atual.y + passo }); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selId, design.elementos, ajustar]);
+
+  /** Pan ao arrastar o fundo do canvas (ou com botão do meio). */
+  const iniciarPan = (ev: React.PointerEvent) => {
+    if (ev.button !== 0 && ev.button !== 1) return;
+    const startX = ev.clientX, startY = ev.clientY;
+    const origem = { x: viewRef.current.x, y: viewRef.current.y };
+    const onMove = (e: PointerEvent) => {
+      setView((v) => ({ ...v, x: origem.x + (e.clientX - startX), y: origem.y + (e.clientY - startY) }));
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
 
   // === ferramentas de inserção ===
   const inserirTexto = () => addEl({
@@ -134,17 +243,27 @@ function EditorPage() {
     (ev.target as Element).setPointerCapture?.(ev.pointerId);
     setSelId(id);
     const el = design.elementos.find((e) => e.id === id);
-    if (!el || !stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
+    if (!el || !artRef.current) return;
+    const rect = artRef.current.getBoundingClientRect();
     const startX = ev.clientX, startY = ev.clientY;
     const startEl = { ...el };
+    const outros = design.elementos.filter((e) => e.id !== id).map((e) => ({ x: e.x, y: e.y, w: e.w, h: e.h }));
+    const alvos = buildTargets(outros, A4_W, A4_H);
     const centerX = rect.left + (startEl.x + startEl.w / 2) * zoom;
     const centerY = rect.top + (startEl.y + startEl.h / 2) * zoom;
     const startAngle = Math.atan2(startY - centerY, startX - centerX);
     const onMove = (e: PointerEvent) => {
       const dx = (e.clientX - startX) / zoom;
       const dy = (e.clientY - startY) / zoom;
-      if (mode === "move") updEl(id, { x: startEl.x + dx, y: startEl.y + dy });
+      if (mode === "move") {
+        let nx = startEl.x + dx, ny = startEl.y + dy;
+        if (magnetico && !e.altKey) {
+          const s = snapRect({ x: nx, y: ny, w: startEl.w, h: startEl.h }, alvos, 6 / zoom, grelha ? 8 : 0);
+          nx = s.x; ny = s.y;
+          setGuias({ v: s.guiasV, h: s.guiasH });
+        } else setGuias({ v: [], h: [] });
+        updEl(id, { x: nx, y: ny });
+      }
       else if (mode === "resize") updEl(id, { w: Math.max(20, startEl.w + dx), h: Math.max(20, startEl.h + dy) });
       else if (mode === "rotate") {
         const ang = Math.atan2(e.clientY - centerY, e.clientX - centerX);
@@ -152,6 +271,7 @@ function EditorPage() {
       }
     };
     const onUp = () => {
+      setGuias({ v: [], h: [] });
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
@@ -322,30 +442,65 @@ function EditorPage() {
           </Tabs>
         </CardContent></Card>
 
-        {/* CENTRO: stage A4 */}
+        {/* CENTRO: canvas infinito com a folha A4 */}
         <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Label className="text-xs">Zoom</Label>
-            <Slider value={[zoom * 100]} min={25} max={150} step={5} onValueChange={([v]) => setZoom(v / 100)} className="max-w-xs" />
-            <span className="text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
+          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+            <Button size="sm" variant="outline" data-testid="zoom-out" onClick={() => zoomEmTorno(zoom / 1.25)} aria-label="Reduzir zoom"><ZoomOut className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant="outline" data-testid="zoom-in" onClick={() => zoomEmTorno(zoom * 1.25)} aria-label="Aumentar zoom"><ZoomIn className="h-3.5 w-3.5" /></Button>
+            <span data-testid="zoom-valor" className="min-w-14 text-center text-xs tabular-nums text-muted-foreground">{Math.round(zoom * 100)}%</span>
+            <Button size="sm" variant="outline" data-testid="zoom-fit" onClick={ajustar}><Maximize className="mr-1 h-3.5 w-3.5" /> Ajustar</Button>
+            <Button size="sm" variant="outline" onClick={() => setZoom(1)}>100%</Button>
+            <Button size="sm" variant={grelha ? "default" : "outline"} data-testid="toggle-grelha" onClick={() => setGrelha((v) => !v)} aria-label="Grelha"><Grid3X3 className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant={magnetico ? "default" : "outline"} data-testid="toggle-magnetico" onClick={() => setMagnetico((v) => !v)} aria-label="Guias magnéticas"><Magnet className="h-3.5 w-3.5" /></Button>
+            <Button size="sm" variant="outline" data-testid="apresentar" onClick={() => setApresentacao(true)}><Play className="mr-1 h-3.5 w-3.5" /> Apresentar</Button>
           </div>
-          <div ref={stageRef} className="flex items-start justify-center overflow-auto rounded-lg border bg-muted/30 p-6" onClick={() => setSelId(null)}>
+          <div
+            ref={stageRef}
+            data-testid="canvas-viewport"
+            className="relative h-[70vh] min-h-[420px] touch-none overflow-hidden rounded-lg border bg-muted/30"
+            style={{
+              backgroundImage: grelha
+                ? "linear-gradient(to right, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px)"
+                : undefined,
+              backgroundSize: grelha ? `${24 * zoom}px ${24 * zoom}px` : undefined,
+              backgroundPosition: grelha ? `${view.x}px ${view.y}px` : undefined,
+              cursor: "grab",
+            }}
+            onPointerDown={(e) => { if (e.currentTarget === e.target) { setSelId(null); iniciarPan(e); } }}
+          >
             <div
-              data-stage-export
               style={{
-                width: A4_W * zoom, height: A4_H * zoom,
-                background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
-                position: "relative", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.08)",
+                position: "absolute", top: 0, left: 0,
+                transform: `translate(${view.x}px, ${view.y}px) scale(${zoom})`,
+                transformOrigin: "0 0",
               }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ width: A4_W, height: A4_H, transform: `scale(${zoom})`, transformOrigin: "top left", position: "relative" }}>
+              <div
+                ref={artRef}
+                data-stage-export
+                style={{
+                  width: A4_W, height: A4_H,
+                  background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
+                  position: "relative", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,.18)",
+                }}
+                onPointerDown={(e) => { if (e.currentTarget === e.target) setSelId(null); }}
+              >
                 {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
                   <ElementoView key={el.id} el={el} selecionado={el.id === selId} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
+                ))}
+                {/* guias magnéticas */}
+                {guias.v.map((x, i) => (
+                  <div key={`v${i}`} style={{ position: "absolute", left: x, top: 0, width: 1 / zoom, height: A4_H, background: "#e11d48", pointerEvents: "none" }} />
+                ))}
+                {guias.h.map((y, i) => (
+                  <div key={`h${i}`} style={{ position: "absolute", top: y, left: 0, height: 1 / zoom, width: A4_W, background: "#e11d48", pointerEvents: "none" }} />
                 ))}
               </div>
             </div>
           </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar
+          </p>
 
           {sel && (
             <Card className="mt-3"><CardContent className="p-3">
@@ -353,6 +508,7 @@ function EditorPage() {
                 <span className="font-medium">{sel.tipo === "text" ? "Texto" : sel.tipo === "decor" ? "Decoração" : "Imagem"}</span>
                 <Button size="sm" variant="outline" onClick={() => trazerFrente(sel.id)}><ChevronUp className="h-3.5 w-3.5" /> Frente</Button>
                 <Button size="sm" variant="outline" onClick={() => enviarTras(sel.id)}><ChevronDown className="h-3.5 w-3.5" /> Trás</Button>
+                <Button size="sm" variant="outline" onClick={() => duplicarEl(sel.id)}><Copy className="mr-1 h-3.5 w-3.5" /> Duplicar</Button>
                 <Button size="sm" variant="destructive" onClick={() => remEl(sel.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 {(sel.tipo === "image" || sel.tipo === "decor") && (
                   <div className="flex items-center gap-2">
@@ -429,6 +585,28 @@ function EditorPage() {
           )}
         </CardContent></Card>
       </div>
+
+      {apresentacao && (
+        <div
+          data-testid="modo-apresentacao"
+          className="fixed inset-0 z-[95] grid place-items-center bg-black/90 p-6"
+          onClick={() => setApresentacao(false)}
+        >
+          <div
+            style={{
+              width: A4_W, height: A4_H,
+              transform: `scale(${Math.min((typeof window !== "undefined" ? window.innerHeight - 80 : A4_H) / A4_H, 1.2)})`,
+              background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
+              position: "relative", overflow: "hidden", boxShadow: "0 20px 80px rgba(0,0,0,.6)",
+            }}
+          >
+            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+              <ElementoView key={el.id} el={el} selecionado={false} onPointerDown={() => {}} onChange={() => {}} />
+            ))}
+          </div>
+          <span className="absolute bottom-4 text-xs text-white/70">Clica ou prime Esc para sair</span>
+        </div>
+      )}
     </div>
   );
 }
