@@ -55,7 +55,6 @@ export const MOODBOARD_LAYOUTS: MoodboardLayout[] = [
   ] },
   { id: "quadrado-4", nome: "Quadrado 2x2", capacidade: 4, slots: grelha(2, 2) },
   { id: "tira-4", nome: "Tira de 4", capacidade: 4, slots: grelha(4, 1) },
-  { id: "torre-4", nome: "Torre de 4", capacidade: 4, slots: grelha(1, 4) },
   { id: "heroi-3", nome: "Herói + 3", capacidade: 4, slots: [
     { x: M, y: M, w: 1 - M * 2, h: 0.46 }, ...faixa(0.53, 0.42, 3),
   ] },
