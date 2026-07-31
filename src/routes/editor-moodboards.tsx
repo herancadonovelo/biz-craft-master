@@ -162,6 +162,31 @@ function EditorPage() {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+  // Atalhos de teclado do canvas.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+      if (e.key === "Escape") { setApresentacao(false); setSelId(null); return; }
+      if (e.key === "0") { e.preventDefault(); ajustar(); return; }
+      if (e.key === "1") { e.preventDefault(); setZoom(1); return; }
+      if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
+      if (e.key === "-") { e.preventDefault(); zoomEmTorno(viewRef.current.z / 1.25); return; }
+      if (!selId) return;
+      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); remEl(selId); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") { e.preventDefault(); duplicarEl(selId); return; }
+      const passo = e.shiftKey ? 10 : 1;
+      const atual = design.elementos.find((x) => x.id === selId);
+      if (!atual) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); updEl(selId, { x: atual.x - passo }); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); updEl(selId, { x: atual.x + passo }); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); updEl(selId, { y: atual.y - passo }); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); updEl(selId, { y: atual.y + passo }); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selId, design.elementos, ajustar]);
+
   /** Pan ao arrastar o fundo do canvas (ou com botão do meio). */
   const iniciarPan = (ev: React.PointerEvent) => {
     if (ev.button !== 0 && ev.button !== 1) return;
