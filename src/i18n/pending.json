@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-31T23:29:39.699Z",
+  "generatedAt": "2026-07-31T23:30:21.597Z",
   "total": 629,
-  "pending": 1,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 27,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 201,
-      "pending": 1
+      "pending": 0
     },
     "marketing": {
       "total": 30,
@@ -2246,8 +2246,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.guias_magneticas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Magnetic guides"
     },
     {
       "text": "Horas acumuladas para preço:",
