@@ -218,17 +218,27 @@ function EditorPage() {
     (ev.target as Element).setPointerCapture?.(ev.pointerId);
     setSelId(id);
     const el = design.elementos.find((e) => e.id === id);
-    if (!el || !stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
+    if (!el || !artRef.current) return;
+    const rect = artRef.current.getBoundingClientRect();
     const startX = ev.clientX, startY = ev.clientY;
     const startEl = { ...el };
+    const outros = design.elementos.filter((e) => e.id !== id).map((e) => ({ x: e.x, y: e.y, w: e.w, h: e.h }));
+    const alvos = buildTargets(outros, A4_W, A4_H);
     const centerX = rect.left + (startEl.x + startEl.w / 2) * zoom;
     const centerY = rect.top + (startEl.y + startEl.h / 2) * zoom;
     const startAngle = Math.atan2(startY - centerY, startX - centerX);
     const onMove = (e: PointerEvent) => {
       const dx = (e.clientX - startX) / zoom;
       const dy = (e.clientY - startY) / zoom;
-      if (mode === "move") updEl(id, { x: startEl.x + dx, y: startEl.y + dy });
+      if (mode === "move") {
+        let nx = startEl.x + dx, ny = startEl.y + dy;
+        if (magnetico && !e.altKey) {
+          const s = snapRect({ x: nx, y: ny, w: startEl.w, h: startEl.h }, alvos, 6 / zoom, grelha ? 8 : 0);
+          nx = s.x; ny = s.y;
+          setGuias({ v: s.guiasV, h: s.guiasH });
+        } else setGuias({ v: [], h: [] });
+        updEl(id, { x: nx, y: ny });
+      }
       else if (mode === "resize") updEl(id, { w: Math.max(20, startEl.w + dx), h: Math.max(20, startEl.h + dy) });
       else if (mode === "rotate") {
         const ang = Math.atan2(e.clientY - centerY, e.clientX - centerX);
@@ -236,6 +246,7 @@ function EditorPage() {
       }
     };
     const onUp = () => {
+      setGuias({ v: [], h: [] });
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
