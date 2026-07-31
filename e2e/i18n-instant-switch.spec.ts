@@ -45,11 +45,12 @@ test("fallback: chave sem tradução inglesa mostra o português", async ({ page
     const mod = await import("/src/lib/i18n.ts");
     return {
       traduzida: mod.translate("en", "common.save"),
+      // en.json está agora a 100%; o fallback é exercitado por chaves ausentes.
       semTraducao: mod.translate("en", "nav.help"),
       inexistente: mod.translate("en", "chave.que.nao.existe"),
     };
   });
   expect(result.traduzida).toBe("Save");
-  expect(result.semTraducao).toBe("Ajuda & suporte");
+  expect(result.semTraducao).toBe("Help & support");
   expect(result.inexistente).toBe("chave.que.nao.existe");
 });
