@@ -28,18 +28,23 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Atelier Tricotin" }] }),
-  component: AuthPage,
+  component: AuthRoute,
 });
+
+// `/auth/verify-2fa` and any future child of /auth is a nested route that
+// renders through <Outlet />. The branch lives in this wrapper so the login
+// form's hooks never run conditionally (an early return inside AuthPage
+// crashed React with "Rendered fewer hooks than expected").
+function AuthRoute() {
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  if (pathname !== "/auth") return <Outlet />;
+  return <AuthPage />;
+}
 
 function AuthPage() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
   const search = useRouterState({ select: (r) => r.location.search as Record<string, unknown> });
-  const pathname = useRouterState({ select: (r) => r.location.pathname });
-  // `/auth/verify-2fa` and any future child of /auth is a nested route that
-  // renders through <Outlet />. Without this, the parent login form would
-  // eat the child render and the URL would be lying about what's shown.
-  if (pathname !== "/auth") return <Outlet />;
   const showExpiredBanner = search?.expired === "1" || search?.expired === 1 || search?.expired === true;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
