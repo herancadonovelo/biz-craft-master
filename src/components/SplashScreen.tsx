@@ -222,10 +222,17 @@ export function SplashScreen() {
   const navigate = useNavigate();
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
+  // Já correu nesta sessão? Esconde de imediato (após hidratação, para não
+  // provocar mismatch SSR) — recargas técnicas não voltam ao ecrã inicial.
+  useEffect(() => {
+    if (splashJaCorreu()) { setFading(false); setVisible(false); }
+  }, []);
+
   // Replay splash after logout so the transition mirrors the initial boot.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onReplay = () => {
+      try { window.sessionStorage.removeItem(SPLASH_SESSION_KEY); } catch { /* ignore */ }
       setError(null);
       setAttempt(0);
       setProgress(0);
@@ -287,7 +294,7 @@ export function SplashScreen() {
           navigate({ to: "/auth", replace: true });
         }
         setFading(true);
-        window.setTimeout(() => !cancelled && setVisible(false), 700);
+        window.setTimeout(() => { if (!cancelled) { marcarSplashCorrido(); setVisible(false); } }, 700);
       }, wait);
     };
 
@@ -297,7 +304,7 @@ export function SplashScreen() {
       if (!error) {
         setProgress(1);
         setFading(true);
-        window.setTimeout(() => !cancelled && setVisible(false), 700);
+        window.setTimeout(() => { if (!cancelled) { marcarSplashCorrido(); setVisible(false); } }, 700);
       }
     }, MAX_DURATION);
 
