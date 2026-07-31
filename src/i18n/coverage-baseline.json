@@ -1,14 +1,14 @@
 {
-  "pending": 599,
+  "pending": 0,
   "byCategory": {
-    "atelier": 26,
-    "auth": 24,
-    "billing": 38,
-    "components": 76,
-    "editors": 198,
-    "marketing": 28,
-    "misc": 115,
-    "operations": 24,
-    "system": 70
+    "atelier": 0,
+    "auth": 0,
+    "billing": 0,
+    "components": 0,
+    "editors": 0,
+    "marketing": 0,
+    "misc": 0,
+    "operations": 0,
+    "system": 0
   }
 }

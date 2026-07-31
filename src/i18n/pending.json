@@ -1,43 +1,43 @@
 {
-  "generatedAt": "2026-07-30T22:05:12.112Z",
+  "generatedAt": "2026-07-31T04:33:50.398Z",
   "total": 628,
-  "pending": 599,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 27,
-      "pending": 26
+      "pending": 0
     },
     "auth": {
       "total": 25,
-      "pending": 24
+      "pending": 0
     },
     "billing": {
       "total": 43,
-      "pending": 38
+      "pending": 0
     },
     "components": {
       "total": 79,
-      "pending": 76
+      "pending": 0
     },
     "editors": {
       "total": 200,
-      "pending": 198
+      "pending": 0
     },
     "marketing": {
       "total": 30,
-      "pending": 28
+      "pending": 0
     },
     "misc": {
       "total": 123,
-      "pending": 115
+      "pending": 0
     },
     "operations": {
       "total": 29,
-      "pending": 24
+      "pending": 0
     },
     "system": {
       "total": 72,
-      "pending": 70
+      "pending": 0
     }
   },
   "entries": [
@@ -46,112 +46,112 @@
       "file": "src/routes/biblioteca.tsx",
       "category": "atelier",
       "key": "atelier.pre_visualizar_pdf",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "📄 Preview PDF"
     },
     {
       "text": "A Amazon não disponibiliza um SDK público de reprodução web para integradores. A sincronização aqui é por",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.a_amazon_nao_disponibiliza_um_sdk",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Amazon does not provide a public web playback SDK for integrators. Synchronization here is by"
     },
     {
       "text": "A integração com Spotify está temporariamente indisponível.",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.a_integracao_com_spotify_esta_temporariamente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Spotify integration is temporarily unavailable."
     },
     {
       "text": "Adicionar músicas do dispositivo",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.adicionar_musicas_do_dispositivo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Add music from device"
     },
     {
       "text": "Adicionar peça",
       "file": "src/routes/portfolio.tsx",
       "category": "atelier",
       "key": "atelier.adicionar_peca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Add piece"
     },
     {
       "text": "Ainda não criaste nenhuma. Começa pela primeira!",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.ainda_nao_criaste_nenhuma_comeca_pela",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You haven't created any yet. Start with the first one!"
     },
     {
       "text": "Ainda não tens favoritas nesta categoria. Marca um coração na aba \"Girar a Sorte\".",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.ainda_nao_tens_favoritas_nesta_categoria",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You don't have any favorites in this category yet. Mark a heart in the \"Spin the Wheel\" tab."
     },
     {
       "text": "As músicas adicionadas ficam só neste dispositivo, na sessão atual.",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.as_musicas_adicionadas_ficam_so_neste",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Added music stays on this device only, for the current session."
     },
     {
       "text": "Criar Inspiração",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.criar_inspiracao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Create Inspiration"
     },
     {
       "text": "Estações",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.estacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Seasons"
     },
     {
       "text": "Ex: O meu atelier é o meu refúgio favorito.",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.ex_o_meu_atelier_e_o",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ex: My studio is my favorite refuge."
     },
     {
       "text": "Formato sem pré-visualização disponível.",
       "file": "src/routes/biblioteca.tsx",
       "category": "atelier",
       "key": "atelier.formato_sem_pre_visualizacao_disponivel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No preview available for this format."
     },
     {
       "text": "ligação direta",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.ligacao_direta",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "direct link"
     },
     {
       "text": "Módulo atual",
       "file": "src/routes/cursos.tsx",
       "category": "atelier",
       "key": "atelier.modulo_atual",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Current Module"
     },
     {
       "text": "Mural de Inspiração",
@@ -166,272 +166,272 @@
       "file": "src/routes/cursos.tsx",
       "category": "atelier",
       "key": "atelier.paginas_do_curso",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Course pages"
     },
     {
       "text": "Páginas:",
       "file": "src/routes/cursos.tsx",
       "category": "atelier",
       "key": "atelier.paginas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pages:"
     },
     {
       "text": "Preço (€)",
       "file": "src/routes/catalogo.tsx",
       "category": "atelier",
       "key": "atelier.preco",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price (€)"
     },
     {
       "text": "Próxima faixa",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.proxima_faixa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Next track"
     },
     {
       "text": "Sem itens no catálogo.",
       "file": "src/routes/catalogo.tsx",
       "category": "atelier",
       "key": "atelier.sem_itens_no_catalogo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No items in catalog."
     },
     {
       "text": "Tags separadas por vírgula (#urgente)",
       "file": "src/routes/notas.tsx",
       "category": "atelier",
       "key": "atelier.tags_separadas_por_virgula_urgente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Comma-separated tags (#urgent)"
     },
     {
       "text": "Técnica",
       "file": "src/routes/portfolio.tsx",
       "category": "atelier",
       "key": "atelier.tecnica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Technique"
     },
     {
       "text": "Temporizador de desconexão",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.temporizador_de_desconexao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Disconnect timer"
     },
     {
       "text": "Título",
       "file": "src/routes/biblioteca.tsx",
       "category": "atelier",
       "key": "atelier.titulo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Title"
     },
     {
       "text": "Tricotin, crochê…",
       "file": "src/routes/portfolio.tsx",
       "category": "atelier",
       "key": "atelier.tricotin_croche",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tricotin, crochet..."
     },
     {
       "text": "URL Amazon Music (playlist, estação ou álbum)",
       "file": "src/routes/atelier-sounds.tsx",
       "category": "atelier",
       "key": "atelier.url_amazon_music_playlist_estacao_ou",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Amazon Music URL (playlist, station or album)"
     },
     {
       "text": "URL cloud (preferível)",
       "file": "src/routes/biblioteca.tsx",
       "category": "atelier",
       "key": "atelier.url_cloud_preferivel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cloud URL (preferred)"
     },
     {
       "text": "(Obrigatório)",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.obrigatorio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "(Required)"
     },
     {
       "text": "A limpar sessão…",
       "file": "src/routes/sessao-expirada.tsx",
       "category": "auth",
       "key": "auth.a_limpar_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clearing session…"
     },
     {
       "text": "A tua sessão expirou ou foi encerrada. Introduz as tuas credenciais para voltar a entrar.",
       "file": "src/routes/auth.tsx",
       "category": "auth",
       "key": "auth.a_tua_sessao_expirou_ou_foi",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Your session has expired or been terminated. Enter your credentials to log in again."
     },
     {
       "text": "A validar o link de recuperação… Se esta mensagem persistir, o link pode ter expirado. Pede um novo em",
       "file": "src/routes/reset-password.tsx",
       "category": "auth",
       "key": "auth.a_validar_o_link_de_recuperacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Validating recovery link… If this message persists, the link may have expired. Request a new one at"
     },
     {
       "text": "Aceder à tua conta",
       "file": "src/routes/auth.tsx",
       "category": "auth",
       "key": "auth.aceder_a_tua_conta",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Access your account"
     },
     {
       "text": "Aceita os Termos e a Política de Privacidade para ativar o botão.",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.aceita_os_termos_e_a_politica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Accept the Terms and Privacy Policy to activate the button."
     },
     {
       "text": "Cancelar ligação",
       "file": "src/routes/[.]lovable.oauth.consent.tsx",
       "category": "auth",
       "key": "auth.cancelar_ligacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Disconnect"
     },
     {
       "text": "Código promocional (opcional)",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.codigo_promocional_opcional",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Promo code (optional)"
     },
     {
       "text": "Código recebido",
       "file": "src/routes/auth.verify-2fa.tsx",
       "category": "auth",
       "key": "auth.codigo_recebido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Code received"
     },
     {
       "text": "Confirmar saída da sessão",
       "file": "src/routes/sessao-expirada.tsx",
       "category": "auth",
       "key": "auth.confirmar_saida_da_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Confirm logout"
     },
     {
       "text": "Ir diretamente para o ecrã de início de sessão",
       "file": "src/routes/sessao-expirada.tsx",
       "category": "auth",
       "key": "auth.ir_diretamente_para_o_ecra_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Go directly to the login screen"
     },
     {
       "text": "Mínimo 6 caracteres",
       "file": "src/routes/reset-password.tsx",
       "category": "auth",
       "key": "auth.minimo_6_caracteres",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Minimum 6 characters"
     },
     {
       "text": "Não foi possível carregar o pedido",
       "file": "src/routes/[.]lovable.oauth.consent.tsx",
       "category": "auth",
       "key": "auth.nao_foi_possivel_carregar_o_pedido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Could not load order"
     },
     {
       "text": "Nome próprio *",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.nome_proprio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "First name *"
     },
     {
       "text": "Número (formato internacional)",
       "file": "src/routes/auth.verify-2fa.tsx",
       "category": "auth",
       "key": "auth.numero_formato_internacional",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Number (international format)"
     },
     {
       "text": "País *",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.pais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Country *"
     },
     {
       "text": "Preenche os teus dados para começar. Já tens conta?",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.preenche_os_teus_dados_para_comecar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Enter your details to start. Already have an account?"
     },
     {
       "text": "Resgatar códigos promocionais na tua conta, se pedires.",
       "file": "src/routes/[.]lovable.oauth.consent.tsx",
       "category": "auth",
       "key": "auth.resgatar_codigos_promocionais_na_tua_conta",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Redeem promo codes in your account, if you order."
     },
     {
       "text": "Se não recebeste o SMS, verifica se o número está correto e se tens sinal. O código expira em 10 minutos.",
       "file": "src/routes/auth.verify-2fa.tsx",
       "category": "auth",
       "key": "auth.se_nao_recebeste_o_sms_verifica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "If you didn't receive the SMS, check if the number is correct and if you have signal. The code expires in 10 minutes."
     },
     {
       "text": "Sessão expirada",
       "file": "src/routes/sessao-expirada.tsx",
       "category": "auth",
       "key": "auth.sessao_expirada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Session expired"
     },
     {
       "text": "Sessão inválida ou expirada",
       "file": "src/routes/sessao-expirada.tsx",
       "category": "auth",
       "key": "auth.sessao_invalida_ou_expirada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Invalid or expired session"
     },
     {
       "text": "Tens um código? Introduz aqui — é aplicado automaticamente no teu primeiro acesso.",
       "file": "src/routes/registo.tsx",
       "category": "auth",
       "key": "auth.tens_um_codigo_introduz_aqui_e",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Have a code? Enter it here — it's applied automatically on your first access."
     },
     {
       "text": "Termos e Condições",
@@ -446,48 +446,48 @@
       "file": "src/routes/auth.verify-2fa.tsx",
       "category": "auth",
       "key": "auth.trocar_de_numero",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Change number"
     },
     {
       "text": "Usa o formato +[código do país][número], ex: +351912345678.",
       "file": "src/routes/auth.verify-2fa.tsx",
       "category": "auth",
       "key": "auth.usa_o_formato_codigo_do_pais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Use the format +[country code][number], e.g.: +351912345678."
     },
     {
       "text": "/mês",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.mes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "/month"
     },
     {
       "text": "4. Cancelar a subscrição",
       "file": "src/routes/reembolsos.tsx",
       "category": "billing",
       "key": "billing.4_cancelar_a_subscricao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "4. Unsubscribe"
     },
     {
       "text": "A carregar a subscrição…",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.a_carregar_a_subscricao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Loading subscription…"
     },
     {
       "text": "A finança está saudável. Continua assim!",
       "file": "src/routes/cashflow.tsx",
       "category": "billing",
       "key": "billing.a_financa_esta_saudavel_continua_assim",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Finances are healthy. Keep it up!"
     },
     {
       "text": "A Minha Subscrição",
@@ -502,104 +502,104 @@
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.acesso_premium_vitalicio_ativo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lifetime Premium Access Active"
     },
     {
       "text": "Acesso Vitalício:",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.acesso_vitalicio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lifetime Access:"
     },
     {
       "text": "Ainda não tens nenhuma subscrição ativa neste ambiente.",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.ainda_nao_tens_nenhuma_subscricao_ativa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You don't have any active subscriptions in this environment yet."
     },
     {
       "text": "Cancelar a subscrição?",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.cancelar_a_subscricao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cancel subscription?"
     },
     {
       "text": "Cancelar no fim do período",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.cancelar_no_fim_do_periodo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cancel at end of period"
     },
     {
       "text": "Cancelar subscrição",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.cancelar_subscricao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cancel subscription"
     },
     {
       "text": "Cartão necessário. Nada é cobrado nos primeiros 14 dias e podes cancelar antes do fim.",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.cartao_necessario_nada_e_cobrado_nos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Card required. Nothing is charged for the first 14 days and you can cancel before the end."
     },
     {
       "text": "Código aplicado com sucesso no seu perfil do atelier.",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.codigo_aplicado_com_sucesso_no_seu",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Code successfully applied to your workshop profile."
     },
     {
       "text": "Código Aplicado:",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.codigo_aplicado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Applied Code:"
     },
     {
       "text": "Começar Teste Gratuito de 14 Dias",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.comecar_teste_gratuito_de_14_dias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Start 14-Day Free Trial"
     },
     {
       "text": "em todas as subscrições.",
       "file": "src/routes/reembolsos.tsx",
       "category": "billing",
       "key": "billing.em_todas_as_subscricoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "on all subscriptions."
     },
     {
       "text": "Estado da subscrição",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.estado_da_subscricao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Subscription Status"
     },
     {
       "text": "Experimente Grátis por 14 Dias",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.experimente_gratis_por_14_dias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Try Free for 14 Days"
     },
     {
       "text": "Faturação: Criar & Histórico",
@@ -614,16 +614,16 @@
       "file": "src/routes/reembolsos.tsx",
       "category": "billing",
       "key": "billing.garantia_de_satisfacao_de_30_dias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "30-day satisfaction guarantee"
     },
     {
       "text": "Grátis",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.gratis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Free"
     },
     {
       "text": "Histórico De Faturas",
@@ -638,48 +638,48 @@
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.inicia_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "log in"
     },
     {
       "text": "Inicia sessão para veres o estado da tua subscrição.",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.inicia_sessao_para_veres_o_estado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Log in to view your subscription status."
     },
     {
       "text": "Introduz o teu código para aplicar um desconto ou ativar um acesso especial.",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.introduz_o_teu_codigo_para_aplicar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Enter your code to apply a discount or activate special access."
     },
     {
       "text": "Novos Preços:",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.novos_precos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "New Prices:"
     },
     {
       "text": "Os valores exibidos nos cartões de plano acima já incluem este desconto!",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.os_valores_exibidos_nos_cartoes_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The values shown in the plan cards above already include this discount!"
     },
     {
       "text": "Período atual",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.periodo_atual",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Current period"
     },
     {
       "text": "Planos e Subscrições",
@@ -702,176 +702,176 @@
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.precos_ativos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Active prices"
     },
     {
       "text": "Premium Vitalício",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.premium_vitalicio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lifetime Premium"
     },
     {
       "text": "Próxima cobrança",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.proxima_cobranca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Next charge"
     },
     {
       "text": "Referência",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.referencia",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reference"
     },
     {
       "text": "Resumo do benefício ativado:",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.resumo_do_beneficio_ativado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Activated benefit summary:"
     },
     {
       "text": "Saída",
       "file": "src/routes/cashflow.tsx",
       "category": "billing",
       "key": "billing.saida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Output"
     },
     {
       "text": "Saídas",
       "file": "src/routes/cashflow.tsx",
       "category": "billing",
       "key": "billing.saidas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Outputs"
     },
     {
       "text": "Saídas por categoria",
       "file": "src/routes/cashflow.tsx",
       "category": "billing",
       "key": "billing.saidas_por_categoria",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Outputs by category"
     },
     {
       "text": "Sem detalhes de preço disponíveis.",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.sem_detalhes_de_preco_disponiveis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No pricing details available."
     },
     {
       "text": "Sugestões",
       "file": "src/routes/cashflow.tsx",
       "category": "billing",
       "key": "billing.sugestoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Suggestions"
     },
     {
       "text": "Tens um código promocional?",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.tens_um_codigo_promocional",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Have a promo code?"
     },
     {
       "text": "Vitalício",
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.vitalicio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lifetime"
     },
     {
       "text": "Voltar atrás",
       "file": "src/routes/minha-subscricao.tsx",
       "category": "billing",
       "key": "billing.voltar_atras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Go back"
     },
     {
       "text": "— não inclui esta funcionalidade.",
       "file": "src/components/PremiumRoute.tsx",
       "category": "components",
       "key": "components.nao_inclui_esta_funcionalidade",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "— this feature is not included."
     },
     {
       "text": "— não usar —",
       "file": "src/components/CsvImportInventarioDialog.tsx",
       "category": "components",
       "key": "components.nao_usar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "— do not use —"
     },
     {
       "text": "· estás a ver dados de demonstração. Nada é guardado na tua conta nem na nuvem.",
       "file": "src/components/PreviewModeBanner.tsx",
       "category": "components",
       "key": "components.estas_a_ver_dados_de_demonstracao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "· you are viewing demo data. Nothing is saved to your account or the cloud."
     },
     {
       "text": "A marca de água aparece nas exportações PNG e PDF com estas definições.",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.a_marca_de_agua_aparece_nas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The watermark appears on PNG and PDF exports with these settings."
     },
     {
       "text": "A verificar a tua sessão…",
       "file": "src/components/AuthGate.tsx",
       "category": "components",
       "key": "components.a_verificar_a_tua_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Checking your session…"
     },
     {
       "text": "A verificar sessão",
       "file": "src/components/AuthGate.tsx",
       "category": "components",
       "key": "components.a_verificar_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Checking session"
     },
     {
       "text": "Agora não",
       "file": "src/components/PaywallDialog.tsx",
       "category": "components",
       "key": "components.agora_nao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Not now"
     },
     {
       "text": "Ainda não guardaste versões deste projeto.",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.ainda_nao_guardaste_versoes_deste_projeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You haven't saved versions of this project yet."
     },
     {
       "text": "Ainda não há importações registadas.",
       "file": "src/components/CsvImportHistoryDialog.tsx",
       "category": "components",
       "key": "components.ainda_nao_ha_importacoes_registadas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No imports registered yet."
     },
     {
       "text": "Anular importação",
@@ -886,264 +886,264 @@
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.apagar_peca_selecionada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "delete selected part"
     },
     {
       "text": "Aplicar marca d&apos;água",
       "file": "src/components/A4Export.tsx",
       "category": "components",
       "key": "components.aplicar_marca_d_apos_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Apply watermark"
     },
     {
       "text": "Associa cada campo do inventário à coluna correspondente do CSV. Detetámos automaticamente o que pudemos.",
       "file": "src/components/CsvImportInventarioDialog.tsx",
       "category": "components",
       "key": "components.associa_cada_campo_do_inventario_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Associate each inventory field with the corresponding CSV column. We've automatically detected what we could."
     },
     {
       "text": "Cálculos",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.calculos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Calculations"
     },
     {
       "text": "Centímetros (cm)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.centimetros_cm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Centimeters (cm)"
     },
     {
       "text": "Começa a pintar para ver a legenda.",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.comeca_a_pintar_para_ver_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Start painting to see the legend."
     },
     {
       "text": "Desenha um traçado para pré-visualizar a aproximação por arcos.",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.desenha_um_tracado_para_pre_visualizar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Draw a path to preview arc approximation."
     },
     {
       "text": "Desfazer último",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.desfazer_ultimo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Undo last"
     },
     {
       "text": "Diâm. cordão (mm)",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.diam_cordao_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cord diam. (mm)"
     },
     {
       "text": "Efeito da tolerância no G-code com arcos:",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.efeito_da_tolerancia_no_g_code",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tolerance effect on G-code with arcs:"
     },
     {
       "text": "Estás a usar a app em modo local.",
       "file": "src/components/AuthBanner.tsx",
       "category": "components",
       "key": "components.estas_a_usar_a_app_em",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You are using the app in local mode."
     },
     {
       "text": "ex.: DMC · muliné",
       "file": "src/components/CsvImportInventarioDialog.tsx",
       "category": "components",
       "key": "components.ex_dmc_muline",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "e.g., DMC · tapestry"
     },
     {
       "text": "Exportação",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.exportacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Export"
     },
     {
       "text": "Folha & Histórico",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.folha_historico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Sheet & History"
     },
     {
       "text": "Guarda a combinação atual (unidade + camadas + grelha + DPI) para reutilizar.",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.guarda_a_combinacao_atual_unidade_camadas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Saves current combination (unit + layers + grid + DPI) for reuse."
     },
     {
       "text": "Histórico de importações CSV",
       "file": "src/components/CsvImportHistoryDialog.tsx",
       "category": "components",
       "key": "components.historico_de_importacoes_csv",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "CSV imports history"
     },
     {
       "text": "Importa uma fotografia de um molde antigo ou esboço e decalca por cima com as ferramentas.",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.importa_uma_fotografia_de_um_molde",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Import a photo of an old mold or sketch and trace over it with the tools."
     },
     {
       "text": "Importar gráfico (JSON)",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.importar_grafico_json",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Import chart (JSON)"
     },
     {
       "text": "Importar inventário / preços por CSV",
       "file": "src/components/CsvImportInventarioDialog.tsx",
       "category": "components",
       "key": "components.importar_inventario_precos_por_csv",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Import inventory/prices by CSV"
     },
     {
       "text": "Impressão A4",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.impressao_a4",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "A4 printing"
     },
     {
       "text": "Inicia sessão",
       "file": "src/components/AuthBanner.tsx",
       "category": "components",
       "key": "components.inicia_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Log in"
     },
     {
       "text": "Iniciar teste grátis de 14 dias",
       "file": "src/components/PremiumRoute.tsx",
       "category": "components",
       "key": "components.iniciar_teste_gratis_de_14_dias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Start 14-day free trial"
     },
     {
       "text": "Interseções",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.intersecoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Intersections"
     },
     {
       "text": "Já alonguei, voltar ao trabalho! 💪",
       "file": "src/components/WellnessTimer.tsx",
       "category": "components",
       "key": "components.ja_alonguei_voltar_ao_trabalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Stretched, back to work! 💪"
     },
     {
       "text": "Lã estimada:",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.la_estimada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Estimated yarn:"
     },
     {
       "text": "Lápis",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.lapis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pencil"
     },
     {
       "text": "Limpar nós",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.limpar_nos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clear nodes"
     },
     {
       "text": "Limpar ponto atrás",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.limpar_ponto_atras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clear backstitch"
     },
     {
       "text": "Limpar seleção",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.limpar_selecao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clear selection"
     },
     {
       "text": "Marca de água",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.marca_de_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Watermark"
     },
     {
       "text": "Máx. descontinuidades permitidas",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.max_descontinuidades_permitidas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Max. discontinuities allowed"
     },
     {
       "text": "Milímetros (mm)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.milimetros_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Millimeters (mm)"
     },
     {
       "text": "Mostrar camada de ponto atrás",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.mostrar_camada_de_ponto_atras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Show backstitch layer"
     },
     {
       "text": "Não gosto",
@@ -1158,264 +1158,264 @@
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.no_frances",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "French knot"
     },
     {
       "text": "Nome da versão (opcional)",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.nome_da_versao_opcional",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Version name (optional)"
     },
     {
       "text": "Offset dinâmico (mm)",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.offset_dinamico_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Dynamic offset (mm)"
     },
     {
       "text": "Orientação",
       "file": "src/components/A4Export.tsx",
       "category": "components",
       "key": "components.orientacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Orientation"
     },
     {
       "text": "Os pagamentos na pré-visualização estão em modo de teste — nenhum valor é cobrado.",
       "file": "src/components/PaymentTestModeBanner.tsx",
       "category": "components",
       "key": "components.os_pagamentos_na_pre_visualizacao_estao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Payments in preview mode are for testing — no charges apply."
     },
     {
       "text": "Permitir rotação 90° das peças",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.permitir_rotacao_90_das_pecas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Allow 90° part rotation"
     },
     {
       "text": "Podes cancelar a qualquer momento durante o período de teste.",
       "file": "src/components/PremiumRoute.tsx",
       "category": "components",
       "key": "components.podes_cancelar_a_qualquer_momento_durante",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You can cancel anytime during the trial."
     },
     {
       "text": "Ponto atrás",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.ponto_atras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Backstitch"
     },
     {
       "text": "Posição base",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.posicao_base",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Base position"
     },
     {
       "text": "Pré-visualização da tolerância",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.pre_visualizacao_da_tolerancia",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tolerance preview"
     },
     {
       "text": "Preço /m",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.preco_m",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price /m"
     },
     {
       "text": "Presets de exportação (por projeto)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.presets_de_exportacao_por_projeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Export presets (per project)"
     },
     {
       "text": "Presets de substituição de cores ficam guardados por projeto.",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.presets_de_substituicao_de_cores_ficam",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Color replacement presets are saved per project."
     },
     {
       "text": "Procurar por código ou nome…",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.procurar_por_codigo_ou_nome",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Search by code or name..."
     },
     {
       "text": "Relatório PDF (cotas & tolerâncias)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.relatorio_pdf_cotas_tolerancias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "PDF report (dimensions & tolerances)"
     },
     {
       "text": "Resolução PNG",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.resolucao_png",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "PNG Resolution"
     },
     {
       "text": "Retângulo",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.retangulo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Rectangle"
     },
     {
       "text": "Retângulo preenchido",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.retangulo_preenchido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Filled rectangle"
     },
     {
       "text": "Rodapé direito",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.rodape_direito",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Footer right"
     },
     {
       "text": "Rodapé esquerdo",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.rodape_esquerdo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Footer left"
     },
     {
       "text": "Se a estimativa passar este limite, o export G-Code (arcos) é bloqueado para evitar CNC ruidoso.",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.se_a_estimativa_passar_este_limite",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "If the estimate exceeds this limit, G-Code export (arcs) is blocked to prevent noisy CNC."
     },
     {
       "text": "Seg. médio",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.seg_medio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Avg. profit"
     },
     {
       "text": "Seleção",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.selecao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Selection"
     },
     {
       "text": "Seleciona uma ferramenta (Arco, Espiral, Offset ou Split) para configurar os parâmetros aqui.",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.seleciona_uma_ferramenta_arco_espiral_offset",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Select a tool (Arc, Spiral, Offset, or Split) to configure parameters here."
     },
     {
       "text": "Só local (erro nuvem)",
       "file": "src/components/SupabaseSync.tsx",
       "category": "components",
       "key": "components.so_local_erro_nuvem",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Local only (cloud error)"
     },
     {
       "text": "Substituições de cores (por projeto)",
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.substituicoes_de_cores_por_projeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Color swaps (per project)"
     },
     {
       "text": "Terminar sessão",
       "file": "src/components/app-sidebar.tsx",
       "category": "components",
       "key": "components.terminar_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Log out"
     },
     {
       "text": "Título do trabalho",
       "file": "src/components/A4Export.tsx",
       "category": "components",
       "key": "components.titulo_do_trabalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Job title"
     },
     {
       "text": "Tolerância arco (mm)",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.tolerancia_arco_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Bow tolerance (mm)"
     },
     {
       "text": "Últimas sessões (auto)",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
       "key": "components.ultimas_sessoes_auto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Latest sessions (auto)"
     },
     {
       "text": "Validar consistência (snaps · grelha · cotas · mirror)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.validar_consistencia_snaps_grelha_cotas_mirror",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Validate consistency (snaps · grid · dimensions · mirror)"
     },
     {
       "text": "Versões",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.versoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Versions"
     },
     {
       "text": "Versões do molde",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
       "key": "components.versoes_do_molde",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Mold versions"
     },
     {
       "text": "Versões guardadas",
@@ -1430,952 +1430,952 @@
       "file": "src/components/PontoCruzEditor.tsx",
       "category": "components",
       "key": "components.vista_de_simbolos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Symbol view"
     },
     {
       "text": "· repetição sobre",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.repeticao_sobre",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "· repeat over"
     },
     {
       "text": "## Título",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.titulo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "## Title"
     },
     {
       "text": "+ fio estimado ao inventário",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.fio_estimado_ao_inventario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "+ est. yarn to inventory"
     },
     {
       "text": "+ Símbolo personalizado",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.simbolo_personalizado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "+ Custom symbol"
     },
     {
       "text": "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.pre_visualizacao_este_e_o_aspeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "⚠️ Preview: this is how alert boxes look in the app."
     },
     {
       "text": "📌 Vinculado à encomenda de",
       "file": "src/routes/moodboards.$id.tsx",
       "category": "editors",
       "key": "editors.vinculado_a_encomenda_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "📌 Linked to order for"
     },
     {
       "text": "1. Gráfico",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.1_grafico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "1. Chart"
     },
     {
       "text": "2. Matemática",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.2_matematica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "2. Math"
     },
     {
       "text": "4. Construção",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.4_construcao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "4. Construction"
     },
     {
       "text": "A categoria selecionada mantém-se destacada enquanto navegas dentro dela.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.a_categoria_selecionada_mantem_se_destacada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The selected category remains highlighted as you navigate within it."
     },
     {
       "text": "A grelha está vazia — pinta cores no separador 1 para calcular consumo.",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.a_grelha_esta_vazia_pinta_cores",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The grid is empty — paint colors in tab 1 to calculate consumption."
     },
     {
       "text": "Ação",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.acao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Action"
     },
     {
       "text": "Adiciona URLs de vídeos tutoriais (YouTube, Vimeo, Instagram) — geramos automaticamente um QR para colar na receita.",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.adiciona_urls_de_videos_tutoriais_youtube",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Add tutorial video URLs (YouTube, Vimeo, Instagram) — we'll automatically generate a QR to paste onto the recipe."
     },
     {
       "text": "Ainda não adicionaste nenhuma pasta. Cola um URL público para começar.",
       "file": "src/routes/moodboards.tsx",
       "category": "editors",
       "key": "editors.ainda_nao_adicionaste_nenhuma_pasta_cola",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You haven't added any folders yet. Paste a public URL to start."
     },
     {
       "text": "Ainda não criaste nenhum símbolo personalizado.",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.ainda_nao_criaste_nenhum_simbolo_personalizado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You haven't created any custom symbols yet."
     },
     {
       "text": "Ainda não guardaste nenhum moodboard. Cria um no",
       "file": "src/routes/moodboards.tsx",
       "category": "editors",
       "key": "editors.ainda_nao_guardaste_nenhum_moodboard_cria",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You haven't saved any moodboards yet. Create one in"
     },
     {
       "text": "Ajusta o fundo de todos os campos de texto, textareas e cartões com contorno — do mais opaco ao mais transparente.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.ajusta_o_fundo_de_todos_os",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Adjust the background of all text fields, textareas, and outlined cards — from most opaque to most transparent."
     },
     {
       "text": "Ajustadas ao múltiplo",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.ajustadas_ao_multiplo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Adjusted to multiple"
     },
     {
       "text": "Âmbar (claro)",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.ambar_claro",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Amber (light)"
     },
     {
       "text": "Amostra (Tensão)",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.amostra_tensao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Swatch (Gauge)"
     },
     {
       "text": "Aplica-se a toda a app. Deixa vazio para usar o padrão.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.aplica_se_a_toda_a_app",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Applies to the entire app. Leave empty to use default."
     },
     {
       "text": "Aplica-se ao título de todas as páginas ao mesmo tempo.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.aplica_se_ao_titulo_de_todas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Applies to the title of all pages simultaneously."
     },
     {
       "text": "Aplicado às cores minoritárias.",
       "file": "src/components/knit-editor/ColorworkPanel.tsx",
       "category": "editors",
       "key": "editors.aplicado_as_cores_minoritarias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Applied to minority colors."
     },
     {
       "text": "Atualizar comentários",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.atualizar_comentarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Update comments"
     },
     {
       "text": "Auto: título — autoria",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.auto_titulo_autoria",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Auto: title — authorship"
     },
     {
       "text": "Barra superior onde está o ícone que abre o menu lateral.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.barra_superior_onde_esta_o_icone",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Top bar with the icon that opens the side menu."
     },
     {
       "text": "Base para escalonamento automático dos tamanhos (XS–XXL).",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.base_para_escalonamento_automatico_dos_tamanhos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Base for automatic sizing (XS–XXL)."
     },
     {
       "text": "Blocos de repetição (asteriscos)",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.blocos_de_repeticao_asteriscos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Repeat blocks (asterisks)"
     },
     {
       "text": "Botão outline",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.botao_outline",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Outline button"
     },
     {
       "text": "Botão primário",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.botao_primario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Primary button"
     },
     {
       "text": "Buffer segurança %",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.buffer_seguranca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Safety buffer %"
     },
     {
       "text": "Cabeçalho",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.cabecalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Header"
     },
     {
       "text": "Cabeçalho da aplicação",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cabecalho_da_aplicacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "App header"
     },
     {
       "text": "Calibração de escala &amp; consumo",
       "file": "src/components/embroidery/Phase18Panel.tsx",
       "category": "editors",
       "key": "editors.calibracao_de_escala_amp_consumo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Scale & consumption calibration"
     },
     {
       "text": "Calibrar opacidade dos botões",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.calibrar_opacidade_dos_botoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Calibrate button opacity"
     },
     {
       "text": "Capa dinâmica",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.capa_dinamica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Dynamic cover"
     },
     {
       "text": "Carrega fotos do progresso e associa-as a uma carreira específica (ex: C7).",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.carrega_fotos_do_progresso_e_associa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Upload progress photos and associate them with a specific row (e.g., C7)."
     },
     {
       "text": "Carrega uma imagem para gerar um gráfico C2C/tapestry com paleta extraída automaticamente.",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.carrega_uma_imagem_para_gerar_um",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Upload an image to generate a C2C/tapestry chart with an automatically extracted palette."
     },
     {
       "text": "Casas de botão",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.casas_de_botao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Buttonholes"
     },
     {
       "text": "CBM · Stock & Preço",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.cbm_stock_preco",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "CBM · Stock & Price"
     },
     {
       "text": "Clica para pintar com o símbolo/cor activos. C1 é a carreira do fundo (direito).",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.clica_para_pintar_com_o_simbolo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Click to paint with the active symbol/color. R1 is the bottom (right) row."
     },
     {
       "text": "Concluídos",
       "file": "src/components/knit-editor/FeedbackConsolidator.tsx",
       "category": "editors",
       "key": "editors.concluidos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Completed"
     },
     {
       "text": "Construtor de gráfico",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.construtor_de_grafico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Chart Builder"
     },
     {
       "text": "Consumo médio (g)",
       "file": "src/components/knit-editor/FeedbackConsolidator.tsx",
       "category": "editors",
       "key": "editors.consumo_medio_g",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Avg Consumption (g)"
     },
     {
       "text": "Contagem persiste automaticamente. Usa em vez de contador físico durante o crochê.",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.contagem_persiste_automaticamente_usa_em_vez",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Count persists automatically. Use instead of physical counter while crocheting."
     },
     {
       "text": "Controla independentemente a opacidade dos botões primários, secundários e outline.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.controla_independentemente_a_opacidade_dos_botoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Control opacity of primary, secondary, and outline buttons independently."
     },
     {
       "text": "Controla luminosidade, saturação, matiz e contraste dos itens.",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.controla_luminosidade_saturacao_matiz_e_contraste",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Control item brightness, saturation, hue, and contrast."
     },
     {
       "text": "Conversor de expressões (frase completa)",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.conversor_de_expressoes_frase_completa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Expression Converter (full phrase)"
     },
     {
       "text": "Copiar link público",
       "file": "src/components/knit-editor/TesterPanel.tsx",
       "category": "editors",
       "key": "editors.copiar_link_publico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Copy public link"
     },
     {
       "text": "Cor de áreas suaves (muted)",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_de_areas_suaves_muted",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Muted areas color"
     },
     {
       "text": "Cor de fundo das páginas",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_de_fundo_das_paginas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Page background color"
     },
     {
       "text": "Cor de fundo do cabeçalho",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_de_fundo_do_cabecalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Header background color"
     },
     {
       "text": "Cor do ícone/texto do cabeçalho",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_do_icone_texto_do_cabecalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Header icon/text color"
     },
     {
       "text": "Cor do texto dos botões",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_do_texto_dos_botoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Button text color"
     },
     {
       "text": "Cor do texto dos botões outline",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_do_texto_dos_botoes_outline",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Outline button text color"
     },
     {
       "text": "Cor do texto dos botões secundários",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_do_texto_dos_botoes_secundarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Secondary button text color"
     },
     {
       "text": "Cor dos botões outline",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_dos_botoes_outline",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Outline button color"
     },
     {
       "text": "Cor dos botões primários",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_dos_botoes_primarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Primary button color"
     },
     {
       "text": "Cor dos botões secundários",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_dos_botoes_secundarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Secondary button color"
     },
     {
       "text": "Cor dos títulos",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cor_dos_titulos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Title color"
     },
     {
       "text": "Cores gerais (janelas, botões, fundos)",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.cores_gerais_janelas_botoes_fundos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "General Colors (windows, buttons, backgrounds)"
     },
     {
       "text": "Correções",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.correcoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Corrections"
     },
     {
       "text": "Cria um gráfico para começar a desenhar com símbolos.",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.cria_um_grafico_para_comecar_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Create a chart to start drawing with symbols."
     },
     {
       "text": "Cronómetro de sessão",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.cronometro_de_sessao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Session timer"
     },
     {
       "text": "Custo mão-de-obra",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.custo_mao_de_obra",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Labor cost"
     },
     {
       "text": "Decoração",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.decoracao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Decoration"
     },
     {
       "text": "Descontar do inventário",
       "file": "src/components/embroidery/Phase18Panel.tsx",
       "category": "editors",
       "key": "editors.descontar_do_inventario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Subtract from inventory"
     },
     {
       "text": "Descreve o erro ou sugestão…",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.descreve_o_erro_ou_sugestao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Describe the error or suggestion..."
     },
     {
       "text": "Descrição (agulhas, embalagem…)",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.descricao_agulhas_embalagem",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Description (needles, packaging...)"
     },
     {
       "text": "Diâmetro alvo (cm)",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.diametro_alvo_cm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Target diameter (cm)"
     },
     {
       "text": "Dicionário PT / US / UK",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.dicionario_pt_us_uk",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Dictionary PT / US / UK"
     },
     {
       "text": "Diferenças críticas:",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.diferencas_criticas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Critical differences:"
     },
     {
       "text": "Dimensão",
       "file": "src/components/embroidery/Phase20Panel.tsx",
       "category": "editors",
       "key": "editors.dimensao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Dimension"
     },
     {
       "text": "Distância",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.distancia",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Distance"
     },
     {
       "text": "Enviar feedback à autora",
       "file": "src/components/knit-editor/TesterPanel.tsx",
       "category": "editors",
       "key": "editors.enviar_feedback_a_autora",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Send feedback to author"
     },
     {
       "text": "Escalonamento automático (XS–XXL)",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.escalonamento_automatico_xs_xxl",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Auto-scaling (XS–XXL)"
     },
     {
       "text": "Escolhe fios do teu inventário — o custo real e a disponibilidade são puxados automaticamente.",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.escolhe_fios_do_teu_inventario_o",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Choose yarns from your inventory — actual cost and availability are pulled automatically."
     },
     {
       "text": "Esfera por diâmetro alvo",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.esfera_por_diametro_alvo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Sphere by target diameter"
     },
     {
       "text": "espaço",
       "file": "src/components/knit-editor/TesterPanel.tsx",
       "category": "editors",
       "key": "editors.espaco",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "space"
     },
     {
       "text": "Estatísticas",
       "file": "src/components/embroidery/Phase21Panel.tsx",
       "category": "editors",
       "key": "editors.estatisticas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Statistics"
     },
     {
       "text": "Este link de tester expirou ou não é válido neste dispositivo.",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.este_link_de_tester_expirou_ou",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "This tester link has expired or is not valid on this device."
     },
     {
       "text": "ex: início do raglan",
       "file": "src/components/knit-editor/ConstructionPanel.tsx",
       "category": "editors",
       "key": "editors.ex_inicio_do_raglan",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "e.g., raglan start"
     },
     {
       "text": "Ex: usar estabilizador de recorte, tensão 4, agulha 75/11...",
       "file": "src/components/embroidery/Phase21Panel.tsx",
       "category": "editors",
       "key": "editors.ex_usar_estabilizador_de_recorte_tensao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ex: use cut-away stabilizer, tension 4, needle 75/11..."
     },
     {
       "text": "ex.: Coleção de outono aconchegante",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.ex_colecao_de_outono_aconchegante",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "e.g., Cozy Fall Collection"
     },
     {
       "text": "ex.: Título para post de cachecol de lã",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.ex_titulo_para_post_de_cachecol",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "e.g., Wool Scarf Post Title"
     },
     {
       "text": "Exportação para máquina",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.exportacao_para_maquina",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Machine Export"
     },
     {
       "text": "Exportações rápidas do gráfico",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.exportacoes_rapidas_do_grafico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Quick Chart Exports"
     },
     {
       "text": "Exportar comentários",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.exportar_comentarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Export Comments"
     },
     {
       "text": "Fase 17 — Edição & revisão",
       "file": "src/components/embroidery/Phase17Panel.tsx",
       "category": "editors",
       "key": "editors.fase_17_edicao_revisao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase 17 — Edit & Review"
     },
     {
       "text": "Fase 18 · mm/px, estimador de linha e desconto automático de stock",
       "file": "src/components/embroidery/Phase18Panel.tsx",
       "category": "editors",
       "key": "editors.fase_18_mm_px_estimador_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase 18 · mm/px, thread estimator & auto stock discount"
     },
     {
       "text": "Fase 20 · perfil, gate pré-export e planeamento com marcas de registo",
       "file": "src/components/embroidery/Phase20Panel.tsx",
       "category": "editors",
       "key": "editors.fase_20_perfil_gate_pre_export",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase 20 · profile, pre-export gate & planning with registration marks"
     },
     {
       "text": "Fase 21 · produção, timeline, PDF por atelier e CSV de inventário",
       "file": "src/components/embroidery/Phase21Panel.tsx",
       "category": "editors",
       "key": "editors.fase_21_producao_timeline_pdf_por",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase 21 · production, timeline, PDF by workshop & inventory CSV"
     },
     {
       "text": "Fase 23 · relatório de qualidade, checklist, exportação DST/PES/EXP e edição manual por camada",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.fase_23_relatorio_de_qualidade_checklist",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase 23 · quality report, checklist, DST/PES/EXP export & manual layer editing"
     },
     {
       "text": "Faz vetorização na Fase 22 para editar camadas aqui.",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.faz_vetorizacao_na_fase_22_para",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Vectorize in Phase 22 to edit layers here."
     },
     {
       "text": "Fios selecionados a partir do inventário",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.fios_selecionados_a_partir_do_inventario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Selected yarns from inventory"
     },
     {
       "text": "g necessários",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.g_necessarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "g needed"
     },
     {
       "text": "Gerador automático de legenda",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.gerador_automatico_de_legenda",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Auto-caption generator"
     },
     {
       "text": "Gerar opções de texto",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.gerar_opcoes_de_texto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Generate text options"
     },
     {
       "text": "Gráfico de crochê",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.grafico_de_croche",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Crochet chart"
     },
     {
       "text": "Guardar atual como padrão",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.guardar_atual_como_padrao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Save current as default"
     },
     {
       "text": "Guardar na aplicação",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.guardar_na_aplicacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Save to app"
     },
     {
       "text": "Horas acumuladas para preço:",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.horas_acumuladas_para_preco",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Accumulated hours for price:"
     },
     {
       "text": "Índice",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.indice",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Index"
     },
     {
       "text": "Inglês (UK)",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.ingles_uk",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "English (UK)"
     },
     {
       "text": "Inglês (US)",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.ingles_us",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "English (US)"
     },
     {
       "text": "Instruções",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.instrucoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Instructions"
     },
     {
       "text": "Introdução, história do projeto, materiais gerais…",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.introducao_historia_do_projeto_materiais_gerais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Introduction, project history, general materials…"
     },
     {
       "text": "Inversão / Troca de cores",
       "file": "src/components/knit-editor/ColorworkPanel.tsx",
       "category": "editors",
       "key": "editors.inversao_troca_de_cores",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Color Inversion / Swap"
     },
     {
       "text": "Letra global dos cabeçalhos",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.letra_global_dos_cabecalhos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Global header font"
     },
     {
       "text": "Limpar anotações",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.limpar_anotacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clear annotations"
     },
     {
       "text": "Limpar overrides por página",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.limpar_overrides_por_pagina",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clear page overrides"
     },
     {
       "text": "Link partilhável",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.link_partilhavel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Shareable link"
     },
     {
       "text": "Links de referência",
       "file": "src/routes/moodboards.$id.tsx",
       "category": "editors",
       "key": "editors.links_de_referencia",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reference links"
     },
     {
       "text": "Máquina, validações &amp; multi-bastidor",
       "file": "src/components/embroidery/Phase20Panel.tsx",
       "category": "editors",
       "key": "editors.maquina_validacoes_amp_multi_bastidor",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Machine, validations &amp; multi-hoop"
     },
     {
       "text": "matemática ok",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.matematica_ok",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "math okay"
     },
     {
       "text": "Máx. float (malhas)",
       "file": "src/components/knit-editor/ColorworkPanel.tsx",
       "category": "editors",
       "key": "editors.max_float_malhas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Max. float (stitches)"
     },
     {
       "text": "Média dos runs acima:",
       "file": "src/components/knit-editor/ColorworkPanel.tsx",
       "category": "editors",
       "key": "editors.media_dos_runs_acima",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Average of runs above:"
     },
     {
       "text": "Moodboard não encontrado.",
       "file": "src/routes/moodboards.$id.tsx",
       "category": "editors",
       "key": "editors.moodboard_nao_encontrado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Moodboard not found."
     },
     {
       "text": "Moodboards & Inspiração",
@@ -2390,152 +2390,152 @@
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.multiplo_padrao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Multiple (default)"
     },
     {
       "text": "Nível",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.nivel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Level"
     },
     {
       "text": "Nº de botões",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.n_de_botoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Number of buttons"
     },
     {
       "text": "Nome da artesã",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.nome_da_artesa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Crafter's name"
     },
     {
       "text": "Nome do negócio",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.nome_do_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Business name"
     },
     {
       "text": "O teu nome (aparece nos comentários)",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.o_teu_nome_aparece_nos_comentarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Your name (appears in comments)"
     },
     {
       "text": "Ocorrências",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.ocorrencias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Occurrences"
     },
     {
       "text": "Olhos de Segurança",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.olhos_de_seguranca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Safety Eyes"
     },
     {
       "text": "Opções do PDF",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.opcoes_do_pdf",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "PDF Options"
     },
     {
       "text": "Organizador de Peças",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.organizador_de_pecas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Parts Organizer"
     },
     {
       "text": "Padrão & Escrita",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.padrao_escrita",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pattern & Writing"
     },
     {
       "text": "Padrão a repetir",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.padrao_a_repetir",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pattern to repeat"
     },
     {
       "text": "Página de agradecimento",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.pagina_de_agradecimento",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Thank you page"
     },
     {
       "text": "Paleta extraída",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.paleta_extraida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Extracted palette"
     },
     {
       "text": "Parâmetros globais",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.parametros_globais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Global settings"
     },
     {
       "text": "Pé (cm)",
       "file": "src/components/knit-editor/ConstructionPanel.tsx",
       "category": "editors",
       "key": "editors.pe_cm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Foot (cm)"
     },
     {
       "text": "Peça",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.peca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Part"
     },
     {
       "text": "Peças:",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.pecas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Parts:"
     },
     {
       "text": "Perfil de máquina",
       "file": "src/components/embroidery/Phase20Panel.tsx",
       "category": "editors",
       "key": "editors.perfil_de_maquina",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Machine profile"
     },
     {
       "text": "Personalização & Configurações",
@@ -2550,552 +2550,552 @@
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.personalizacao_padrao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Default customization"
     },
     {
       "text": "Pesquisar (ex: bind off, laçada, mate)",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.pesquisar_ex_bind_off_lacada_mate",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Search (e.g. bind off, yo, decrease)"
     },
     {
       "text": "Pixel-art rápida",
       "file": "src/components/knit-editor/ColorworkPanel.tsx",
       "category": "editors",
       "key": "editors.pixel_art_rapida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Quick Pixel-art"
     },
     {
       "text": "Pontos máximos",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.pontos_maximos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Max stitches"
     },
     {
       "text": "Pontos máximos sugeridos:",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.pontos_maximos_sugeridos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Suggested max stitches:"
     },
     {
       "text": "Pontos originais (última carreira)",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.pontos_originais_ultima_carreira",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Original stitches (last row)"
     },
     {
       "text": "Português",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.portugues",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Portuguese"
     },
     {
       "text": "Português (PT/BR)",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.portugues_pt_br",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Portuguese (PT/BR)"
     },
     {
       "text": "Posição (malha)",
       "file": "src/components/knit-editor/ConstructionPanel.tsx",
       "category": "editors",
       "key": "editors.posicao_malha",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Stitch position"
     },
     {
       "text": "Pré-visualização",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.pre_visualizacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Preview"
     },
     {
       "text": "Pré-visualização com filtro \"mohair\" (halo fofinho) aplicado ao SVG do gráfico.",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.pre_visualizacao_com_filtro_mohair_halo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Preview with \"mohair\" filter (fuzzy halo) applied to the chart SVG."
     },
     {
       "text": "Pré-visualização expandida:",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.pre_visualizacao_expandida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Expanded preview:"
     },
     {
       "text": "Preçário",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.precario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price list"
     },
     {
       "text": "Preçário detalhado",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.precario_detalhado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Detailed price list"
     },
     {
       "text": "Precificador rápido",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.precificador_rapido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Quick Pricer"
     },
     {
       "text": "Preço com IVA",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.preco_com_iva",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price with VAT"
     },
     {
       "text": "Preço sem IVA",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
       "key": "editors.preco_sem_iva",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price without VAT"
     },
     {
       "text": "Preço sugerido",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.preco_sugerido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Suggested price"
     },
     {
       "text": "Preço-hora base (€)",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.preco_hora_base",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Base hourly rate (€)"
     },
     {
       "text": "Preço/hora (€)",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.preco_hora",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price/hour (€)"
     },
     {
       "text": "pronto para submissão em plataformas como Ravelry ou Etsy.",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.pronto_para_submissao_em_plataformas_como",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "ready for submission to platforms like Ravelry or Etsy."
     },
     {
       "text": "QA · Export por Máquina · Editor de Camadas",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.qa_export_por_maquina_editor_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "QA · Export by Machine · Layer Editor"
     },
     {
       "text": "Reduzir distrações no editor",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.reduzir_distracoes_no_editor",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reduce distractions in editor"
     },
     {
       "text": "Relatório QA · Auto-digitize",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.relatorio_qa_auto_digitize",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "QA Report · Auto-digitize"
     },
     {
       "text": "Relatórios &amp; PDF configurável",
       "file": "src/components/embroidery/Phase21Panel.tsx",
       "category": "editors",
       "key": "editors.relatorios_amp_pdf_configuravel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reports &amp; configurable PDF"
     },
     {
       "text": "Repor padrão",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.repor_padrao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reset to default"
     },
     {
       "text": "Requer ação manual:",
       "file": "src/components/embroidery/Phase23Panel.tsx",
       "category": "editors",
       "key": "editors.requer_acao_manual",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Manual action required:"
     },
     {
       "text": "Restaurar de fábrica",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.restaurar_de_fabrica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Factory reset"
     },
     {
       "text": "Restaurar padrão pessoal",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.restaurar_padrao_pessoal",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Restore personal default"
     },
     {
       "text": "Revisão por cor (R)",
       "file": "src/components/embroidery/Phase17Panel.tsx",
       "category": "editors",
       "key": "editors.revisao_por_cor_r",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Review by color (R)"
     },
     {
       "text": "Rodapé",
       "file": "src/components/amigurumi-editor/AmigurumiDesign.tsx",
       "category": "editors",
       "key": "editors.rodape",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Footer"
     },
     {
       "text": "Secundário",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.secundario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Secondary"
     },
     {
       "text": "Sem comentários ainda. Partilha o link ou importa um JSON exportado por um tester.",
       "file": "src/components/amigurumi-editor/AmigurumiTester.tsx",
       "category": "editors",
       "key": "editors.sem_comentarios_ainda_partilha_o_link",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No comments yet. Share the link or import a JSON exported by a tester."
     },
     {
       "text": "Sem cores no padrão.",
       "file": "src/components/embroidery/Phase18Panel.tsx",
       "category": "editors",
       "key": "editors.sem_cores_no_padrao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No colors in pattern."
     },
     {
       "text": "Sem fios no inventário",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.sem_fios_no_inventario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No threads in inventory"
     },
     {
       "text": "Sem sugestões.",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.sem_sugestoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No suggestions."
     },
     {
       "text": "Símbolo",
       "file": "src/components/knit-editor/WritingPanel.tsx",
       "category": "editors",
       "key": "editors.simbolo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Symbol"
     },
     {
       "text": "Símbolos",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.simbolos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Symbols"
     },
     {
       "text": "Símbolos personalizados",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.simbolos_personalizados",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Custom symbols"
     },
     {
       "text": "Sobreposição (mm)",
       "file": "src/components/embroidery/Phase20Panel.tsx",
       "category": "editors",
       "key": "editors.sobreposicao_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Overlap (mm)"
     },
     {
       "text": "Stock baixo — adicionar às compras",
       "file": "src/routes/moodboards.$id.tsx",
       "category": "editors",
       "key": "editors.stock_baixo_adicionar_as_compras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Low stock — add to shopping list"
     },
     {
       "text": "Sugestão",
       "file": "src/components/knit-editor/TesterPanel.tsx",
       "category": "editors",
       "key": "editors.sugestao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Suggestion"
     },
     {
       "text": "Sugestão: incluir fotos do produto acabado antes de submeter.",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.sugestao_incluir_fotos_do_produto_acabado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tip: include photos of the finished product before submitting."
     },
     {
       "text": "tags separadas por vírgula",
       "file": "src/components/embroidery/Phase16Panel.tsx",
       "category": "editors",
       "key": "editors.tags_separadas_por_virgula",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "tags separated by comma"
     },
     {
       "text": "Tema / paleta para começar",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.tema_paleta_para_comecar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Theme / palette to start"
     },
     {
       "text": "Tempo de produção",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
       "key": "editors.tempo_de_producao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Production time"
     },
     {
       "text": "Tensão (pontos por 10 cm)",
       "file": "src/components/amigurumi-editor/AmigurumiExtras.tsx",
       "category": "editors",
       "key": "editors.tensao_pontos_por_10_cm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tension (stitches per 10cm)"
     },
     {
       "text": "Tensão / Amostra",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.tensao_amostra",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tension / Swatch"
     },
     {
       "text": "Tensão:",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.tensao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tension:"
     },
     {
       "text": "Tipo de letra dos cabeçalhos",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.tipo_de_letra_dos_cabecalhos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Header font"
     },
     {
       "text": "Tipo de letra dos títulos",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.tipo_de_letra_dos_titulos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Title font"
     },
     {
       "text": "Título da receita",
       "file": "src/components/amigurumi-editor/AmigurumiEditor.tsx",
       "category": "editors",
       "key": "editors.titulo_da_receita",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Recipe title"
     },
     {
       "text": "Todas as carreiras têm simetria coerente.",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.todas_as_carreiras_tem_simetria_coerente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "All rows have consistent symmetry."
     },
     {
       "text": "Tradução automática (gráfico → texto)",
       "file": "src/components/knit-editor/KnitEditor.tsx",
       "category": "editors",
       "key": "editors.traducao_automatica_grafico_texto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Auto-translate (graphic → text)"
     },
     {
       "text": "Trajeto &amp; pré-visualização 3D",
       "file": "src/components/embroidery/Phase19Panel.tsx",
       "category": "editors",
       "key": "editors.trajeto_amp_pre_visualizacao_3d",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Path & 3D preview"
     },
     {
       "text": "Transparência das janelas com contorno",
       "file": "src/routes/design.tsx",
       "category": "editors",
       "key": "editors.transparencia_das_janelas_com_contorno",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Window Transparency with Outline"
     },
     {
       "text": "Trás",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.tras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Back"
     },
     {
       "text": "Tutorial rápido & atalhos",
       "file": "src/components/embroidery/Phase17Panel.tsx",
       "category": "editors",
       "key": "editors.tutorial_rapido_atalhos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Quick tutorial & shortcuts"
     },
     {
       "text": "Verificador de múltiplos",
       "file": "src/components/knit-editor/GradingPanel.tsx",
       "category": "editors",
       "key": "editors.verificador_de_multiplos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Multiple checker"
     },
     {
       "text": "Vídeos & QR",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.videos_qr",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Videos & QR"
     },
     {
       "text": "Vídeos & QR partilháveis",
       "file": "src/components/amigurumi-editor/AmigurumiVisuais.tsx",
       "category": "editors",
       "key": "editors.videos_qr_partilhaveis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Shareable videos & QR"
     },
     {
       "text": "• Margem média por projeto:",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.margem_media_por_projeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "• Avg. margin per project:"
     },
     {
       "text": "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.recomendacao_aumentar_margem_para_80_nos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "• Recommendation: increase margin to 80% for low-volume custom projects."
     },
     {
       "text": "A Gestão Descomplicada:",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.a_gestao_descomplicada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Management Made Easy:"
     },
     {
       "text": "Análise de Mercado e Tendências",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.analise_de_mercado_e_tendencias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Market Analysis and Trends"
     },
     {
       "text": "Calendário Festivo",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.calendario_festivo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Festive Calendar"
     },
     {
       "text": "Campanhas e Métricas",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.campanhas_e_metricas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Campaigns & Metrics"
     },
     {
       "text": "Comentários",
       "file": "src/routes/instagram.tsx",
       "category": "marketing",
       "key": "marketing.comentarios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Comments"
     },
     {
       "text": "Conversões",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.conversoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Conversions"
     },
     {
       "text": "Crescimento do negócio",
@@ -3110,80 +3110,80 @@
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.distribuicao_encomendas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Order distribution"
     },
     {
       "text": "Edita cada ideia antes de adicionar ao calendário.",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.edita_cada_ideia_antes_de_adicionar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Edit each idea before adding to the calendar."
     },
     {
       "text": "Envia o mesmo evento várias vezes para confirmar que o stock só é descontado uma vez (idempotência por",
       "file": "src/routes/etsy.tsx",
       "category": "marketing",
       "key": "marketing.envia_o_mesmo_evento_varias_vezes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Send the same event multiple times to confirm stock is deducted only once (idempotency by"
     },
     {
       "text": "Event ID (único)",
       "file": "src/routes/etsy.tsx",
       "category": "marketing",
       "key": "marketing.event_id_unico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Event ID (unique)"
     },
     {
       "text": "Ex.: Mulher 30-55 anos, mãe ou avó, sensível a artesanato genuíno…",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.ex_mulher_30_55_anos_mae",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ex: Woman 30-55 years old, mother or grandmother, sensitive to genuine craftsmanship…"
     },
     {
       "text": "Ex.: Procura presentes únicos e com significado; quer apoiar pequenos negócios…",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.ex_procura_presentes_unicos_e_com",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ex: Seeks unique and meaningful gifts; wants to support small businesses…"
     },
     {
       "text": "Guardar alterações",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.guardar_alteracoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Save changes"
     },
     {
       "text": "Herança do Novelo",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.heranca_do_novelo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Yarn Inheritance"
     },
     {
       "text": "Histórico de campanhas",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.historico_de_campanhas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Campaign history"
     },
     {
       "text": "Lucro médio/projeto",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.lucro_medio_projeto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Avg. profit/project"
     },
     {
       "text": "Marketing e Conteúdo",
@@ -3198,240 +3198,240 @@
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.notas_livres_sobre_concorrencia_tendencias_e",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Free notes on competition, trends, and hashtags"
     },
     {
       "text": "O Apoio à Criação:",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.o_apoio_a_criacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Creation Support:"
     },
     {
       "text": "Onde tudo começou: uma herança de amor e arte.",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.onde_tudo_comecou_uma_heranca_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Where it all began: a legacy of love and art."
     },
     {
       "text": "primeira plataforma de gestão de negócio criada e focada exclusivamente na nossa área de trabalho",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.primeira_plataforma_de_gestao_de_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "the first business management platform created and focused exclusively on our line of work"
     },
     {
       "text": "Quem é o meu cliente?",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.quem_e_o_meu_cliente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Who is my customer?"
     },
     {
       "text": "Quem Somos: A Herança e o Futuro do Nosso Artesanato",
       "file": "src/routes/quem-somos.tsx",
       "category": "marketing",
       "key": "marketing.quem_somos_a_heranca_e_o",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "About Us: The Heritage and Future of Our Craft"
     },
     {
       "text": "Relatório executivo",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.relatorio_executivo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Executive report"
     },
     {
       "text": "Resposta tipicamente em 24-48h em dias úteis.",
       "file": "src/routes/contacto.tsx",
       "category": "marketing",
       "key": "marketing.resposta_tipicamente_em_24_48h_em",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Typically replies in 24-48h on business days."
     },
     {
       "text": "Variação",
       "file": "src/routes/etsy.tsx",
       "category": "marketing",
       "key": "marketing.variacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Variation"
     },
     {
       "text": "Vendas por mês",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
       "key": "marketing.vendas_por_mes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Sales by month"
     },
     {
       "text": "— sem responsável",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.sem_responsavel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "— no responsible party"
     },
     {
       "text": "(linha única garantida).",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.linha_unica_garantida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "(single line guaranteed)."
     },
     {
       "text": "1. Quem somos e âmbito do serviço",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.1_quem_somos_e_ambito_do",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "1. Who we are and service scope"
     },
     {
       "text": "10. Lei aplicável e alterações",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.10_lei_aplicavel_e_alteracoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "10. Applicable law and changes"
     },
     {
       "text": "2. Aceitação e capacidade",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.2_aceitacao_e_capacidade",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "2. Acceptance and capacity"
     },
     {
       "text": "3. Uso aceitável",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.3_uso_aceitavel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "3. Acceptable use"
     },
     {
       "text": "4. Propriedade intelectual e conteúdos do utilizador",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.4_propriedade_intelectual_e_conteudos_do",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "4. Intellectual property and user content"
     },
     {
       "text": "5. Disponibilidade do serviço",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.5_disponibilidade_do_servico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "5. Service availability"
     },
     {
       "text": "6. Pagamentos, subscrições e cancelamentos",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.6_pagamentos_subscricoes_e_cancelamentos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "6. Payments, subscriptions, and cancellations"
     },
     {
       "text": "8. Suspensão e cessação",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.8_suspensao_e_cessacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "8. Suspension and termination"
     },
     {
       "text": "Ainda sem blocos visíveis.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.ainda_sem_blocos_visiveis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No visible blocks yet."
     },
     {
       "text": "Algodão",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.algodao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Cotton"
     },
     {
       "text": "Algodão cru",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.algodao_cru",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Raw cotton"
     },
     {
       "text": "Apaga apenas as interseções sob o cursor; o resto do traço permanece intacto.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.apaga_apenas_as_intersecoes_sob_o",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Erases only intersections under the cursor; the rest of the stroke remains intact."
     },
     {
       "text": "Apliques (appliqué)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.apliques_applique",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Appliqués"
     },
     {
       "text": "Arame Necessário:",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.arame_necessario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Wire Needed:"
     },
     {
       "text": "Ativar sobreposição",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.ativar_sobreposicao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Enable overlay"
     },
     {
       "text": "Bordado à máquina (DST)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.bordado_a_maquina_dst",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Machine embroidery (DST)"
     },
     {
       "text": "Bundle de exportação (.zip)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.bundle_de_exportacao_zip",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Export bundle (.zip)"
     },
     {
       "text": "Cada eixo cria uma cópia espelhada em torno do centro do bastidor.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.cada_eixo_cria_uma_copia_espelhada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Each axis creates a mirrored copy around the hoop center."
     },
     {
       "text": "Calculadora de preço",
@@ -3446,56 +3446,56 @@
       "file": "src/routes/guia-precificacao.tsx",
       "category": "misc",
       "key": "misc.calcular_o_preco_de_uma_peca",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Calculate item price"
     },
     {
       "text": "Cálculo",
       "file": "src/routes/projeto-personalizado.tsx",
       "category": "misc",
       "key": "misc.calculo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Calculation"
     },
     {
       "text": "Calendário:",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.calendario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Calendar:"
     },
     {
       "text": "Calibração automática",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.calibracao_automatica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Automatic calibration"
     },
     {
       "text": "Calibração de escala",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.calibracao_de_escala",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Scale calibration"
     },
     {
       "text": "Código da linha",
       "file": "src/routes/conversor-cores.tsx",
       "category": "misc",
       "key": "misc.codigo_da_linha",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Row Code"
     },
     {
       "text": "Código Postal",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.codigo_postal",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Postal Code"
     },
     {
       "text": "Começar uma folha vazia",
@@ -3510,32 +3510,32 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.comprimento_total_das_linhas_por_camada",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Total yarn length per layer (with 15% margin for knots and needle waste)."
     },
     {
       "text": "Conta a tua história no artesanato…",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.conta_a_tua_historia_no_artesanato",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tell your craft story..."
     },
     {
       "text": "Cria um projeto primeiro para guardar cotações.",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.cria_um_projeto_primeiro_para_guardar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Create a project first to save quotes."
     },
     {
       "text": "Descrição completa",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.descricao_completa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Full description"
     },
     {
       "text": "Desfazer último traço",
@@ -3550,104 +3550,104 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.deslocamento_em_fase_entre_linhas_evita",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Phase shift between rows — avoids visible \"ridges\" in the fabric."
     },
     {
       "text": "Dica: fecha o contorno com \"Z\" antes de preencher (ferramentas de desenho geram traços abertos por padrão).",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.dica_fecha_o_contorno_com_z",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tip: close the contour with \"Z\" before filling (drawing tools generate open paths by default)."
     },
     {
       "text": "Duração etapa (dias) sem fim",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.duracao_etapa_dias_sem_fim",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Stage duration (days) endless"
     },
     {
       "text": "Duração tarefa (dias)",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.duracao_tarefa_dias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Task duration (days)"
     },
     {
       "text": "E-mail do negócio",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.e_mail_do_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Business email"
     },
     {
       "text": "Editor de Gráficos: Ponto Cruz",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.editor_de_graficos_ponto_cruz",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Chart Editor: Cross Stitch"
     },
     {
       "text": "Editor de Gráficos: Tricô",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.editor_de_graficos_trico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Chart Editor: Knitting"
     },
     {
       "text": "Editor de Padrões: Bordado",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.editor_de_padroes_bordado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pattern Editor: Embroidery"
     },
     {
       "text": "Editor de Receitas: Amigurumis & Crochê",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.editor_de_receitas_amigurumis_croche",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Recipe Editor: Amigurumis & Crochet"
     },
     {
       "text": "Estes Termos e Condições regulam a utilização do",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.estes_termos_e_condicoes_regulam_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "These Terms and Conditions regulate the use of"
     },
     {
       "text": "Ex: Herança do Novelo",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.ex_heranca_do_novelo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ex: Yarn Legacy"
     },
     {
       "text": "fazer engenharia inversa, revender ou redistribuir o serviço sem autorização escrita.",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.fazer_engenharia_inversa_revender_ou_redistribuir",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "reverse engineering, reselling, or redistributing the service without written authorization."
     },
     {
       "text": "Ferramentas Avançadas",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.ferramentas_avancadas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Advanced Tools"
     },
     {
       "text": "Ferramentas Técnicas",
@@ -3662,272 +3662,272 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.folha_de_padrao_pdf",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Pattern Sheet (PDF)"
     },
     {
       "text": "Fórmula: (Materiais + Horas × €/h + Extras) × (1 + margem).",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.formula_materiais_horas_h_extras_1",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Formula: (Materials + Hours × €/h + Extras) × (1 + margin)."
     },
     {
       "text": "Foto de perfil — visível no cabeçalho e exportações.",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.foto_de_perfil_visivel_no_cabecalho",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Profile photo — visible in header and exports."
     },
     {
       "text": "Fuso horário (TZID)",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.fuso_horario_tzid",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Timezone (TZID)"
     },
     {
       "text": "Gera PDF com capa, gráfico e legenda DMC (com símbolos, swatches e stock).",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.gera_pdf_com_capa_grafico_e",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Generate PDF with cover, chart & DMC legend (with symbols, swatches & stock)."
     },
     {
       "text": "Gerar sequência de aplique",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.gerar_sequencia_de_aplique",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Generate applique sequence"
     },
     {
       "text": "Gestão do Molde:",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.gestao_do_molde",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Mold Management:"
     },
     {
       "text": "Guarda camadas, gráfico, bastidor, ordem de cores e marca de água.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.guarda_camadas_grafico_bastidor_ordem_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Saves layers, chart, hoop, color order, and watermark."
     },
     {
       "text": "Guardar no Catálogo",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.guardar_no_catalogo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Save to Catalog"
     },
     {
       "text": "Histórico",
       "file": "src/routes/vendas.tsx",
       "category": "misc",
       "key": "misc.historico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "History"
     },
     {
       "text": "Histórico de conversas",
       "file": "src/routes/whatsapp.tsx",
       "category": "misc",
       "key": "misc.historico_de_conversas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Conversation history"
     },
     {
       "text": "Ideal para combinar com o preenchimento automático e a sequência de aplique.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.ideal_para_combinar_com_o_preenchimento",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Ideal to combine with auto-fill and applique sequence."
     },
     {
       "text": "Imagem de referência (decalque)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.imagem_de_referencia_decalque",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reference image (decal)"
     },
     {
       "text": "Imprime com a régua ativa, mede a barra de 100 mm com régua física e introduz o valor obtido.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.imprime_com_a_regua_ativa_mede",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Print with active ruler, measure 100 mm bar with physical ruler and enter the value obtained."
     },
     {
       "text": "Inclui progresso, tarefas com estado, responsáveis e prazos.",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.inclui_progresso_tarefas_com_estado_responsaveis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Includes progress, tasks with status, responsible parties, and deadlines."
     },
     {
       "text": "Incluir folha de padrão PDF",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.incluir_folha_de_padrao_pdf",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Include PDF pattern sheet"
     },
     {
       "text": "Incluir régua na impressão (verificação 1:1)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.incluir_regua_na_impressao_verificacao_1",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Include ruler in print (1:1 check)"
     },
     {
       "text": "Iniciais (até 3)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.iniciais_ate_3",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Initials (up to 3)"
     },
     {
       "text": "Início",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.inicio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Home"
     },
     {
       "text": "Instruções de uso",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.instrucoes_de_uso",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Usage instructions"
     },
     {
       "text": "Link inválido ou expirado — pede à autora um novo pacote de teste.",
       "file": "src/routes/receita-tester-tricot.$token.tsx",
       "category": "misc",
       "key": "misc.link_invalido_ou_expirado_pede_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Invalid or expired link — ask the author for a new test package."
     },
     {
       "text": "Logótipo do Atelier",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.logotipo_do_atelier",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Studio Logo"
     },
     {
       "text": "Mão de obra",
       "file": "src/routes/projeto-personalizado.tsx",
       "category": "misc",
       "key": "misc.mao_de_obra",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Labor"
     },
     {
       "text": "Marca d'água da folha de desenho",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.marca_d_agua_da_folha_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Drawing sheet watermark"
     },
     {
       "text": "Medição obtida (mm)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.medicao_obtida_mm",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Measurement obtained (mm)"
     },
     {
       "text": "Modo Seleção",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.modo_selecao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Selection Mode"
     },
     {
       "text": "Modo Tester — Tricô",
       "file": "src/routes/receita-tester-tricot.$token.tsx",
       "category": "misc",
       "key": "misc.modo_tester_trico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tester Mode — Knit"
     },
     {
       "text": "Mostrar régua mm/cm no canvas",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.mostrar_regua_mm_cm_no_canvas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Show mm/cm ruler on canvas"
     },
     {
       "text": "Não iniciado",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.nao_iniciado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Not started"
     },
     {
       "text": "Novo PIN (4 dígitos)",
       "file": "src/routes/contas.tsx",
       "category": "misc",
       "key": "misc.novo_pin_4_digitos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "New PIN (4 digits)"
     },
     {
       "text": "O teu progresso e notas ficam neste dispositivo. Exporta o JSON e envia à autora para consolidar.",
       "file": "src/routes/receita-tester-tricot.$token.tsx",
       "category": "misc",
       "key": "misc.o_teu_progresso_e_notas_ficam",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Your progress and notes are on this device. Export JSON and send to the author to consolidate."
     },
     {
       "text": "O utilizador compromete-se a não:",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.o_utilizador_compromete_se_a_nao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The user agrees not to:"
     },
     {
       "text": "Opções de exportação .ics",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.opcoes_de_exportacao_ics",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": ".ics Export Options"
     },
     {
       "text": "Perfil de Negócio",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.perfil_de_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Business Profile"
     },
     {
       "text": "Perfil Pessoal & Negócio",
@@ -3942,8 +3942,8 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.pesquisar_codigo_ou_nome",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Search code or name..."
     },
     {
       "text": "Planeador De Produção",
@@ -3958,160 +3958,160 @@
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.png_transparente_recomendado_usado_automaticamente_como",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Transparent PNG recommended. Automatically used as a watermark in all technical editors."
     },
     {
       "text": "praticar fraude, envio de spam ou comunicações não solicitadas;",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.praticar_fraude_envio_de_spam_ou",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "engaging in fraud, sending spam or unsolicited communications;"
     },
     {
       "text": "Pré-visualização 3D",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.pre_visualizacao_3d",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "3D Preview"
     },
     {
       "text": "Pré-visualização do .ics",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.pre_visualizacao_do_ics",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": ".ics preview"
     },
     {
       "text": "Pré-visualizar",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.pre_visualizar",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Preview"
     },
     {
       "text": "Preço final",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.preco_final",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Final price"
     },
     {
       "text": "Preço-hora (€)",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.preco_hora",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Hourly rate (€)"
     },
     {
       "text": "Preenchimento automático (fill)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.preenchimento_automatico_fill",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Auto-fill"
     },
     {
       "text": "Projeto do estúdio",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.projeto_do_estudio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Studio project"
     },
     {
       "text": "Recomendado 2–4 mm para bordado padrão; abaixo de 1.5 mm para detalhe fino.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.recomendado_2_4_mm_para_bordado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Recommended 2–4 mm for standard embroidery; below 1.5 mm for fine detail."
     },
     {
       "text": "Regra dos terços",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.regra_dos_tercos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Rule of thirds"
     },
     {
       "text": "Reordena os blocos para reduzir trocas de agulha e otimizar a operação da máquina.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.reordena_os_blocos_para_reduzir_trocas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Reorder blocks to reduce needle changes and optimize machine operation."
     },
     {
       "text": "Responsável",
       "file": "src/routes/planeador-producao.tsx",
       "category": "misc",
       "key": "misc.responsavel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Responsible"
     },
     {
       "text": "Sem avisos — design saudável.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sem_avisos_design_saudavel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No warnings — healthy design."
     },
     {
       "text": "Sem correspondência automática — associar manualmente:",
       "file": "src/routes/whatsapp.tsx",
       "category": "misc",
       "key": "misc.sem_correspondencia_automatica_associar_manualmente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No auto-match — link manually:"
     },
     {
       "text": "Sem linhas ainda. Atribui uma cor DMC a cada camada ou gera um gráfico de ponto cruz para veres a lista.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sem_linhas_ainda_atribui_uma_cor",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No rows yet. Assign a DMC color to each layer or generate a cross-stitch chart to see the list."
     },
     {
       "text": "Sentido horário",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sentido_horario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Clockwise"
     },
     {
       "text": "Sequência de cores",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sequencia_de_cores",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Color sequence"
     },
     {
       "text": "Simplificação (ε px)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.simplificacao_px",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Simplification (ε px)"
     },
     {
       "text": "Simula o brilho da linha e a textura do tecido para conferência visual antes de bordar.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.simula_o_brilho_da_linha_e",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Simulates thread sheen and fabric texture for visual confirmation before embroidering."
     },
     {
       "text": "Sincronização WhatsApp",
@@ -4126,96 +4126,96 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.snap_angulo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Snap angle"
     },
     {
       "text": "Sugerir mais próxima",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sugerir_mais_proxima",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Suggest closest"
     },
     {
       "text": "Sugestão: 0.4 px ≈ 1 fio · 0.8 px ≈ 3 fios · 1.4 px ≈ 6 fios.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.sugestao_0_4_px_1_fio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Tip: 0.4 px ≈ 1 thread · 0.8 px ≈ 3 threads · 1.4 px ≈ 6 threads."
     },
     {
       "text": "Telefone do negócio",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.telefone_do_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Business phone"
     },
     {
       "text": "Telemóvel",
       "file": "src/routes/perfil-negocio.tsx",
       "category": "misc",
       "key": "misc.telemovel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Mobile phone"
     },
     {
       "text": "Templates rápidos",
       "file": "src/routes/whatsapp.tsx",
       "category": "misc",
       "key": "misc.templates_rapidos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Quick templates"
     },
     {
       "text": "Texto a bordar em círculo",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.texto_a_bordar_em_circulo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Text to embroider in a circle"
     },
     {
       "text": "Travar bloqueia posição/rotação. Snap alinha em passos %/°. Clamp mantém sempre dentro do canvas.",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.travar_bloqueia_posicao_rotacao_snap_alinha",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lock pins position/rotation. Snap aligns in %/° steps. Clamp keeps always within canvas."
     },
     {
       "text": "Travar marca d&apos;água",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.travar_marca_d_apos_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Lock watermark"
     },
     {
       "text": "Últimas cotações",
       "file": "src/routes/calculadora.tsx",
       "category": "misc",
       "key": "misc.ultimas_cotacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Latest quotes"
     },
     {
       "text": "uma única polyline contínua",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.uma_unica_polyline_continua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "a single continuous polyline"
     },
     {
       "text": "utilizar o serviço para fins ilícitos ou contrários à lei aplicável;",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.utilizar_o_servico_para_fins_ilicitos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "using the service for illicit purposes or contrary to applicable law;"
     },
     {
       "text": "Vendas concluídas",
@@ -4230,64 +4230,64 @@
       "file": "src/routes/whatsapp.tsx",
       "category": "misc",
       "key": "misc.verificar_ligacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Check connection"
     },
     {
       "text": "Vetorização (Trace)",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.vetorizacao_trace",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Vectorization (Trace)"
     },
     {
       "text": "Vinculada · horas e materiais pré-preenchidos",
       "file": "src/routes/projeto-personalizado.tsx",
       "category": "misc",
       "key": "misc.vinculada_horas_e_materiais_pre_preenchidos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Linked · pre-filled hours & materials"
     },
     {
       "text": "violar direitos de propriedade intelectual de terceiros, incluindo padrões, imagens e receitas;",
       "file": "src/routes/termos.tsx",
       "category": "misc",
       "key": "misc.violar_direitos_de_propriedade_intelectual_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "violating third-party intellectual property rights, including patterns, images, and recipes;"
     },
     {
       "text": "A vista de calendário respeita os filtros de projeto e estado acima.",
       "file": "src/routes/todo.tsx",
       "category": "operations",
       "key": "operations.a_vista_de_calendario_respeita_os",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The calendar view respects the project and status filters above."
     },
     {
       "text": "Adicionar à lista",
       "file": "src/routes/inventario.tsx",
       "category": "operations",
       "key": "operations.adicionar_a_lista",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Add to list"
     },
     {
       "text": "Alertas de reposição",
       "file": "src/routes/inventario.tsx",
       "category": "operations",
       "key": "operations.alertas_de_reposicao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Restock alerts"
     },
     {
       "text": "Ativar notificações",
       "file": "src/routes/todo.tsx",
       "category": "operations",
       "key": "operations.ativar_notificacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Enable notifications"
     },
     {
       "text": "Calendário & Agenda",
@@ -4302,48 +4302,48 @@
       "file": "src/routes/fornecedores.tsx",
       "category": "operations",
       "key": "operations.codigo_de_desconto",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Discount Code"
     },
     {
       "text": "Código de Desconto de Membro",
       "file": "src/routes/fornecedores.tsx",
       "category": "operations",
       "key": "operations.codigo_de_desconto_de_membro",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Member Discount Code"
     },
     {
       "text": "Código postal",
       "file": "src/routes/etiquetas.tsx",
       "category": "operations",
       "key": "operations.codigo_postal",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Postcode"
     },
     {
       "text": "Código/Nº da cor *",
       "file": "src/routes/stock.tsx",
       "category": "operations",
       "key": "operations.codigo_n_da_cor",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Color code/No. *"
     },
     {
       "text": "Concluída",
       "file": "src/routes/todo.tsx",
       "category": "operations",
       "key": "operations.concluida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Completed"
     },
     {
       "text": "Concluído",
       "file": "src/routes/projetos.tsx",
       "category": "operations",
       "key": "operations.concluido",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Completed"
     },
     {
       "text": "Copiar código",
@@ -4358,16 +4358,16 @@
       "file": "src/routes/projetos.tsx",
       "category": "operations",
       "key": "operations.custo_de_materiais_horas_preco_hora",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Material cost + hours × price/hour + margin (default 70%)."
     },
     {
       "text": "Destinatário",
       "file": "src/routes/etiquetas.tsx",
       "category": "operations",
       "key": "operations.destinatario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Recipient"
     },
     {
       "text": "Gestão de fornecedores",
@@ -4382,64 +4382,64 @@
       "file": "src/routes/todo.tsx",
       "category": "operations",
       "key": "operations.media",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Average"
     },
     {
       "text": "Mínimo",
       "file": "src/routes/inventario.tsx",
       "category": "operations",
       "key": "operations.minimo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Minimum"
     },
     {
       "text": "Nada a comprar! Todos os materiais acima do mínimo.",
       "file": "src/routes/lista-compras.tsx",
       "category": "operations",
       "key": "operations.nada_a_comprar_todos_os_materiais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Nothing to buy! All materials above minimum."
     },
     {
       "text": "Observações",
       "file": "src/routes/etiquetas.tsx",
       "category": "operations",
       "key": "operations.observacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Remarks"
     },
     {
       "text": "País",
       "file": "src/routes/etiquetas.tsx",
       "category": "operations",
       "key": "operations.pais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Country"
     },
     {
       "text": "Pesquisar material por nome ou código…",
       "file": "src/routes/stock.tsx",
       "category": "operations",
       "key": "operations.pesquisar_material_por_nome_ou_codigo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Search material by name or code..."
     },
     {
       "text": "Preço de compra (€/un)",
       "file": "src/routes/stock.tsx",
       "category": "operations",
       "key": "operations.preco_de_compra_un",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Purchase price (€/unit)"
     },
     {
       "text": "Preço/un.",
       "file": "src/routes/inventario.tsx",
       "category": "operations",
       "key": "operations.preco_un",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Price/unit"
     },
     {
       "text": "Projetos & Criação De Projeto",
@@ -4454,32 +4454,32 @@
       "file": "src/routes/todo.tsx",
       "category": "operations",
       "key": "operations.selecionar_visiveis",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Select visible"
     },
     {
       "text": "Sem artigos abaixo do mínimo. Bom trabalho!",
       "file": "src/routes/inventario.tsx",
       "category": "operations",
       "key": "operations.sem_artigos_abaixo_do_minimo_bom",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No items below minimum. Good job!"
     },
     {
       "text": "Stock mínimo",
       "file": "src/routes/stock.tsx",
       "category": "operations",
       "key": "operations.stock_minimo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Min. stock"
     },
     {
       "text": "Toque padrão da aplicação",
       "file": "src/routes/calendario.tsx",
       "category": "operations",
       "key": "operations.toque_padrao_da_aplicacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Default app ringtone"
     },
     {
       "text": "Visão Geral do Inventário",
@@ -4494,256 +4494,256 @@
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.respondemos_no_prazo_maximo_de_um",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "— we reply within one month."
     },
     {
       "text": "1. INFORMAÇÕES QUE RECOLHEMOS",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.1_informacoes_que_recolhemos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "1. INFORMATION WE COLLECT"
     },
     {
       "text": "2. COMO UTILIZAMOS AS INFORMAÇÕES",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.2_como_utilizamos_as_informacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "2. HOW WE USE INFORMATION"
     },
     {
       "text": "3. SEGURANÇA E ARMAZENAMENTO NA NUVEM",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.3_seguranca_e_armazenamento_na_nuvem",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "3. SECURITY AND CLOUD STORAGE"
     },
     {
       "text": "7. ALTERAÇÕES A ESTA POLÍTICA",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.7_alteracoes_a_esta_politica",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "7. CHANGES TO THIS POLICY"
     },
     {
       "text": "A app guarda tudo localmente no teu navegador. Podes apagar tudo se precisares de recomeçar.",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.a_app_guarda_tudo_localmente_no",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The app stores everything locally in your browser. You can delete everything if you need to start over."
     },
     {
       "text": "A escolha é guardada no teu perfil na nuvem e sincronizada entre dispositivos.",
       "file": "src/routes/moeda.tsx",
       "category": "system",
       "key": "system.a_escolha_e_guardada_no_teu",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The choice is saved to your cloud profile and synced across devices."
     },
     {
       "text": "A. Dados de Conta e Gestão do Utilizador (Cliente Comercial)",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.a_dados_de_conta_e_gestao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "A. Account Data and User Management (Business Customer)"
     },
     {
       "text": "Abrir página completa de verificação",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.abrir_pagina_completa_de_verificacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Open full verification page"
     },
     {
       "text": "Ao utilizar a aplicação, concorda com as práticas descritas nesta política.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.ao_utilizar_a_aplicacao_concorda_com",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "By using the application, you agree to the practices described in this policy."
     },
     {
       "text": "apoio jurídico e contabilístico, quando necessário.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.apoio_juridico_e_contabilistico_quando_necessario",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "legal and accounting support, when needed."
     },
     {
       "text": "Atenção: todos os teus dados, projetos, stock e fornecedores serão apagados para sempre.",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.atencao_todos_os_teus_dados_projetos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Caution: all your data, projects, stock, and suppliers will be permanently deleted."
     },
     {
       "text": "Avançado",
       "file": "src/routes/modulos.tsx",
       "category": "system",
       "key": "system.avancado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Advanced"
     },
     {
       "text": "B. Dados do Negócio e Operações (Armazenados na Nuvem)",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.b_dados_do_negocio_e_operacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "B. Business & Operations Data (Stored in the Cloud)"
     },
     {
       "text": "Carregar dados de demonstração",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.carregar_dados_de_demonstracao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Load demo data"
     },
     {
       "text": "Código SMS (6 dígitos)",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.codigo_sms_6_digitos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "SMS Code (6 digits)"
     },
     {
       "text": "Como plataforma de gestão, armazenamos na nuvem as informações que insere para gerir o seu negócio, o que inclui:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.como_plataforma_de_gestao_armazenamos_na",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "As a management platform, we store the information you enter to manage your business in the cloud, which includes:"
     },
     {
       "text": "comunicações de marketing e ligação a integrações externas (podendo ser retirado a qualquer momento).",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.comunicacoes_de_marketing_e_ligacao_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "marketing communications and connection to external integrations (can be withdrawn at any time)."
     },
     {
       "text": "Comunicações e Conversas:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.comunicacoes_e_conversas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Communications & Chats:"
     },
     {
       "text": "conservação de registos contabilísticos e fiscais.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.conservacao_de_registos_contabilisticos_e_fiscais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "bookkeeping and tax records retention."
     },
     {
       "text": "criação de conta, prestação do serviço, faturação e apoio ao cliente.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.criacao_de_conta_prestacao_do_servico",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "account creation, service delivery, billing, and customer support."
     },
     {
       "text": "D. Dados de Integração e Sincronização (Website, Redes Sociais e E-mail)",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.d_dados_de_integracao_e_sincronizacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "D. Integration & Sync Data (Website, Social Media & Email)"
     },
     {
       "text": "Dados de desempenho e métricas internas do seu negócio.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.dados_de_desempenho_e_metricas_internas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Performance data and internal business metrics."
     },
     {
       "text": "Dados de Faturação e Pagamento:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.dados_de_faturacao_e_pagamento",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Billing & Payment Info:"
     },
     {
       "text": "Dados de Identificação e Entrega:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.dados_de_identificacao_e_entrega",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "ID & Delivery Info:"
     },
     {
       "text": "Domínio da loja",
       "file": "src/routes/sincronizacao.tsx",
       "category": "system",
       "key": "system.dominio_da_loja",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Shop domain"
     },
     {
       "text": "E-mail e número de telefone.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.e_mail_e_numero_de_telefone",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Email & phone number."
     },
     {
       "text": "Elimina permanentemente a tua conta e todos os dados associados. Esta ação é irreversível.",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.elimina_permanentemente_a_tua_conta_e",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Permanently delete your account and all associated data. This action is irreversible."
     },
     {
       "text": "Envio de comunicações importantes sobre atualizações de segurança ou alterações nos termos de serviço.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.envio_de_comunicacoes_importantes_sobre_atualizacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Sending important communications about security updates or changes to terms of service."
     },
     {
       "text": "Execução do contrato:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.execucao_do_contrato",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Contract execution:"
     },
     {
       "text": "Exportar os dados do seu negócio (portabilidade).",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.exportar_os_dados_do_seu_negocio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Export your business data (portability)."
     },
     {
       "text": "Fila de notificações",
       "file": "src/routes/notificacoes.tsx",
       "category": "system",
       "key": "system.fila_de_notificacoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Notification Queue"
     },
     {
       "text": "Gatilhos de notificação",
@@ -4758,104 +4758,104 @@
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.gestao_de_stock",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Stock Management:"
     },
     {
       "text": "Histórico de compras, valores e status de entrega.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.historico_de_compras_valores_e_status",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Purchase history, values, and delivery status."
     },
     {
       "text": "Informações de encomendas ou contactos gerados no seu website são importados automaticamente para a aplicação.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.informacoes_de_encomendas_ou_contactos_gerados",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Order information or contacts generated on your website are automatically imported into the app."
     },
     {
       "text": "Informações de Registo:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.informacoes_de_registo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Registration Info:"
     },
     {
       "text": "Interesse legítimo:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.interesse_legitimo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Legitimate interest:"
     },
     {
       "text": "Intermédio",
       "file": "src/routes/modulos.tsx",
       "category": "system",
       "key": "system.intermedio",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Intermediate"
     },
     {
       "text": "Marketing e Relatórios:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.marketing_e_relatorios",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Marketing & Reports:"
     },
     {
       "text": "não verificado",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.nao_verificado",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "unverified"
     },
     {
       "text": "Nome, endereço de e-mail, número de telefone e dados de autenticação.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.nome_endereco_de_e_mail_numero",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Name, email address, phone number, and authentication data."
     },
     {
       "text": "Obrigação legal:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.obrigacao_legal",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Legal obligation:"
     },
     {
       "text": "Obrigações Legais:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.obrigacoes_legais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Legal Obligations:"
     },
     {
       "text": "Olá {cliente}, a tua encomenda {encomenda}…",
       "file": "src/routes/notificacoes.tsx",
       "category": "system",
       "key": "system.ola_cliente_a_tua_encomenda_encomenda",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Hi {cliente}, your order {encomenda}…"
     },
     {
       "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.para_que_possa_gerir_o_seu",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "To manage your business, the app processes your customers' data, such as:"
     },
     {
       "text": "Política de Privacidade",
@@ -4870,200 +4870,200 @@
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.prestacao_manutencao_e_melhoria_de_todas",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Provision, maintenance, and improvement of all app functionalities."
     },
     {
       "text": "Prestadores de Serviços (Subprocessadores):",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.prestadores_de_servicos_subprocessadores",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Service Providers (Subprocessors):"
     },
     {
       "text": "previamente exportado. Isto irá",
       "file": "src/routes/backup.tsx",
       "category": "system",
       "key": "system.previamente_exportado_isto_ira",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "previously exported. This will"
     },
     {
       "text": "Processamento de pagamentos e gestão de assinaturas.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.processamento_de_pagamentos_e_gestao_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Payment processing & subscription management."
     },
     {
       "text": "Quando opta por sincronizar a aplicação com plataformas externas (como o seu Website, Instagram ou Contas de E-mail):",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.quando_opta_por_sincronizar_a_aplicacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "When you choose to sync the app with external platforms (such as your Website, Instagram or Email Accounts):"
     },
     {
       "text": "Responsável pelo tratamento:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.responsavel_pelo_tratamento",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Data Controller:"
     },
     {
       "text": "Retenção:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.retencao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Retention:"
     },
     {
       "text": "Retirar o consentimento para integrações (como desconectar o Instagram ou o e-mail) a qualquer momento.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.retirar_o_consentimento_para_integracoes_como",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Withdraw consent for integrations (like disconnecting Instagram or email) at any time."
     },
     {
       "text": "Segregação de Dados:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.segregacao_de_dados",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Data Segregation:"
     },
     {
       "text": "Segurança & Conta",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.seguranca_conta",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Security & Account"
     },
     {
       "text": "segurança, prevenção de fraude, deteção de abusos e melhoria do produto.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.seguranca_prevencao_de_fraude_detecao_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "security, fraud prevention, abuse detection, and product improvement."
     },
     {
       "text": "Sem notificações pendentes.",
       "file": "src/routes/notificacoes.tsx",
       "category": "system",
       "key": "system.sem_notificacoes_pendentes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No pending notifications."
     },
     {
       "text": "Sessão ativa:",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.sessao_ativa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Active session:"
     },
     {
       "text": "Sincronização de Dados:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.sincronizacao_de_dados",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Data Sync:"
     },
     {
       "text": "Sincronização em tempo real entre a aplicação, o seu website, e-mail e Instagram.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.sincronizacao_em_tempo_real_entre_a",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Real-time sync between the app, your website, email, and Instagram."
     },
     {
       "text": "Solicitar a eliminação definitiva dos seus dados dos nossos servidores na nuvem.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.solicitar_a_eliminacao_definitiva_dos_seus",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Request permanent deletion of your data from our cloud servers."
     },
     {
       "text": "Suporte técnico e atendimento ao cliente.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.suporte_tecnico_e_atendimento_ao_cliente",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Technical support and customer service."
     },
     {
       "text": "Telemóvel (WhatsApp & 2FA)",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.telemovel_whatsapp_2fa",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Mobile (WhatsApp & 2FA)"
     },
     {
       "text": "Todos os dados são armazenados em servidores na nuvem que cumprem elevados padrões de segurança e encriptação.",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.todos_os_dados_sao_armazenados_em",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "All data is stored on cloud servers meeting high security and encryption standards."
     },
     {
       "text": "Transferências internacionais:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
       "key": "system.transferencias_internacionais",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "International transfers:"
     },
     {
       "text": "Trocar número / forçar nova verificação",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.trocar_numero_forcar_nova_verificacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Change number / force re-verification"
     },
     {
       "text": "Um CSV por coleção dentro de um zip — útil para abrir no Excel/Sheets ou migrar para outras ferramentas.",
       "file": "src/routes/backup.tsx",
       "category": "system",
       "key": "system.um_csv_por_colecao_dentro_de",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "One CSV per collection inside a zip — useful for opening in Excel/Sheets or migrating to other tools."
     },
     {
       "text": "Um único ficheiro com todas as coleções (clientes, materiais, projetos, faturas, etc.). Ideal para restauro completo.",
       "file": "src/routes/backup.tsx",
       "category": "system",
       "key": "system.um_unico_ficheiro_com_todas_as",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "A single file with all collections (clients, materials, projects, invoices, etc.). Ideal for full restore."
     },
     {
       "text": "Usa isto se mudaste de telemóvel. O próximo login pede o código SMS de novo.",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.usa_isto_se_mudaste_de_telemovel",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Use this if you changed phones. Next login will ask for SMS code again."
     },
     {
       "text": "Vais receber um link de verificação no novo endereço para concluir a troca.",
       "file": "src/routes/configuracoes.tsx",
       "category": "system",
       "key": "system.vais_receber_um_link_de_verificacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "You will receive a verification link at the new address to complete the change."
     }
   ]
 }

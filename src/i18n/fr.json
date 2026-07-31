@@ -71,5 +71,8 @@
   "common.date": "Date",
   "common.description": "Description",
   "common.actions": "Actions",
-  "app.subtitle": "panneau de gestion"
+  "app.subtitle": "panneau de gestion",
+  "nav.help": "Aide & assistance",
+  "dashboard.searchPlaceholder": "Rechercher dans toute l’app : pages, catégories, onglets…",
+  "nav.settingsAlias": "Paramètres"
 }
