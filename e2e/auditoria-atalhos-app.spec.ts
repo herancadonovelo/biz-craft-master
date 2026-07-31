@@ -28,6 +28,12 @@ function rotas(): string[] {
   return Array.from(new Set(out)).sort();
 }
 
+/** Rotas antigas mantidas apenas como atalho para o destino atual. */
+const REDIRECIONAMENTOS_ESPERADOS: Record<string, string> = {
+  "/marketing": "/marketing-conteudo",
+  "/marketing-campanhas": "/marketing-conteudo",
+};
+
 const seed = (key: string) => {
   const raw = window.localStorage.getItem(key);
   const parsed = raw ? JSON.parse(raw) : { state: {}, version: 0 };
@@ -66,7 +72,8 @@ test("nenhuma rota da app cai no splash screen", async ({ page }) => {
       };
     });
     if (estado.splash) falhas.push(`${rota}: mostrou splash`);
-    if (estado.path !== rota) falhas.push(`${rota}: redirecionou para ${estado.path}`);
+    const esperado = REDIRECIONAMENTOS_ESPERADOS[rota] ?? rota;
+    if (estado.path !== esperado) falhas.push(`${rota}: redirecionou para ${estado.path}`);
   }
   expect(falhas, `Rotas com comportamento indevido:\n${falhas.join("\n")}`).toEqual([]);
 });
