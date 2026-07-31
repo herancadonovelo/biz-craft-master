@@ -105,6 +105,81 @@ function EditorPage() {
   const trazerFrente = (id: string) => { const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0); updEl(id, { zIndex: maxZ + 1 }); };
   const enviarTras = (id: string) => { const minZ = design.elementos.reduce((m, x) => Math.min(m, x.zIndex), 0); updEl(id, { zIndex: minZ - 1 }); };
 
+  const duplicarEl = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (!el) return;
+    const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0);
+    const novo: MoodboardElement = { ...el, id: uid(), x: el.x + 16, y: el.y + 16, zIndex: maxZ + 1 };
+    setDesign((d) => ({ ...d, elementos: [...d.elementos, novo] }));
+    setSelId(novo.id);
+  };
+
+  // === canvas infinito: zoom, pan, ajustar ===
+  const setZoom = (z: number) => zoomEmTorno(clampZoom(z));
+
+  /** Aplica um zoom mantendo fixo um ponto do viewport (por defeito, o centro). */
+  function zoomEmTorno(nz: number, px?: number, py?: number) {
+    const vp = stageRef.current?.getBoundingClientRect();
+    const cx = px ?? (vp ? vp.width / 2 : 0);
+    const cy = py ?? (vp ? vp.height / 2 : 0);
+    setView((v) => {
+      const z = clampZoom(nz);
+      const k = z / v.z;
+      return { z, x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k };
+    });
+  }
+
+  /** Enquadra a folha A4 no viewport. */
+  const ajustar = useCallback(() => {
+    const vp = stageRef.current?.getBoundingClientRect();
+    if (!vp || !vp.width) return;
+    const pad = 48;
+    const z = clampZoom(Math.min((vp.width - pad) / A4_W, (vp.height - pad) / A4_H));
+    setView({ z, x: (vp.width - A4_W * z) / 2, y: (vp.height - A4_H * z) / 2 });
+  }, []);
+
+  useEffect(() => { const t = setTimeout(ajustar, 60); return () => clearTimeout(t); }, [ajustar]);
+
+  // Roda do rato / trackpad: zoom ancorado no cursor; com shift/sem ctrl faz pan.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const dy = normalizeWheel(e.deltaY, e.deltaMode);
+      if (e.ctrlKey || e.metaKey || !e.shiftKey) {
+        const v = viewRef.current;
+        zoomEmTorno(v.z * Math.exp(-dy * 0.0018), px, py);
+      } else {
+        const dx = normalizeWheel(e.deltaX, e.deltaMode);
+        setView((v) => ({ ...v, x: v.x - dx, y: v.y - dy }));
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  /** Pan ao arrastar o fundo do canvas (ou com botão do meio). */
+  const iniciarPan = (ev: React.PointerEvent) => {
+    if (ev.button !== 0 && ev.button !== 1) return;
+    const start = { x: ev.clientX, y: ev.clientY, ...viewRef.current };
+    const onMove = (e: PointerEvent) => {
+      setView((v) => ({ ...v, x: start.x0 + (e.clientX - start.x), y: start.y0 + (e.clientY - start.y) }));
+    };
+    // guarda origem do pan
+    (start as any).x0 = viewRef.current.x;
+    (start as any).y0 = viewRef.current.y;
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
   // === ferramentas de inserção ===
   const inserirTexto = () => addEl({
     tipo: "text", x: A4_W / 2 - 120, y: 80, w: 240, h: 60, rotacao: 0,
