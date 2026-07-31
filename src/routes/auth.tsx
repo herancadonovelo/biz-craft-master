@@ -47,7 +47,12 @@ function AuthPage() {
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [googleNotice, setGoogleNotice] = useState<{ text: string; kind: "error" | "info" } | null>(null);
-  const isInIframe = typeof window !== "undefined" && window.self !== window.top;
+  // Computed after hydration only: reading window during render makes the
+  // server and client markup diverge (hydration mismatch).
+  const [isInIframe, setIsInIframe] = useState(false);
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top);
+  }, []);
 
   const openInNewTab = () => {
     if (typeof window === "undefined") return;
