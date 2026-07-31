@@ -43,6 +43,46 @@ const SPLASH_STRINGS: Record<string, {
     retryBtn: "Try again",
     copyright: "© 2026 Craft Business Master. All rights reserved to Art Fusion.",
   },
+  es: {
+    loadingAria: "Cargando",
+    retrying: (i, n) => `Reintentando… (${i}/${n})`,
+    errorTitle: "Vaya, algo salió mal",
+    errorAttempts: (n, msg) => msg
+      ? `No se pudo iniciar la aplicación tras ${n} intentos: ${msg}`
+      : `No se pudo iniciar la aplicación tras ${n} intentos. Revisa tu conexión e inténtalo de nuevo.`,
+    retryBtn: "Intentar de nuevo",
+    copyright: "© 2026 Craft Business Master. Todos los derechos reservados a Art Fusion.",
+  },
+  fr: {
+    loadingAria: "Chargement",
+    retrying: (i, n) => `Nouvelle tentative… (${i}/${n})`,
+    errorTitle: "Oups, une erreur s'est produite",
+    errorAttempts: (n, msg) => msg
+      ? `Impossible de démarrer l'application après ${n} tentatives : ${msg}`
+      : `Impossible de démarrer l'application après ${n} tentatives. Vérifie ta connexion et réessaie.`,
+    retryBtn: "Réessayer",
+    copyright: "© 2026 Craft Business Master. Tous droits réservés à Art Fusion.",
+  },
+  de: {
+    loadingAria: "Wird geladen",
+    retrying: (i, n) => `Erneuter Versuch… (${i}/${n})`,
+    errorTitle: "Ups, da ist etwas schiefgelaufen",
+    errorAttempts: (n, msg) => msg
+      ? `Die App konnte nach ${n} Versuchen nicht gestartet werden: ${msg}`
+      : `Die App konnte nach ${n} Versuchen nicht gestartet werden. Prüfe deine Verbindung und versuche es erneut.`,
+    retryBtn: "Erneut versuchen",
+    copyright: "© 2026 Craft Business Master. Alle Rechte vorbehalten an Art Fusion.",
+  },
+  it: {
+    loadingAria: "Caricamento",
+    retrying: (i, n) => `Nuovo tentativo… (${i}/${n})`,
+    errorTitle: "Ops, qualcosa è andato storto",
+    errorAttempts: (n, msg) => msg
+      ? `Impossibile avviare l'app dopo ${n} tentativi: ${msg}`
+      : `Impossibile avviare l'app dopo ${n} tentativi. Controlla la connessione e riprova.`,
+    retryBtn: "Riprova",
+    copyright: "© 2026 Craft Business Master. Tutti i diritti riservati ad Art Fusion.",
+  },
 };
 
 function stringsFor(idioma: string) {
@@ -186,12 +226,18 @@ export function SplashScreen() {
 
   // Rotating phrases with fade in/out
   useEffect(() => {
-    // Primeira troca aleatória imediata após mount (já no cliente).
-    setPhraseVisible(false);
+    // A primeira frase tem de estar SEMPRE no idioma escolhido: se a lista
+    // mudou (hidratação do store ou troca de idioma), troca já, sem esperar
+    // pelo ciclo de fade.
+    setPhrase((prev) => (phrases.includes(prev) ? prev : phrases[0]));
+    setPhraseVisible(true);
     const kick = window.setTimeout(() => {
+      setPhraseVisible(false);
+      window.setTimeout(() => {
       setPhrase((prev) => pickPhrase(phrases, prev));
       setPhraseVisible(true);
-    }, FADE_DURATION);
+      }, FADE_DURATION);
+    }, PHRASE_INTERVAL / 2);
     const id = window.setInterval(() => {
       setPhraseVisible(false);
       window.setTimeout(() => {

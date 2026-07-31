@@ -179,21 +179,21 @@ export function AppSidebar() {
   const t = useT();
   const allGroups = getGroups(t);
   const { hasAccess, showPaywall } = useSubscription();
-  // Se algum módulo estiver configurado, filtra; URLs nunca ocultadas: /modulos, /configuracoes, /onboarding
+  // Se algum módulo estiver configurado, filtra; URLs nunca ocultadas: /modulos, /configuracoes
   // Fechar drawer automaticamente em mobile ao mudar de rota
   useEffect(() => {
     if (isMobile) setOpenMobile(false);
   }, [pathname, isMobile, setOpenMobile]);
 
   const visivel = (url: string) => {
-    if (["/modulos", "/configuracoes", "/onboarding"].includes(url)) return true;
+    if (["/modulos", "/configuracoes"].includes(url)) return true;
     if (!modulos || Object.keys(modulos).length === 0) return true;
     return modulos[url] !== false && (modulos[url] === true || !Object.values(modulos).some(Boolean));
   };
   // Simpler logic: if modulos has any true entries, show only those (plus always-on)
   const algumAtivo = modulos && Object.values(modulos).some((v) => v === true);
   const filtroFinal = (url: string) => {
-    if (["/modulos", "/configuracoes", "/onboarding"].includes(url)) return true;
+    if (["/modulos", "/configuracoes"].includes(url)) return true;
     if (!algumAtivo) return true;
     return modulos[url] === true;
   };

@@ -60,7 +60,6 @@ import { Route as MoodboardsRouteImport } from './routes/moodboards'
 import { Route as MuralRouteImport } from './routes/mural'
 import { Route as NotasRouteImport } from './routes/notas'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PerfilNegocioRouteImport } from './routes/perfil-negocio'
 import { Route as PlaneadorProducaoRouteImport } from './routes/planeador-producao'
 import { Route as PlanosRouteImport } from './routes/planos'
@@ -358,11 +357,6 @@ const NotificacoesRoute = NotificacoesRouteImport.update({
   path: '/notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PerfilNegocioRoute = PerfilNegocioRouteImport.update({
   id: '/perfil-negocio',
   path: '/perfil-negocio',
@@ -631,7 +625,6 @@ export interface FileRoutesByFullPath {
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
-  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -726,7 +719,6 @@ export interface FileRoutesByTo {
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
-  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -822,7 +814,6 @@ export interface FileRoutesById {
   '/mural': typeof MuralRoute
   '/notas': typeof NotasRoute
   '/notificacoes': typeof NotificacoesRoute
-  '/onboarding': typeof OnboardingRoute
   '/perfil-negocio': typeof PerfilNegocioRoute
   '/planeador-producao': typeof PlaneadorProducaoRoute
   '/planos': typeof PlanosRoute
@@ -919,7 +910,6 @@ export interface FileRouteTypes {
     | '/mural'
     | '/notas'
     | '/notificacoes'
-    | '/onboarding'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1014,7 +1004,6 @@ export interface FileRouteTypes {
     | '/mural'
     | '/notas'
     | '/notificacoes'
-    | '/onboarding'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1109,7 +1098,6 @@ export interface FileRouteTypes {
     | '/mural'
     | '/notas'
     | '/notificacoes'
-    | '/onboarding'
     | '/perfil-negocio'
     | '/planeador-producao'
     | '/planos'
@@ -1205,7 +1193,6 @@ export interface RootRouteChildren {
   MuralRoute: typeof MuralRoute
   NotasRoute: typeof NotasRoute
   NotificacoesRoute: typeof NotificacoesRoute
-  OnboardingRoute: typeof OnboardingRoute
   PerfilNegocioRoute: typeof PerfilNegocioRoute
   PlaneadorProducaoRoute: typeof PlaneadorProducaoRoute
   PlanosRoute: typeof PlanosRoute
@@ -1606,13 +1593,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/perfil-negocio': {
       id: '/perfil-negocio'
       path: '/perfil-negocio'
@@ -1977,7 +1957,6 @@ const rootRouteChildren: RootRouteChildren = {
   MuralRoute: MuralRoute,
   NotasRoute: NotasRoute,
   NotificacoesRoute: NotificacoesRoute,
-  OnboardingRoute: OnboardingRoute,
   PerfilNegocioRoute: PerfilNegocioRoute,
   PlaneadorProducaoRoute: PlaneadorProducaoRoute,
   PlanosRoute: PlanosRoute,

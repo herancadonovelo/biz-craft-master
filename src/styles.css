@@ -201,6 +201,71 @@ h1, h2, h3, h4, h5, h6 { font-size: var(--font-size-title, inherit); }
   letter-spacing: 0.01em;
 }
 
+/* ─── Estrutura de texto responsiva ────────────────────────────────────
+ * Impede textos sobrepostos ou fora do espaço do Card em ecrãs pequenos:
+ * quebra palavras longas (URLs, códigos, emails), permite que containers
+ * flex/grid encolham e reduz ligeiramente os títulos em mobile.
+ */
+[data-slot="card"],
+[data-slot="card-header"],
+[data-slot="card-content"],
+[data-slot="card-footer"],
+[data-slot="card-title"],
+[data-slot="card-description"],
+[data-slot="dialog-content"],
+[data-slot="sheet-content"],
+[data-slot="alert"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+}
+
+[data-slot="card"] p,
+[data-slot="card"] h1,
+[data-slot="card"] h2,
+[data-slot="card"] h3,
+[data-slot="card"] h4,
+[data-slot="card"] span,
+[data-slot="card"] li,
+[data-slot="card"] label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+[data-slot="card"] > *,
+[data-slot="card-header"] > *,
+[data-slot="card-content"] > * {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  [data-slot="card-title"] {
+    font-size: clamp(0.95rem, 4.2vw, 1.125rem);
+    line-height: 1.3;
+  }
+  [data-testid="page-header-title"] {
+    font-size: clamp(1.15rem, 6vw, 1.75rem);
+    line-height: 1.2;
+  }
+  [data-testid="page-header-description"] {
+    font-size: clamp(0.8rem, 3.6vw, 0.95rem);
+  }
+  [data-slot="tabs-list"] {
+    flex-wrap: wrap;
+    height: auto;
+  }
+  [data-slot="tabs-trigger"] {
+    white-space: normal;
+  }
+  table {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Nunca deixar a app com scroll horizontal por causa de texto longo. */
+html, body { overflow-x: hidden; }
+
 /* Outline button — cor personalizável */
 .bg-background.border-input,
 button[data-variant="outline"],

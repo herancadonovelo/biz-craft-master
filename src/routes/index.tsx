@@ -47,17 +47,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { encomendas, vendas, materiais, projetos, horas, caixa, todos, clientes, onboardingFeito } = useStore();
+  const { encomendas, vendas, materiais, projetos, horas, caixa, todos, clientes } = useStore();
   const nav = useNavigate();
   const t = useT();
   const { hasAccess, showPaywall } = useSubscription();
   const [q, setQ] = useState("");
-  useEffect(() => {
-    // E2E: automated browsers não fazem onboarding; evita redirecionamentos
-    // que interceptam navegações diretas para outras rotas nos testes.
-    if (import.meta.env.DEV && typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver) return;
-    if (!onboardingFeito) nav({ to: "/onboarding" });
-  }, [onboardingFeito, nav]);
 
   const receita = vendas.reduce((s, v) => s + v.valor, 0);
   const aReceber = encomendas

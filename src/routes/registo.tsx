@@ -10,6 +10,8 @@ import { useAuth } from "@/lib/auth-state";
 import { consumeIntendedPath } from "@/components/AuthGate";
 import { logSessionEvent } from "@/lib/session-telemetry";
 import { savePendingPromoCode, normalizePromoCode, PROMO_CODE_PATTERN } from "@/lib/pending-promo";
+import { useStore } from "@/lib/store";
+import { languageForCountry } from "@/lib/country-language";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,6 +159,9 @@ function RegistoPage() {
       return;
     }
     if (data.promoCode) savePendingPromoCode(data.promoCode);
+    // Idioma automático conforme o país indicado no registo.
+    useStore.getState().setDesign({ idioma: languageForCountry(data.country) });
+    try { window.localStorage.setItem("cbm-language-picked-v1", "1"); } catch { /* noop */ }
     toast.success("Registo efetuado!", {
       description: data.promoCode
         ? "O teu código promocional será aplicado automaticamente no primeiro acesso. Se não receberes o email de confirmação nos próximos minutos, verifica a pasta de Spam."
