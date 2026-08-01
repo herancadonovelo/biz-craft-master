@@ -497,6 +497,81 @@ function EditorPage() {
                 ))}
               </div>
             </TabsContent>
+            <TabsContent value="modelos" className="mt-3 space-y-3">
+              <div>
+                <Label className="text-xs">Quantas imagens queres colocar?</Label>
+                <div className="mt-1 flex items-center gap-2">
+                  <Slider
+                    value={[nImagensAlvo]} min={1} max={20} step={1}
+                    onValueChange={([v]) => setNImagensAlvo(v)} className="flex-1"
+                  />
+                  <span data-testid="modelos-n" className="w-8 text-center text-xs tabular-nums">{nImagensAlvo}</span>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.
+                </p>
+              </div>
+              <div data-testid="lista-modelos" className="grid max-h-[380px] grid-cols-2 gap-2 overflow-auto pr-1">
+                {modelosSugeridos.map((l) => (
+                  <button
+                    key={l.id}
+                    data-testid={`modelo-${l.id}`}
+                    title={`${l.nome} · ${l.capacidade} imagens`}
+                    onClick={() => aplicarModelo(l)}
+                    className="rounded border p-1.5 text-left transition hover:border-primary hover:ring-2 hover:ring-primary/40"
+                  >
+                    <div className="relative aspect-[595/842] w-full overflow-hidden rounded bg-muted/50">
+                      {l.slots.map((s, i) => (
+                        <span
+                          key={i}
+                          className="absolute rounded-[2px] bg-primary/35"
+                          style={{
+                            left: `${s.x * 100}%`, top: `${s.y * 100}%`,
+                            width: `${s.w * 100}%`, height: `${s.h * 100}%`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-1 truncate text-[11px] font-medium">{l.nome}</p>
+                    <p className="text-[10px] text-muted-foreground">{l.capacidade} imagens</p>
+                  </button>
+                ))}
+              </div>
+              <div className="space-y-2 rounded border border-dashed p-2">
+                <div className="flex items-center gap-1 text-xs font-medium">
+                  <Droplets className="h-3.5 w-3.5" /> Marca de água
+                </div>
+                <Input
+                  value={marcaTexto} onChange={(e) => setMarcaTexto(e.target.value)}
+                  placeholder="Texto da marca de água" data-testid="marca-texto" className="h-8 text-xs"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Select value={marcaPos} onValueChange={(v) => setMarcaPos(v as PosicaoMarcaAgua)}>
+                    <SelectTrigger className="h-8 text-xs" data-testid="marca-posicao"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="inferior-direita">Inferior direita</SelectItem>
+                      <SelectItem value="inferior-esquerda">Inferior esquerda</SelectItem>
+                      <SelectItem value="superior-direita">Superior direita</SelectItem>
+                      <SelectItem value="superior-esquerda">Superior esquerda</SelectItem>
+                      <SelectItem value="centro">Centro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center gap-2">
+                    <Slider value={[marcaOpacidade]} min={10} max={100} step={5}
+                      onValueChange={([v]) => setMarcaOpacidade(v)} className="flex-1" />
+                    <span className="w-8 text-right text-[11px] tabular-nums">{marcaOpacidade}%</span>
+                  </div>
+                </div>
+                <Button size="sm" className="w-full" data-testid="inserir-marca" onClick={() => inserirMarcaAgua()}>
+                  <Droplets className="mr-1 h-3.5 w-3.5" /> Inserir marca de água
+                </Button>
+                <div>
+                  <Label className="text-[11px]">Ou usar logótipo (PNG)</Label>
+                  <Input type="file" accept="image/png" className="mt-1 h-8 text-xs"
+                    onChange={(e) => uploadMarcaAgua(e.target.files)} />
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent></Card>
 
