@@ -790,7 +790,7 @@ function EditorPage() {
               position: "relative", overflow: "hidden", boxShadow: "0 20px 80px rgba(0,0,0,.6)",
             }}
           >
-            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).filter((el) => !el.oculto).map((el) => (
               <ElementoView key={el.id} el={el} selecionado={false} onPointerDown={() => {}} onChange={() => {}} />
             ))}
           </div>
