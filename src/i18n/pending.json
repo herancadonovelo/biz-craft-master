@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-01T00:19:12.586Z",
+  "generatedAt": "2026-08-01T00:19:32.204Z",
   "total": 634,
-  "pending": 1,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 27,
@@ -17,7 +17,7 @@
     },
     "components": {
       "total": 84,
-      "pending": 1
+      "pending": 0
     },
     "editors": {
       "total": 206,
@@ -1302,8 +1302,8 @@
       "file": "src/components/InventarioOverview.tsx",
       "category": "components",
       "key": "components.resumo_de_fornecedores_custos_por_artigo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Supplier summary, cost per item and restock alerts."
     },
     {
       "text": "Retângulo",
