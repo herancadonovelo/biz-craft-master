@@ -242,6 +242,9 @@ function EditorPage() {
   };
 
   // === modelos de esteira (30 grelhas) ===
+  const [nImagensAlvo, setNImagensAlvo] = useState(6);
+  const modelosSugeridos = useMemo(() => sugerirLayouts(nImagensAlvo), [nImagensAlvo]);
+
   /**
    * Reorganiza as imagens existentes pelo modelo escolhido. Se ainda não
    * houver imagens suficientes, cria molduras vazias para o utilizador
