@@ -163,7 +163,7 @@ const getGroups = (t: (k: string) => string) => [
       { title: t("nav.privacy"), url: "/privacidade", icon: Shield },
       { title: "Termos e Condições", url: "/termos", icon: Shield },
       { title: "Política de Reembolsos", url: "/reembolsos", icon: Shield },
-      { title: "Origem & Alma do Projeto", url: "/quem-somos", icon: Heart },
+      { title: "Quem somos", url: "/quem-somos", icon: Heart },
     ],
   },
 ];
