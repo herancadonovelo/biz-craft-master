@@ -337,13 +337,30 @@ function AppShell({ design }: { design: ReturnType<typeof useStore.getState>["de
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isPublic = PUBLIC_ROUTES_SET.has(pathname);
 
-  // Sem sessão numa rota pública (auth, callback, sessão expirada) → apenas o Outlet centrado, sem menu lateral.
+  // Sem sessão numa rota pública (auth, callback, sessão expirada) → sem menu
+  // lateral, mas com exatamente a mesma pele visual do resto da app: mesmo
+  // cabeçalho, mesma imagem/opacidade de fundo, mesmas fontes e tokens. Assim o
+  // login é igual em telemóvel, tablet e desktop.
   if (!user && (isPublic || !loading)) {
     return (
-      <div className="flex min-h-screen w-full items-start justify-center bg-background px-4 py-8">
-        <div className="w-full max-w-[560px]">
-          <Outlet />
-        </div>
+      <div className="flex min-h-screen w-full flex-col bg-background">
+        <header
+          className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border px-4 backdrop-blur"
+          style={{
+            background: "var(--app-header-bg, rgba(255,255,255,0.6))",
+            color: "var(--app-header-fg, inherit)",
+          }}
+        >
+          <RootSubtitle />
+        </header>
+        <main
+          className="flex flex-1 justify-center px-4 py-6 sm:px-8 sm:py-8"
+          data-app-bg={design.imagemFundo ? "on" : "off"}
+        >
+          <div className="w-full max-w-[560px]">
+            <Outlet />
+          </div>
+        </main>
       </div>
     );
   }

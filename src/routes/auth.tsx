@@ -199,18 +199,20 @@ function AuthPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center">
+    <div className="mx-auto flex w-full max-w-md flex-col justify-center py-2 sm:min-h-[70vh]">
       <div className="mb-6 flex justify-center">
         <img
           src={logoAsset.url}
           alt="Craft Business Master"
-          className="h-28 w-auto bg-transparent sm:h-32"
+          className="h-24 w-auto max-w-full bg-transparent sm:h-32"
         />
       </div>
-      <Card>
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-display"><LogIn className="h-5 w-5" /> Aceder à tua conta</CardTitle>
-          <p className="text-sm text-muted-foreground">Os teus dados ficam isolados, privados e sincronizados em qualquer dispositivo.</p>
+          <CardTitle className="flex items-center gap-2 font-display text-balance">
+            <LogIn className="h-5 w-5 shrink-0" /> Aceder à tua conta
+          </CardTitle>
+          <p className="text-sm text-pretty text-muted-foreground">Os teus dados ficam isolados, privados e sincronizados em qualquer dispositivo.</p>
         </CardHeader>
         <CardContent>
           {showExpiredBanner && (
