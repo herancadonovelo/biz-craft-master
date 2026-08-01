@@ -386,6 +386,10 @@ export interface MoodboardElement {
   italico?: boolean;
   sublinhado?: boolean;
   alinhamento?: "left" | "center" | "right";
+  /** 0–1; usado sobretudo por marcas de água. */
+  opacidade?: number;
+  /** Marca o elemento como marca de água (para atalhos e exportação). */
+  marcaAgua?: boolean;
   zIndex: number;
 }
 export interface MoodboardDesign {
