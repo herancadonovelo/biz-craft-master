@@ -598,6 +598,8 @@ export interface DesignSettings {
   nomeNegocio: string;
   precoHoraBase: number; // €/h base hourly rate
   idioma: Idioma;
+  /** Quando true, o idioma segue automaticamente o país do perfil / browser. */
+  idiomaAuto?: boolean;
   moeda?: CurrencyCode; // ISO 4217 currency code (default EUR)
   pinContas: string; // 4 dígitos
   toqueAlarme: string;
