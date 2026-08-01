@@ -23,6 +23,10 @@ import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import {
+  MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
+  type MoodboardLayout, type PosicaoMarcaAgua,
+} from "@/lib/moodboard-layouts";
+import {
   sugerirTemaMoodboard, gerarTextosMoodboard, criticarComposicao, sugestaoContextual, removerFundoImagem,
 } from "@/lib/moodboard-ai.functions";
 
@@ -235,6 +239,59 @@ function EditorPage() {
       setDecor((arr) => { const x = [...arr, novo]; saveCustom("mb-decor", x); return x; });
     }
     toast.success("Adicionado à biblioteca de elementos.");
+  };
+
+  // === modelos de esteira (30 grelhas) ===
+  /**
+   * Reorganiza as imagens existentes pelo modelo escolhido. Se ainda não
+   * houver imagens suficientes, cria molduras vazias para o utilizador
+   * preencher com upload.
+   */
+  const aplicarModelo = (layout: MoodboardLayout) => {
+    setDesign((d) => {
+      const imagens = d.elementos.filter((e) => e.tipo === "image").sort((a, b) => a.zIndex - b.zIndex);
+      const outros = d.elementos.filter((e) => e.tipo !== "image");
+      const n = Math.max(imagens.length, layout.capacidade);
+      const rects = aplicarLayout(layout, n, d.largura, d.altura);
+      const novas: MoodboardElement[] = rects.map((r, i) => {
+        const base = imagens[i];
+        return base
+          ? { ...base, ...r, rotacao: 0 }
+          : {
+              id: uid(), tipo: "image" as const, ...r, rotacao: 0, raioCantos: 0,
+              zIndex: i + 1, src: undefined,
+            };
+      });
+      // Imagens a mais do que o modelo comporta ficam onde estão.
+      const sobras = imagens.slice(rects.length);
+      return { ...d, elementos: [...novas, ...sobras, ...outros] };
+    });
+    setSelId(null);
+    toast.success(`Modelo aplicado: ${layout.nome}`);
+  };
+
+  // === marca de água ===
+  const [marcaTexto, setMarcaTexto] = useState("© Craft Business Master");
+  const [marcaPos, setMarcaPos] = useState<PosicaoMarcaAgua>("inferior-direita");
+  const [marcaOpacidade, setMarcaOpacidade] = useState(45);
+  const inserirMarcaAgua = (src?: string) => {
+    const r = retanguloMarcaAgua(marcaPos, design.largura, design.altura);
+    const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0);
+    const el: MoodboardElement = src
+      ? { id: uid(), tipo: "decor", src, ...r, rotacao: 0, zIndex: maxZ + 1, opacidade: marcaOpacidade / 100, marcaAgua: true }
+      : {
+          id: uid(), tipo: "text", ...r, rotacao: 0, zIndex: maxZ + 1,
+          texto: marcaTexto, fonte: "Montserrat", tamanhoFonte: 18, corTexto: "#111827",
+          alinhamento: "center", opacidade: marcaOpacidade / 100, marcaAgua: true,
+        };
+    setDesign((d) => ({ ...d, elementos: [...d.elementos, el] }));
+    setSelId(el.id);
+    toast.success("Marca de água inserida.");
+  };
+  const uploadMarcaAgua = async (files: FileList | null) => {
+    const f = files?.[0];
+    if (!f) return;
+    inserirMarcaAgua(await fileToDataURL(f));
   };
 
   // === drag/resize/rotate ===
