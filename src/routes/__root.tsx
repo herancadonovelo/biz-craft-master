@@ -195,6 +195,8 @@ function RootComponent() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", design.modo === "dark");
+    // Mantém <html lang> sincronizado com o idioma escolhido (a11y/SEO).
+    if (design.idioma) root.setAttribute("lang", design.idioma);
     const accentRaw = design.accent ?? "0.7 0.15 258";
     const accent = `oklch(${accentRaw})`;
     // Determine readable foreground based on luminance (first oklch component)

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useStore, type Idioma } from "@/lib/store";
 import { IDIOMAS } from "@/lib/i18n";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { savePreferredLanguage } from "@/lib/post-login";
 
 const FLAG_KEY = "cbm-language-picked-v1";
 const SHOW_DELAY_MS = 7800;
@@ -59,6 +60,9 @@ export function InitialLanguagePicker() {
 
   const confirm = () => {
     setDesign({ idioma: preview });
+    // Persiste no perfil quando já existe sessão, para ser reaplicado em
+    // qualquer login futuro (no-op quando ainda não há utilizador).
+    void savePreferredLanguage(preview);
     try { window.localStorage.setItem(FLAG_KEY, "1"); } catch {}
     setVisible(false);
     // Redirect to /auth for first-time flow (unless already on a public/auth route).
