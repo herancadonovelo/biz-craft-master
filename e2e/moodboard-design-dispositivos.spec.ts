@@ -67,12 +67,12 @@ for (const vp of VIEWPORTS) {
     await page.goto("/editor-moodboards");
     await page.waitForLoadState("networkidle");
 
-    await page.getByRole("tab", { name: /modelos/i }).click();
-    const cartoes = page.getByTestId("modelo-esteira");
+    await page.getByTestId("tab-modelos").click();
+    const cartoes = page.locator('[data-testid^="modelo-"]');
     await expect(cartoes.first()).toBeVisible();
     expect(await cartoes.count()).toBeGreaterThanOrEqual(1);
 
-    await expect(page.getByTestId("painel-modelos")).toHaveScreenshot(
+    await expect(page.getByTestId("lista-modelos")).toHaveScreenshot(
       `moodboard-modelos-${vp.nome}.png`,
       { maxDiffPixelRatio: 0.02, animations: "disabled", caret: "hide" },
     );
@@ -83,7 +83,7 @@ test("idioma guardado é reaplicado dentro do editor de moodboards", async ({ pa
   await prepararPremium(page, "en");
   await page.goto("/editor-moodboards");
   await page.waitForLoadState("networkidle");
-  await expect(page.getByRole("tab", { name: /templates|models|modelos/i })).toBeVisible();
+  await expect(page.getByTestId("tab-modelos")).toBeVisible();
 
   // Depois de recarregar (nova sessão do browser tab) o idioma persiste.
   await page.reload();
