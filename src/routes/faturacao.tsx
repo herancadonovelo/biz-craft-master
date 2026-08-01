@@ -24,7 +24,7 @@ export const Route = createFileRoute("/faturacao")({
 function FaturacaoHub() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Faturação: Criar & Histórico" description="Emite novas faturas e consulta o histórico completo." />
+      <PageHeader title="Arquivo de Faturas & Recibos" description="Emite novas faturas e consulta o histórico completo." />
       <Tabs defaultValue="criar">
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="criar">Criar Fatura</TabsTrigger>

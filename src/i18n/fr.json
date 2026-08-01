@@ -74,5 +74,10 @@
   "app.subtitle": "panneau de gestion",
   "nav.help": "Aide & assistance",
   "dashboard.searchPlaceholder": "Rechercher dans toute l’app : pages, catégories, onglets…",
-  "nav.settingsAlias": "Paramètres"
+  "nav.settingsAlias": "Paramètres",
+  "lang.autoTitle": "Langue automatique",
+  "lang.autoDescription": "Suivre à nouveau le pays de ton profil (ou la langue du navigateur). Le changement s applique immédiatement dans tous les onglets ouverts.",
+  "lang.autoAction": "Activer la langue automatique",
+  "lang.autoActive": "Automatique actif",
+  "lang.autoOn": "Langue automatique activée"
 }

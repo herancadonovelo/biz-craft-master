@@ -18,10 +18,12 @@ import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
+  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
+import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import {
   MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
   type MoodboardLayout, type PosicaoMarcaAgua,
@@ -117,6 +119,37 @@ function EditorPage() {
     setDesign((d) => ({ ...d, elementos: [...d.elementos, novo] }));
     setSelId(novo.id);
   };
+
+  // === alinhamento, distribuição e camadas ===
+  const alinharSel = (modo: AlinhamentoPagina) => {
+    if (!sel) return;
+    updEl(sel.id, alinharNaPagina({ id: sel.id, x: sel.x, y: sel.y, w: sel.w, h: sel.h }, modo, { w: A4_W, h: A4_H }));
+  };
+  const distribuirTudo = (eixo: "h" | "v") => {
+    const visiveis = design.elementos.filter((e) => !e.oculto && !e.bloqueado);
+    const ajustes = distribuir(visiveis.map((e) => ({ id: e.id, x: e.x, y: e.y, w: e.w, h: e.h })), eixo);
+    if (!ajustes.length) { toast.info("São precisos pelo menos 3 elementos livres para distribuir."); return; }
+    setDesign((d) => ({
+      ...d,
+      elementos: d.elementos.map((e) => {
+        const a = ajustes.find((x) => x.id === e.id);
+        return a ? { ...e, ...(a.x !== undefined ? { x: a.x } : {}), ...(a.y !== undefined ? { y: a.y } : {}) } : e;
+      }),
+    }));
+  };
+  const alternarBloqueio = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (el) updEl(id, { bloqueado: !el.bloqueado });
+  };
+  const alternarVisibilidade = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (el) updEl(id, { oculto: !el.oculto });
+  };
+  const rotuloElemento = (el: MoodboardElement) =>
+    el.tipo === "text" ? (el.texto?.trim().slice(0, 24) || "Texto")
+      : el.marcaAgua ? "Marca de água"
+      : el.tipo === "decor" ? "Decoração"
+      : el.src ? "Imagem" : "Moldura vazia";
 
   // === canvas infinito: zoom, pan, ajustar ===
   const setZoom = (z: number) => zoomEmTorno(clampZoom(z));
@@ -318,6 +351,7 @@ function EditorPage() {
     setSelId(id);
     const el = design.elementos.find((e) => e.id === id);
     if (!el || !artRef.current) return;
+    if (el.bloqueado) return; // camada bloqueada: seleciona, mas não move
     const rect = artRef.current.getBoundingClientRect();
     const startX = ev.clientX, startY = ev.clientY;
     const startEl = { ...el };
@@ -636,7 +670,7 @@ function EditorPage() {
                 }}
                 onPointerDown={(e) => { if (e.currentTarget === e.target) setSelId(null); }}
               >
-                {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+                {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).filter((el) => !el.oculto).map((el) => (
                   <ElementoView key={el.id} el={el} selecionado={el.id === selId} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
                 ))}
                 {/* guias magnéticas */}
@@ -652,6 +686,53 @@ function EditorPage() {
           <p className="mt-1 text-[11px] text-muted-foreground">
             Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar
           </p>
+
+          <Card className="mt-3"><CardContent className="p-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium">Alinhar na página</span>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-esquerda" onClick={() => alinharSel("esquerda")} aria-label="Alinhar à esquerda"><AlignLeft className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-centro-h" onClick={() => alinharSel("centro-h")} aria-label="Centrar na horizontal"><AlignHorizontalJustifyCenter className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-direita" onClick={() => alinharSel("direita")} aria-label="Alinhar à direita"><AlignRight className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-topo" onClick={() => alinharSel("topo")} aria-label="Alinhar ao topo"><ChevronUp className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-centro-v" onClick={() => alinharSel("centro-v")} aria-label="Centrar na vertical"><AlignVerticalJustifyCenter className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-fundo" onClick={() => alinharSel("fundo")} aria-label="Alinhar ao fundo"><ChevronDown className="h-3.5 w-3.5" /></Button>
+              <span className="ml-2 font-medium">Distribuir</span>
+              <Button size="sm" variant="outline" data-testid="distribuir-h" onClick={() => distribuirTudo("h")}>Horizontal</Button>
+              <Button size="sm" variant="outline" data-testid="distribuir-v" onClick={() => distribuirTudo("v")}>Vertical</Button>
+            </div>
+          </CardContent></Card>
+
+          <Card className="mt-3"><CardContent className="p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium">
+              <Layers className="h-3.5 w-3.5" /> Camadas ({design.elementos.length})
+            </div>
+            {design.elementos.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
+            ) : (
+              <ul data-testid="painel-camadas" className="max-h-56 space-y-1 overflow-auto">
+                {[...design.elementos].sort((a, b) => b.zIndex - a.zIndex).map((el) => (
+                  <li
+                    key={el.id}
+                    data-testid="camada-item"
+                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs ${el.id === selId ? "border-primary bg-primary/5" : "border-transparent"}`}
+                  >
+                    <button type="button" className="flex-1 truncate text-left" onClick={() => setSelId(el.id)} title={rotuloElemento(el)}>
+                      {rotuloElemento(el)}
+                    </button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => trazerFrente(el.id)} aria-label="Trazer para a frente"><ChevronUp className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => enviarTras(el.id)} aria-label="Enviar para trás"><ChevronDown className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-visibilidade" onClick={() => alternarVisibilidade(el.id)} aria-label={el.oculto ? "Mostrar camada" : "Ocultar camada"}>
+                      {el.oculto ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-bloqueio" onClick={() => alternarBloqueio(el.id)} aria-label={el.bloqueado ? "Desbloquear camada" : "Bloquear camada"}>
+                      {el.bloqueado ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive" onClick={() => remEl(el.id)} aria-label="Apagar camada"><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent></Card>
 
           {sel && (
             <Card className="mt-3"><CardContent className="p-3">
@@ -756,7 +837,7 @@ function EditorPage() {
               position: "relative", overflow: "hidden", boxShadow: "0 20px 80px rgba(0,0,0,.6)",
             }}
           >
-            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+            {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).filter((el) => !el.oculto).map((el) => (
               <ElementoView key={el.id} el={el} selecionado={false} onPointerDown={() => {}} onChange={() => {}} />
             ))}
           </div>

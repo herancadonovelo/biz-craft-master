@@ -36,7 +36,7 @@ export const Route = createFileRoute("/cashflow")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Cash flow" description="Movimentos de caixa e oportunidades de melhoria financeira." />
+        <PageHeader title="Gestão de Números & fios: Tesouraria" description="Movimentos de caixa e oportunidades de melhoria financeira." />
         <div className="grid gap-4 md:grid-cols-4">
           <Kpi label="Entradas" value={formatEUR(entradas)} tone="text-emerald-600" icon={TrendingUp} />
           <Kpi label="Saídas" value={formatEUR(saidas)} tone="text-rose-600" icon={TrendingDown} />

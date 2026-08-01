@@ -74,5 +74,10 @@
   "app.subtitle": "Verwaltungspanel",
   "nav.help": "Hilfe & Support",
   "dashboard.searchPlaceholder": "Suche in der ganzen App: Seiten, Kategorien, Tabs…",
-  "nav.settingsAlias": "Einstellungen"
+  "nav.settingsAlias": "Einstellungen",
+  "lang.autoTitle": "Automatische Sprache",
+  "lang.autoDescription": "Wieder dem Land deines Profils (oder der Browsersprache) folgen. Die Änderung gilt sofort in allen offenen Tabs.",
+  "lang.autoAction": "Automatische Sprache aktivieren",
+  "lang.autoActive": "Automatisch aktiv",
+  "lang.autoOn": "Automatische Sprache aktiviert"
 }

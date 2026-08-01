@@ -23,7 +23,7 @@ export const Route = createFileRoute("/projetos")({
 function ProjetosHub() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Projetos & Criação De Projeto" description="Todos os teus projetos e o assistente para iniciar um projeto personalizado." />
+      <PageHeader title="Projetos & Criação" description="Todos os teus projetos e o assistente para iniciar um projeto personalizado." />
       <Tabs defaultValue="projetos">
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="projetos">Projetos Encomendados</TabsTrigger>

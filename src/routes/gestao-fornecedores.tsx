@@ -12,7 +12,7 @@ export const Route = createFileRoute("/gestao-fornecedores")({
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Gestão de fornecedores"
+          title="Guia de Retrosarias & Parceiros"
           description="Informação detalhada de cada fornecedor e os artigos que disponibiliza."
           actions={<Button asChild variant="outline"><Link to="/fornecedores">Editar fornecedores</Link></Button>}
         />

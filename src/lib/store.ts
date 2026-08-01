@@ -390,6 +390,10 @@ export interface MoodboardElement {
   opacidade?: number;
   /** Marca o elemento como marca de água (para atalhos e exportação). */
   marcaAgua?: boolean;
+  /** Bloqueado: não pode ser movido/redimensionado no canvas. */
+  bloqueado?: boolean;
+  /** Oculto: não é desenhado nem exportado. */
+  oculto?: boolean;
   zIndex: number;
 }
 export interface MoodboardDesign {
@@ -598,6 +602,8 @@ export interface DesignSettings {
   nomeNegocio: string;
   precoHoraBase: number; // €/h base hourly rate
   idioma: Idioma;
+  /** Quando true, o idioma segue automaticamente o país do perfil / browser. */
+  idiomaAuto?: boolean;
   moeda?: CurrencyCode; // ISO 4217 currency code (default EUR)
   pinContas: string; // 4 dígitos
   toqueAlarme: string;

@@ -112,7 +112,7 @@ export const Route = createFileRoute("/calculadora")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Calculadora de preço" description="Calcula o preço final de uma peça: materiais + horas + margem." />
+        <PageHeader title="Calculadora De Orçamento" description="Calcula o preço final de uma peça: materiais + horas + margem." />
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <CardHeader>

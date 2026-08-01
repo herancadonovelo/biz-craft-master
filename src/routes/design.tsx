@@ -87,7 +87,7 @@ export const Route = createFileRoute("/design")({
 function PersonalizacaoConfigHub() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Personalização & Configurações" description="Aparência da aplicação e definições gerais num só sítio." />
+      <PageHeader title="Configurações" description="Aparência da aplicação e definições gerais num só sítio." />
       <Tabs defaultValue="personalizacao">
         <TabsList className="flex h-auto w-full flex-wrap">
           <TabsTrigger value="personalizacao">Personalização</TabsTrigger>

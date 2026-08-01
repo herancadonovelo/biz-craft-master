@@ -29,7 +29,7 @@ export const Route = createFileRoute("/horas")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Registo de horas" description="Tempo trabalhado em cada projeto." />
+        <PageHeader title="Registo De Horas" description="Tempo trabalhado em cada projeto." />
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-5">
           <div><Label>Projeto</Label>
             <Select value={form.projetoId} onValueChange={(v) => setForm({ ...form, projetoId: v })}>

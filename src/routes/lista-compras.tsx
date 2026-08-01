@@ -19,7 +19,7 @@ export const Route = createFileRoute("/lista-compras")({
       .filter(({ m }) => m.nome.toLowerCase().includes(q.toLowerCase()));
     return (
       <div className="space-y-6">
-        <PageHeader title="Lista de compras" description="Materiais sugeridos por estarem out-of-stock ou low-on-stock." />
+        <PageHeader title="Cesto de Abastecimento do Ateliê" description="Materiais sugeridos por estarem out-of-stock ou low-on-stock." />
         <div className="relative max-w-md">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Pesquisar material…" value={q} onChange={(e) => setQ(e.target.value)} />

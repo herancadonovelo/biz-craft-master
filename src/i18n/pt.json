@@ -74,5 +74,10 @@
   "common.total": "Total",
   "app.subtitle": "painel de gestão",
   "dashboard.searchPlaceholder": "Pesquisar em toda a app: páginas, categorias, abas…",
-  "nav.settingsAlias": "Configurações"
+  "nav.settingsAlias": "Configurações",
+  "lang.autoTitle": "Idioma automático",
+  "lang.autoDescription": "Voltar a seguir o país do teu perfil (ou o idioma do browser). A mudança aplica-se de imediato em todos os separadores abertos.",
+  "lang.autoAction": "Ativar idioma automático",
+  "lang.autoActive": "Automático ativo",
+  "lang.autoOn": "Idioma automático ativado"
 }

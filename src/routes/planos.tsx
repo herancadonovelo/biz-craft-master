@@ -165,7 +165,7 @@ function PlanosPage() {
     <div className="space-y-6">
       <PaymentTestModeBanner />
       <PageHeader
-        title="Planos e Subscrições"
+        title="Planos & Subscrições"
         description="Escolhe o nível de acesso. Todos os planos pagos incluem 14 dias grátis sem compromisso."
       />
 

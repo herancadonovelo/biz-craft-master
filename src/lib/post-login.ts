@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { consumeIntendedPath } from "@/components/AuthGate";
 import { useStore, type Idioma } from "@/lib/store";
 import { languageForCountry, languageFromBrowser } from "@/lib/country-language";
+import { broadcastLanguage, resolveAutoLanguage } from "@/lib/language-sync";
 
 const LANG_FLAG_KEY = "cbm-language-picked-v1";
 
@@ -21,13 +22,25 @@ async function applyPreferredLanguage(
   saved?: string | null,
   country?: string | null,
 ) {
+  const auto = useStore.getState().design.idiomaAuto;
+  if (auto) {
+    // Modo automático: recalcula sempre a partir do país (ou browser).
+    const detected = resolveAutoLanguage(country);
+    useStore.getState().setDesign({ idioma: detected });
+    broadcastLanguage(detected, true);
+    try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
+    await supabase.from("profiles").update({ preferred_language: detected }).eq("user_id", userId);
+    return;
+  }
   if (saved) {
     useStore.getState().setDesign({ idioma: saved as Idioma });
+    broadcastLanguage(saved as Idioma, false);
     try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
     return;
   }
   const idioma = country ? languageForCountry(country) : (languageFromBrowser() ?? "en");
   useStore.getState().setDesign({ idioma });
+  broadcastLanguage(idioma, false);
   try { window.localStorage.setItem(LANG_FLAG_KEY, "1"); } catch { /* noop */ }
   await supabase.from("profiles").update({ preferred_language: idioma }).eq("user_id", userId);
 }

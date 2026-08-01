@@ -83,7 +83,7 @@ export const Route = createFileRoute("/calendario")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Calendário & Agenda" description="Adiciona eventos e alarmes. O toque pode ser personalizado por evento." />
+        <PageHeader title="Calendário" description="Adiciona eventos e alarmes. O toque pode ser personalizado por evento." />
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2"><CardContent className="p-4">
             <div className="mb-3 flex items-center justify-between">
