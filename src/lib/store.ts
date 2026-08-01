@@ -390,6 +390,10 @@ export interface MoodboardElement {
   opacidade?: number;
   /** Marca o elemento como marca de água (para atalhos e exportação). */
   marcaAgua?: boolean;
+  /** Bloqueado: não pode ser movido/redimensionado no canvas. */
+  bloqueado?: boolean;
+  /** Oculto: não é desenhado nem exportado. */
+  oculto?: boolean;
   zIndex: number;
 }
 export interface MoodboardDesign {
