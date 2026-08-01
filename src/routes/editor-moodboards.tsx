@@ -687,6 +687,53 @@ function EditorPage() {
             Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar
           </p>
 
+          <Card className="mt-3"><CardContent className="p-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium">Alinhar na página</span>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-esquerda" onClick={() => alinharSel("esquerda")} aria-label="Alinhar à esquerda"><AlignLeft className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-centro-h" onClick={() => alinharSel("centro-h")} aria-label="Centrar na horizontal"><AlignHorizontalJustifyCenter className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-direita" onClick={() => alinharSel("direita")} aria-label="Alinhar à direita"><AlignRight className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-topo" onClick={() => alinharSel("topo")} aria-label="Alinhar ao topo"><ChevronUp className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-centro-v" onClick={() => alinharSel("centro-v")} aria-label="Centrar na vertical"><AlignVerticalJustifyCenter className="h-3.5 w-3.5" /></Button>
+              <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-fundo" onClick={() => alinharSel("fundo")} aria-label="Alinhar ao fundo"><ChevronDown className="h-3.5 w-3.5" /></Button>
+              <span className="ml-2 font-medium">Distribuir</span>
+              <Button size="sm" variant="outline" data-testid="distribuir-h" onClick={() => distribuirTudo("h")}>Horizontal</Button>
+              <Button size="sm" variant="outline" data-testid="distribuir-v" onClick={() => distribuirTudo("v")}>Vertical</Button>
+            </div>
+          </CardContent></Card>
+
+          <Card className="mt-3"><CardContent className="p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium">
+              <Layers className="h-3.5 w-3.5" /> Camadas ({design.elementos.length})
+            </div>
+            {design.elementos.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
+            ) : (
+              <ul data-testid="painel-camadas" className="max-h-56 space-y-1 overflow-auto">
+                {[...design.elementos].sort((a, b) => b.zIndex - a.zIndex).map((el) => (
+                  <li
+                    key={el.id}
+                    data-testid="camada-item"
+                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs ${el.id === selId ? "border-primary bg-primary/5" : "border-transparent"}`}
+                  >
+                    <button type="button" className="flex-1 truncate text-left" onClick={() => setSelId(el.id)} title={rotuloElemento(el)}>
+                      {rotuloElemento(el)}
+                    </button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => trazerFrente(el.id)} aria-label="Trazer para a frente"><ChevronUp className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => enviarTras(el.id)} aria-label="Enviar para trás"><ChevronDown className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-visibilidade" onClick={() => alternarVisibilidade(el.id)} aria-label={el.oculto ? "Mostrar camada" : "Ocultar camada"}>
+                      {el.oculto ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-bloqueio" onClick={() => alternarBloqueio(el.id)} aria-label={el.bloqueado ? "Desbloquear camada" : "Bloquear camada"}>
+                      {el.bloqueado ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive" onClick={() => remEl(el.id)} aria-label="Apagar camada"><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent></Card>
+
           {sel && (
             <Card className="mt-3"><CardContent className="p-3">
               <div className="flex flex-wrap items-center gap-2 text-xs">
