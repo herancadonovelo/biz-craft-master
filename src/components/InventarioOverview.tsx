@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useStore, formatEUR } from "@/lib/store";
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,19 +9,7 @@ import { AlertTriangle, Package, Truck, ShoppingCart, TrendingDown } from "lucid
 import { CsvImportInventarioDialog } from "@/components/CsvImportInventarioDialog";
 import { CsvImportHistoryDialog } from "@/components/CsvImportHistoryDialog";
 
-export const Route = createFileRoute("/inventario")({
-  head: () => ({
-    meta: [
-      { title: "Visão Geral do Inventário — Craft Business Master" },
-      { name: "description", content: "Resumo de fornecedores, custos por artigo e alertas de stock (baixo / sem stock) com sugestões de reposição." },
-      { property: "og:title", content: "Visão Geral do Inventário" },
-      { property: "og:description", content: "Resumo de fornecedores, custos por artigo e alertas de reposição." },
-    ],
-  }),
-  component: InventarioOverview,
-});
-
-function InventarioOverview() {
+export function InventarioOverview() {
   const materiais = useStore((s) => s.materiais);
   const fornecedores = useStore((s) => s.fornecedores);
   const projetos = useStore((s) => s.projetos);
@@ -69,20 +56,22 @@ function InventarioOverview() {
   }, [enriched, fornecedores]);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 p-4">
-      <PageHeader
-        title="Visão Geral do Inventário"
-        description="Resumo de fornecedores, custos por artigo e alertas de reposição."
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <CsvImportInventarioDialog />
-            <CsvImportHistoryDialog />
-            <Button asChild variant="outline"><Link to="/stock">Ver stock</Link></Button>
-            <Button asChild variant="outline"><Link to="/gestao-fornecedores">Fornecedores</Link></Button>
-            <Button asChild><Link to="/lista-compras">Lista de compras</Link></Button>
-          </div>
-        }
-      />
+    <section className="flex w-full flex-col gap-6">
+      <header className="flex flex-col gap-3">
+        <div className="min-w-0">
+          <h2 className="font-display text-lg font-semibold text-balance">Visão Geral do Inventário</h2>
+          <p className="text-sm text-pretty text-muted-foreground">
+            Resumo de fornecedores, custos por artigo e alertas de reposição.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <CsvImportInventarioDialog />
+          <CsvImportHistoryDialog />
+          <Button asChild variant="outline"><Link to="/stock">Ver stock</Link></Button>
+          <Button asChild variant="outline"><Link to="/gestao-fornecedores">Fornecedores</Link></Button>
+          <Button asChild><Link to="/lista-compras">Lista de compras</Link></Button>
+        </div>
+      </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={<Package className="h-4 w-4" />} label="Artigos" value={String(materiais.length)} />
@@ -218,7 +207,7 @@ function InventarioOverview() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 }
 

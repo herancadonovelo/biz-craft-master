@@ -11,6 +11,7 @@ import { useT } from "@/lib/i18n";
 import { useSubscription } from "@/lib/subscription";
 import { requiredPlanFor } from "@/lib/access-control";
 import { InspirationCard } from "@/components/InspirationCard";
+import { InventarioOverview } from "@/components/InventarioOverview";
 import logoAsset from "@/assets/craft-business-master-logo-transparent.png.asset.json";
 import {
   ResponsiveContainer,
@@ -253,6 +254,9 @@ function Dashboard() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Conteúdo da antiga categoria "Visão Geral" (inventário) integrado aqui. */}
+      <InventarioOverview />
     </div>
   );
 }

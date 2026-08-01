@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  PackageSearch,
   FolderPlus,
   Clock,
   Wallet,
@@ -115,7 +114,6 @@ const getGroups = (t: (k: string) => string) => [
   {
     label: t("nav.inventory"),
     items: [
-      { title: "Visão Geral", url: "/inventario", icon: PackageSearch },
       { title: t("nav.stock"), url: "/stock", icon: Package },
       { title: t("nav.suppliers"), url: "/gestao-fornecedores", icon: Truck },
       { title: t("nav.shopping"), url: "/lista-compras", icon: ShoppingCart },
