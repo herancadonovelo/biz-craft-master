@@ -216,7 +216,21 @@ function EditorPage() {
     if (!files?.length) return;
     for (const f of Array.from(files)) {
       const url = await fileToDataURL(f);
-      addEl({ tipo: isDecor ? "decor" : "image", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+      if (isDecor) {
+        addEl({ tipo: "decor", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+        continue;
+      }
+      // Preenche primeiro as molduras vazias criadas por um modelo de esteira.
+      let preenchida = false;
+      setDesign((d) => {
+        const alvo = d.elementos.find((e) => e.tipo === "image" && !e.src);
+        if (!alvo) return d;
+        preenchida = true;
+        return { ...d, elementos: d.elementos.map((e) => (e.id === alvo.id ? { ...e, src: url } : e)) };
+      });
+      if (!preenchida) {
+        addEl({ tipo: "image", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+      }
     }
   };
   const inserirFundoCor = (cor: string) => setDesign((d) => ({ ...d, corFundo: cor, imagemFundo: undefined }));
