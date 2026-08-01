@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-08-01T01:07:32.792Z",
+  "generatedAt": "2026-08-01T01:08:11.406Z",
   "total": 626,
-  "pending": 7,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 28,
-      "pending": 2
+      "pending": 0
     },
     "auth": {
       "total": 25,
@@ -13,7 +13,7 @@
     },
     "billing": {
       "total": 42,
-      "pending": 1
+      "pending": 0
     },
     "components": {
       "total": 84,
@@ -25,19 +25,19 @@
     },
     "marketing": {
       "total": 29,
-      "pending": 1
+      "pending": 0
     },
     "misc": {
       "total": 119,
-      "pending": 1
+      "pending": 0
     },
     "operations": {
       "total": 22,
-      "pending": 1
+      "pending": 0
     },
     "system": {
       "total": 72,
-      "pending": 1
+      "pending": 0
     }
   },
   "entries": [
@@ -110,8 +110,8 @@
       "file": "src/routes/notas.tsx",
       "category": "atelier",
       "key": "atelier.bloco_de_criacao_ideias",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Creation & Ideas Notebook"
     },
     {
       "text": "Criar Inspiração",
@@ -166,8 +166,8 @@
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.mural_de_inspiracao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Inspiration Wall"
     },
     {
       "text": "Páginas do curso",
@@ -686,8 +686,8 @@
       "file": "src/routes/planos.tsx",
       "category": "billing",
       "key": "billing.planos_subscricoes",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Plans & Subscriptions"
     },
     {
       "text": "Política de Reembolsos",
@@ -3262,8 +3262,8 @@
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
       "key": "marketing.marketing_conteudo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Marketing & Content"
     },
     {
       "text": "Notas livres sobre concorrência, tendências e hashtags",
@@ -3478,8 +3478,8 @@
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
       "key": "misc.atelie_digital",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Digital Atelier"
     },
     {
       "text": "Ativar sobreposição",
@@ -4446,8 +4446,8 @@
       "file": "src/routes/projetos.tsx",
       "category": "operations",
       "key": "operations.projetos_criacao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Projects & Creation"
     },
     {
       "text": "Selecionar visíveis",
@@ -4830,8 +4830,8 @@
       "file": "src/routes/moeda.tsx",
       "category": "system",
       "key": "system.padrao_financeiro_moeda_atual_definida",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Financial Standard: Current Currency Set"
     },
     {
       "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:",
