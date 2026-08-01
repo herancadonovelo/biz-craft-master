@@ -37,7 +37,7 @@ function ClientesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Clientes"
+        title="Rede de Clientes do Ateliê"
         description="Detalhes e histórico de cada cliente."
         actions={
           <Dialog open={open} onOpenChange={setOpen}>

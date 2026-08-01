@@ -96,7 +96,7 @@ function Dashboard() {
         />
       </div>
       <PageHeader
-        title={`Olá! Aqui está o teu atelier hoje.`}
+        title={t("nav.dashboard")}
         description={`${clientes.length} clientes · ${projetos.length} projetos ativos · ${encomendas.length} encomendas`}
         actions={
           <Button asChild>
