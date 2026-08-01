@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  PackageSearch,
   FolderPlus,
   Clock,
   Wallet,
