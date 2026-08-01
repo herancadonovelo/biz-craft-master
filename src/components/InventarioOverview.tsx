@@ -207,7 +207,7 @@ export function InventarioOverview() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 }
 
