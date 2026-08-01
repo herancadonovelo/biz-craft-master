@@ -11,7 +11,7 @@ export const Route = createFileRoute("/vendas")({
     const total = vendas.reduce((s, v) => s + v.valor, 0);
     return (
       <div className="space-y-6">
-        <PageHeader title="Vendas concluídas" description={`${vendas.length} vendas · total ${formatEUR(total)}`} />
+        <PageHeader title="Diário de Encomendas Concluídas" description={`${vendas.length} vendas · total ${formatEUR(total)}`} />
         <Card>
           <CardHeader><CardTitle className="font-display">Histórico</CardTitle></CardHeader>
           <CardContent className="p-0">

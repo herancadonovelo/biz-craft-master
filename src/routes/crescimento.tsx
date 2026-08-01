@@ -29,7 +29,7 @@ export const Route = createFileRoute("/crescimento")({
 
     return (
       <div className="space-y-6">
-        <PageHeader title="Crescimento do negócio" description="Estatísticas e relatórios periódicos para gestão estratégica." />
+        <PageHeader title="Crescimento" description="Estatísticas e relatórios periódicos para gestão estratégica." />
         <div className="grid gap-4 md:grid-cols-4">
           <Kpi label="Clientes" value={String(clientes.length)} />
           <Kpi label="Projetos" value={String(projetos.length)} />

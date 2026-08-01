@@ -27,7 +27,7 @@ function Page() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Marketing e Conteúdo"
+        title="Marketing & Conteúdo"
         description="Campanhas, métricas, persona do comprador e atalhos criativos — tudo num só lugar."
       />
       <Tabs defaultValue="campanhas">

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/notificacoes")({
     const { gatilhos, notificacoes, setGatilho, update, clientes } = useStore();
     return (
       <div className="space-y-6">
-        <PageHeader title="Gatilhos de notificação" description="Quando o estado de uma encomenda muda, a app gera uma mensagem pronta para enviar." />
+        <PageHeader title="Notificações" description="Quando o estado de uma encomenda muda, a app gera uma mensagem pronta para enviar." />
 
         <div className="grid gap-3 md:grid-cols-2">
           {ESTADOS.map((estado) => {

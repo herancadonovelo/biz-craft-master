@@ -51,7 +51,7 @@ export const Route = createFileRoute("/stock")({
     };
     return (
       <div className="space-y-6">
-        <PageHeader title="Stock de material" description="Materiais em stock, com fornecedor e preço praticado."
+        <PageHeader title="Cantinho dos Suprimentos" description="Materiais em stock, com fornecedor e preço praticado."
           actions={
             <div className="flex flex-wrap gap-2">
             <CsvImportInventarioDialog />

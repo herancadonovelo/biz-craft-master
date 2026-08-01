@@ -66,7 +66,7 @@ function NotasPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bloco de Notas" description="Captura rápida de ideias, receitas e tarefas do atelier." />
+      <PageHeader title="Bloco de Criação & Ideias" description="Captura rápida de ideias, receitas e tarefas do atelier." />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">

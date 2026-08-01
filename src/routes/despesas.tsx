@@ -19,7 +19,7 @@ export const Route = createFileRoute("/despesas")({
     const mensal = despesas.reduce((s, d) => s + (d.periodicidade === "mensal" ? d.valor : d.valor / 12), 0);
     return (
       <div className="space-y-6">
-        <PageHeader title="Despesas fixas" description={`Total mensal estimado: ${formatEUR(mensal)}`} />
+        <PageHeader title="Custos Fixos & Variáveis" description={`Total mensal estimado: ${formatEUR(mensal)}`} />
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-4">
           <div className="md:col-span-2"><Label>Nome</Label><Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} /></div>
           <div><Label>Valor</Label><Input type="number" value={form.valor} onChange={(e) => setForm({ ...form, valor: +e.target.value })} /></div>

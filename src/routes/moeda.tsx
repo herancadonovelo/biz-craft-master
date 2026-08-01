@@ -60,7 +60,7 @@ function MoedaPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Moeda Principal"
+        title="Padrão Financeiro: Moeda Atual Definida"
         description="Define a moeda usada em toda a app (preços, custos, orçamentos, relatórios)."
       />
       <Card>

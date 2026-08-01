@@ -95,7 +95,7 @@ function FerramentasPage() {
   }, [tab]);
   return (
     <div className="space-y-6">
-      <PageHeader title="Ferramentas Técnicas"
+      <PageHeader title="Ateliê Digital"
         description="Os 5 editores partilham tela A4, marca d'água configurável e exportação para Biblioteca, PDF e Imprimir." />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto w-full flex-wrap">

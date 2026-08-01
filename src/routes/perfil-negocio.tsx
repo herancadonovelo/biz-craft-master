@@ -81,7 +81,7 @@ export const Route = createFileRoute("/perfil-negocio")({
     const ro = !editing;
     return (
       <div className="space-y-6">
-        <PageHeader title="Perfil Pessoal & Negócio" description="A artesã por trás da marca e a identidade do atelier." />
+        <PageHeader title="Cartão de Visita: Criadora & Ateliê" description="A artesã por trás da marca e a identidade do atelier." />
         <Tabs defaultValue="pessoal" className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:w-auto">
             <TabsTrigger value="pessoal"><User className="mr-1.5 h-4 w-4" />Perfil Pessoal</TabsTrigger>

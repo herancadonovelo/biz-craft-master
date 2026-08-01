@@ -29,7 +29,7 @@ function MuralPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Mural de Inspiração"
+        title="Mural De Inspiração"
         description="Gira a sorte, guarda favoritas e cria as tuas próprias frases."
       />
       <Tabs defaultValue="girar">

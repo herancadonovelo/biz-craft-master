@@ -26,7 +26,7 @@ export const Route = createFileRoute("/whatsapp")({
     };
     return (
       <div className="space-y-6">
-        <PageHeader title="Sincronização WhatsApp" description="Centraliza mensagens, associa-as a clientes/encomendas e usa templates rápidos." />
+        <PageHeader title="WhatsApp" description="Centraliza mensagens, associa-as a clientes/encomendas e usa templates rápidos." />
         <Card><CardContent className="grid gap-3 p-4 md:grid-cols-3">
           <div><Label>WhatsApp Business — Phone ID</Label><Input value={sincronizacao.instagramHandle} onChange={(e) => setSync({ instagramHandle: e.target.value })} placeholder="ex: 123456789" /></div>
           <div><Label>Access Token</Label><Input type="password" value={sincronizacao.instagramToken} onChange={(e) => setSync({ instagramToken: e.target.value })} placeholder="EAAG..." /></div>
