@@ -74,5 +74,10 @@
   "app.subtitle": "pannello di gestione",
   "nav.help": "Aiuto e supporto",
   "dashboard.searchPlaceholder": "Cerca in tutta l’app: pagine, categorie, schede…",
-  "nav.settingsAlias": "Impostazioni"
+  "nav.settingsAlias": "Impostazioni",
+  "lang.autoTitle": "Lingua automatica",
+  "lang.autoDescription": "Torna a seguire il paese del tuo profilo (o la lingua del browser). La modifica si applica subito in tutte le schede aperte.",
+  "lang.autoAction": "Attiva lingua automatica",
+  "lang.autoActive": "Automatico attivo",
+  "lang.autoOn": "Lingua automatica attivata"
 }

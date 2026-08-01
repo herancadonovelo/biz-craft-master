@@ -74,5 +74,10 @@
   "app.subtitle": "management panel",
   "dashboard.searchPlaceholder": "Search the whole app: pages, categories, tabs…",
   "nav.settingsAlias": "Settings",
-  "nav.help": "Help & support"
+  "nav.help": "Help & support",
+  "lang.autoTitle": "Automatic language",
+  "lang.autoDescription": "Follow your profile country again (or the browser language). The change applies instantly in every open tab.",
+  "lang.autoAction": "Enable automatic language",
+  "lang.autoActive": "Automatic active",
+  "lang.autoOn": "Automatic language enabled"
 }
