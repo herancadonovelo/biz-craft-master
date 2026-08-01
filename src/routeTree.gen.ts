@@ -47,7 +47,6 @@ import { Route as HistoricoFaturasRouteImport } from './routes/historico-faturas
 import { Route as HorasRouteImport } from './routes/horas'
 import { Route as IdiomaRouteImport } from './routes/idioma'
 import { Route as InstagramRouteImport } from './routes/instagram'
-import { Route as InventarioRouteImport } from './routes/inventario'
 import { Route as ListaComprasRouteImport } from './routes/lista-compras'
 import { Route as MarketingRouteImport } from './routes/marketing'
 import { Route as MarketingCampanhasRouteImport } from './routes/marketing-campanhas'
@@ -290,11 +289,6 @@ const IdiomaRoute = IdiomaRouteImport.update({
 const InstagramRoute = InstagramRouteImport.update({
   id: '/instagram',
   path: '/instagram',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InventarioRoute = InventarioRouteImport.update({
-  id: '/inventario',
-  path: '/inventario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListaComprasRoute = ListaComprasRouteImport.update({
@@ -612,7 +606,6 @@ export interface FileRoutesByFullPath {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
-  '/inventario': typeof InventarioRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
@@ -706,7 +699,6 @@ export interface FileRoutesByTo {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
-  '/inventario': typeof InventarioRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
@@ -801,7 +793,6 @@ export interface FileRoutesById {
   '/horas': typeof HorasRoute
   '/idioma': typeof IdiomaRoute
   '/instagram': typeof InstagramRoute
-  '/inventario': typeof InventarioRoute
   '/lista-compras': typeof ListaComprasRoute
   '/marketing': typeof MarketingRoute
   '/marketing-campanhas': typeof MarketingCampanhasRoute
@@ -897,7 +888,6 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
-    | '/inventario'
     | '/lista-compras'
     | '/marketing'
     | '/marketing-campanhas'
@@ -991,7 +981,6 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
-    | '/inventario'
     | '/lista-compras'
     | '/marketing'
     | '/marketing-campanhas'
@@ -1085,7 +1074,6 @@ export interface FileRouteTypes {
     | '/horas'
     | '/idioma'
     | '/instagram'
-    | '/inventario'
     | '/lista-compras'
     | '/marketing'
     | '/marketing-campanhas'
@@ -1180,7 +1168,6 @@ export interface RootRouteChildren {
   HorasRoute: typeof HorasRoute
   IdiomaRoute: typeof IdiomaRoute
   InstagramRoute: typeof InstagramRoute
-  InventarioRoute: typeof InventarioRoute
   ListaComprasRoute: typeof ListaComprasRoute
   MarketingRoute: typeof MarketingRoute
   MarketingCampanhasRoute: typeof MarketingCampanhasRoute
@@ -1500,13 +1487,6 @@ declare module '@tanstack/react-router' {
       path: '/instagram'
       fullPath: '/instagram'
       preLoaderRoute: typeof InstagramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inventario': {
-      id: '/inventario'
-      path: '/inventario'
-      fullPath: '/inventario'
-      preLoaderRoute: typeof InventarioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lista-compras': {
@@ -1944,7 +1924,6 @@ const rootRouteChildren: RootRouteChildren = {
   HorasRoute: HorasRoute,
   IdiomaRoute: IdiomaRoute,
   InstagramRoute: InstagramRoute,
-  InventarioRoute: InventarioRoute,
   ListaComprasRoute: ListaComprasRoute,
   MarketingRoute: MarketingRoute,
   MarketingCampanhasRoute: MarketingCampanhasRoute,
