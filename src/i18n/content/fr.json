@@ -313,6 +313,7 @@
   "Guardar atual como padrão": "Enregistrer l'actuel comme modèle",
   "Guardar na aplicação": "Enregistrer dans l'application",
   "Guardar no Catálogo": "Enregistrer dans le catalogue",
+  "Guias magnéticas": "Repères magnétiques",
   "Herança do Novelo": "Héritage de la pelote",
   "Histórico": "Historique",
   "Histórico De Faturas": "Historique des factures",
@@ -341,6 +342,7 @@
   "Iniciais (até 3)": "Initiales (jusqu'à 3)",
   "Iniciar Projeto Personalizado": "Démarrer un projet personnalisé",
   "Iniciar teste grátis de 14 dias": "Commencer l'essai gratuit de 14 jours",
+  "Inserir marca de água": "Insérer un filigrane",
   "Inserir total calculado": "Insérer le total calculé",
   "Instagram": "Instagram",
   "Instruções": "Instructions",
@@ -428,6 +430,7 @@
   "Opções do PDF": "Options du PDF",
   "Organizador de Peças": "Organisateur de Pièces",
   "Orientação": "Orientation",
+  "Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.": "Les modèles ci-dessous sont classés par ceux qui conviennent le mieux à ce nombre.",
   "Os pagamentos na pré-visualização estão em modo de teste — nenhum valor é cobrado.": "Les paiements en prévisualisation sont en mode test — aucun montant n'est débité.",
   "Os valores exibidos nos cartões de plano acima já incluem este desconto!": "Les valeurs affichées sur les cartes de plan ci-dessus incluent déjà cette réduction !",
   "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos.": "PNG transparent recommandé. Utilisé automatiquement comme filigrane dans tous les éditeurs techniques.",
@@ -615,6 +618,7 @@
   "Terminar sessão": "Déconnexion",
   "Termos e Condições": "Conditions Générales",
   "Texto a bordar em círculo": "Texte à broder en cercle",
+  "Texto da marca de água": "Texte du filigrane",
   "Tipo de letra dos cabeçalhos": "Police des en-têtes",
   "Tipo de letra dos títulos": "Police des titres",
   "Todas as carreiras têm simetria coerente.": "Tous les rangs ont une symétrie cohérente.",
@@ -721,6 +725,5 @@
   "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.": "• Recommandation : augmenter la marge à 80% pour les projets personnalisés à faible volume.",
   "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.": "⚠️ Prévisualisation : voici l'apparence des boîtes d'avertissement dans l'application.",
   "📄 Pré-visualizar PDF": "📄 Prévisualiser le PDF",
-  "📌 Vinculado à encomenda de": "📌 Lié à la commande de",
-  "Guias magnéticas": "Repères magnétiques"
+  "📌 Vinculado à encomenda de": "📌 Lié à la commande de"
 }

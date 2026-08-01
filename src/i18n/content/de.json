@@ -313,6 +313,7 @@
   "Guardar atual como padrão": "Aktuelles als Standard speichern",
   "Guardar na aplicação": "In App speichern",
   "Guardar no Catálogo": "In Katalog speichern",
+  "Guias magnéticas": "Magnetische Hilfslinien",
   "Herança do Novelo": "Garnvererbung",
   "Histórico": "Verlauf",
   "Histórico De Faturas": "Rechnungsverlauf",
@@ -341,6 +342,7 @@
   "Iniciais (até 3)": "Initialen (bis zu 3)",
   "Iniciar Projeto Personalizado": "Personalisiertes Projekt starten",
   "Iniciar teste grátis de 14 dias": "14 Tage kostenlose Testversion starten",
+  "Inserir marca de água": "Wasserzeichen einfügen",
   "Inserir total calculado": "Berechneten Gesamtbetrag eingeben",
   "Instagram": "Instagram",
   "Instruções": "Anweisungen",
@@ -428,8 +430,10 @@
   "Opções do PDF": "PDF-Optionen",
   "Organizador de Peças": "Teile-Organisator",
   "Orientação": "Ausrichtung",
+  "Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.": "Die Vorlagen unten sind nach denen sortiert, die diese Nummer am besten aufnehmen.",
   "Os pagamentos na pré-visualização estão em modo de teste — nenhum valor é cobrado.": "Die Zahlungen in der Vorschau sind im Testmodus – es wird kein Betrag abgebucht.",
   "Os valores exibidos nos cartões de plano acima já incluem este desconto!": "Die auf den obigen Plan-Karten angezeigten Werte enthalten diesen Rabatt bereits!",
+  "Ou usar logótipo (PNG)": "Oder Logo verwenden (PNG)",
   "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos.": "Transparente PNG empfohlen. Wird automatisch als Wasserzeichen in allen technischen Editoren verwendet.",
   "Padrão & Escrita": "Muster & Schrift",
   "Padrão a repetir": "Wiederholendes Muster",
@@ -615,6 +619,7 @@
   "Terminar sessão": "Abmelden",
   "Termos e Condições": "AGB",
   "Texto a bordar em círculo": "Text im Kreis sticken",
+  "Texto da marca de água": "Wasserzeichentext",
   "Tipo de letra dos cabeçalhos": "Schriftart der Überschriften",
   "Tipo de letra dos títulos": "Schriftart der Titel",
   "Todas as carreiras têm simetria coerente.": "Alle Reihen haben eine konsistente Symmetrie.",
@@ -721,6 +726,5 @@
   "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.": "• Empfehlung: Marge bei kundenspezifischen Kleinserienprojekten auf 80 % erhöhen.",
   "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.": "⚠️ Vorschau: So sehen Warnhinweise in der App aus.",
   "📄 Pré-visualizar PDF": "📄 PDF-Vorschau",
-  "📌 Vinculado à encomenda de": "📌 Verknüpft mit Bestellung von",
-  "Guias magnéticas": "Magnetische Hilfslinien"
+  "📌 Vinculado à encomenda de": "📌 Verknüpft mit Bestellung von"
 }

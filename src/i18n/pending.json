@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-01T00:04:29.963Z",
+  "generatedAt": "2026-08-01T00:05:05.762Z",
   "total": 633,
-  "pending": 4,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 27,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 206,
-      "pending": 4
+      "pending": 0
     },
     "marketing": {
       "total": 30,
@@ -2278,8 +2278,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.inserir_marca_de_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Insert watermark"
     },
     {
       "text": "Instruções",
@@ -2486,16 +2486,16 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.os_modelos_abaixo_estao_ordenados_pelos",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "The templates below are ordered by how well they accommodate that number."
     },
     {
       "text": "Ou usar logótipo (PNG)",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.ou_usar_logotipo_png",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Or use logo (PNG)"
     },
     {
       "text": "Padrão & Escrita",
@@ -2974,8 +2974,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.texto_da_marca_de_agua",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Watermark text"
     },
     {
       "text": "Tipo de letra dos cabeçalhos",

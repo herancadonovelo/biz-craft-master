@@ -313,6 +313,7 @@
   "Guardar atual como padrão": "Salva attuale come predefinito",
   "Guardar na aplicação": "Salva nell'app",
   "Guardar no Catálogo": "Salva nel Catalogo",
+  "Guias magnéticas": "Guide magnetiche",
   "Herança do Novelo": "Eredità Gomitoli",
   "Histórico": "Cronologia",
   "Histórico De Faturas": "Cronologia Fatture",
@@ -341,6 +342,7 @@
   "Iniciais (até 3)": "Iniziali (max 3)",
   "Iniciar Projeto Personalizado": "Avvia Progetto Personalizzato",
   "Iniciar teste grátis de 14 dias": "Inizia prova gratuita di 14 giorni",
+  "Inserir marca de água": "Inizia a filigranare",
   "Inserir total calculado": "Inserisci totale calcolato",
   "Instagram": "Instagram",
   "Instruções": "Istruzioni",
@@ -428,8 +430,10 @@
   "Opções do PDF": "Opzioni PDF",
   "Organizador de Peças": "Organizzatore di Pezzi",
   "Orientação": "Orientamento",
+  "Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.": "I modelli sottostanti sono ordinati in base a quelli che si adattano meglio a questo numero.",
   "Os pagamentos na pré-visualização estão em modo de teste — nenhum valor é cobrado.": "I pagamenti in anteprima sono in modalità di prova — nessun importo viene addebitato.",
   "Os valores exibidos nos cartões de plano acima já incluem este desconto!": "I valori mostrati nelle schede piano sopra includono già questo sconto!",
+  "Ou usar logótipo (PNG)": "Oppure usa il logo (PNG)",
   "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos.": "PNG trasparente raccomandato. Usato automaticamente come filigrana in tutti gli editor tecnici.",
   "Padrão & Escrita": "Modello & Scrittura",
   "Padrão a repetir": "Modello da ripetere",
@@ -615,6 +619,7 @@
   "Terminar sessão": "Disconnetti",
   "Termos e Condições": "Termini e Condizioni",
   "Texto a bordar em círculo": "Testo da ricamare in cerchio",
+  "Texto da marca de água": "Testo filigranato",
   "Tipo de letra dos cabeçalhos": "Carattere intestazioni",
   "Tipo de letra dos títulos": "Carattere titoli",
   "Todas as carreiras têm simetria coerente.": "Tutte le righe hanno una simmetria coerente.",
@@ -721,6 +726,5 @@
   "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.": "• Raccomandazione: aumentare il margine all'80% per i progetti personalizzati a basso volume.",
   "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.": "⚠️ Anteprima: è così che appaiono le caselle di avviso nell'app.",
   "📄 Pré-visualizar PDF": "📄 Anteprima PDF",
-  "📌 Vinculado à encomenda de": "📌 Collegato all'ordine di",
-  "Guias magnéticas": "Guide magnetiche"
+  "📌 Vinculado à encomenda de": "📌 Collegato all'ordine di"
 }
