@@ -1,43 +1,43 @@
 {
-  "generatedAt": "2026-08-01T00:21:42.242Z",
-  "total": 634,
-  "pending": 0,
+  "generatedAt": "2026-08-01T01:07:18.250Z",
+  "total": 626,
+  "pending": 7,
   "byCategory": {
     "atelier": {
-      "total": 27,
-      "pending": 0
+      "total": 28,
+      "pending": 2
     },
     "auth": {
       "total": 25,
       "pending": 0
     },
     "billing": {
-      "total": 43,
-      "pending": 0
+      "total": 42,
+      "pending": 1
     },
     "components": {
       "total": 84,
       "pending": 0
     },
     "editors": {
-      "total": 206,
+      "total": 205,
       "pending": 0
     },
     "marketing": {
-      "total": 30,
-      "pending": 0
+      "total": 29,
+      "pending": 1
     },
     "misc": {
-      "total": 123,
-      "pending": 0
+      "total": 119,
+      "pending": 1
     },
     "operations": {
-      "total": 24,
-      "pending": 0
+      "total": 22,
+      "pending": 1
     },
     "system": {
       "total": 72,
-      "pending": 0
+      "pending": 1
     }
   },
   "entries": [
@@ -106,6 +106,14 @@
       "en": "Added music stays on this device only, for the current session."
     },
     {
+      "text": "Bloco de Criação & Ideias",
+      "file": "src/routes/notas.tsx",
+      "category": "atelier",
+      "key": "atelier.bloco_de_criacao_ideias",
+      "translated": false,
+      "en": ""
+    },
+    {
       "text": "Criar Inspiração",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
@@ -154,12 +162,12 @@
       "en": "Current Module"
     },
     {
-      "text": "Mural de Inspiração",
+      "text": "Mural De Inspiração",
       "file": "src/routes/mural.tsx",
       "category": "atelier",
       "key": "atelier.mural_de_inspiracao",
-      "translated": true,
-      "en": "Inspiration Board"
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Páginas do curso",
@@ -602,14 +610,6 @@
       "en": "Try Free for 14 Days"
     },
     {
-      "text": "Faturação: Criar & Histórico",
-      "file": "src/routes/faturacao.tsx",
-      "category": "billing",
-      "key": "billing.faturacao_criar_historico",
-      "translated": true,
-      "en": "Invoicing: Create & History"
-    },
-    {
       "text": "garantia de satisfação de 30 dias",
       "file": "src/routes/reembolsos.tsx",
       "category": "billing",
@@ -682,12 +682,12 @@
       "en": "Current period"
     },
     {
-      "text": "Planos e Subscrições",
+      "text": "Planos & Subscrições",
       "file": "src/routes/planos.tsx",
       "category": "billing",
-      "key": "billing.planos_e_subscricoes",
-      "translated": true,
-      "en": "Plans & Subscriptions"
+      "key": "billing.planos_subscricoes",
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Política de Reembolsos",
@@ -2618,14 +2618,6 @@
       "en": "Machine profile"
     },
     {
-      "text": "Personalização & Configurações",
-      "file": "src/routes/design.tsx",
-      "category": "editors",
-      "key": "editors.personalizacao_configuracoes",
-      "translated": true,
-      "en": "Customisation & Settings"
-    },
-    {
       "text": "Personalização padrão",
       "file": "src/routes/design.tsx",
       "category": "editors",
@@ -3186,14 +3178,6 @@
       "en": "Conversions"
     },
     {
-      "text": "Crescimento do negócio",
-      "file": "src/routes/crescimento.tsx",
-      "category": "marketing",
-      "key": "marketing.crescimento_do_negocio",
-      "translated": true,
-      "en": "Business growth"
-    },
-    {
       "text": "Distribuição encomendas",
       "file": "src/routes/crescimento.tsx",
       "category": "marketing",
@@ -3274,12 +3258,12 @@
       "en": "Avg. profit/project"
     },
     {
-      "text": "Marketing e Conteúdo",
+      "text": "Marketing & Conteúdo",
       "file": "src/routes/marketing-conteudo.tsx",
       "category": "marketing",
-      "key": "marketing.marketing_e_conteudo",
-      "translated": true,
-      "en": "Marketing & Content"
+      "key": "marketing.marketing_conteudo",
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Notas livres sobre concorrência, tendências e hashtags",
@@ -3490,6 +3474,14 @@
       "en": "Wire Needed:"
     },
     {
+      "text": "Ateliê Digital",
+      "file": "src/routes/ferramentas-tecnicas.tsx",
+      "category": "misc",
+      "key": "misc.atelie_digital",
+      "translated": false,
+      "en": ""
+    },
+    {
       "text": "Ativar sobreposição",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
@@ -3520,14 +3512,6 @@
       "key": "misc.cada_eixo_cria_uma_copia_espelhada",
       "translated": true,
       "en": "Each axis creates a mirrored copy around the hoop center."
-    },
-    {
-      "text": "Calculadora de preço",
-      "file": "src/routes/calculadora.tsx",
-      "category": "misc",
-      "key": "misc.calculadora_de_preco",
-      "translated": true,
-      "en": "Price calculator"
     },
     {
       "text": "Calcular o preço de uma peça",
@@ -3736,14 +3720,6 @@
       "key": "misc.ferramentas_avancadas",
       "translated": true,
       "en": "Advanced Tools"
-    },
-    {
-      "text": "Ferramentas Técnicas",
-      "file": "src/routes/ferramentas-tecnicas.tsx",
-      "category": "misc",
-      "key": "misc.ferramentas_tecnicas",
-      "translated": true,
-      "en": "Technical Tools"
     },
     {
       "text": "Folha de padrão (PDF)",
@@ -4018,14 +3994,6 @@
       "en": "Business Profile"
     },
     {
-      "text": "Perfil Pessoal & Negócio",
-      "file": "src/routes/perfil-negocio.tsx",
-      "category": "misc",
-      "key": "misc.perfil_pessoal_negocio",
-      "translated": true,
-      "en": "Personal & Business Profile"
-    },
-    {
       "text": "Pesquisar código ou nome…",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
@@ -4202,14 +4170,6 @@
       "en": "Simulates thread sheen and fabric texture for visual confirmation before embroidering."
     },
     {
-      "text": "Sincronização WhatsApp",
-      "file": "src/routes/whatsapp.tsx",
-      "category": "misc",
-      "key": "misc.sincronizacao_whatsapp",
-      "translated": true,
-      "en": "WhatsApp Sync"
-    },
-    {
       "text": "Snap ângulo",
       "file": "src/routes/ferramentas-tecnicas.tsx",
       "category": "misc",
@@ -4306,14 +4266,6 @@
       "en": "using the service for illicit purposes or contrary to applicable law;"
     },
     {
-      "text": "Vendas concluídas",
-      "file": "src/routes/vendas.tsx",
-      "category": "misc",
-      "key": "misc.vendas_concluidas",
-      "translated": true,
-      "en": "Completed sales"
-    },
-    {
       "text": "Verificar ligação",
       "file": "src/routes/whatsapp.tsx",
       "category": "misc",
@@ -4360,14 +4312,6 @@
       "key": "operations.ativar_notificacoes",
       "translated": true,
       "en": "Enable notifications"
-    },
-    {
-      "text": "Calendário & Agenda",
-      "file": "src/routes/calendario.tsx",
-      "category": "operations",
-      "key": "operations.calendario_agenda",
-      "translated": true,
-      "en": "Calendar & Agenda"
     },
     {
       "text": "Código de Desconto",
@@ -4442,14 +4386,6 @@
       "en": "Recipient"
     },
     {
-      "text": "Gestão de fornecedores",
-      "file": "src/routes/gestao-fornecedores.tsx",
-      "category": "operations",
-      "key": "operations.gestao_de_fornecedores",
-      "translated": true,
-      "en": "Supplier management"
-    },
-    {
       "text": "Média",
       "file": "src/routes/todo.tsx",
       "category": "operations",
@@ -4506,12 +4442,12 @@
       "en": "Purchase price (€/unit)"
     },
     {
-      "text": "Projetos & Criação De Projeto",
+      "text": "Projetos & Criação",
       "file": "src/routes/projetos.tsx",
       "category": "operations",
-      "key": "operations.projetos_criacao_de_projeto",
-      "translated": true,
-      "en": "Projects & Project Creation"
+      "key": "operations.projetos_criacao",
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Selecionar visíveis",
@@ -4794,14 +4730,6 @@
       "en": "Notification Queue"
     },
     {
-      "text": "Gatilhos de notificação",
-      "file": "src/routes/notificacoes.tsx",
-      "category": "system",
-      "key": "system.gatilhos_de_notificacao",
-      "translated": true,
-      "en": "Notification triggers"
-    },
-    {
       "text": "Gestão de Stock:",
       "file": "src/routes/privacidade.tsx",
       "category": "system",
@@ -4896,6 +4824,14 @@
       "key": "system.ola_cliente_a_tua_encomenda_encomenda",
       "translated": true,
       "en": "Hi {cliente}, your order {encomenda}…"
+    },
+    {
+      "text": "Padrão Financeiro: Moeda Atual Definida",
+      "file": "src/routes/moeda.tsx",
+      "category": "system",
+      "key": "system.padrao_financeiro_moeda_atual_definida",
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Para que possa gerir o seu negócio, a aplicação processa dados dos seus clientes, tais como:",
