@@ -764,6 +764,7 @@ function ElementoView({
     transform: `rotate(${el.rotacao}deg)`, transformOrigin: "center center",
     outline: selecionado ? "2px dashed #ec4899" : "none",
     cursor: "move", userSelect: "none",
+    opacity: el.opacidade ?? 1,
   };
   const content = el.tipo === "text" ? (
     <textarea
@@ -782,6 +783,18 @@ function ElementoView({
   ) : el.src ? (
     <img src={el.src} alt="" draggable={false}
       style={{ width: "100%", height: "100%", objectFit: el.tipo === "decor" ? "contain" : "cover", borderRadius: el.raioCantos ?? 0, pointerEvents: "none" }} />
+  ) : el.tipo === "image" ? (
+    // Moldura vazia criada por um modelo de esteira: aguarda uma imagem.
+    <div
+      data-testid="slot-vazio"
+      style={{
+        width: "100%", height: "100%", borderRadius: el.raioCantos ?? 0,
+        border: "1px dashed #c4b5fd", background: "rgba(196,181,253,.12)",
+        display: "grid", placeItems: "center", color: "#8b5cf6", fontSize: 11, pointerEvents: "none",
+      }}
+    >
+      imagem
+    </div>
   ) : null;
   return (
     <div style={base} onPointerDown={(e) => onPointerDown(e, el.id, "move")}>
