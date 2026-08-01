@@ -722,5 +722,9 @@
   "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.": "⚠️ Preview: this is how alert boxes look in the app.",
   "📄 Pré-visualizar PDF": "📄 Preview PDF",
   "📌 Vinculado à encomenda de": "📌 Linked to order for",
-  "Guias magnéticas": "Magnetic guides"
+  "Guias magnéticas": "Magnetic guides",
+  "editors.inserir_marca_de_agua": "Insert watermark",
+  "editors.os_modelos_abaixo_estao_ordenados_pelos": "The templates below are sorted by how well they fit that number.",
+  "editors.ou_usar_logotipo_png": "Or use a logo (PNG)",
+  "editors.texto_da_marca_de_agua": "Watermark text"
 }
