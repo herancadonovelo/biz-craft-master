@@ -670,7 +670,7 @@ function EditorPage() {
                 }}
                 onPointerDown={(e) => { if (e.currentTarget === e.target) setSelId(null); }}
               >
-                {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).map((el) => (
+                {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).filter((el) => !el.oculto).map((el) => (
                   <ElementoView key={el.id} el={el} selecionado={el.id === selId} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
                 ))}
                 {/* guias magnéticas */}
