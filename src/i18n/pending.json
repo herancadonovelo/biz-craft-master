@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-01T01:11:09.938Z",
+  "generatedAt": "2026-08-01T01:11:28.460Z",
   "total": 630,
-  "pending": 4,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 28,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 209,
-      "pending": 4
+      "pending": 0
     },
     "marketing": {
       "total": 29,
@@ -1622,24 +1622,24 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_a_direita",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align right"
     },
     {
       "text": "Alinhar à esquerda",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_a_esquerda",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align left"
     },
     {
       "text": "Alinhar na página",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_na_pagina",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align on page"
     },
     {
       "text": "Âmbar (claro)",
@@ -2102,8 +2102,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.enviar_para_tras",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Send backward"
     },
     {
       "text": "Escalonamento automático (XS–XXL)",
