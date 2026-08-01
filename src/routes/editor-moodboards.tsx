@@ -18,10 +18,12 @@ import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
+  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
+import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import {
   MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
   type MoodboardLayout, type PosicaoMarcaAgua,
@@ -117,6 +119,37 @@ function EditorPage() {
     setDesign((d) => ({ ...d, elementos: [...d.elementos, novo] }));
     setSelId(novo.id);
   };
+
+  // === alinhamento, distribuição e camadas ===
+  const alinharSel = (modo: AlinhamentoPagina) => {
+    if (!sel) return;
+    updEl(sel.id, alinharNaPagina({ id: sel.id, x: sel.x, y: sel.y, w: sel.w, h: sel.h }, modo, { w: A4_W, h: A4_H }));
+  };
+  const distribuirTudo = (eixo: "h" | "v") => {
+    const visiveis = design.elementos.filter((e) => !e.oculto && !e.bloqueado);
+    const ajustes = distribuir(visiveis.map((e) => ({ id: e.id, x: e.x, y: e.y, w: e.w, h: e.h })), eixo);
+    if (!ajustes.length) { toast.info("São precisos pelo menos 3 elementos livres para distribuir."); return; }
+    setDesign((d) => ({
+      ...d,
+      elementos: d.elementos.map((e) => {
+        const a = ajustes.find((x) => x.id === e.id);
+        return a ? { ...e, ...(a.x !== undefined ? { x: a.x } : {}), ...(a.y !== undefined ? { y: a.y } : {}) } : e;
+      }),
+    }));
+  };
+  const alternarBloqueio = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (el) updEl(id, { bloqueado: !el.bloqueado });
+  };
+  const alternarVisibilidade = (id: string) => {
+    const el = design.elementos.find((e) => e.id === id);
+    if (el) updEl(id, { oculto: !el.oculto });
+  };
+  const rotuloElemento = (el: MoodboardElement) =>
+    el.tipo === "text" ? (el.texto?.trim().slice(0, 24) || "Texto")
+      : el.marcaAgua ? "Marca de água"
+      : el.tipo === "decor" ? "Decoração"
+      : el.src ? "Imagem" : "Moldura vazia";
 
   // === canvas infinito: zoom, pan, ajustar ===
   const setZoom = (z: number) => zoomEmTorno(clampZoom(z));
