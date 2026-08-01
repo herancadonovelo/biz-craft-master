@@ -439,10 +439,11 @@ function EditorPage() {
         {/* PAINEL ESQUERDO: ferramentas */}
         <Card><CardContent className="p-3">
           <Tabs defaultValue="fundo">
-            <TabsList className="grid w-full grid-cols-3 text-xs">
+            <TabsList className="grid w-full grid-cols-4 text-xs">
               <TabsTrigger value="fundo" aria-label="Fundo"><PaletteIcon className="h-3.5 w-3.5" /></TabsTrigger>
               <TabsTrigger value="texto" aria-label="Texto"><Type className="h-3.5 w-3.5" /></TabsTrigger>
               <TabsTrigger value="decor" aria-label="Decoração"><Sticker className="h-3.5 w-3.5" /></TabsTrigger>
+              <TabsTrigger value="modelos" aria-label="Modelos de esteira" data-testid="tab-modelos"><LayoutGrid className="h-3.5 w-3.5" /></TabsTrigger>
             </TabsList>
             <TabsContent value="fundo" className="mt-3 space-y-3">
               <div>
