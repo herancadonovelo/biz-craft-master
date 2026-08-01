@@ -37,6 +37,7 @@ import { AuthGate } from "@/components/AuthGate";
 import { WebhookPoller } from "@/components/WebhookPoller";
 import { InitialLanguagePicker } from "@/components/InitialLanguagePicker";
 import { ScrollUnlockWatcher } from "@/lib/scroll-unlock";
+import { useLanguageSync } from "@/lib/language-sync";
 import { assertAccessControlOnce } from "@/lib/access-control-check";
 
 if (typeof window !== "undefined") {
@@ -191,6 +192,8 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const design = useStore((s) => s.design);
+  // Mantém o idioma igual em todos os separadores abertos da app.
+  useLanguageSync();
 
   useEffect(() => {
     const root = document.documentElement;
