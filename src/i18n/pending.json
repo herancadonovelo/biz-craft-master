@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-01T00:12:28.028Z",
-  "total": 633,
-  "pending": 0,
+  "generatedAt": "2026-08-01T00:19:00.443Z",
+  "total": 634,
+  "pending": 1,
   "byCategory": {
     "atelier": {
       "total": 27,
@@ -16,8 +16,8 @@
       "pending": 0
     },
     "components": {
-      "total": 78,
-      "pending": 0
+      "total": 84,
+      "pending": 1
     },
     "editors": {
       "total": 206,
@@ -32,7 +32,7 @@
       "pending": 0
     },
     "operations": {
-      "total": 29,
+      "total": 24,
       "pending": 0
     },
     "system": {
@@ -850,6 +850,14 @@
       "en": "Checking session"
     },
     {
+      "text": "Adicionar à lista",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.adicionar_a_lista",
+      "translated": true,
+      "en": "Add to list"
+    },
+    {
       "text": "Agora não",
       "file": "src/components/PaywallDialog.tsx",
       "category": "components",
@@ -872,6 +880,14 @@
       "key": "components.ainda_nao_ha_importacoes_registadas",
       "translated": true,
       "en": "No imports registered yet."
+    },
+    {
+      "text": "Alertas de reposição",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.alertas_de_reposicao",
+      "translated": true,
+      "en": "Restock alerts"
     },
     {
       "text": "Anular importação",
@@ -1234,6 +1250,14 @@
       "en": "Price /m"
     },
     {
+      "text": "Preço/un.",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.preco_un",
+      "translated": true,
+      "en": "Price/unit"
+    },
+    {
       "text": "Presets de exportação (por projeto)",
       "file": "src/components/CosturaEditor.tsx",
       "category": "components",
@@ -1272,6 +1296,14 @@
       "key": "components.resolucao_png",
       "translated": true,
       "en": "PNG Resolution"
+    },
+    {
+      "text": "Resumo de fornecedores, custos por artigo e alertas de reposição.",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.resumo_de_fornecedores_custos_por_artigo",
+      "translated": false,
+      "en": ""
     },
     {
       "text": "Retângulo",
@@ -1336,6 +1368,14 @@
       "key": "components.seleciona_uma_ferramenta_arco_espiral_offset",
       "translated": true,
       "en": "Select a tool (Arc, Spiral, Offset, or Split) to configure parameters here."
+    },
+    {
+      "text": "Sem artigos abaixo do mínimo. Bom trabalho!",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.sem_artigos_abaixo_do_minimo_bom",
+      "translated": true,
+      "en": "No items below minimum. Good job!"
     },
     {
       "text": "Só local (erro nuvem)",
@@ -1416,6 +1456,14 @@
       "key": "components.versoes_guardadas",
       "translated": true,
       "en": "Saved versions"
+    },
+    {
+      "text": "Visão Geral do Inventário",
+      "file": "src/components/InventarioOverview.tsx",
+      "category": "components",
+      "key": "components.visao_geral_do_inventario",
+      "translated": true,
+      "en": "Inventory Overview"
     },
     {
       "text": "Vista de símbolos",
@@ -4306,22 +4354,6 @@
       "en": "The calendar view respects the project and status filters above."
     },
     {
-      "text": "Adicionar à lista",
-      "file": "src/routes/inventario.tsx",
-      "category": "operations",
-      "key": "operations.adicionar_a_lista",
-      "translated": true,
-      "en": "Add to list"
-    },
-    {
-      "text": "Alertas de reposição",
-      "file": "src/routes/inventario.tsx",
-      "category": "operations",
-      "key": "operations.alertas_de_reposicao",
-      "translated": true,
-      "en": "Restock alerts"
-    },
-    {
       "text": "Ativar notificações",
       "file": "src/routes/todo.tsx",
       "category": "operations",
@@ -4427,7 +4459,7 @@
     },
     {
       "text": "Mínimo",
-      "file": "src/routes/inventario.tsx",
+      "file": "src/routes/lista-compras.tsx",
       "category": "operations",
       "key": "operations.minimo",
       "translated": true,
@@ -4474,14 +4506,6 @@
       "en": "Purchase price (€/unit)"
     },
     {
-      "text": "Preço/un.",
-      "file": "src/routes/inventario.tsx",
-      "category": "operations",
-      "key": "operations.preco_un",
-      "translated": true,
-      "en": "Price/unit"
-    },
-    {
       "text": "Projetos & Criação De Projeto",
       "file": "src/routes/projetos.tsx",
       "category": "operations",
@@ -4498,14 +4522,6 @@
       "en": "Select visible"
     },
     {
-      "text": "Sem artigos abaixo do mínimo. Bom trabalho!",
-      "file": "src/routes/inventario.tsx",
-      "category": "operations",
-      "key": "operations.sem_artigos_abaixo_do_minimo_bom",
-      "translated": true,
-      "en": "No items below minimum. Good job!"
-    },
-    {
       "text": "Stock mínimo",
       "file": "src/routes/stock.tsx",
       "category": "operations",
@@ -4520,14 +4536,6 @@
       "key": "operations.toque_padrao_da_aplicacao",
       "translated": true,
       "en": "Default app ringtone"
-    },
-    {
-      "text": "Visão Geral do Inventário",
-      "file": "src/routes/inventario.tsx",
-      "category": "operations",
-      "key": "operations.visao_geral_do_inventario",
-      "translated": true,
-      "en": "Inventory Overview"
     },
     {
       "text": "— respondemos no prazo máximo de um mês.",
