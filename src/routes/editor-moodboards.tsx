@@ -351,6 +351,7 @@ function EditorPage() {
     setSelId(id);
     const el = design.elementos.find((e) => e.id === id);
     if (!el || !artRef.current) return;
+    if (el.bloqueado) return; // camada bloqueada: seleciona, mas não move
     const rect = artRef.current.getBoundingClientRect();
     const startX = ev.clientX, startY = ev.clientY;
     const startEl = { ...el };
