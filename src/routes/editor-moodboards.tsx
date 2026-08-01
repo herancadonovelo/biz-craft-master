@@ -17,11 +17,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
-  ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy,
+  ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
+import {
+  MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
+  type MoodboardLayout, type PosicaoMarcaAgua,
+} from "@/lib/moodboard-layouts";
 import {
   sugerirTemaMoodboard, gerarTextosMoodboard, criticarComposicao, sugestaoContextual, removerFundoImagem,
 } from "@/lib/moodboard-ai.functions";
@@ -212,7 +216,21 @@ function EditorPage() {
     if (!files?.length) return;
     for (const f of Array.from(files)) {
       const url = await fileToDataURL(f);
-      addEl({ tipo: isDecor ? "decor" : "image", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+      if (isDecor) {
+        addEl({ tipo: "decor", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+        continue;
+      }
+      // Preenche primeiro as molduras vazias criadas por um modelo de esteira.
+      let preenchida = false;
+      setDesign((d) => {
+        const alvo = d.elementos.find((e) => e.tipo === "image" && !e.src);
+        if (!alvo) return d;
+        preenchida = true;
+        return { ...d, elementos: d.elementos.map((e) => (e.id === alvo.id ? { ...e, src: url } : e)) };
+      });
+      if (!preenchida) {
+        addEl({ tipo: "image", src: url, x: 100, y: 100, w: 200, h: 200, rotacao: 0, raioCantos: 0 });
+      }
     }
   };
   const inserirFundoCor = (cor: string) => setDesign((d) => ({ ...d, corFundo: cor, imagemFundo: undefined }));
@@ -235,6 +253,62 @@ function EditorPage() {
       setDecor((arr) => { const x = [...arr, novo]; saveCustom("mb-decor", x); return x; });
     }
     toast.success("Adicionado à biblioteca de elementos.");
+  };
+
+  // === modelos de esteira (30 grelhas) ===
+  const [nImagensAlvo, setNImagensAlvo] = useState(6);
+  const modelosSugeridos = useMemo(() => sugerirLayouts(nImagensAlvo), [nImagensAlvo]);
+
+  /**
+   * Reorganiza as imagens existentes pelo modelo escolhido. Se ainda não
+   * houver imagens suficientes, cria molduras vazias para o utilizador
+   * preencher com upload.
+   */
+  const aplicarModelo = (layout: MoodboardLayout) => {
+    setDesign((d) => {
+      const imagens = d.elementos.filter((e) => e.tipo === "image").sort((a, b) => a.zIndex - b.zIndex);
+      const outros = d.elementos.filter((e) => e.tipo !== "image");
+      const n = Math.max(imagens.length, layout.capacidade);
+      const rects = aplicarLayout(layout, n, d.largura, d.altura);
+      const novas: MoodboardElement[] = rects.map((r, i) => {
+        const base = imagens[i];
+        return base
+          ? { ...base, ...r, rotacao: 0 }
+          : {
+              id: uid(), tipo: "image" as const, ...r, rotacao: 0, raioCantos: 0,
+              zIndex: i + 1, src: undefined,
+            };
+      });
+      // Imagens a mais do que o modelo comporta ficam onde estão.
+      const sobras = imagens.slice(rects.length);
+      return { ...d, elementos: [...novas, ...sobras, ...outros] };
+    });
+    setSelId(null);
+    toast.success(`Modelo aplicado: ${layout.nome}`);
+  };
+
+  // === marca de água ===
+  const [marcaTexto, setMarcaTexto] = useState("© Craft Business Master");
+  const [marcaPos, setMarcaPos] = useState<PosicaoMarcaAgua>("inferior-direita");
+  const [marcaOpacidade, setMarcaOpacidade] = useState(45);
+  const inserirMarcaAgua = (src?: string) => {
+    const r = retanguloMarcaAgua(marcaPos, design.largura, design.altura);
+    const maxZ = design.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0);
+    const el: MoodboardElement = src
+      ? { id: uid(), tipo: "decor", src, ...r, rotacao: 0, zIndex: maxZ + 1, opacidade: marcaOpacidade / 100, marcaAgua: true }
+      : {
+          id: uid(), tipo: "text", ...r, rotacao: 0, zIndex: maxZ + 1,
+          texto: marcaTexto, fonte: "Montserrat", tamanhoFonte: 18, corTexto: "#111827",
+          alinhamento: "center", opacidade: marcaOpacidade / 100, marcaAgua: true,
+        };
+    setDesign((d) => ({ ...d, elementos: [...d.elementos, el] }));
+    setSelId(el.id);
+    toast.success("Marca de água inserida.");
+  };
+  const uploadMarcaAgua = async (files: FileList | null) => {
+    const f = files?.[0];
+    if (!f) return;
+    inserirMarcaAgua(await fileToDataURL(f));
   };
 
   // === drag/resize/rotate ===
@@ -382,10 +456,11 @@ function EditorPage() {
         {/* PAINEL ESQUERDO: ferramentas */}
         <Card><CardContent className="p-3">
           <Tabs defaultValue="fundo">
-            <TabsList className="grid w-full grid-cols-3 text-xs">
+            <TabsList className="grid w-full grid-cols-4 text-xs">
               <TabsTrigger value="fundo" aria-label="Fundo"><PaletteIcon className="h-3.5 w-3.5" /></TabsTrigger>
               <TabsTrigger value="texto" aria-label="Texto"><Type className="h-3.5 w-3.5" /></TabsTrigger>
               <TabsTrigger value="decor" aria-label="Decoração"><Sticker className="h-3.5 w-3.5" /></TabsTrigger>
+              <TabsTrigger value="modelos" aria-label="Modelos de esteira" data-testid="tab-modelos"><LayoutGrid className="h-3.5 w-3.5" /></TabsTrigger>
             </TabsList>
             <TabsContent value="fundo" className="mt-3 space-y-3">
               <div>
@@ -439,8 +514,84 @@ function EditorPage() {
                 ))}
               </div>
             </TabsContent>
+            <TabsContent value="modelos" className="mt-3 space-y-3">
+              <div>
+                <Label className="text-xs">Quantas imagens queres colocar?</Label>
+                <div className="mt-1 flex items-center gap-2">
+                  <Slider
+                    value={[nImagensAlvo]} min={1} max={20} step={1}
+                    onValueChange={([v]) => setNImagensAlvo(v)} className="flex-1"
+                  />
+                  <span data-testid="modelos-n" className="w-8 text-center text-xs tabular-nums">{nImagensAlvo}</span>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.
+                </p>
+              </div>
+              <div data-testid="lista-modelos" className="grid max-h-[380px] grid-cols-2 gap-2 overflow-auto pr-1">
+                {modelosSugeridos.map((l) => (
+                  <button
+                    key={l.id}
+                    data-testid={`modelo-${l.id}`}
+                    title={`${l.nome} · ${l.capacidade} imagens`}
+                    onClick={() => aplicarModelo(l)}
+                    className="rounded border p-1.5 text-left transition hover:border-primary hover:ring-2 hover:ring-primary/40"
+                  >
+                    <div className="relative aspect-[595/842] w-full overflow-hidden rounded bg-muted/50">
+                      {l.slots.map((s, i) => (
+                        <span
+                          key={i}
+                          className="absolute rounded-[2px] bg-primary/35"
+                          style={{
+                            left: `${s.x * 100}%`, top: `${s.y * 100}%`,
+                            width: `${s.w * 100}%`, height: `${s.h * 100}%`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-1 truncate text-[11px] font-medium">{l.nome}</p>
+                    <p className="text-[10px] text-muted-foreground">{l.capacidade} imagens</p>
+                  </button>
+                ))}
+              </div>
+              <div className="space-y-2 rounded border border-dashed p-2">
+                <div className="flex items-center gap-1 text-xs font-medium">
+                  <Droplets className="h-3.5 w-3.5" /> Marca de água
+                </div>
+                <Input
+                  value={marcaTexto} onChange={(e) => setMarcaTexto(e.target.value)}
+                  placeholder="Texto da marca de água" data-testid="marca-texto" className="h-8 text-xs"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Select value={marcaPos} onValueChange={(v) => setMarcaPos(v as PosicaoMarcaAgua)}>
+                    <SelectTrigger className="h-8 text-xs" data-testid="marca-posicao"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="inferior-direita">Inferior direita</SelectItem>
+                      <SelectItem value="inferior-esquerda">Inferior esquerda</SelectItem>
+                      <SelectItem value="superior-direita">Superior direita</SelectItem>
+                      <SelectItem value="superior-esquerda">Superior esquerda</SelectItem>
+                      <SelectItem value="centro">Centro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center gap-2">
+                    <Slider value={[marcaOpacidade]} min={10} max={100} step={5}
+                      onValueChange={([v]) => setMarcaOpacidade(v)} className="flex-1" />
+                    <span className="w-8 text-right text-[11px] tabular-nums">{marcaOpacidade}%</span>
+                  </div>
+                </div>
+                <Button size="sm" className="w-full" data-testid="inserir-marca" onClick={() => inserirMarcaAgua()}>
+                  <Droplets className="mr-1 h-3.5 w-3.5" /> Inserir marca de água
+                </Button>
+                <div>
+                  <Label className="text-[11px]">Ou usar logótipo (PNG)</Label>
+                  <Input type="file" accept="image/png" className="mt-1 h-8 text-xs"
+                    onChange={(e) => uploadMarcaAgua(e.target.files)} />
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent></Card>
+
 
         {/* CENTRO: canvas infinito com a folha A4 */}
         <div>
@@ -510,6 +661,11 @@ function EditorPage() {
                 <Button size="sm" variant="outline" onClick={() => enviarTras(sel.id)}><ChevronDown className="h-3.5 w-3.5" /> Trás</Button>
                 <Button size="sm" variant="outline" onClick={() => duplicarEl(sel.id)}><Copy className="mr-1 h-3.5 w-3.5" /> Duplicar</Button>
                 <Button size="sm" variant="destructive" onClick={() => remEl(sel.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs">Opacidade</Label>
+                  <Slider value={[Math.round((sel.opacidade ?? 1) * 100)]} min={10} max={100} step={5}
+                    onValueChange={([v]) => updEl(sel.id, { opacidade: v / 100 })} className="w-28" />
+                </div>
                 {(sel.tipo === "image" || sel.tipo === "decor") && (
                   <div className="flex items-center gap-2">
                     <Label className="text-xs">Cantos</Label>
@@ -627,6 +783,7 @@ function ElementoView({
     transform: `rotate(${el.rotacao}deg)`, transformOrigin: "center center",
     outline: selecionado ? "2px dashed #ec4899" : "none",
     cursor: "move", userSelect: "none",
+    opacity: el.opacidade ?? 1,
   };
   const content = el.tipo === "text" ? (
     <textarea
@@ -645,6 +802,18 @@ function ElementoView({
   ) : el.src ? (
     <img src={el.src} alt="" draggable={false}
       style={{ width: "100%", height: "100%", objectFit: el.tipo === "decor" ? "contain" : "cover", borderRadius: el.raioCantos ?? 0, pointerEvents: "none" }} />
+  ) : el.tipo === "image" ? (
+    // Moldura vazia criada por um modelo de esteira: aguarda uma imagem.
+    <div
+      data-testid="slot-vazio"
+      style={{
+        width: "100%", height: "100%", borderRadius: el.raioCantos ?? 0,
+        border: "1px dashed #c4b5fd", background: "rgba(196,181,253,.12)",
+        display: "grid", placeItems: "center", color: "#8b5cf6", fontSize: 11, pointerEvents: "none",
+      }}
+    >
+      imagem
+    </div>
   ) : null;
   return (
     <div style={base} onPointerDown={(e) => onPointerDown(e, el.id, "move")}>

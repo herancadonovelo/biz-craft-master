@@ -313,6 +313,7 @@
   "Guardar atual como padrão": "Save current as default",
   "Guardar na aplicação": "Save to app",
   "Guardar no Catálogo": "Save to Catalog",
+  "Guias magnéticas": "Magnetic guides",
   "Herança do Novelo": "Yarn Inheritance",
   "Histórico": "History",
   "Histórico De Faturas": "Invoice History",
@@ -341,6 +342,7 @@
   "Iniciais (até 3)": "Initials (up to 3)",
   "Iniciar Projeto Personalizado": "Start Custom Project",
   "Iniciar teste grátis de 14 dias": "Start 14-day free trial",
+  "Inserir marca de água": "Insert watermark",
   "Inserir total calculado": "Insert calculated total",
   "Instagram": "Instagram",
   "Instruções": "Instructions",
@@ -428,8 +430,10 @@
   "Opções do PDF": "PDF Options",
   "Organizador de Peças": "Parts Organizer",
   "Orientação": "Orientation",
+  "Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.": "The templates below are ordered by how well they accommodate that number.",
   "Os pagamentos na pré-visualização estão em modo de teste — nenhum valor é cobrado.": "Payments in preview mode are for testing — no charges apply.",
   "Os valores exibidos nos cartões de plano acima já incluem este desconto!": "The values shown in the plan cards above already include this discount!",
+  "Ou usar logótipo (PNG)": "Or use logo (PNG)",
   "PNG transparente recomendado. Usado automaticamente como marca de água em todos os editores técnicos.": "Transparent PNG recommended. Automatically used as a watermark in all technical editors.",
   "Padrão & Escrita": "Pattern & Writing",
   "Padrão a repetir": "Pattern to repeat",
@@ -615,6 +619,7 @@
   "Terminar sessão": "Log out",
   "Termos e Condições": "Terms and Conditions",
   "Texto a bordar em círculo": "Text to embroider in a circle",
+  "Texto da marca de água": "Watermark text",
   "Tipo de letra dos cabeçalhos": "Header font",
   "Tipo de letra dos títulos": "Title font",
   "Todas as carreiras têm simetria coerente.": "All rows have consistent symmetry.",
@@ -721,6 +726,5 @@
   "• Recomendação: aumentar margem para 80% nos projetos personalizados de baixo volume.": "• Recommendation: increase margin to 80% for low-volume custom projects.",
   "⚠️ Pré-visualização: este é o aspeto das caixas de aviso na aplicação.": "⚠️ Preview: this is how alert boxes look in the app.",
   "📄 Pré-visualizar PDF": "📄 Preview PDF",
-  "📌 Vinculado à encomenda de": "📌 Linked to order for",
-  "Guias magnéticas": "Magnetic guides"
+  "📌 Vinculado à encomenda de": "📌 Linked to order for"
 }

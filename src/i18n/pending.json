@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-31T23:35:51.403Z",
-  "total": 629,
+  "generatedAt": "2026-08-01T00:05:05.762Z",
+  "total": 633,
   "pending": 0,
   "byCategory": {
     "atelier": {
@@ -16,11 +16,11 @@
       "pending": 0
     },
     "components": {
-      "total": 79,
+      "total": 78,
       "pending": 0
     },
     "editors": {
-      "total": 201,
+      "total": 206,
       "pending": 0
     },
     "marketing": {
@@ -1112,14 +1112,6 @@
       "key": "components.limpar_selecao",
       "translated": true,
       "en": "Clear selection"
-    },
-    {
-      "text": "Marca de água",
-      "file": "src/components/PontoCruzEditor.tsx",
-      "category": "components",
-      "key": "components.marca_de_agua",
-      "translated": true,
-      "en": "Watermark"
     },
     {
       "text": "Máx. descontinuidades permitidas",
@@ -2282,6 +2274,14 @@
       "en": "English (US)"
     },
     {
+      "text": "Inserir marca de água",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.inserir_marca_de_agua",
+      "translated": true,
+      "en": "Insert watermark"
+    },
+    {
       "text": "Instruções",
       "file": "src/components/knit-editor/CustoExportPanel.tsx",
       "category": "editors",
@@ -2352,6 +2352,14 @@
       "key": "editors.maquina_validacoes_amp_multi_bastidor",
       "translated": true,
       "en": "Machine, validations &amp; multi-hoop"
+    },
+    {
+      "text": "Marca de água",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.marca_de_agua",
+      "translated": true,
+      "en": "Watermark"
     },
     {
       "text": "matemática ok",
@@ -2472,6 +2480,22 @@
       "key": "editors.organizador_de_pecas",
       "translated": true,
       "en": "Parts Organizer"
+    },
+    {
+      "text": "Os modelos abaixo estão ordenados pelos que melhor acomodam esse número.",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.os_modelos_abaixo_estao_ordenados_pelos",
+      "translated": true,
+      "en": "The templates below are ordered by how well they accommodate that number."
+    },
+    {
+      "text": "Ou usar logótipo (PNG)",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.ou_usar_logotipo_png",
+      "translated": true,
+      "en": "Or use logo (PNG)"
     },
     {
       "text": "Padrão & Escrita",
@@ -2944,6 +2968,14 @@
       "key": "editors.tensao",
       "translated": true,
       "en": "Tension:"
+    },
+    {
+      "text": "Texto da marca de água",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.texto_da_marca_de_agua",
+      "translated": true,
+      "en": "Watermark text"
     },
     {
       "text": "Tipo de letra dos cabeçalhos",

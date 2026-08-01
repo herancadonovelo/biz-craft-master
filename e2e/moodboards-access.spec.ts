@@ -31,7 +31,25 @@ async function loginOrUsePremiumOverride(page: Page) {
  * Um utilizador sem sessão é tratado como "light" pelo SubscriptionProvider,
  * portanto deve ver o ecrã bloqueado com CTA de upgrade.
  */
+const STORE_KEY = "atelier-store-v2";
+
+/** A app arranca em inglês por defeito; estes testes verificam os textos PT. */
+async function seedPortugues(page: Page) {
+  await page.addInitScript((key) => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      const parsed = raw ? JSON.parse(raw) : { state: {}, version: 0 };
+      parsed.state = parsed.state ?? {};
+      parsed.state.design = { ...(parsed.state.design ?? {}), idioma: "pt" };
+      parsed.state.initialLanguageChosen = true;
+      window.localStorage.setItem(key, JSON.stringify(parsed));
+    } catch { /* ignore */ }
+  }, STORE_KEY);
+}
+
 test.describe("Editor de Moodboards — gating Premium", () => {
+  test.beforeEach(async ({ page }) => { await seedPortugues(page); });
+
   test("nega acesso e mostra CTA de upgrade a um utilizador sem Premium", async ({ page }) => {
     await page.goto("/editor-moodboards", { waitUntil: "domcontentloaded" });
 
