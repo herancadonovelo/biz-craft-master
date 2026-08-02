@@ -123,6 +123,7 @@ function EditorPage() {
   // === alinhamento, distribuição e camadas ===
   const alinharSel = (modo: AlinhamentoPagina) => {
     if (!sel) return;
+    if (sel.bloqueado) { toast.info("Camada bloqueada: desbloqueia para alinhar."); return; }
     updEl(sel.id, alinharNaPagina({ id: sel.id, x: sel.x, y: sel.y, w: sel.w, h: sel.h }, modo, { w: A4_W, h: A4_H }));
   };
   const distribuirTudo = (eixo: "h" | "v") => {
@@ -150,6 +151,45 @@ function EditorPage() {
       : el.marcaAgua ? "Marca de água"
       : el.tipo === "decor" ? "Decoração"
       : el.src ? "Imagem" : "Moldura vazia";
+
+  /** Ordem visual do painel de camadas: topo da pilha primeiro. */
+  const camadasOrdenadas = useMemo(
+    () => [...design.elementos].sort((a, b) => b.zIndex - a.zIndex),
+    [design.elementos],
+  );
+
+  /** Foca a linha da camada indicada (roving tabindex do listbox). */
+  const focarCamada = (id: string) => {
+    setSelId(id);
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>(`[data-camada-id="${id}"]`)?.focus();
+    });
+  };
+
+  /**
+   * Navegação completa por teclado do painel de Camadas, para uso sem rato:
+   * setas = mover seleção, Ctrl/Alt+setas = reordenar, B = bloquear,
+   * O = ocultar, Delete = apagar, Home/End = extremos.
+   */
+  const onKeyCamada = (e: React.KeyboardEvent, id: string, indice: number) => {
+    const irPara = (i: number) => {
+      const alvo = camadasOrdenadas[Math.max(0, Math.min(camadasOrdenadas.length - 1, i))];
+      if (alvo) focarCamada(alvo.id);
+    };
+    const k = e.key;
+    const reordenar = e.ctrlKey || e.metaKey || e.altKey;
+    let tratado = true;
+    if (k === "ArrowDown") reordenar ? enviarTras(id) : irPara(indice + 1);
+    else if (k === "ArrowUp") reordenar ? trazerFrente(id) : irPara(indice - 1);
+    else if (k === "Home") irPara(0);
+    else if (k === "End") irPara(camadasOrdenadas.length - 1);
+    else if (k === "Enter" || k === " ") setSelId(id);
+    else if (k === "b" || k === "B") alternarBloqueio(id);
+    else if (k === "o" || k === "O") alternarVisibilidade(id);
+    else if (k === "Delete" || k === "Backspace") remEl(id);
+    else tratado = false;
+    if (tratado) { e.preventDefault(); e.stopPropagation(); }
+  };
 
   // === canvas infinito: zoom, pan, ajustar ===
   const setZoom = (z: number) => zoomEmTorno(clampZoom(z));
@@ -709,28 +749,47 @@ function EditorPage() {
             {design.elementos.length === 0 ? (
               <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
             ) : (
-              <ul data-testid="painel-camadas" className="max-h-56 space-y-1 overflow-auto">
-                {[...design.elementos].sort((a, b) => b.zIndex - a.zIndex).map((el) => (
+              <ul
+                data-testid="painel-camadas"
+                role="listbox"
+                aria-label="Camadas do moodboard"
+                aria-activedescendant={selId ? `camada-${selId}` : undefined}
+                className="max-h-56 space-y-1 overflow-auto"
+              >
+                {camadasOrdenadas.map((el, indice) => (
                   <li
                     key={el.id}
                     data-testid="camada-item"
-                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs ${el.id === selId ? "border-primary bg-primary/5" : "border-transparent"}`}
+                    id={`camada-${el.id}`}
+                    data-camada-id={el.id}
+                    role="option"
+                    aria-selected={el.id === selId}
+                    aria-label={`${rotuloElemento(el)}${el.oculto ? ", oculta" : ""}${el.bloqueado ? ", bloqueada" : ""}`}
+                    tabIndex={el.id === selId || (!selId && indice === 0) ? 0 : -1}
+                    onFocus={() => setSelId(el.id)}
+                    onKeyDown={(e) => onKeyCamada(e, el.id, indice)}
+                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${el.id === selId ? "border-primary bg-primary/5" : "border-transparent"}`}
                   >
-                    <button type="button" className="flex-1 truncate text-left" onClick={() => setSelId(el.id)} title={rotuloElemento(el)}>
+                    <button type="button" tabIndex={-1} className="flex-1 truncate text-left" onClick={() => setSelId(el.id)} title={rotuloElemento(el)}>
                       {rotuloElemento(el)}
                     </button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => trazerFrente(el.id)} aria-label="Trazer para a frente"><ChevronUp className="h-3.5 w-3.5" /></Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => enviarTras(el.id)} aria-label="Enviar para trás"><ChevronDown className="h-3.5 w-3.5" /></Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-visibilidade" onClick={() => alternarVisibilidade(el.id)} aria-label={el.oculto ? "Mostrar camada" : "Ocultar camada"}>
+                    <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0" onClick={() => trazerFrente(el.id)} aria-label="Trazer para a frente"><ChevronUp className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0" onClick={() => enviarTras(el.id)} aria-label="Enviar para trás"><ChevronDown className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0" data-testid="camada-visibilidade" aria-pressed={!!el.oculto} onClick={() => alternarVisibilidade(el.id)} aria-label={el.oculto ? "Mostrar camada" : "Ocultar camada"}>
                       {el.oculto ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid="camada-bloqueio" onClick={() => alternarBloqueio(el.id)} aria-label={el.bloqueado ? "Desbloquear camada" : "Bloquear camada"}>
+                    <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0" data-testid="camada-bloqueio" aria-pressed={!!el.bloqueado} onClick={() => alternarBloqueio(el.id)} aria-label={el.bloqueado ? "Desbloquear camada" : "Bloquear camada"}>
                       {el.bloqueado ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive" onClick={() => remEl(el.id)} aria-label="Apagar camada"><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0 text-destructive" onClick={() => remEl(el.id)} aria-label="Apagar camada"><Trash2 className="h-3.5 w-3.5" /></Button>
                   </li>
                 ))}
               </ul>
+            )}
+            {design.elementos.length > 0 && (
+              <p className="mt-2 text-[11px] text-muted-foreground" data-testid="camadas-ajuda">
+                Teclado: ↑/↓ navegar · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar
+              </p>
             )}
           </CardContent></Card>
 
@@ -897,7 +956,13 @@ function ElementoView({
     </div>
   ) : null;
   return (
-    <div style={base} onPointerDown={(e) => onPointerDown(e, el.id, "move")}>
+    <div
+      style={base}
+      data-testid="elemento-canvas"
+      data-el-id={el.id}
+      data-bloqueado={el.bloqueado ? "1" : undefined}
+      onPointerDown={(e) => onPointerDown(e, el.id, "move")}
+    >
       {content}
       {selecionado && (
         <>
