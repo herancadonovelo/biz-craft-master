@@ -77,15 +77,28 @@ test("camada bloqueada mantém a posição após alinhamentos", async ({ page })
   expect(await pos(page, "bloqueada")).toEqual(antes);
 });
 
-test("camada bloqueada mantém a posição após arrasto no canvas", async ({ page }) => {
-  const antes = await pos(page, "bloqueada");
-  const alvo = page.locator('[data-el-id="bloqueada"]');
+/** Arrasto determinístico com eventos de ponteiro sobre o elemento do canvas. */
+async function arrastar(page: Page, id: string, dx: number, dy: number) {
+  const alvo = page.locator(`[data-el-id="${id}"]`);
   const box = await alvo.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(box!.x + box!.width / 2 + 120, box!.y + box!.height / 2 + 90, { steps: 8 });
-  await page.mouse.up();
+  const x = box!.x + box!.width / 2;
+  const y = box!.y + box!.height / 2;
+  const opts = { pointerId: 1, pointerType: "mouse", isPrimary: true, bubbles: true, button: 0, buttons: 1 };
+  await alvo.dispatchEvent("pointerdown", { ...opts, clientX: x, clientY: y });
+  for (let i = 1; i <= 6; i++) {
+    await page.evaluate(([cx, cy]) => {
+      window.dispatchEvent(new PointerEvent("pointermove", { clientX: cx as number, clientY: cy as number, bubbles: true, pointerId: 1 }));
+    }, [x + (dx * i) / 6, y + (dy * i) / 6]);
+  }
+  await page.evaluate(() => {
+    window.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 1 }));
+  });
+}
+
+test("camada bloqueada mantém a posição após arrasto no canvas", async ({ page }) => {
+  const antes = await pos(page, "bloqueada");
+  await arrastar(page, "bloqueada", 120, 90);
   expect(await pos(page, "bloqueada")).toEqual(antes);
   // fica selecionada apesar de não se mover
   await expect(linha(page, "bloqueada")).toHaveAttribute("aria-selected", "true");
@@ -93,10 +106,6 @@ test("camada bloqueada mantém a posição após arrasto no canvas", async ({ pa
 
 test("camada livre move-se com o arrasto (controlo negativo)", async ({ page }) => {
   const antes = await pos(page, "visivel");
-  const box = await page.locator('[data-el-id="visivel"]').boundingBox();
-  await page.mouse.move(box!.x + 10, box!.y + 10);
-  await page.mouse.down();
-  await page.mouse.move(box!.x + 130, box!.y + 100, { steps: 8 });
-  await page.mouse.up();
-  expect(await pos(page, "visivel")).not.toEqual(antes);
+  await arrastar(page, "visivel", 130, 100);
+  await expect.poll(() => pos(page, "visivel")).not.toEqual(antes);
 });
