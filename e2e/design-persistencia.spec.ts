@@ -131,3 +131,94 @@ test.describe("persistência da personalização de design", () => {
     }
   });
 });
+
+/**
+ * Preferências parciais guardadas antes da v3: a migração deve limitar-se a
+ * preencher os campos em falta com os defaults, sem tocar no que o utilizador
+ * já personalizou.
+ */
+test.describe("migração v3 com preferências parciais", () => {
+  const PARCIAL = {
+    modo: "dark",
+    accent: "0.61 0.19 12",
+    fonteTitulos: "Georgia, serif",
+    janelasOpacidade: 0.55,
+    raio: 0.3,
+  } as const;
+
+  test("preenche apenas os campos em falta e preserva os personalizados", async ({ page }) => {
+    // Estado pré-v3 (version: 2) com apenas alguns campos de design.
+    await page.addInitScript(
+      ([key, parcial]) => {
+        window.localStorage.setItem(
+          key as string,
+          JSON.stringify({
+            state: { design: parcial, initialLanguageChosen: true, onboardingFeito: true },
+            version: 2,
+          }),
+        );
+      },
+      [STORE_KEY, PARCIAL] as const,
+    );
+
+    await page.goto("/design");
+    await page.waitForLoadState("networkidle");
+
+    const design = (await readDesign(page, STORE_KEY)) as Record<string, unknown> | null;
+    expect(design, "design migrado").toBeTruthy();
+
+    // 1) Nada do que já existia foi sobrescrito.
+    for (const [k, v] of Object.entries(PARCIAL)) {
+      expect(design?.[k], `campo personalizado ${k} não deve mudar`).toEqual(v);
+    }
+
+    // 2) Os campos em falta foram preenchidos com valores de fábrica.
+    const preenchidos = [
+      "fonteTexto",
+      "fonteMenu",
+      "fonteAbas",
+      "fonteCabecalho",
+      "nomeNegocio",
+      "fundoOpacidade",
+      "botaoPrimarioOpacidade",
+      "fontSizeBase",
+    ];
+    for (const k of preenchidos) {
+      expect(design?.[k], `campo em falta ${k} deve ser preenchido`).not.toBeUndefined();
+    }
+
+    // 3) O DOM reflete a personalização preservada (modo escuro + raio).
+    await expect
+      .poll(async () => page.evaluate(() => document.documentElement.classList.contains("dark")))
+      .toBe(true);
+    const radius = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue("--radius").trim(),
+    );
+    expect(radius).toContain("0.3");
+
+    // 4) Segundo arranque (migração já aplicada): continua estável.
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    const depois = (await readDesign(page, STORE_KEY)) as Record<string, unknown> | null;
+    for (const [k, v] of Object.entries(PARCIAL)) {
+      expect(depois?.[k], `campo ${k} após reload`).toEqual(v);
+    }
+  });
+
+  test("um design vazio pré-v3 recebe os defaults completos", async ({ page }) => {
+    await page.addInitScript((key) => {
+      window.localStorage.setItem(
+        key as string,
+        JSON.stringify({ state: { design: {}, initialLanguageChosen: true, onboardingFeito: true }, version: 2 }),
+      );
+    }, STORE_KEY);
+
+    await page.goto("/design");
+    await page.waitForLoadState("networkidle");
+
+    const design = (await readDesign(page, STORE_KEY)) as Record<string, unknown> | null;
+    expect(design?.["modo"]).toBe("light");
+    expect(design?.["fonteTitulos"]).toBeTruthy();
+    expect(design?.["nomeNegocio"]).toBeTruthy();
+  });
+});
