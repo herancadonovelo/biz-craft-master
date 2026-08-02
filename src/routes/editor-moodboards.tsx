@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { PremiumRoute } from "@/components/PremiumRoute";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 import { z } from "zod";
 import { useStore, type MoodboardDesign, type MoodboardElement, type Moodboard } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
@@ -19,12 +19,18 @@ import {
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
   Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, Undo2, Redo2,
+  FileDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import { alinharConjunto, alternarNaSelecao, caixaEnvolvente, limparSelecao } from "@/lib/moodboard-multi";
+import {
+  PRESETS_EXPORT, DPI_OPCOES, presetPorId, areaExportacao, planoExport, qualidadeJpeg,
+  nomeFicheiro, recortarSvgDataUrl, type FormatoExport,
+} from "@/lib/moodboard-export";
+import { recortarRaster, descarregar } from "@/lib/moodboard-export-dom";
 import {
   criarHistorico, registar, desfazer, refazer, reiniciar,
   podeDesfazer, podeRefazer, type Historico,
