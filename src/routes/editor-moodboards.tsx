@@ -868,6 +868,28 @@ function EditorPage() {
                   />
                   Exportar apenas a seleção {caixaSelExport ? `(${selIds.length})` : "(sem seleção)"}
                 </label>
+                {recorteVisivel && (
+                  <div data-testid="export-margem-bloco">
+                    <Label className="text-xs">Margem à volta da seleção: {expMargem} pt</Label>
+                    <Slider className="mt-2" min={0} max={120} step={4} value={[expMargem]}
+                      data-testid="export-margem"
+                      onValueChange={([v]) => setExpMargem(v)} />
+                    <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 p-2">
+                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded border bg-background">
+                        <span
+                          className="absolute border-2 border-primary bg-primary/15"
+                          style={{
+                            left: `${(areaExp.x / A4_W) * 100}%`, top: `${(areaExp.y / A4_H) * 100}%`,
+                            width: `${(areaExp.w / A4_W) * 100}%`, height: `${(areaExp.h / A4_H) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground" data-testid="export-area">
+                        Recorte: {Math.round(areaExp.w)} × {Math.round(areaExp.h)} pt · destacado no editor.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground" data-testid="export-resumo">
                   Ficheiro final: {planoExp.larguraPx} × {planoExp.alturaPx} px · {nomeFicheiro(titulo, expFormato, expApenasSel && !!caixaSelExport)}
                 </p>
