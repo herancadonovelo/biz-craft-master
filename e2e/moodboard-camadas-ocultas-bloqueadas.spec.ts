@@ -9,12 +9,6 @@ const PLAN_KEY = "atelier-e2e-plan-override";
 const STORE_KEY = "atelier-store-v2";
 const MB_ID = "mb-camadas-e2e";
 
-const texto = (id: string, x: number, y: number, extra: Record<string, unknown> = {}) => ({
-  id, tipo: "text", x, y, w: 180, h: 50, rotacao: 0, zIndex: 1,
-  texto: id, fonte: "Inter", tamanhoFonte: 20, corTexto: "#111", alinhamento: "center",
-  ...extra,
-});
-
 function seed(args: { store: string; plan: string; id: string }) {
   window.localStorage.setItem(args.plan, "premium");
   const raw = window.localStorage.getItem(args.store);
