@@ -552,6 +552,54 @@ export type Database = {
         }
         Relationships: []
       }
+      security_function_audit: {
+        Row: {
+          anon_execute: boolean | null
+          authenticated_execute: boolean | null
+          change_type: string
+          created_at: string
+          current_state: Json | null
+          detected_at: string
+          function_name: string
+          id: string
+          is_security_definer: boolean | null
+          previous_state: Json | null
+          public_execute: boolean | null
+          search_path_setting: string | null
+          service_role_execute: boolean | null
+        }
+        Insert: {
+          anon_execute?: boolean | null
+          authenticated_execute?: boolean | null
+          change_type: string
+          created_at?: string
+          current_state?: Json | null
+          detected_at?: string
+          function_name: string
+          id?: string
+          is_security_definer?: boolean | null
+          previous_state?: Json | null
+          public_execute?: boolean | null
+          search_path_setting?: string | null
+          service_role_execute?: boolean | null
+        }
+        Update: {
+          anon_execute?: boolean | null
+          authenticated_execute?: boolean | null
+          change_type?: string
+          created_at?: string
+          current_state?: Json | null
+          detected_at?: string
+          function_name?: string
+          id?: string
+          is_security_definer?: boolean | null
+          previous_state?: Json | null
+          public_execute?: boolean | null
+          search_path_setting?: string | null
+          service_role_execute?: boolean | null
+        }
+        Relationships: []
+      }
       session_events: {
         Row: {
           created_at: string
@@ -740,6 +788,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      audit_email_security_config: { Args: never; Returns: number }
       cancel_subscription: { Args: never; Returns: Json }
       delete_email: {
         Args: { message_id: number; queue_name: string }
