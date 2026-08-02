@@ -87,5 +87,5 @@ export function restoreDesignDefaults(atual: Partial<DesignSettings> | null | un
     const v = (atual ?? {})[k];
     if (v !== undefined) restaurado[k] = v;
   }
-  return restaurado as DesignSettings;
+  return restaurado as unknown as DesignSettings;
 }
