@@ -411,6 +411,16 @@ function EditorPage() {
       if (e.key === "1") { e.preventDefault(); setZoom(1); return; }
       if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
       if (e.key === "-") { e.preventDefault(); zoomEmTorno(viewRef.current.z / 1.25); return; }
+      // Alinhamento em lote da seleção: Alt+Shift+setas / H / V.
+      if (e.altKey && e.shiftKey && selIds.length > 1) {
+        const mapa: Record<string, AlinhamentoPagina> = {
+          ArrowLeft: "esquerda", ArrowRight: "direita", ArrowUp: "topo", ArrowDown: "fundo",
+          h: "centro-h", H: "centro-h", v: "centro-v", V: "centro-v",
+        };
+        const modo = mapa[e.key];
+        if (modo) { e.preventDefault(); alinharSelecaoEntreSi(modo); return; }
+        if (e.key.toLowerCase() === "d") { e.preventDefault(); distribuirSelecao("h"); return; }
+      }
       if (!selId) return;
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
