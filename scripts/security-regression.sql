@@ -34,3 +34,10 @@ WHERE n.nspname = 'public'
     SELECT 1 FROM unnest(COALESCE(p.proconfig, '{}')) cfg
     WHERE cfg LIKE 'search_path=%'
   );
+
+-- 4) Record any change to the email-queue security config (permissions /
+-- search_path) into public.security_function_audit so drift is traceable.
+\pset tuples_only on
+SELECT CASE WHEN public.audit_email_security_config() > 0
+            THEN 'audit|email-queue security config changed since last snapshot (see public.security_function_audit)'
+            ELSE '' END;
