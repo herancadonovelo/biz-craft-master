@@ -1149,8 +1149,42 @@ function EditorPage() {
                 </Button>
               )}
             </div>
+            {design.elementos.length > 0 && (
+              <div className="mb-2 flex items-center gap-2">
+                <Input
+                  data-testid="camadas-procura"
+                  value={procuraCamada}
+                  onChange={(e) => setProcuraCamada(e.target.value)}
+                  placeholder="Procurar camada…"
+                  aria-label="Procurar camada"
+                  className="h-7 flex-1 text-xs"
+                />
+                <select
+                  data-testid="camadas-ordem"
+                  aria-label="Ordenar camadas"
+                  value={ordemCamadas}
+                  onChange={(e) => setOrdemCamadas(e.target.value as OrdenacaoCamadas)}
+                  className="h-7 rounded-md border bg-background px-1 text-[11px]"
+                >
+                  {ORDENACOES.map((o) => (
+                    <option key={o.valor} value={o.valor}>{o.rotulo}</option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-[11px]"
+                  data-testid="selecionar-listadas"
+                  onClick={selecionarCamadasListadas}
+                >
+                  Selecionar listadas
+                </Button>
+              </div>
+            )}
             {design.elementos.length === 0 ? (
               <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
+            ) : camadasOrdenadas.length === 0 ? (
+              <p className="text-xs text-muted-foreground" data-testid="camadas-sem-resultados">Nenhuma camada corresponde à procura.</p>
             ) : (
               <ul
                 data-testid="painel-camadas"
@@ -1204,7 +1238,7 @@ function EditorPage() {
             )}
             {design.elementos.length > 0 && (
               <p className="mt-2 text-[11px] text-muted-foreground" data-testid="camadas-ajuda">
-                Teclado: ↑/↓ navegar · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar · Shift/Ctrl+clique = seleção múltipla · Ctrl+A = tudo
+                Teclado: ↑/↓ navegar · Shift+↑/↓ estender seleção · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar · Ctrl+A selecionar listadas · Alt+Shift+setas alinhar em lote · Alt+Shift+H/V centrar · Alt+Shift+D distribuir
               </p>
             )}
           </CardContent></Card>
