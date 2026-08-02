@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-02T18:15:24.476Z",
+  "generatedAt": "2026-08-02T18:15:52.932Z",
   "total": 639,
-  "pending": 1,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 28,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 220,
-      "pending": 1
+      "pending": 0
     },
     "marketing": {
       "total": 29,
@@ -2550,8 +2550,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.nenhuma_camada_corresponde_a_procura",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "No layer matches your search."
     },
     {
       "text": "Nível",
