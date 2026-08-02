@@ -44,27 +44,35 @@ async function abrirDesign(page: Page) {
 }
 
 async function validarUI(page: Page, contexto: string) {
-  // Modo escuro selecionado (botão em variante "default") e aplicado no DOM.
+  // Modo escuro selecionado e aplicado no DOM.
   await expect
     .poll(() => page.evaluate(() => document.documentElement.classList.contains("dark")), {
       message: `modo escuro ${contexto}`,
     })
     .toBe(true);
 
-  // Campos de negócio preservados nos inputs.
-  const campo = (etiqueta: string) =>
-    page.locator(`div:has(> label:text-is("${etiqueta}")) > input`).first();
-  await expect(campo("Nome do negócio"), `nome do negócio ${contexto}`).toHaveValue(
-    PERSONALIZADO.nomeNegocio,
-  );
-  await expect(campo("Preço-hora base (€)"), `preço-hora ${contexto}`).toHaveValue(
-    String(PERSONALIZADO.precoHoraBase),
-  );
+  // Campo (input/select) associado a uma etiqueta — as etiquetas são
+  // traduzidas, por isso aceitamos PT e EN.
+  const campo = (etiqueta: RegExp, tag: "input" | "select") =>
+    page
+      .locator("div")
+      .filter({ has: page.locator("label").filter({ hasText: etiqueta }) })
+      .last()
+      .locator(tag)
+      .first();
+
+  await expect(campo(/^(Nome do negócio|Business name)$/, "input"), `nome do negócio ${contexto}`)
+    .toHaveValue(PERSONALIZADO.nomeNegocio);
+  await expect(campo(/(Preço-hora base|Base hourly rate)/, "input"), `preço-hora ${contexto}`)
+    .toHaveValue(String(PERSONALIZADO.precoHoraBase));
 
   // Tipos de letra escolhidos aparecem selecionados nos pickers.
-  const selects = page.locator("select");
-  await expect(selects.nth(0), `fonte de títulos ${contexto}`).toHaveValue(PERSONALIZADO.fonteTitulos);
-  await expect(selects.nth(1), `fonte de texto ${contexto}`).toHaveValue(PERSONALIZADO.fonteTexto);
+  await expect(campo(/(Tipo de letra dos títulos|Title font)/, "select"), `fonte de títulos ${contexto}`)
+    .toHaveValue(PERSONALIZADO.fonteTitulos);
+  await expect(campo(/(Tipo de letra do texto|Body font|Text font)/, "select"), `fonte de texto ${contexto}`)
+    .toHaveValue(PERSONALIZADO.fonteTexto);
+  await expect(campo(/(Tipo de letra do menu|Menu font|Sidebar font)/, "select"), `fonte do menu ${contexto}`)
+    .toHaveValue(PERSONALIZADO.fonteMenu);
 
   // Swatch de destaque ativo (contorno destacado).
   await expect(page.getByRole("button", { name: "Rose" }), `accent ${contexto}`).toHaveClass(
@@ -72,9 +80,12 @@ async function validarUI(page: Page, contexto: string) {
   );
 
   // Sliders refletidos nas etiquetas.
-  await expect(page.getByText(`Base global: ${PERSONALIZADO.fontSizeBase}px`), `fontSizeBase ${contexto}`).toBeVisible();
   await expect(
-    page.getByText(new RegExp(`Intensidade do véu.*${Math.round(PERSONALIZADO.fundoOpacidade * 100)}%`)),
+    page.locator("label").filter({ hasText: /(Base global|Global base):\s*19px/ }).first(),
+    `fontSizeBase ${contexto}`,
+  ).toBeVisible();
+  await expect(
+    page.locator("label").filter({ hasText: /(véu|veil)[^:]*:\s*35%/ }).first(),
     `véu ${contexto}`,
   ).toBeVisible();
 
