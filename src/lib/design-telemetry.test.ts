@@ -26,7 +26,7 @@ function criarStorage() {
 };
 (globalThis as any).CustomEvent = (globalThis as any).CustomEvent ?? class { constructor(public type: string, public init?: any) {} };
 
-const defaults = DESIGN_DEFAULTS as unknown as Record<string, unknown>;
+const defaults: Record<string, unknown> = { ...DESIGN_DEFAULTS };
 /** Chaves com default definido — as únicas que contam como "em falta". */
 const chavesDefinidas = Object.keys(defaults).filter((k) => defaults[k] !== undefined);
 
