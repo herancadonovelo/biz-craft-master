@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-02T18:10:32.515Z",
-  "total": 638,
+  "generatedAt": "2026-08-02T18:15:52.932Z",
+  "total": 639,
   "pending": 0,
   "byCategory": {
     "atelier": {
@@ -20,7 +20,7 @@
       "pending": 0
     },
     "editors": {
-      "total": 219,
+      "total": 220,
       "pending": 0
     },
     "marketing": {
@@ -2544,6 +2544,14 @@
       "key": "editors.multiplo_padrao",
       "translated": true,
       "en": "Multiple (default)"
+    },
+    {
+      "text": "Nenhuma camada corresponde à procura.",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.nenhuma_camada_corresponde_a_procura",
+      "translated": true,
+      "en": "No layer matches your search."
     },
     {
       "text": "Nível",

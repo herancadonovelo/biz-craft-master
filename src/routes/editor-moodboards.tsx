@@ -26,6 +26,7 @@ import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } f
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import { alinharConjunto, alternarNaSelecao, caixaEnvolvente, limparSelecao } from "@/lib/moodboard-multi";
+import { filtrarCamadas, ordenarCamadas, ORDENACOES, type OrdenacaoCamadas } from "@/lib/moodboard-layers";
 import {
   PRESETS_EXPORT, DPI_OPCOES, presetPorId, areaExportacao, planoExport, qualidadeJpeg,
   nomeFicheiro, recortarSvgDataUrl, type FormatoExport,
@@ -125,6 +126,9 @@ function EditorPage() {
   // O clique com modificador dá foco à linha antes do onClick; este ref evita
   // que o onFocus reponha a seleção para um único elemento.
   const ignorarFocoRef = useRef(false);
+  // Fase 6: ordenação e pesquisa do painel de Camadas.
+  const [ordemCamadas, setOrdemCamadas] = useState<OrdenacaoCamadas>("pilha-desc");
+  const [procuraCamada, setProcuraCamada] = useState("");
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
   const zoom = view.z;
@@ -284,11 +288,17 @@ function EditorPage() {
       : el.tipo === "decor" ? "Decoração"
       : el.src ? "Imagem" : "Moldura vazia";
 
-  /** Ordem visual do painel de camadas: topo da pilha primeiro. */
+  /** Ordem visual do painel de camadas + pesquisa por rótulo. */
   const camadasOrdenadas = useMemo(
-    () => [...design.elementos].sort((a, b) => b.zIndex - a.zIndex),
-    [design.elementos],
+    () => filtrarCamadas(ordenarCamadas(design.elementos, ordemCamadas, rotuloElemento), procuraCamada, rotuloElemento),
+    [design.elementos, ordemCamadas, procuraCamada],
   );
+
+  /** Seleciona todas as camadas visíveis no painel (respeita ordenação/pesquisa). */
+  const selecionarCamadasListadas = () => {
+    if (!camadasOrdenadas.length) return;
+    setSelIds(camadasOrdenadas.map((e) => e.id));
+  };
 
   /** Foca a linha da camada indicada (roving tabindex do listbox). */
   const focarCamada = (id: string) => {
@@ -311,7 +321,19 @@ function EditorPage() {
     const k = e.key;
     const reordenar = e.ctrlKey || e.metaKey || e.altKey;
     let tratado = true;
-    if (k === "ArrowDown") reordenar ? enviarTras(id) : irPara(indice + 1);
+    const estender = (i: number) => {
+      const alvo = camadasOrdenadas[Math.max(0, Math.min(camadasOrdenadas.length - 1, i))];
+      if (!alvo) return;
+      ignorarFocoRef.current = true;
+      setSelIds((ids) => (ids.includes(alvo.id) ? ids : [...ids, alvo.id]));
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>(`[data-camada-id="${alvo.id}"]`)?.focus();
+      });
+    };
+    if ((e.ctrlKey || e.metaKey) && (k === "a" || k === "A")) selecionarCamadasListadas();
+    else if (e.shiftKey && k === "ArrowDown") estender(indice + 1);
+    else if (e.shiftKey && k === "ArrowUp") estender(indice - 1);
+    else if (k === "ArrowDown") reordenar ? enviarTras(id) : irPara(indice + 1);
     else if (k === "ArrowUp") reordenar ? trazerFrente(id) : irPara(indice - 1);
     else if (k === "Home") irPara(0);
     else if (k === "End") irPara(camadasOrdenadas.length - 1);
@@ -389,6 +411,16 @@ function EditorPage() {
       if (e.key === "1") { e.preventDefault(); setZoom(1); return; }
       if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
       if (e.key === "-") { e.preventDefault(); zoomEmTorno(viewRef.current.z / 1.25); return; }
+      // Alinhamento em lote da seleção: Alt+Shift+setas / H / V.
+      if (e.altKey && e.shiftKey && selIds.length > 1) {
+        const mapa: Record<string, AlinhamentoPagina> = {
+          ArrowLeft: "esquerda", ArrowRight: "direita", ArrowUp: "topo", ArrowDown: "fundo",
+          h: "centro-h", H: "centro-h", v: "centro-v", V: "centro-v",
+        };
+        const modo = mapa[e.key];
+        if (modo) { e.preventDefault(); alinharSelecaoEntreSi(modo); return; }
+        if (e.key.toLowerCase() === "d") { e.preventDefault(); distribuirSelecao("h"); return; }
+      }
       if (!selId) return;
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
@@ -1117,8 +1149,42 @@ function EditorPage() {
                 </Button>
               )}
             </div>
+            {design.elementos.length > 0 && (
+              <div className="mb-2 flex items-center gap-2">
+                <Input
+                  data-testid="camadas-procura"
+                  value={procuraCamada}
+                  onChange={(e) => setProcuraCamada(e.target.value)}
+                  placeholder="Procurar camada…"
+                  aria-label="Procurar camada"
+                  className="h-7 flex-1 text-xs"
+                />
+                <select
+                  data-testid="camadas-ordem"
+                  aria-label="Ordenar camadas"
+                  value={ordemCamadas}
+                  onChange={(e) => setOrdemCamadas(e.target.value as OrdenacaoCamadas)}
+                  className="h-7 rounded-md border bg-background px-1 text-[11px]"
+                >
+                  {ORDENACOES.map((o) => (
+                    <option key={o.valor} value={o.valor}>{o.rotulo}</option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-[11px]"
+                  data-testid="selecionar-listadas"
+                  onClick={selecionarCamadasListadas}
+                >
+                  Selecionar listadas
+                </Button>
+              </div>
+            )}
             {design.elementos.length === 0 ? (
               <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
+            ) : camadasOrdenadas.length === 0 ? (
+              <p className="text-xs text-muted-foreground" data-testid="camadas-sem-resultados">Nenhuma camada corresponde à procura.</p>
             ) : (
               <ul
                 data-testid="painel-camadas"
@@ -1172,7 +1238,7 @@ function EditorPage() {
             )}
             {design.elementos.length > 0 && (
               <p className="mt-2 text-[11px] text-muted-foreground" data-testid="camadas-ajuda">
-                Teclado: ↑/↓ navegar · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar · Shift/Ctrl+clique = seleção múltipla · Ctrl+A = tudo
+                Teclado: ↑/↓ navegar · Shift+↑/↓ estender seleção · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar · Ctrl+A selecionar listadas · Alt+Shift+setas alinhar em lote · Alt+Shift+H/V centrar · Alt+Shift+D distribuir
               </p>
             )}
           </CardContent></Card>
