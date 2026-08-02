@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ImagePicker } from "@/components/ImagePicker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfiguracoesContent } from "./configuracoes";
-import { DESIGN_DEFAULTS, restoreDesignDefaults } from "@/lib/design-defaults";
+import { restoreDesignDefaults } from "@/lib/design-defaults";
 import { toast } from "sonner";
 import { RotateCcw } from "lucide-react";
 
