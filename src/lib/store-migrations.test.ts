@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { migrateStore } from "@/lib/store-migrations";
 import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
 
+// Cópia plana dos defaults: evita conversões de tipo (TS2352) entre
+// `DesignSettings` e um índice genérico ao iterar as chaves nos testes.
+const defaults: Record<string, unknown> = { ...DESIGN_DEFAULTS };
+
 const custom = () => ({
   design: {
     modo: "dark",
@@ -25,7 +29,7 @@ describe("migração v3 do estado persistido", () => {
   it("preenche apenas os campos em falta com os defaults", () => {
     const out = migrateStore({ design: { modo: "dark" } }, 2);
     expect(out.design.modo).toBe("dark");
-    for (const [k, v] of Object.entries(DESIGN_DEFAULTS as unknown as Record<string, unknown>)) {
+    for (const [k, v] of Object.entries(defaults)) {
       if (k === "modo") continue;
       expect(out.design[k]).toEqual(v);
     }
@@ -33,13 +37,13 @@ describe("migração v3 do estado persistido", () => {
 
   it("ignora campos undefined e usa o default nesse caso", () => {
     const out = migrateStore({ design: { accent: undefined, modo: "light" } }, 2);
-    expect(out.design.accent).toEqual((DESIGN_DEFAULTS as any).accent);
+    expect(out.design.accent).toEqual(defaults.accent);
     expect(out.design.modo).toBe("light");
   });
 
   it("aplica os defaults quando não existe design guardado", () => {
     const out = migrateStore({}, 2);
-    expect(out.design).toEqual({ ...DESIGN_DEFAULTS });
+    expect(out.design).toEqual(defaults);
   });
 
   it("não altera nada quando já está na versão 3", () => {
