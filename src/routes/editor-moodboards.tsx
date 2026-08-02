@@ -732,6 +732,8 @@ function EditorPage() {
   const [expDpi, setExpDpi] = useState(150);
   const [expQualidade, setExpQualidade] = useState(92);
   const [expApenasSel, setExpApenasSel] = useState(false);
+  /** Margem (pt) aplicada automaticamente à volta da seleção ao recortar. */
+  const [expMargem, setExpMargem] = useState(16);
   const [expBusy, setExpBusy] = useState(false);
 
   const caixaSelExport = useMemo(() => {
@@ -742,9 +744,11 @@ function EditorPage() {
   }, [design.elementos, selIds]);
 
   const areaExp = useMemo(
-    () => areaExportacao({ largura: A4_W, altura: A4_H }, expApenasSel ? caixaSelExport : null),
-    [expApenasSel, caixaSelExport],
+    () => areaExportacao({ largura: A4_W, altura: A4_H }, expApenasSel ? caixaSelExport : null, expMargem),
+    [expApenasSel, caixaSelExport, expMargem],
   );
+  /** Recorte a destacar no canvas: só quando se exporta apenas a seleção. */
+  const recorteVisivel = expApenasSel && !!caixaSelExport;
   const planoExp = useMemo(
     () => planoExport(areaExp, presetPorId(expPreset), expDpi),
     [areaExp, expPreset, expDpi],
