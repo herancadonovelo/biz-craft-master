@@ -25,8 +25,6 @@ export async function recortarRaster(
   opcoes: { formato: "png" | "jpeg"; qualidade: number; fundo: string },
 ): Promise<string> {
   const img = await carregarImagem(dataUrl);
-  const escalaOrigem = img.width / Math.max(1, area.x + area.w) >= 0 ? img : img;
-  void escalaOrigem;
   const canvas = document.createElement("canvas");
   canvas.width = plano.larguraPx;
   canvas.height = plano.alturaPx;
