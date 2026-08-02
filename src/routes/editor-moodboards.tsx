@@ -25,6 +25,10 @@ import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } f
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import {
+  criarHistorico, registar, desfazer, refazer, reiniciar,
+  podeDesfazer, podeRefazer, type Historico,
+} from "@/lib/moodboard-history";
+import {
   MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
   type MoodboardLayout, type PosicaoMarcaAgua,
 } from "@/lib/moodboard-layouts";
@@ -98,7 +102,7 @@ function EditorPage() {
     histRef.current = h;
     designRef.current = h.presente;
     setDesignState(h.presente);
-    setSelId((id) => (h.presente.elementos.some((e) => e.id === id) ? id : null));
+    setSelId((id) => (h.presente.elementos.some((e: MoodboardElement) => e.id === id) ? id : null));
     sincronizarHist();
   };
   const desfazerEdicao = () => aplicarHistorico(desfazer(histRef.current), "desfazer");
