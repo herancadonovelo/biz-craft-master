@@ -126,6 +126,9 @@ function EditorPage() {
   // O clique com modificador dá foco à linha antes do onClick; este ref evita
   // que o onFocus reponha a seleção para um único elemento.
   const ignorarFocoRef = useRef(false);
+  // Fase 6: ordenação e pesquisa do painel de Camadas.
+  const [ordemCamadas, setOrdemCamadas] = useState<OrdenacaoCamadas>("pilha-desc");
+  const [procuraCamada, setProcuraCamada] = useState("");
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
   const zoom = view.z;
