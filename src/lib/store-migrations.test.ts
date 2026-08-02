@@ -25,7 +25,7 @@ describe("migração v3 do estado persistido", () => {
   it("preenche apenas os campos em falta com os defaults", () => {
     const out = migrateStore({ design: { modo: "dark" } }, 2);
     expect(out.design.modo).toBe("dark");
-    for (const [k, v] of Object.entries(DESIGN_DEFAULTS as Record<string, unknown>)) {
+    for (const [k, v] of Object.entries(DESIGN_DEFAULTS as unknown as Record<string, unknown>)) {
       if (k === "modo") continue;
       expect(out.design[k]).toEqual(v);
     }
