@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
+import { migrateStore } from "@/lib/store-migrations";
 
 export type ID = string;
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -1096,43 +1097,7 @@ export const useStore = create<State>()(
     {
       name: "atelier-store-v2",
       version: 3,
-      migrate: (persisted: any, version: number) => {
-        if (!persisted) return persisted;
-        if (version < 1) {
-          const d = persisted.design;
-          if (d && typeof d === "object") {
-            // Antigos defaults → substituir pelos novos apenas quando o
-            // utilizador ainda não personalizou (valor === default anterior).
-            if (d.accent === "0.72 0.06 230") d.accent = "0.65 0.15 290";
-            if (d.raio === 0.625) d.raio = 1.35;
-            if (d.nomeNegocio === "Atelier Tricotin") d.nomeNegocio = "Craftme Business Master";
-            if (d.precoHoraBase === 12) d.precoHoraBase = 7;
-          }
-        }
-        if (version < 2) {
-          // Utilizadores já existentes têm um idioma implicitamente escolhido
-          // (o antigo default era PT). Marcamos o flag para NÃO lhes mostrar
-          // o novo seletor de idioma inicial — só aparece a novos utilizadores.
-          try {
-            if (typeof window !== "undefined") {
-              window.localStorage.setItem("cbm-language-picked-v1", "1");
-            }
-          } catch {}
-        }
-        if (version < 3) {
-          // O design atual passa a ser o default de fábrica (contas novas e
-          // qualquer dispositivo), mas NUNCA apagamos personalizações já
-          // guardadas: só preenchemos campos em falta/indefinidos. Para voltar
-          // ao default existe o botão "Restaurar personalização default".
-          const d = (persisted.design ?? {}) as Record<string, unknown>;
-          const merged: Record<string, unknown> = { ...DESIGN_DEFAULTS };
-          for (const [k, v] of Object.entries(d)) {
-            if (v !== undefined) merged[k] = v;
-          }
-          persisted.design = merged;
-        }
-        return persisted;
-      },
+      migrate: migrateStore,
     },
   ),
 );
