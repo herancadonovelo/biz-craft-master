@@ -92,3 +92,63 @@ for (const lang of LANGS) {
     });
   });
 }
+/**
+ * Títulos de categoria após login + troca de idioma.
+ * Garante que "Quem somos" (e restantes categorias) mostram sempre um título
+ * legível — nunca uma chave i18n crua (ex.: "nav.about") nem vazio — e que o
+ * título continua correto depois de mudar de idioma dentro da sessão.
+ */
+const PLAN_KEY = "atelier-e2e-plan-override";
+
+// Rotas de categoria + token aceite no <h1> (qualquer idioma suportado).
+const CATEGORIAS: Array<{ rota: string; token: RegExp }> = [
+  { rota: "/quem-somos", token: /quem somos|sobre|about|qui sommes|über|chi siamo/i },
+  { rota: "/calculadora", token: /calculadora|calculator|calculatrice|rechner|calcolatrice/i },
+  { rota: "/design", token: /design|personaliza|aparência|appearance|apparence|aussehen|aspetto/i },
+  { rota: "/idioma", token: /idioma|language|langue|sprache|lingua/i },
+];
+
+const CHAVE_CRUA = /^(nav|page|common)\.[a-z]/i;
+
+test.describe("Títulos de categoria após login e troca de idioma", () => {
+  test.beforeEach(async ({ page }) => {
+    const url = new URL(process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8080");
+    test.skip(!["localhost", "127.0.0.1"].includes(url.hostname), "override de plano só em dev local");
+    await page.addInitScript((k) => window.localStorage.setItem(k, "premium"), PLAN_KEY);
+  });
+
+  for (const lang of ["pt", "en"] as Lang[]) {
+    for (const { rota, token } of CATEGORIAS) {
+      test(`${rota} mostra título correto em ${lang}`, async ({ page }) => {
+        await setLanguage(page, lang);
+        await page.goto(rota);
+        if (/\/auth(\?|$)/.test(page.url())) test.skip(true, "rota protegida sem sessão");
+        const h1 = await firstVisibleH1Text(page);
+        expect(h1).not.toMatch(CHAVE_CRUA);
+        expect(h1).toMatch(token);
+      });
+    }
+  }
+
+  test("título de Quem somos mantém-se legível ao trocar de idioma em sessão", async ({ page }) => {
+    await setLanguage(page, "pt");
+    await page.goto("/quem-somos");
+    if (/\/auth(\?|$)/.test(page.url())) test.skip(true, "rota protegida sem sessão");
+    const antes = await firstVisibleH1Text(page);
+    expect(antes).toMatch(/quem somos|about/i);
+
+    // Troca para inglês pela própria app e volta à página.
+    await page.evaluate(() => {
+      const raw = window.localStorage.getItem("atelier-store-v2");
+      const parsed = raw ? JSON.parse(raw) : { state: {}, version: 3 };
+      parsed.state.design = { ...(parsed.state.design ?? {}), idioma: "en", idiomaAuto: false };
+      window.localStorage.setItem("atelier-store-v2", JSON.stringify(parsed));
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const depois = await firstVisibleH1Text(page);
+    expect(depois.length).toBeGreaterThan(0);
+    expect(depois).not.toMatch(CHAVE_CRUA);
+    expect(depois).toMatch(/quem somos|about|sobre/i);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  });
+});
