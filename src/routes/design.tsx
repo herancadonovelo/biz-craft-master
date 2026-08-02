@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ImagePicker } from "@/components/ImagePicker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfiguracoesContent } from "./configuracoes";
-import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
+import { restoreDesignDefaults } from "@/lib/design-defaults";
 import { toast } from "sonner";
 import { RotateCcw } from "lucide-react";
 
@@ -135,10 +135,10 @@ export function DesignContent() {
     };
     const restoreDefaults = () => {
       if (typeof window !== "undefined" && !window.confirm(
-        "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? Esta ação não pode ser desfeita."
+        "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? O idioma, a moeda, o nome do negócio, o preço-hora base e o PIN mantêm-se. Esta ação não pode ser desfeita."
       )) return;
-      setDesign({ ...DESIGN_DEFAULTS });
-      toast.success("Personalização reposta para os valores default da app.");
+      setDesign(restoreDesignDefaults(design));
+      toast.success("Personalização reposta para os valores default da app (idioma, moeda, nome do negócio, preço-hora e PIN mantidos).");
     };
     const setHeaderFont = (v: string) => {
       setDesign({ fonteCabecalho: v, fontesPorPagina: {} });
