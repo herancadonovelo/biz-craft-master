@@ -18,12 +18,16 @@ import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
-  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
+  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, Undo2, Redo2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
+import {
+  criarHistorico, registar, desfazer, refazer, reiniciar,
+  podeDesfazer, podeRefazer, type Historico,
+} from "@/lib/moodboard-history";
 import {
   MOODBOARD_LAYOUTS, aplicarLayout, retanguloMarcaAgua, sugerirLayouts,
   type MoodboardLayout, type PosicaoMarcaAgua,
@@ -69,7 +73,41 @@ function EditorPage() {
   const existente = useMemo(() => moodboards.find((m) => m.id === search.id), [moodboards, search.id]);
 
   const [titulo, setTitulo] = useState(existente?.titulo ?? "Novo Moodboard");
-  const [design, setDesign] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
+  const [design, setDesignState] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
+  // === Fase 4: histórico de edição (undo/redo) ===
+  // O design é sempre alterado através de setDesign(), que regista um snapshot.
+  const designRef = useRef<MoodboardDesign>(design);
+  designRef.current = design;
+  const histRef = useRef<Historico<MoodboardDesign>>(criarHistorico(design, Date.now()));
+  const [histInfo, setHistInfo] = useState({ desfazer: false, refazer: false, passos: 0 });
+  const sincronizarHist = () => setHistInfo({
+    desfazer: podeDesfazer(histRef.current),
+    refazer: podeRefazer(histRef.current),
+    passos: histRef.current.passado.length,
+  });
+
+  /** Aplica uma alteração ao design e regista-a no histórico. */
+  const setDesign = (upd: MoodboardDesign | ((d: MoodboardDesign) => MoodboardDesign)) => {
+    const proximo = typeof upd === "function" ? (upd as (d: MoodboardDesign) => MoodboardDesign)(designRef.current) : upd;
+    if (proximo === designRef.current) return;
+    histRef.current = registar(histRef.current, proximo, { coalescerMs: 350, agora: Date.now() });
+    designRef.current = proximo;
+    setDesignState(proximo);
+    sincronizarHist();
+  };
+
+  /** Repõe o design a partir do histórico, sem criar novos passos. */
+  const aplicarHistorico = (h: Historico<MoodboardDesign>, acao: "desfazer" | "refazer") => {
+    if (h === histRef.current) { toast.info(acao === "desfazer" ? "Nada para desfazer." : "Nada para refazer."); return; }
+    histRef.current = h;
+    designRef.current = h.presente;
+    setDesignState(h.presente);
+    setSelId((id) => (h.presente.elementos.some((e: MoodboardElement) => e.id === id) ? id : null));
+    sincronizarHist();
+  };
+  const desfazerEdicao = () => aplicarHistorico(desfazer(histRef.current), "desfazer");
+  const refazerEdicao = () => aplicarHistorico(refazer(histRef.current), "refazer");
+
   const [selId, setSelId] = useState<string | null>(null);
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
@@ -92,7 +130,12 @@ function EditorPage() {
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (existente?.design) setDesign(existente.design);
+    if (existente?.design) {
+      histRef.current = reiniciar(existente.design, Date.now());
+      designRef.current = existente.design;
+      setDesignState(existente.design);
+      sincronizarHist();
+    }
     if (existente?.titulo) setTitulo(existente.titulo);
   }, [existente?.id]);
 
@@ -245,6 +288,13 @@ function EditorPage() {
       const t = e.target as HTMLElement | null;
       if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
       if (e.key === "Escape") { setApresentacao(false); setSelId(null); return; }
+      const cmd = e.ctrlKey || e.metaKey;
+      if (cmd && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        e.shiftKey ? refazerEdicao() : desfazerEdicao();
+        return;
+      }
+      if (cmd && e.key.toLowerCase() === "y") { e.preventDefault(); refazerEdicao(); return; }
       if (e.key === "0") { e.preventDefault(); ajustar(); return; }
       if (e.key === "1") { e.preventDefault(); setZoom(1); return; }
       if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
@@ -724,11 +774,22 @@ function EditorPage() {
             </div>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar
+            Roda do rato = zoom no cursor · arrastar fundo = mover tela · Shift+roda = deslocar · Alt ao arrastar = ignorar guias · 0 = ajustar · 1 = 100% · Del = apagar · Ctrl+D = duplicar · Ctrl+Z = desfazer · Ctrl+Shift+Z = refazer
           </p>
 
           <Card className="mt-3"><CardContent className="p-3">
             <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium">Histórico</span>
+              <Button size="sm" variant="outline" data-testid="desfazer" disabled={!histInfo.desfazer}
+                onClick={desfazerEdicao} aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">
+                <Undo2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="sm" variant="outline" data-testid="refazer" disabled={!histInfo.refazer}
+                onClick={refazerEdicao} aria-label="Refazer (Ctrl+Shift+Z)" title="Refazer (Ctrl+Shift+Z)">
+                <Redo2 className="h-3.5 w-3.5" />
+              </Button>
+              <span className="text-muted-foreground" data-testid="historico-passos">{histInfo.passos}</span>
+              <span className="mx-1 h-4 w-px bg-border" aria-hidden />
               <span className="font-medium">Alinhar na página</span>
               <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-esquerda" onClick={() => alinharSel("esquerda")} aria-label="Alinhar à esquerda"><AlignLeft className="h-3.5 w-3.5" /></Button>
               <Button size="sm" variant="outline" disabled={!sel} data-testid="alinhar-centro-h" onClick={() => alinharSel("centro-h")} aria-label="Centrar na horizontal"><AlignHorizontalJustifyCenter className="h-3.5 w-3.5" /></Button>
