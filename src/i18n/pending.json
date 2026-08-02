@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-02T18:10:20.734Z",
+  "generatedAt": "2026-08-02T18:10:32.515Z",
   "total": 638,
-  "pending": 2,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 28,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 219,
-      "pending": 2
+      "pending": 0
     },
     "marketing": {
       "total": 29,
@@ -2678,8 +2678,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.pdf_impressao",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "PDF (printing)"
     },
     {
       "text": "Pé (cm)",
@@ -2742,8 +2742,8 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.png_transparencia",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "PNG (transparency)"
     },
     {
       "text": "Pontos máximos",
