@@ -991,7 +991,10 @@ function EditorPage() {
                     aria-selected={selIds.includes(el.id)}
                     aria-label={`${rotuloElemento(el)}${el.oculto ? ", oculta" : ""}${el.bloqueado ? ", bloqueada" : ""}`}
                     tabIndex={el.id === selId || (!selId && indice === 0) ? 0 : -1}
-                    onFocus={() => setSelIds((ids) => (ids.includes(el.id) ? ids : [el.id]))}
+                    onFocus={() => {
+                      if (ignorarFocoRef.current) { ignorarFocoRef.current = false; return; }
+                      setSelIds((ids) => (ids.includes(el.id) ? ids : [el.id]));
+                    }}
                     onKeyDown={(e) => onKeyCamada(e, el.id, indice)}
                     className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${selIds.includes(el.id) ? "border-primary bg-primary/5" : "border-transparent"}`}
                   >
@@ -1000,6 +1003,7 @@ function EditorPage() {
                       tabIndex={-1}
                       className="flex-1 truncate text-left"
                       data-testid="camada-selecionar"
+                      onPointerDown={(ev) => { ignorarFocoRef.current = ev.shiftKey || ev.ctrlKey || ev.metaKey; }}
                       onClick={(ev) => (ev.shiftKey || ev.ctrlKey || ev.metaKey
                         ? setSelIds((ids) => alternarNaSelecao(ids, el.id))
                         : setSelId(el.id))}
