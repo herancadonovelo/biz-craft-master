@@ -27,6 +27,8 @@ function criarStorage() {
 (globalThis as any).CustomEvent = (globalThis as any).CustomEvent ?? class { constructor(public type: string, public init?: any) {} };
 
 const defaults = DESIGN_DEFAULTS as unknown as Record<string, unknown>;
+/** Chaves com default definido — as únicas que contam como "em falta". */
+const chavesDefinidas = Object.keys(defaults).filter((k) => defaults[k] !== undefined);
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -42,7 +44,7 @@ describe("campos em falta", () => {
     expect(faltam).not.toContain("modo");
   });
   it("devolve tudo quando não há design", () => {
-    expect(camposEmFalta(null, defaults).length).toBe(Object.keys(defaults).length);
+    expect(camposEmFalta(null, defaults).length).toBe(chavesDefinidas.length);
   });
 });
 
@@ -102,7 +104,7 @@ describe("migração emite telemetria", () => {
     migrateStore({ design: { modo: "dark" } }, 2);
     const ev = lerEventosDesign().find((e) => e.tipo === "migracao_campos_preenchidos");
     expect(ev).toBeTruthy();
-    expect(ev!.totalCampos).toBe(Object.keys(defaults).length - 1);
+    expect(ev!.totalCampos).toBe(chavesDefinidas.length - 1);
     expect(ev!.versaoAnterior).toBe(2);
   });
   it("regista quando não havia design guardado", () => {
