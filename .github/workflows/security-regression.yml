@@ -23,3 +23,7 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: bash scripts/security-regression-check.sh
+      - name: Audit trail self-test (temporary permission/search_path change, rolled back)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: bash scripts/security-audit-selftest.sh
