@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-01T01:11:28.460Z",
-  "total": 630,
+  "generatedAt": "2026-08-02T18:05:33.376Z",
+  "total": 636,
   "pending": 0,
   "byCategory": {
     "atelier": {
@@ -16,11 +16,11 @@
       "pending": 0
     },
     "components": {
-      "total": 84,
+      "total": 83,
       "pending": 0
     },
     "editors": {
-      "total": 209,
+      "total": 217,
       "pending": 0
     },
     "marketing": {
@@ -28,7 +28,7 @@
       "pending": 0
     },
     "misc": {
-      "total": 119,
+      "total": 118,
       "pending": 0
     },
     "operations": {
@@ -1122,14 +1122,6 @@
       "en": "Clear backstitch"
     },
     {
-      "text": "Limpar seleção",
-      "file": "src/components/PontoCruzEditor.tsx",
-      "category": "components",
-      "key": "components.limpar_selecao",
-      "translated": true,
-      "en": "Clear selection"
-    },
-    {
       "text": "Máx. descontinuidades permitidas",
       "file": "src/components/TricotinProPanel.tsx",
       "category": "components",
@@ -1642,6 +1634,38 @@
       "en": "Align on page"
     },
     {
+      "text": "Alinhar seleção à direita",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.alinhar_selecao_a_direita",
+      "translated": true,
+      "en": "Align selection right"
+    },
+    {
+      "text": "Alinhar seleção à esquerda",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.alinhar_selecao_a_esquerda",
+      "translated": true,
+      "en": "Align selection left"
+    },
+    {
+      "text": "Alinhar seleção ao fundo",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.alinhar_selecao_ao_fundo",
+      "translated": true,
+      "en": "Align selection bottom"
+    },
+    {
+      "text": "Alinhar seleção ao topo",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.alinhar_selecao_ao_topo",
+      "translated": true,
+      "en": "Align selection top"
+    },
+    {
       "text": "Âmbar (claro)",
       "file": "src/routes/design.tsx",
       "category": "editors",
@@ -1816,6 +1840,22 @@
       "key": "editors.cbm_stock_preco",
       "translated": true,
       "en": "CBM · Stock & Price"
+    },
+    {
+      "text": "Centrar seleção na horizontal",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.centrar_selecao_na_horizontal",
+      "translated": true,
+      "en": "Center selection horizontally"
+    },
+    {
+      "text": "Centrar seleção na vertical",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.centrar_selecao_na_vertical",
+      "translated": true,
+      "en": "Center selection vertically"
     },
     {
       "text": "Clica para pintar com o símbolo/cor activos. C1 é a carreira do fundo (direito).",
@@ -2322,6 +2362,14 @@
       "en": "Magnetic guides"
     },
     {
+      "text": "Histórico",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.historico",
+      "translated": true,
+      "en": "History"
+    },
+    {
       "text": "Horas acumuladas para preço:",
       "file": "src/components/amigurumi-editor/AmigurumiIntegracao.tsx",
       "category": "editors",
@@ -2408,6 +2456,14 @@
       "key": "editors.limpar_overrides_por_pagina",
       "translated": true,
       "en": "Clear page overrides"
+    },
+    {
+      "text": "Limpar seleção",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.limpar_selecao",
+      "translated": true,
+      "en": "Clear selection"
     },
     {
       "text": "Link partilhável",
@@ -3824,14 +3880,6 @@
       "key": "misc.guardar_no_catalogo",
       "translated": true,
       "en": "Save to Catalog"
-    },
-    {
-      "text": "Histórico",
-      "file": "src/routes/vendas.tsx",
-      "category": "misc",
-      "key": "misc.historico",
-      "translated": true,
-      "en": "History"
     },
     {
       "text": "Histórico de conversas",
