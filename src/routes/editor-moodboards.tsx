@@ -69,7 +69,41 @@ function EditorPage() {
   const existente = useMemo(() => moodboards.find((m) => m.id === search.id), [moodboards, search.id]);
 
   const [titulo, setTitulo] = useState(existente?.titulo ?? "Novo Moodboard");
-  const [design, setDesign] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
+  const [design, setDesignState] = useState<MoodboardDesign>(existente?.design ?? novoDesign());
+  // === Fase 4: histórico de edição (undo/redo) ===
+  // O design é sempre alterado através de setDesign(), que regista um snapshot.
+  const designRef = useRef<MoodboardDesign>(design);
+  designRef.current = design;
+  const histRef = useRef<Historico<MoodboardDesign>>(criarHistorico(design, Date.now()));
+  const [histInfo, setHistInfo] = useState({ desfazer: false, refazer: false, passos: 0 });
+  const sincronizarHist = () => setHistInfo({
+    desfazer: podeDesfazer(histRef.current),
+    refazer: podeRefazer(histRef.current),
+    passos: histRef.current.passado.length,
+  });
+
+  /** Aplica uma alteração ao design e regista-a no histórico. */
+  const setDesign = (upd: MoodboardDesign | ((d: MoodboardDesign) => MoodboardDesign)) => {
+    const proximo = typeof upd === "function" ? (upd as (d: MoodboardDesign) => MoodboardDesign)(designRef.current) : upd;
+    if (proximo === designRef.current) return;
+    histRef.current = registar(histRef.current, proximo, { coalescerMs: 350, agora: Date.now() });
+    designRef.current = proximo;
+    setDesignState(proximo);
+    sincronizarHist();
+  };
+
+  /** Repõe o design a partir do histórico, sem criar novos passos. */
+  const aplicarHistorico = (h: Historico<MoodboardDesign>, acao: "desfazer" | "refazer") => {
+    if (h === histRef.current) { toast.info(acao === "desfazer" ? "Nada para desfazer." : "Nada para refazer."); return; }
+    histRef.current = h;
+    designRef.current = h.presente;
+    setDesignState(h.presente);
+    setSelId((id) => (h.presente.elementos.some((e) => e.id === id) ? id : null));
+    sincronizarHist();
+  };
+  const desfazerEdicao = () => aplicarHistorico(desfazer(histRef.current), "desfazer");
+  const refazerEdicao = () => aplicarHistorico(refazer(histRef.current), "refazer");
+
   const [selId, setSelId] = useState<string | null>(null);
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
@@ -92,7 +126,12 @@ function EditorPage() {
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (existente?.design) setDesign(existente.design);
+    if (existente?.design) {
+      histRef.current = reiniciar(existente.design, Date.now());
+      designRef.current = existente.design;
+      setDesignState(existente.design);
+      sincronizarHist();
+    }
     if (existente?.titulo) setTitulo(existente.titulo);
   }, [existente?.id]);
 
