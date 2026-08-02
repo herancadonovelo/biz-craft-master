@@ -298,7 +298,6 @@ function EditorPage() {
   const selecionarCamadasListadas = () => {
     if (!camadasOrdenadas.length) return;
     setSelIds(camadasOrdenadas.map((e) => e.id));
-    setSelId(camadasOrdenadas[0].id);
   };
 
   /** Foca a linha da camada indicada (roving tabindex do listbox). */
