@@ -61,3 +61,31 @@ export const DESIGN_DEFAULTS: DesignSettings = Object.freeze({
   fontesPorPagina: {},
   spotifyClientId: "",
 } as DesignSettings);
+/**
+ * Campos que NÃO são aparência: pertencem ao negócio/conta e nunca devem ser
+ * afetados pelo botão "Restaurar personalização default".
+ */
+export const DESIGN_PRESERVED_KEYS = [
+  "idioma",
+  "idiomaAuto",
+  "moeda",
+  "nomeNegocio",
+  "precoHoraBase",
+  "pinContas",
+] as const;
+
+export type DesignPreservedKey = (typeof DESIGN_PRESERVED_KEYS)[number];
+
+/**
+ * Devolve exactamente DESIGN_DEFAULTS, reaplicando por cima os campos
+ * preservados (idioma, moeda, nome do negócio, preço-hora e PIN) tal como
+ * estavam no design atual.
+ */
+export function restoreDesignDefaults(atual: Partial<DesignSettings> | null | undefined): DesignSettings {
+  const restaurado = { ...DESIGN_DEFAULTS } as Record<string, unknown>;
+  for (const k of DESIGN_PRESERVED_KEYS) {
+    const v = (atual ?? {})[k];
+    if (v !== undefined) restaurado[k] = v;
+  }
+  return restaurado as DesignSettings;
+}
