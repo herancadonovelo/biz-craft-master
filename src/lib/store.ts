@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
+import { migrateStore } from "@/lib/store-migrations";
 
 export type ID = string;
 const uid = () => Math.random().toString(36).slice(2, 10);
