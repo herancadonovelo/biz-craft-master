@@ -46,7 +46,7 @@ test.describe("persistência da personalização de design", () => {
     await expect(page.getByText("Modo", { exact: true }).first()).toBeVisible();
 
     // --- Alterações pela UI: modo escuro + um accent da paleta ---
-    await page.getByRole("button", { name: "Escuro", exact: true }).click();
+    await page.getByRole("button", { name: "Escuro", exact: true }).first().click();
     const swatches = page.locator("button.flex.flex-col.items-center.gap-1.rounded-md.border");
     if (await swatches.count()) await swatches.nth(1).click();
     await expect
