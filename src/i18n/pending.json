@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-02T18:04:38.635Z",
+  "generatedAt": "2026-08-02T18:05:33.376Z",
   "total": 636,
-  "pending": 6,
+  "pending": 0,
   "byCategory": {
     "atelier": {
       "total": 28,
@@ -21,7 +21,7 @@
     },
     "editors": {
       "total": 217,
-      "pending": 6
+      "pending": 0
     },
     "marketing": {
       "total": 29,
@@ -1638,32 +1638,32 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_selecao_a_direita",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align selection right"
     },
     {
       "text": "Alinhar seleção à esquerda",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_selecao_a_esquerda",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align selection left"
     },
     {
       "text": "Alinhar seleção ao fundo",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_selecao_ao_fundo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align selection bottom"
     },
     {
       "text": "Alinhar seleção ao topo",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.alinhar_selecao_ao_topo",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Align selection top"
     },
     {
       "text": "Âmbar (claro)",
@@ -1846,16 +1846,16 @@
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.centrar_selecao_na_horizontal",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Center selection horizontally"
     },
     {
       "text": "Centrar seleção na vertical",
       "file": "src/routes/editor-moodboards.tsx",
       "category": "editors",
       "key": "editors.centrar_selecao_na_vertical",
-      "translated": false,
-      "en": ""
+      "translated": true,
+      "en": "Center selection vertically"
     },
     {
       "text": "Clica para pintar com o símbolo/cor activos. C1 é a carreira do fundo (direito).",
