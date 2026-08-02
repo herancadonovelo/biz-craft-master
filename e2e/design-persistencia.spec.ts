@@ -222,3 +222,51 @@ test.describe("migração v3 com preferências parciais", () => {
     expect(design?.["nomeNegocio"]).toBeTruthy();
   });
 });
+
+test.describe("botão Restaurar de fábrica", () => {
+  test("repõe a aparência mas mantém idioma, moeda, negócio, preço-hora e PIN", async ({ page }) => {
+    const negocio = {
+      idioma: "fr",
+      idiomaAuto: true,
+      moeda: "BRL",
+      nomeNegocio: "Atelier da Júlia",
+      precoHoraBase: 23.5,
+      pinContas: "4821",
+    };
+    await page.addInitScript(
+      ([key, design]) => {
+        window.localStorage.setItem(
+          key as string,
+          JSON.stringify({
+            state: { design, initialLanguageChosen: true, onboardingFeito: true },
+            version: 3,
+          }),
+        );
+      },
+      [STORE_KEY, { ...CUSTOM, ...negocio }] as const,
+    );
+
+    await page.goto("/design");
+    await page.waitForLoadState("networkidle");
+
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: /Restaurar de fábrica/i }).click();
+
+    await expect
+      .poll(async () => ((await readDesign(page, STORE_KEY)) as any)?.modo)
+      .toBe("light");
+
+    const design = (await readDesign(page, STORE_KEY)) as Record<string, unknown>;
+    // Aparência reposta.
+    expect(design["accent"]).toBe("0.65 0.15 290");
+    expect(design["raio"]).toBe(1.35);
+    expect(design["janelasOpacidade"]).toBe(1);
+    expect(design["botaoPrimarioOpacidade"]).toBe(1);
+    expect(design["fontSizeBase"]).toBe(16);
+    expect(design["fonteTitulos"]).toBe("Sora, system-ui, sans-serif");
+    // Campos de negócio preservados.
+    for (const [k, v] of Object.entries(negocio)) {
+      expect(design[k], `campo preservado ${k}`).toEqual(v);
+    }
+  });
+});
