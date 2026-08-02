@@ -104,7 +104,7 @@ const PLAN_KEY = "atelier-e2e-plan-override";
 const CATEGORIAS: Array<{ rota: string; token: RegExp }> = [
   { rota: "/quem-somos", token: /quem somos|sobre|about|qui sommes|über|chi siamo/i },
   { rota: "/calculadora", token: /calculadora|calculator|calculatrice|rechner|calcolatrice/i },
-  { rota: "/design", token: /design|personaliza|aparência|appearance|apparence|aussehen|aspetto/i },
+  { rota: "/design", token: /configura|settings|paramètres|einstellungen|impostazioni|ajustes/i },
   { rota: "/idioma", token: /idioma|language|langue|sprache|lingua/i },
 ];
 
@@ -131,19 +131,25 @@ test.describe("Títulos de categoria após login e troca de idioma", () => {
   }
 
   test("título de Quem somos mantém-se legível ao trocar de idioma em sessão", async ({ page }) => {
-    await setLanguage(page, "pt");
-    await page.goto("/quem-somos");
-    if (/\/auth(\?|$)/.test(page.url())) test.skip(true, "rota protegida sem sessão");
-    const antes = await firstVisibleH1Text(page);
-    expect(antes).toMatch(/quem somos|about/i);
-
-    // Troca para inglês pela própria app e volta à página.
-    await page.evaluate(() => {
+    const escolherIdioma = (l: string) => page.evaluate((idioma) => {
       const raw = window.localStorage.getItem("atelier-store-v2");
       const parsed = raw ? JSON.parse(raw) : { state: {}, version: 3 };
-      parsed.state.design = { ...(parsed.state.design ?? {}), idioma: "en", idiomaAuto: false };
+      parsed.state = parsed.state ?? {};
+      parsed.state.initialLanguageChosen = true;
+      parsed.state.onboardingFeito = true;
+      parsed.state.design = { ...(parsed.state.design ?? {}), idioma, idiomaAuto: false };
       window.localStorage.setItem("atelier-store-v2", JSON.stringify(parsed));
-    });
+    }, l);
+
+    await page.goto("/quem-somos");
+    if (/\/auth(\?|$)/.test(page.url())) test.skip(true, "rota protegida sem sessão");
+    await escolherIdioma("pt");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const antes = await firstVisibleH1Text(page);
+    expect(antes).toMatch(/quem somos|about|sobre/i);
+    await expect(page.locator("html")).toHaveAttribute("lang", "pt");
+
+    await escolherIdioma("en");
     await page.reload({ waitUntil: "domcontentloaded" });
     const depois = await firstVisibleH1Text(page);
     expect(depois.length).toBeGreaterThan(0);
