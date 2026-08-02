@@ -1086,6 +1086,38 @@ function EditorPage() {
                   <div key={`h${i}`} style={{ position: "absolute", top: y, left: 0, height: 1 / zoom, width: A4_W, background: "#e11d48", pointerEvents: "none" }} />
                 ))}
               </div>
+              {recorteVisivel && (
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute", top: 0, left: 0, width: A4_W, height: A4_H,
+                    overflow: "hidden", pointerEvents: "none",
+                  }}
+                >
+                  <div
+                    data-testid="recorte-exportacao"
+                    style={{
+                      position: "absolute", left: areaExp.x, top: areaExp.y,
+                      width: areaExp.w, height: areaExp.h,
+                      outline: `${2 / zoom}px solid #6366f1`,
+                      boxShadow: "0 0 0 9999px rgba(15,23,42,.45)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: areaExp.x,
+                      top: Math.max(0, areaExp.y - 22 / zoom),
+                      transform: `scale(${1 / zoom})`,
+                      transformOrigin: "0 0",
+                      background: "#6366f1", color: "#fff", borderRadius: 4,
+                      padding: "2px 6px", fontSize: 11, whiteSpace: "nowrap",
+                    }}
+                  >
+                    {Math.round(areaExp.w)} × {Math.round(areaExp.h)} pt · margem {expMargem} pt
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
