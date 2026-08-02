@@ -1,4 +1,5 @@
 import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
+import { camposEmFalta, registarEventoDesign } from "@/lib/design-telemetry";
 
 /**
  * Migração do estado persistido do atelier.
@@ -24,12 +25,25 @@ export const migrateStore = (persisted: any, version: number) => {
     } catch {}
   }
   if (version < 3) {
+    const temDesign = !!persisted.design && typeof persisted.design === "object";
     const d = (persisted.design ?? {}) as Record<string, unknown>;
+    const emFalta = camposEmFalta(d, DESIGN_DEFAULTS as unknown as Record<string, unknown>);
     const merged: Record<string, unknown> = { ...DESIGN_DEFAULTS };
     for (const [k, v] of Object.entries(d)) {
       if (v !== undefined) merged[k] = v;
     }
     persisted.design = merged;
+    if (!temDesign) {
+      registarEventoDesign({ tipo: "migracao_sem_design", versaoAnterior: version, versaoAtual: 3 });
+    } else if (emFalta.length) {
+      registarEventoDesign({
+        tipo: "migracao_campos_preenchidos",
+        versaoAnterior: version,
+        versaoAtual: 3,
+        campos: emFalta.slice(0, 20),
+        totalCampos: emFalta.length,
+      });
+    }
   }
   return persisted;
 };

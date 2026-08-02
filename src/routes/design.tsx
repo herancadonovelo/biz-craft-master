@@ -11,6 +11,7 @@ import { ImagePicker } from "@/components/ImagePicker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfiguracoesContent } from "./configuracoes";
 import { restoreDesignDefaults } from "@/lib/design-defaults";
+import { marcarRestauroIntencional } from "@/lib/design-telemetry";
 import { toast } from "sonner";
 import { RotateCcw } from "lucide-react";
 
@@ -130,6 +131,7 @@ export function DesignContent() {
     };
     const restorePersonalDefault = () => {
       if (!personalDefault) return toast.error("Ainda não guardaste nenhum padrão pessoal.");
+      marcarRestauroIntencional("padrao-pessoal");
       setDesign(personalDefault);
       toast.success("Padrão pessoal restaurado.");
     };
@@ -137,6 +139,7 @@ export function DesignContent() {
       if (typeof window !== "undefined" && !window.confirm(
         "Restaurar toda a personalização (cores, fontes, tamanhos, sidebar, opacidades, imagem de fundo) para os valores originais da app? O idioma, a moeda, o nome do negócio, o preço-hora base e o PIN mantêm-se. Esta ação não pode ser desfeita."
       )) return;
+      marcarRestauroIntencional("botao-restaurar-default");
       setDesign(restoreDesignDefaults(design));
       toast.success("Personalização reposta para os valores default da app (idioma, moeda, nome do negócio, preço-hora e PIN mantidos).");
     };
