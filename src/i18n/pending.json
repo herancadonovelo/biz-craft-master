@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-02T18:05:33.376Z",
-  "total": 636,
+  "generatedAt": "2026-08-02T18:10:32.515Z",
+  "total": 638,
   "pending": 0,
   "byCategory": {
     "atelier": {
@@ -20,7 +20,7 @@
       "pending": 0
     },
     "editors": {
-      "total": 217,
+      "total": 219,
       "pending": 0
     },
     "marketing": {
@@ -2674,6 +2674,14 @@
       "en": "Global settings"
     },
     {
+      "text": "PDF (impressão)",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.pdf_impressao",
+      "translated": true,
+      "en": "PDF (printing)"
+    },
+    {
       "text": "Pé (cm)",
       "file": "src/components/knit-editor/ConstructionPanel.tsx",
       "category": "editors",
@@ -2728,6 +2736,14 @@
       "key": "editors.pixel_art_rapida",
       "translated": true,
       "en": "Quick Pixel-art"
+    },
+    {
+      "text": "PNG (transparência)",
+      "file": "src/routes/editor-moodboards.tsx",
+      "category": "editors",
+      "key": "editors.png_transparencia",
+      "translated": true,
+      "en": "PNG (transparency)"
     },
     {
       "text": "Pontos máximos",

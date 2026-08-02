@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { PremiumRoute } from "@/components/PremiumRoute";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 import { z } from "zod";
 import { useStore, type MoodboardDesign, type MoodboardElement, type Moodboard } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
@@ -19,12 +19,18 @@ import {
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
   Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, Undo2, Redo2,
+  FileDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import { alinharConjunto, alternarNaSelecao, caixaEnvolvente, limparSelecao } from "@/lib/moodboard-multi";
+import {
+  PRESETS_EXPORT, DPI_OPCOES, presetPorId, areaExportacao, planoExport, qualidadeJpeg,
+  nomeFicheiro, recortarSvgDataUrl, type FormatoExport,
+} from "@/lib/moodboard-export";
+import { recortarRaster, descarregar } from "@/lib/moodboard-export-dom";
 import {
   criarHistorico, registar, desfazer, refazer, reiniciar,
   podeDesfazer, podeRefazer, type Historico,
@@ -687,6 +693,76 @@ function EditorPage() {
     w.document.close();
   };
 
+  // === Fase 6: exportação avançada (formato, preset, DPI, só a seleção) ===
+  const [expAberto, setExpAberto] = useState(false);
+  const [expFormato, setExpFormato] = useState<FormatoExport>("png");
+  const [expPreset, setExpPreset] = useState("original");
+  const [expDpi, setExpDpi] = useState(150);
+  const [expQualidade, setExpQualidade] = useState(92);
+  const [expApenasSel, setExpApenasSel] = useState(false);
+  const [expBusy, setExpBusy] = useState(false);
+
+  const caixaSelExport = useMemo(() => {
+    const rects = design.elementos
+      .filter((el) => selIds.includes(el.id) && !el.oculto)
+      .map((el) => ({ id: el.id, x: el.x, y: el.y, w: el.w, h: el.h }));
+    return caixaEnvolvente(rects);
+  }, [design.elementos, selIds]);
+
+  const areaExp = useMemo(
+    () => areaExportacao({ largura: A4_W, altura: A4_H }, expApenasSel ? caixaSelExport : null),
+    [expApenasSel, caixaSelExport],
+  );
+  const planoExp = useMemo(
+    () => planoExport(areaExp, presetPorId(expPreset), expDpi),
+    [areaExp, expPreset, expDpi],
+  );
+
+  const exportarAvancado = async () => {
+    const node = stageRef.current?.querySelector<HTMLDivElement>("[data-stage-export]");
+    if (!node) return;
+    setExpBusy(true);
+    try {
+      const nome = nomeFicheiro(titulo, expFormato, expApenasSel && !!caixaSelExport);
+      if (expFormato === "svg") {
+        const svg = await toSvg(node, { width: A4_W, height: A4_H, cacheBust: true });
+        descarregar(recortarSvgDataUrl(svg, areaExp, { w: planoExp.larguraPt, h: planoExp.alturaPt }), nome);
+        toast.success(`Exportado ${nome}`);
+        return;
+      }
+      const base = expFormato === "jpeg"
+        ? await toJpeg(node, {
+            pixelRatio: planoExp.pixelRatio, cacheBust: true,
+            backgroundColor: design.corFundo, quality: qualidadeJpeg(expQualidade),
+          })
+        : await toPng(node, { pixelRatio: planoExp.pixelRatio, cacheBust: true, backgroundColor: design.corFundo });
+      const raster = await recortarRaster(base, areaExp, planoExp, {
+        formato: expFormato === "pdf" ? "jpeg" : expFormato,
+        qualidade: qualidadeJpeg(expQualidade),
+        fundo: design.corFundo,
+      });
+      if (expFormato === "pdf") {
+        const { jsPDF } = await import("jspdf");
+        const pdf = new jsPDF({
+          unit: "pt",
+          orientation: planoExp.larguraPt >= planoExp.alturaPt ? "landscape" : "portrait",
+          format: [planoExp.larguraPt, planoExp.alturaPt],
+        });
+        pdf.addImage(raster, "JPEG", 0, 0, planoExp.larguraPt, planoExp.alturaPt, undefined, "FAST");
+        pdf.save(nome);
+      } else {
+        descarregar(raster, nome);
+      }
+      toast.success(`Exportado ${nome}`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Falha ao exportar. Imagens externas podem bloquear o export por CORS.");
+    } finally {
+      setExpBusy(false);
+      setExpAberto(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader title="Editor de Moodboards" description="Estúdio interativo · folha A4 vertical." />
@@ -696,6 +772,76 @@ function EditorPage() {
           <Button onClick={guardarApp}><Save className="mr-1 h-4 w-4" /> Guardar na aplicação</Button>
           <Button variant="secondary" onClick={guardarDispositivo}><Download className="mr-1 h-4 w-4" /> Guardar no dispositivo</Button>
           <Button variant="outline" onClick={imprimir}><Printer className="mr-1 h-4 w-4" /> Imprimir A4</Button>
+          <Dialog open={expAberto} onOpenChange={setExpAberto}>
+            <DialogTrigger asChild>
+              <Button variant="outline" data-testid="abrir-exportar"><FileDown className="mr-1 h-4 w-4" /> Exportar…</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader><DialogTitle>Exportar moodboard</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs">Formato</Label>
+                  <Select value={expFormato} onValueChange={(v) => setExpFormato(v as FormatoExport)}>
+                    <SelectTrigger className="mt-1" data-testid="export-formato"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="png">PNG (transparência)</SelectItem>
+                      <SelectItem value="jpeg">JPEG (ficheiro leve)</SelectItem>
+                      <SelectItem value="svg">SVG (vetorial)</SelectItem>
+                      <SelectItem value="pdf">PDF (impressão)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Tamanho</Label>
+                  <Select value={expPreset} onValueChange={setExpPreset}>
+                    <SelectTrigger className="mt-1" data-testid="export-preset"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PRESETS_EXPORT.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {expFormato !== "svg" && (
+                  <div>
+                    <Label className="text-xs">Qualidade / DPI</Label>
+                    <Select value={String(expDpi)} onValueChange={(v) => setExpDpi(Number(v))}>
+                      <SelectTrigger className="mt-1" data-testid="export-dpi"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {DPI_OPCOES.map((d) => (
+                          <SelectItem key={d} value={String(d)}>{d} DPI</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {(expFormato === "jpeg" || expFormato === "pdf") && (
+                  <div>
+                    <Label className="text-xs">Compressão JPEG: {expQualidade}%</Label>
+                    <Slider className="mt-2" min={40} max={100} step={1} value={[expQualidade]}
+                      onValueChange={([v]) => setExpQualidade(v)} />
+                  </div>
+                )}
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    data-testid="export-so-selecao"
+                    checked={expApenasSel}
+                    disabled={!caixaSelExport}
+                    onChange={(e) => setExpApenasSel(e.target.checked)}
+                  />
+                  Exportar apenas a seleção {caixaSelExport ? `(${selIds.length})` : "(sem seleção)"}
+                </label>
+                <p className="text-xs text-muted-foreground" data-testid="export-resumo">
+                  Ficheiro final: {planoExp.larguraPx} × {planoExp.alturaPx} px · {nomeFicheiro(titulo, expFormato, expApenasSel && !!caixaSelExport)}
+                </p>
+                <Button className="w-full" data-testid="export-confirmar" disabled={expBusy} onClick={exportarAvancado}>
+                  {expBusy ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Download className="mr-1 h-4 w-4" />}
+                  Exportar
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
