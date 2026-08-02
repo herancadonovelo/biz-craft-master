@@ -1120,18 +1120,16 @@ export const useStore = create<State>()(
           } catch {}
         }
         if (version < 3) {
-          // O design visual atual passa a ser o default absoluto da app: o
-          // mesmo para contas novas, contas antigas e em qualquer dispositivo.
-          // Preservamos apenas as preferências que não são "visuais".
+          // O design atual passa a ser o default de fábrica (contas novas e
+          // qualquer dispositivo), mas NUNCA apagamos personalizações já
+          // guardadas: só preenchemos campos em falta/indefinidos. Para voltar
+          // ao default existe o botão "Restaurar personalização default".
           const d = (persisted.design ?? {}) as Record<string, unknown>;
-          persisted.design = {
-            ...DESIGN_DEFAULTS,
-            idioma: d.idioma ?? DESIGN_DEFAULTS.idioma,
-            moeda: d.moeda ?? DESIGN_DEFAULTS.moeda,
-            nomeNegocio: d.nomeNegocio ?? DESIGN_DEFAULTS.nomeNegocio,
-            precoHoraBase: d.precoHoraBase ?? DESIGN_DEFAULTS.precoHoraBase,
-            pinContas: d.pinContas ?? DESIGN_DEFAULTS.pinContas,
-          };
+          const merged: Record<string, unknown> = { ...DESIGN_DEFAULTS };
+          for (const [k, v] of Object.entries(d)) {
+            if (v !== undefined) merged[k] = v;
+          }
+          persisted.design = merged;
         }
         return persisted;
       },
