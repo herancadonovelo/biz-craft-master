@@ -26,6 +26,7 @@ import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } f
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
 import { alinharConjunto, alternarNaSelecao, caixaEnvolvente, limparSelecao } from "@/lib/moodboard-multi";
+import { filtrarCamadas, ordenarCamadas, ORDENACOES, type OrdenacaoCamadas } from "@/lib/moodboard-layers";
 import {
   PRESETS_EXPORT, DPI_OPCOES, presetPorId, areaExportacao, planoExport, qualidadeJpeg,
   nomeFicheiro, recortarSvgDataUrl, type FormatoExport,
@@ -284,11 +285,18 @@ function EditorPage() {
       : el.tipo === "decor" ? "Decoração"
       : el.src ? "Imagem" : "Moldura vazia";
 
-  /** Ordem visual do painel de camadas: topo da pilha primeiro. */
+  /** Ordem visual do painel de camadas + pesquisa por rótulo. */
   const camadasOrdenadas = useMemo(
-    () => [...design.elementos].sort((a, b) => b.zIndex - a.zIndex),
-    [design.elementos],
+    () => filtrarCamadas(ordenarCamadas(design.elementos, ordemCamadas, rotuloElemento), procuraCamada, rotuloElemento),
+    [design.elementos, ordemCamadas, procuraCamada],
   );
+
+  /** Seleciona todas as camadas visíveis no painel (respeita ordenação/pesquisa). */
+  const selecionarCamadasListadas = () => {
+    if (!camadasOrdenadas.length) return;
+    setSelIds(camadasOrdenadas.map((e) => e.id));
+    setSelId(camadasOrdenadas[0].id);
+  };
 
   /** Foca a linha da camada indicada (roving tabindex do listbox). */
   const focarCamada = (id: string) => {
