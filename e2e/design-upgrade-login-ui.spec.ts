@@ -52,10 +52,12 @@ async function validarUI(page: Page, contexto: string) {
     .toBe(true);
 
   // Campos de negócio preservados nos inputs.
-  await expect(page.getByLabel("Nome do negócio"), `nome do negócio ${contexto}`).toHaveValue(
+  const campo = (etiqueta: string) =>
+    page.locator(`div:has(> label:text-is("${etiqueta}")) > input`).first();
+  await expect(campo("Nome do negócio"), `nome do negócio ${contexto}`).toHaveValue(
     PERSONALIZADO.nomeNegocio,
   );
-  await expect(page.getByLabel(/Preço-hora base/), `preço-hora ${contexto}`).toHaveValue(
+  await expect(campo("Preço-hora base (€)"), `preço-hora ${contexto}`).toHaveValue(
     String(PERSONALIZADO.precoHoraBase),
   );
 
