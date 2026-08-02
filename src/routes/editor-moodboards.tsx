@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
 import { buildTargets, snapRect, clampZoom, normalizeWheel } from "@/lib/moodboard-snap";
 import { alinharNaPagina, distribuir, type AlinhamentoPagina } from "@/lib/moodboard-align";
+import { alinharConjunto, alternarNaSelecao, caixaEnvolvente, limparSelecao } from "@/lib/moodboard-multi";
 import {
   criarHistorico, registar, desfazer, refazer, reiniciar,
   podeDesfazer, podeRefazer, type Historico,
@@ -102,13 +103,19 @@ function EditorPage() {
     histRef.current = h;
     designRef.current = h.presente;
     setDesignState(h.presente);
-    setSelId((id) => (h.presente.elementos.some((e: MoodboardElement) => e.id === id) ? id : null));
+    setSelIds((ids) => limparSelecao(ids, h.presente.elementos.map((e: MoodboardElement) => e.id)));
     sincronizarHist();
   };
   const desfazerEdicao = () => aplicarHistorico(desfazer(histRef.current), "desfazer");
   const refazerEdicao = () => aplicarHistorico(refazer(histRef.current), "refazer");
 
-  const [selId, setSelId] = useState<string | null>(null);
+  // === Fase 5: seleção múltipla ===
+  // selIds guarda a seleção completa; selId é o último elemento selecionado
+  // (usado pelos painéis de propriedades de um só elemento).
+  const [selIds, setSelIds] = useState<string[]>([]);
+  const selId = selIds.length ? selIds[selIds.length - 1] : null;
+  const setSelId = (id: string | null) => setSelIds(id ? [id] : []);
+  const multi = selIds.length > 1;
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
   const zoom = view.z;
@@ -140,6 +147,79 @@ function EditorPage() {
   }, [existente?.id]);
 
   const sel = design.elementos.find((e) => e.id === selId) || null;
+  const selecionados = useMemo(
+    () => design.elementos.filter((e) => selIds.includes(e.id)),
+    [design.elementos, selIds],
+  );
+  const livresSelecionados = selecionados.filter((e) => !e.bloqueado);
+  const caixaSel = useMemo(
+    () => (multi ? caixaEnvolvente(selecionados.map((e) => ({ id: e.id, x: e.x, y: e.y, w: e.w, h: e.h }))) : null),
+    [multi, selecionados],
+  );
+
+  /** Aplica um patch a vários elementos de uma só vez (um passo de histórico). */
+  const updVarios = (ids: string[], patch: (el: MoodboardElement) => Partial<MoodboardElement>) =>
+    setDesign((d) => ({
+      ...d,
+      elementos: d.elementos.map((e) => (ids.includes(e.id) ? { ...e, ...patch(e) } : e)),
+    }));
+
+  // --- ações em lote sobre a seleção múltipla ---
+  const moverSelecao = (dx: number, dy: number) =>
+    updVarios(livresSelecionados.map((e) => e.id), (e) => ({ x: e.x + dx, y: e.y + dy }));
+
+  const alinharSelecaoEntreSi = (modo: AlinhamentoPagina) => {
+    const rects = livresSelecionados.map((e) => ({ id: e.id, x: e.x, y: e.y, w: e.w, h: e.h }));
+    const ajustes = alinharConjunto(rects, modo);
+    if (!ajustes.length) { toast.info("Seleciona pelo menos 2 elementos desbloqueados."); return; }
+    setDesign((d) => ({
+      ...d,
+      elementos: d.elementos.map((e) => {
+        const a = ajustes.find((x) => x.id === e.id);
+        return a ? { ...e, ...(a.x !== undefined ? { x: a.x } : {}), ...(a.y !== undefined ? { y: a.y } : {}) } : e;
+      }),
+    }));
+  };
+
+  const distribuirSelecao = (eixo: "h" | "v") => {
+    const ajustes = distribuir(livresSelecionados.map((e) => ({ id: e.id, x: e.x, y: e.y, w: e.w, h: e.h })), eixo);
+    if (!ajustes.length) { toast.info("São precisos pelo menos 3 elementos desbloqueados."); return; }
+    setDesign((d) => ({
+      ...d,
+      elementos: d.elementos.map((e) => {
+        const a = ajustes.find((x) => x.id === e.id);
+        return a ? { ...e, ...(a.x !== undefined ? { x: a.x } : {}), ...(a.y !== undefined ? { y: a.y } : {}) } : e;
+      }),
+    }));
+  };
+
+  const apagarSelecao = () => {
+    setDesign((d) => ({ ...d, elementos: d.elementos.filter((e) => !selIds.includes(e.id)) }));
+    setSelIds([]);
+  };
+
+  const duplicarSelecao = () => {
+    let novosIds: string[] = [];
+    setDesign((d) => {
+      const maxZ = d.elementos.reduce((m, x) => Math.max(m, x.zIndex), 0);
+      const copias = d.elementos
+        .filter((e) => selIds.includes(e.id))
+        .map((e, i) => ({ ...e, id: uid(), x: e.x + 16, y: e.y + 16, zIndex: maxZ + 1 + i }));
+      novosIds = copias.map((c) => c.id);
+      return { ...d, elementos: [...d.elementos, ...copias] };
+    });
+    if (novosIds.length) setSelIds(novosIds);
+  };
+
+  const bloquearSelecao = () => {
+    const bloquear = selecionados.some((e) => !e.bloqueado);
+    updVarios(selIds, () => ({ bloqueado: bloquear }));
+  };
+  const ocultarSelecao = () => {
+    const ocultar = selecionados.some((e) => !e.oculto);
+    updVarios(selIds, () => ({ oculto: ocultar }));
+  };
+  const selecionarTudo = () => setSelIds(design.elementos.map((e) => e.id));
 
   const updEl = (id: string, patch: Partial<MoodboardElement>) =>
     setDesign((d) => ({ ...d, elementos: d.elementos.map((e) => (e.id === id ? { ...e, ...patch } : e)) }));
@@ -287,8 +367,9 @@ function EditorPage() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
-      if (e.key === "Escape") { setApresentacao(false); setSelId(null); return; }
+      if (e.key === "Escape") { setApresentacao(false); setSelIds([]); return; }
       const cmd = e.ctrlKey || e.metaKey;
+      if (cmd && e.key.toLowerCase() === "a") { e.preventDefault(); selecionarTudo(); return; }
       if (cmd && e.key.toLowerCase() === "z") {
         e.preventDefault();
         e.shiftKey ? refazerEdicao() : desfazerEdicao();
@@ -300,9 +381,25 @@ function EditorPage() {
       if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomEmTorno(viewRef.current.z * 1.25); return; }
       if (e.key === "-") { e.preventDefault(); zoomEmTorno(viewRef.current.z / 1.25); return; }
       if (!selId) return;
-      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); remEl(selId); return; }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") { e.preventDefault(); duplicarEl(selId); return; }
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        selIds.length > 1 ? apagarSelecao() : remEl(selId);
+        return;
+      }
+      if (cmd && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        selIds.length > 1 ? duplicarSelecao() : duplicarEl(selId);
+        return;
+      }
       const passo = e.shiftKey ? 10 : 1;
+      if (selIds.length > 1 && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+        e.preventDefault();
+        moverSelecao(
+          e.key === "ArrowLeft" ? -passo : e.key === "ArrowRight" ? passo : 0,
+          e.key === "ArrowUp" ? -passo : e.key === "ArrowDown" ? passo : 0,
+        );
+        return;
+      }
       const atual = design.elementos.find((x) => x.id === selId);
       if (!atual) return;
       if (e.key === "ArrowLeft") { e.preventDefault(); updEl(selId, { x: atual.x - passo }); }
@@ -312,7 +409,7 @@ function EditorPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selId, design.elementos, ajustar]);
+  }, [selId, selIds, design.elementos, ajustar]);
 
   /** Pan ao arrastar o fundo do canvas (ou com botão do meio). */
   const iniciarPan = (ev: React.PointerEvent) => {
@@ -438,13 +535,23 @@ function EditorPage() {
   const onPointerDownEl = (ev: React.PointerEvent, id: string, mode: "move" | "resize" | "rotate") => {
     ev.stopPropagation();
     (ev.target as Element).setPointerCapture?.(ev.pointerId);
-    setSelId(id);
+    // Shift/Ctrl+clique: adiciona ou remove da seleção múltipla (sem arrastar).
+    if (mode === "move" && (ev.shiftKey || ev.ctrlKey || ev.metaKey)) {
+      setSelIds((ids) => alternarNaSelecao(ids, id));
+      return;
+    }
+    // Arrastar um elemento que já faz parte de uma seleção múltipla move o grupo.
+    const emGrupo = mode === "move" && selIds.length > 1 && selIds.includes(id);
+    if (!emGrupo) setSelId(id);
     const el = design.elementos.find((e) => e.id === id);
     if (!el || !artRef.current) return;
     if (el.bloqueado) return; // camada bloqueada: seleciona, mas não move
     const rect = artRef.current.getBoundingClientRect();
     const startX = ev.clientX, startY = ev.clientY;
     const startEl = { ...el };
+    const grupo = emGrupo
+      ? design.elementos.filter((e) => selIds.includes(e.id) && !e.bloqueado).map((e) => ({ id: e.id, x: e.x, y: e.y }))
+      : [];
     const outros = design.elementos.filter((e) => e.id !== id).map((e) => ({ x: e.x, y: e.y, w: e.w, h: e.h }));
     const alvos = buildTargets(outros, A4_W, A4_H);
     const centerX = rect.left + (startEl.x + startEl.w / 2) * zoom;
@@ -454,6 +561,19 @@ function EditorPage() {
       const dx = (e.clientX - startX) / zoom;
       const dy = (e.clientY - startY) / zoom;
       if (mode === "move") {
+        if (emGrupo) {
+          setGuias({ v: [], h: [] });
+          const gx = grelha ? Math.round(dx / 8) * 8 : dx;
+          const gy = grelha ? Math.round(dy / 8) * 8 : dy;
+          setDesign((d) => ({
+            ...d,
+            elementos: d.elementos.map((e) => {
+              const base = grupo.find((g) => g.id === e.id);
+              return base ? { ...e, x: base.x + gx, y: base.y + gy } : e;
+            }),
+          }));
+          return;
+        }
         let nx = startEl.x + dx, ny = startEl.y + dy;
         if (magnetico && !e.altKey) {
           const s = snapRect({ x: nx, y: ny, w: startEl.w, h: startEl.h }, alvos, 6 / zoom, grelha ? 8 : 0);
@@ -741,7 +861,7 @@ function EditorPage() {
               backgroundPosition: grelha ? `${view.x}px ${view.y}px` : undefined,
               cursor: "grab",
             }}
-            onPointerDown={(e) => { if (e.currentTarget === e.target) { setSelId(null); iniciarPan(e); } }}
+            onPointerDown={(e) => { if (e.currentTarget === e.target) { setSelIds([]); iniciarPan(e); } }}
           >
             <div
               style={{
@@ -758,11 +878,21 @@ function EditorPage() {
                   background: design.imagemFundo ? `url(${design.imagemFundo}) center/cover no-repeat` : design.corFundo,
                   position: "relative", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,.18)",
                 }}
-                onPointerDown={(e) => { if (e.currentTarget === e.target) setSelId(null); }}
+                onPointerDown={(e) => { if (e.currentTarget === e.target) setSelIds([]); }}
               >
                 {[...design.elementos].sort((a, b) => a.zIndex - b.zIndex).filter((el) => !el.oculto).map((el) => (
-                  <ElementoView key={el.id} el={el} selecionado={el.id === selId} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
+                  <ElementoView key={el.id} el={el} selecionado={selIds.includes(el.id)} onPointerDown={onPointerDownEl} onChange={(p) => updEl(el.id, p)} />
                 ))}
+                {caixaSel && (
+                  <div
+                    data-testid="caixa-selecao"
+                    style={{
+                      position: "absolute", left: caixaSel.x, top: caixaSel.y,
+                      width: caixaSel.w, height: caixaSel.h,
+                      border: `${1 / zoom}px dashed #6366f1`, pointerEvents: "none",
+                    }}
+                  />
+                )}
                 {/* guias magnéticas */}
                 {guias.v.map((x, i) => (
                   <div key={`v${i}`} style={{ position: "absolute", left: x, top: 0, width: 1 / zoom, height: A4_H, background: "#e11d48", pointerEvents: "none" }} />
@@ -803,9 +933,40 @@ function EditorPage() {
             </div>
           </CardContent></Card>
 
+          {/* Fase 5: barra da seleção múltipla */}
+          {multi && (
+            <Card className="mt-3" data-testid="barra-selecao-multipla"><CardContent className="p-3">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-medium" data-testid="selecao-contagem">{selIds.length} elementos selecionados</span>
+                <span className="mx-1 h-4 w-px bg-border" aria-hidden />
+                <span className="font-medium">Alinhar entre si</span>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-esquerda" onClick={() => alinharSelecaoEntreSi("esquerda")} aria-label="Alinhar seleção à esquerda"><AlignLeft className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-centro-h" onClick={() => alinharSelecaoEntreSi("centro-h")} aria-label="Centrar seleção na horizontal"><AlignHorizontalJustifyCenter className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-direita" onClick={() => alinharSelecaoEntreSi("direita")} aria-label="Alinhar seleção à direita"><AlignRight className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-topo" onClick={() => alinharSelecaoEntreSi("topo")} aria-label="Alinhar seleção ao topo"><ChevronUp className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-centro-v" onClick={() => alinharSelecaoEntreSi("centro-v")} aria-label="Centrar seleção na vertical"><AlignVerticalJustifyCenter className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" data-testid="multi-alinhar-fundo" onClick={() => alinharSelecaoEntreSi("fundo")} aria-label="Alinhar seleção ao fundo"><ChevronDown className="h-3.5 w-3.5" /></Button>
+                <span className="ml-1 font-medium">Distribuir</span>
+                <Button size="sm" variant="outline" data-testid="multi-distribuir-h" onClick={() => distribuirSelecao("h")}>Horizontal</Button>
+                <Button size="sm" variant="outline" data-testid="multi-distribuir-v" onClick={() => distribuirSelecao("v")}>Vertical</Button>
+                <span className="mx-1 h-4 w-px bg-border" aria-hidden />
+                <Button size="sm" variant="outline" data-testid="multi-duplicar" onClick={duplicarSelecao}><Copy className="mr-1 h-3.5 w-3.5" /> Duplicar</Button>
+                <Button size="sm" variant="outline" data-testid="multi-bloquear" onClick={bloquearSelecao}><Lock className="mr-1 h-3.5 w-3.5" /> Bloquear</Button>
+                <Button size="sm" variant="outline" data-testid="multi-ocultar" onClick={ocultarSelecao}><EyeOff className="mr-1 h-3.5 w-3.5" /> Ocultar</Button>
+                <Button size="sm" variant="destructive" data-testid="multi-apagar" onClick={apagarSelecao}><Trash2 className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="ghost" data-testid="multi-limpar" onClick={() => setSelIds([])}>Limpar seleção</Button>
+              </div>
+            </CardContent></Card>
+          )}
+
           <Card className="mt-3"><CardContent className="p-3">
             <div className="mb-2 flex items-center gap-2 text-xs font-medium">
               <Layers className="h-3.5 w-3.5" /> Camadas ({design.elementos.length})
+              {design.elementos.length > 0 && (
+                <Button size="sm" variant="ghost" className="ml-auto h-7 text-[11px]" data-testid="selecionar-tudo" onClick={selecionarTudo}>
+                  Selecionar tudo
+                </Button>
+              )}
             </div>
             {design.elementos.length === 0 ? (
               <p className="text-xs text-muted-foreground">Sem elementos ainda.</p>
@@ -824,14 +985,23 @@ function EditorPage() {
                     id={`camada-${el.id}`}
                     data-camada-id={el.id}
                     role="option"
-                    aria-selected={el.id === selId}
+                    aria-selected={selIds.includes(el.id)}
                     aria-label={`${rotuloElemento(el)}${el.oculto ? ", oculta" : ""}${el.bloqueado ? ", bloqueada" : ""}`}
                     tabIndex={el.id === selId || (!selId && indice === 0) ? 0 : -1}
-                    onFocus={() => setSelId(el.id)}
+                    onFocus={() => setSelIds((ids) => (ids.includes(el.id) ? ids : [el.id]))}
                     onKeyDown={(e) => onKeyCamada(e, el.id, indice)}
-                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${el.id === selId ? "border-primary bg-primary/5" : "border-transparent"}`}
+                    className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${selIds.includes(el.id) ? "border-primary bg-primary/5" : "border-transparent"}`}
                   >
-                    <button type="button" tabIndex={-1} className="flex-1 truncate text-left" onClick={() => setSelId(el.id)} title={rotuloElemento(el)}>
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      className="flex-1 truncate text-left"
+                      data-testid="camada-selecionar"
+                      onClick={(ev) => (ev.shiftKey || ev.ctrlKey || ev.metaKey
+                        ? setSelIds((ids) => alternarNaSelecao(ids, el.id))
+                        : setSelId(el.id))}
+                      title={rotuloElemento(el)}
+                    >
                       {rotuloElemento(el)}
                     </button>
                     <Button size="sm" variant="ghost" tabIndex={-1} className="h-7 w-7 p-0" onClick={() => trazerFrente(el.id)} aria-label="Trazer para a frente"><ChevronUp className="h-3.5 w-3.5" /></Button>
@@ -849,7 +1019,7 @@ function EditorPage() {
             )}
             {design.elementos.length > 0 && (
               <p className="mt-2 text-[11px] text-muted-foreground" data-testid="camadas-ajuda">
-                Teclado: ↑/↓ navegar · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar
+                Teclado: ↑/↓ navegar · Ctrl+↑/↓ reordenar · B bloquear · O ocultar · Del apagar · Shift/Ctrl+clique = seleção múltipla · Ctrl+A = tudo
               </p>
             )}
           </CardContent></Card>
