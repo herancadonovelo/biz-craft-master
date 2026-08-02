@@ -732,6 +732,8 @@ function EditorPage() {
   const [expDpi, setExpDpi] = useState(150);
   const [expQualidade, setExpQualidade] = useState(92);
   const [expApenasSel, setExpApenasSel] = useState(false);
+  /** Margem (pt) aplicada automaticamente à volta da seleção ao recortar. */
+  const [expMargem, setExpMargem] = useState(16);
   const [expBusy, setExpBusy] = useState(false);
 
   const caixaSelExport = useMemo(() => {
@@ -742,9 +744,11 @@ function EditorPage() {
   }, [design.elementos, selIds]);
 
   const areaExp = useMemo(
-    () => areaExportacao({ largura: A4_W, altura: A4_H }, expApenasSel ? caixaSelExport : null),
-    [expApenasSel, caixaSelExport],
+    () => areaExportacao({ largura: A4_W, altura: A4_H }, expApenasSel ? caixaSelExport : null, expMargem),
+    [expApenasSel, caixaSelExport, expMargem],
   );
+  /** Recorte a destacar no canvas: só quando se exporta apenas a seleção. */
+  const recorteVisivel = expApenasSel && !!caixaSelExport;
   const planoExp = useMemo(
     () => planoExport(areaExp, presetPorId(expPreset), expDpi),
     [areaExp, expPreset, expDpi],
@@ -864,6 +868,28 @@ function EditorPage() {
                   />
                   Exportar apenas a seleção {caixaSelExport ? `(${selIds.length})` : "(sem seleção)"}
                 </label>
+                {recorteVisivel && (
+                  <div data-testid="export-margem-bloco">
+                    <Label className="text-xs">Margem à volta da seleção: {expMargem} pt</Label>
+                    <Slider className="mt-2" min={0} max={120} step={4} value={[expMargem]}
+                      data-testid="export-margem"
+                      onValueChange={([v]) => setExpMargem(v)} />
+                    <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 p-2">
+                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded border bg-background">
+                        <span
+                          className="absolute border-2 border-primary bg-primary/15"
+                          style={{
+                            left: `${(areaExp.x / A4_W) * 100}%`, top: `${(areaExp.y / A4_H) * 100}%`,
+                            width: `${(areaExp.w / A4_W) * 100}%`, height: `${(areaExp.h / A4_H) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground" data-testid="export-area">
+                        Recorte: {Math.round(areaExp.w)} × {Math.round(areaExp.h)} pt · destacado no editor.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground" data-testid="export-resumo">
                   Ficheiro final: {planoExp.larguraPx} × {planoExp.alturaPx} px · {nomeFicheiro(titulo, expFormato, expApenasSel && !!caixaSelExport)}
                 </p>
@@ -1082,6 +1108,38 @@ function EditorPage() {
                   <div key={`h${i}`} style={{ position: "absolute", top: y, left: 0, height: 1 / zoom, width: A4_W, background: "#e11d48", pointerEvents: "none" }} />
                 ))}
               </div>
+              {recorteVisivel && (
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute", top: 0, left: 0, width: A4_W, height: A4_H,
+                    overflow: "hidden", pointerEvents: "none",
+                  }}
+                >
+                  <div
+                    data-testid="recorte-exportacao"
+                    style={{
+                      position: "absolute", left: areaExp.x, top: areaExp.y,
+                      width: areaExp.w, height: areaExp.h,
+                      outline: `${2 / zoom}px solid #6366f1`,
+                      boxShadow: "0 0 0 9999px rgba(15,23,42,.45)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: areaExp.x,
+                      top: Math.max(0, areaExp.y - 22 / zoom),
+                      transform: `scale(${1 / zoom})`,
+                      transformOrigin: "0 0",
+                      background: "#6366f1", color: "#fff", borderRadius: 4,
+                      padding: "2px 6px", fontSize: 11, whiteSpace: "nowrap",
+                    }}
+                  >
+                    {Math.round(areaExp.w)} × {Math.round(areaExp.h)} pt · margem {expMargem} pt
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">

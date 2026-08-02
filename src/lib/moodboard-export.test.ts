@@ -59,3 +59,19 @@ describe("auxiliares", () => {
     expect(out).toContain("<rect/>");
   });
 });
+
+describe("areaExportacao — margem configurável", () => {
+  const folha = { largura: 595, altura: 842 };
+  it("margem 0 devolve exatamente a caixa da seleção", () => {
+    expect(areaExportacao(folha, { x: 100, y: 100, w: 200, h: 150 }, 0))
+      .toEqual({ x: 100, y: 100, w: 200, h: 150 });
+  });
+  it("aplica a margem pedida nos quatro lados", () => {
+    expect(areaExportacao(folha, { x: 100, y: 100, w: 200, h: 150 }, 40))
+      .toEqual({ x: 60, y: 60, w: 280, h: 230 });
+  });
+  it("nunca ultrapassa os limites da folha", () => {
+    const a = areaExportacao(folha, { x: 10, y: 10, w: 580, h: 820 }, 60);
+    expect(a).toEqual({ x: 0, y: 0, w: 595, h: 842 });
+  });
+});
