@@ -123,7 +123,7 @@ function EditorPage() {
   // === alinhamento, distribuição e camadas ===
   const alinharSel = (modo: AlinhamentoPagina) => {
     if (!sel) return;
-    if (el0Bloqueado(sel)) { toast.info("Camada bloqueada: desbloqueia para alinhar."); return; }
+    if (sel.bloqueado) { toast.info("Camada bloqueada: desbloqueia para alinhar."); return; }
     updEl(sel.id, alinharNaPagina({ id: sel.id, x: sel.x, y: sel.y, w: sel.w, h: sel.h }, modo, { w: A4_W, h: A4_H }));
   };
   const distribuirTudo = (eixo: "h" | "v") => {
