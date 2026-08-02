@@ -37,6 +37,7 @@ import { AuthGate } from "@/components/AuthGate";
 import { WebhookPoller } from "@/components/WebhookPoller";
 import { InitialLanguagePicker } from "@/components/InitialLanguagePicker";
 import { ScrollUnlockWatcher } from "@/lib/scroll-unlock";
+import { DesignResetWatcher } from "@/lib/design-watch";
 import { useLanguageSync } from "@/lib/language-sync";
 import { assertAccessControlOnce } from "@/lib/access-control-check";
 
@@ -328,6 +329,7 @@ function RootComponent() {
         <WebhookPoller />
         <InitialLanguagePicker />
         <ScrollUnlockWatcher />
+        <DesignResetWatcher />
       </AtelierSoundsProvider>
       </SubscriptionProvider>
       </AuthProvider>
