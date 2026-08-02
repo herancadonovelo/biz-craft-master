@@ -67,3 +67,57 @@ describe("migração v3 do estado persistido", () => {
     expect(migrateStore(null, 2)).toBeNull();
   });
 });
+
+describe("migração v3 com apenas alguns campos opcionais em falta", () => {
+  // Design "quase completo": parte dos defaults + personalizações do
+  // utilizador, faltando só alguns campos opcionais (ex.: adicionados numa
+  // versão posterior da app).
+  const OPCIONAIS_EM_FALTA = ["fonteAbas", "corAbas", "imagemFundo", "fundoOpacidade"] as const;
+
+  const PERSONALIZADO: Record<string, unknown> = {
+    modo: "dark",
+    accent: "0.7 0.16 15",
+    fonteTitulos: "'Playfair Display', serif",
+    nomeNegocio: "Atelier Júlia",
+    raio: 0.4,
+    fontSizeBase: 19,
+    janelasOpacidade: 0, // valor "falsy" válido: não pode ser substituído
+    corTexto: "", // string vazia intencional: também deve ser preservada
+  };
+
+  const persistidoParcial = () => {
+    const design: Record<string, unknown> = { ...defaults, ...PERSONALIZADO };
+    for (const k of OPCIONAIS_EM_FALTA) delete design[k];
+    return { design };
+  };
+
+  it("preenche só os opcionais em falta e preserva as personalizações", () => {
+    const out = migrateStore(persistidoParcial(), 2);
+
+    // 1) Personalizações intactas (incluindo 0 e string vazia).
+    for (const [k, v] of Object.entries(PERSONALIZADO)) {
+      expect(out.design[k], `campo personalizado ${k}`).toEqual(v);
+    }
+
+    // 2) Os opcionais ausentes passam a existir com o valor de fábrica.
+    for (const k of OPCIONAIS_EM_FALTA) {
+      expect(k in out.design, `campo ${k} deve existir após a migração`).toBe(true);
+      expect(out.design[k], `campo em falta ${k}`).toEqual(defaults[k]);
+    }
+
+    // 3) Nenhum outro campo mudou face ao estado anterior.
+    const antes = persistidoParcial().design;
+    for (const k of Object.keys(antes)) {
+      expect(out.design[k], `campo pré-existente ${k}`).toEqual(antes[k]);
+    }
+  });
+
+  it("é idempotente: a segunda migração não repõe defaults", () => {
+    const once = migrateStore(persistidoParcial(), 2);
+    const twice = migrateStore(JSON.parse(JSON.stringify(once)), 2);
+    expect(twice.design).toEqual(once.design);
+    for (const [k, v] of Object.entries(PERSONALIZADO)) {
+      expect(twice.design[k], `campo ${k} após segunda migração`).toEqual(v);
+    }
+  });
+});
