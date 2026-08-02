@@ -43,7 +43,10 @@ export function camposEmFalta(
   defaults: Record<string, unknown>,
 ): string[] {
   const d = design ?? {};
-  return Object.keys(defaults).filter((k) => !(k in d) || d[k] === undefined);
+  // Chaves cujo default é undefined (ex.: sidebarL) não contam como "em falta".
+  return Object.keys(defaults).filter(
+    (k) => defaults[k] !== undefined && (!(k in d) || d[k] === undefined),
+  );
 }
 
 export interface DeteccaoReset {
