@@ -27,3 +27,7 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: bash scripts/security-audit-selftest.sh
+      - name: Privilege escalation test (authenticated cannot change permissions/search_path)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: bash scripts/security-privilege-test.sh
