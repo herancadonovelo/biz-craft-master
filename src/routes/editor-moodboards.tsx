@@ -18,7 +18,7 @@ import {
   Save, Download, Printer, Type, Image as ImageIcon, Sparkles, Layers, ChevronUp, ChevronDown,
   Trash2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Wand2, Loader2, Plus, Palette as PaletteIcon, Sticker,
   ZoomIn, ZoomOut, Maximize, Grid3X3, Magnet, Play, Copy, LayoutGrid, Droplets,
-  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
+  Lock, Unlock, Eye, EyeOff, AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter, Undo2, Redo2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FUNDOS_PADRAO, DECOR_PADRAO, FONTES, type FundoItem, type DecorItem } from "@/lib/moodboard-assets";
