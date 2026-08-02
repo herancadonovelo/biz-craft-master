@@ -15,7 +15,7 @@ log=$(psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 -f "$(dirname "$0")/security-privi
 }
 
 echo "$log" | sed 's/^/  /'
-if ! echo "$log" | grep -q 'PASS: email-queue privilege escalation test'; then
+if ! echo "$log" | grep -q 'PASS: email-queue privilege escalation blocked'; then
   echo "::error::Self-test did not reach the PASS assertion."
   exit 1
 fi

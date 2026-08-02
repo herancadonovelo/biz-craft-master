@@ -33,7 +33,7 @@ BEGIN
   BEGIN
     SET LOCAL ROLE authenticated;
     GRANT EXECUTE ON FUNCTION public.enqueue_email(text, jsonb) TO authenticated;
-  EXCEPTION WHEN insufficient_privilege OR OTHERS THEN
+  EXCEPTION WHEN OTHERS THEN
     blocked := true;
   END;
   RESET ROLE;
@@ -49,7 +49,7 @@ BEGIN
   BEGIN
     SET LOCAL ROLE authenticated;
     ALTER FUNCTION public.enqueue_email(text, jsonb) SET search_path TO 'public';
-  EXCEPTION WHEN insufficient_privilege OR OTHERS THEN
+  EXCEPTION WHEN OTHERS THEN
     blocked := true;
   END;
   RESET ROLE;
@@ -65,7 +65,7 @@ BEGIN
   BEGIN
     SET LOCAL ROLE authenticated;
     PERFORM public.audit_email_security_config();
-  EXCEPTION WHEN insufficient_privilege OR OTHERS THEN
+  EXCEPTION WHEN OTHERS THEN
     blocked := true;
   END;
   RESET ROLE;
@@ -82,7 +82,7 @@ BEGIN
     SET LOCAL ROLE authenticated;
     INSERT INTO public.security_function_audit (function_name, change_type, current_state)
     VALUES ('enqueue_email', 'changed', '{"authenticated_execute": true}'::jsonb);
-  EXCEPTION WHEN insufficient_privilege OR OTHERS THEN
+  EXCEPTION WHEN OTHERS THEN
     blocked := true;
   END;
   RESET ROLE;
