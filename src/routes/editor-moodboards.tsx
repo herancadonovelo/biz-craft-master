@@ -897,7 +897,13 @@ function ElementoView({
     </div>
   ) : null;
   return (
-    <div style={base} onPointerDown={(e) => onPointerDown(e, el.id, "move")}>
+    <div
+      style={base}
+      data-testid="elemento-canvas"
+      data-el-id={el.id}
+      data-bloqueado={el.bloqueado ? "1" : undefined}
+      onPointerDown={(e) => onPointerDown(e, el.id, "move")}
+    >
       {content}
       {selecionado && (
         <>
