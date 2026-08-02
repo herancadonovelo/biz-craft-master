@@ -7,6 +7,25 @@ import {
 import { migrateStore } from "@/lib/store-migrations";
 import { DESIGN_DEFAULTS } from "@/lib/design-defaults";
 
+
+/** Ambiente node: stub mínimo de window com storages em memória. */
+function criarStorage() {
+  const m = new Map<string, string>();
+  return {
+    getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
+    setItem: (k: string, v: string) => void m.set(k, String(v)),
+    removeItem: (k: string) => void m.delete(k),
+    clear: () => m.clear(),
+  };
+}
+(globalThis as any).window = (globalThis as any).window ?? {
+  localStorage: criarStorage(),
+  sessionStorage: criarStorage(),
+  location: { pathname: "/design" },
+  dispatchEvent: () => true,
+};
+(globalThis as any).CustomEvent = (globalThis as any).CustomEvent ?? class { constructor(public type: string, public init?: any) {} };
+
 const defaults = DESIGN_DEFAULTS as unknown as Record<string, unknown>;
 
 beforeEach(() => {
