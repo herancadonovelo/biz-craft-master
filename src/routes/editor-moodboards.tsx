@@ -321,7 +321,19 @@ function EditorPage() {
     const k = e.key;
     const reordenar = e.ctrlKey || e.metaKey || e.altKey;
     let tratado = true;
-    if (k === "ArrowDown") reordenar ? enviarTras(id) : irPara(indice + 1);
+    const estender = (i: number) => {
+      const alvo = camadasOrdenadas[Math.max(0, Math.min(camadasOrdenadas.length - 1, i))];
+      if (!alvo) return;
+      ignorarFocoRef.current = true;
+      setSelIds((ids) => (ids.includes(alvo.id) ? ids : [...ids, alvo.id]));
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>(`[data-camada-id="${alvo.id}"]`)?.focus();
+      });
+    };
+    if ((e.ctrlKey || e.metaKey) && (k === "a" || k === "A")) selecionarCamadasListadas();
+    else if (e.shiftKey && k === "ArrowDown") estender(indice + 1);
+    else if (e.shiftKey && k === "ArrowUp") estender(indice - 1);
+    else if (k === "ArrowDown") reordenar ? enviarTras(id) : irPara(indice + 1);
     else if (k === "ArrowUp") reordenar ? trazerFrente(id) : irPara(indice - 1);
     else if (k === "Home") irPara(0);
     else if (k === "End") irPara(camadasOrdenadas.length - 1);
