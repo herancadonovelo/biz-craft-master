@@ -28,7 +28,8 @@
     "i18n:extract": "node scripts/i18n-extract.mjs --write",
     "i18n:coverage": "node scripts/i18n-coverage-check.mjs",
     "i18n:coverage:baseline": "node scripts/i18n-coverage-check.mjs --update-baseline",
-    "nav:audit": "node scripts/nav-audit.mjs"
+    "nav:audit": "node scripts/nav-audit.mjs",
+    "security:regression": "bash scripts/security-regression-check.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
