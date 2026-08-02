@@ -10,9 +10,16 @@ fi
 
 out=$(psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 -f "$(dirname "$0")/security-regression.sql" | sed '/^$/d')
 
-if [ -n "$out" ]; then
+audit=$(echo "$out" | grep '^audit|' || true)
+findings=$(echo "$out" | grep -v '^audit|' | sed '/^$/d' || true)
+
+if [ -n "$audit" ]; then
+  echo "::warning::$(echo "$audit" | sed 's/^audit|//')"
+fi
+
+if [ -n "$findings" ]; then
   echo "::error::Security regression detected — these findings are back:"
-  echo "$out" | sed 's/^/  - /'
+  echo "$findings" | sed 's/^/  - /'
   exit 1
 fi
 
