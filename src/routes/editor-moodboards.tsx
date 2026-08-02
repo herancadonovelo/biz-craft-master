@@ -116,6 +116,9 @@ function EditorPage() {
   const selId = selIds.length ? selIds[selIds.length - 1] : null;
   const setSelId = (id: string | null) => setSelIds(id ? [id] : []);
   const multi = selIds.length > 1;
+  // O clique com modificador dá foco à linha antes do onClick; este ref evita
+  // que o onFocus reponha a seleção para um único elemento.
+  const ignorarFocoRef = useRef(false);
   // Canvas infinito: z = escala, x/y = deslocamento do viewport (px de ecrã).
   const [view, setView] = useState({ z: 0.7, x: 0, y: 0 });
   const zoom = view.z;
